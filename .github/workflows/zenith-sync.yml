@@ -1,0 +1,108 @@
+name: zenith-sync
+
+# Uses secrets.ZENITH_SYNC_TOKEN (contents + workflows on gitzetazero/zenith):
+# GITHUB_TOKEN cannot push merges that touch .github/workflows nor trigger other workflows.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency: zenith-sync
+
+env:
+  GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
+
+jobs:
+  sync:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.ZENITH_SYNC_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install system deps
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Pick nightly
+        id: pick
+        run: |
+          git remote add upstream https://github.com/horizon-rust/horizon.git
+          git fetch upstream main --tags
+          pick=$(python3 zenith/ci/pick_nightly.py --ref upstream/main)
+          echo "pick=$pick"
+          if [ "$pick" = "null" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          tag=$(jq -r .tag <<<"$pick")
+          if git merge-base --is-ancestor "$tag" HEAD; then
+            echo "already merged: $tag"; echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          {
+            echo "skip=false"
+            echo "tag=$tag"
+            echo "release=$(jq -r .release <<<"$pick")"
+            echo "date=$(jq -r .date <<<"$pick")"
+            echo "short=$(jq -r .short <<<"$pick")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Merge nightly source
+        if: steps.pick.outputs.skip == 'false'
+        env:
+          TAG: ${{ steps.pick.outputs.tag }}
+          BRANCH: sync/${{ steps.pick.outputs.date }}-${{ steps.pick.outputs.short }}
+        run: |
+          git config user.name zenith-sync
+          git config user.email zenith-sync@users.noreply.github.com
+          if ! git merge --no-edit "$TAG"; then
+            files=$(git diff --name-only --diff-filter=U)
+            git merge --abort
+            git push -f origin "$TAG^{commit}:refs/heads/$BRANCH"
+            gh pr create --base main --head "$BRANCH" --title "sync: $TAG (conflicts)" \
+              --body "Automatic merge of $TAG conflicts in:"$'\n\n'"$files"
+            exit 1
+          fi
+
+      - name: Check merged tree
+        if: steps.pick.outputs.skip == 'false'
+        env:
+          TAG: ${{ steps.pick.outputs.tag }}
+          BRANCH: sync/${{ steps.pick.outputs.date }}-${{ steps.pick.outputs.short }}
+        run: |
+          step=""
+          python3 tools/check_public_tree.py || step="check_public_tree"
+          [ -n "$step" ] || cargo fmt --all --check || step="cargo fmt"
+          [ -n "$step" ] || cargo clippy --workspace --all-targets --locked -- -D warnings || step="cargo clippy"
+          [ -n "$step" ] || cargo test --workspace --locked || step="cargo test"
+          if [ -n "$step" ]; then
+            git push -f origin "HEAD:refs/heads/$BRANCH"
+            gh pr create --base main --head "$BRANCH" --title "sync: $TAG (failed: $step)" \
+              --body "Merging $TAG into main failed the step: $step."
+            exit 1
+          fi
+
+      - name: Push main
+        if: steps.pick.outputs.skip == 'false'
+        run: git push origin HEAD:main
+
+      - name: Disable non-zenith workflows
+        if: steps.pick.outputs.skip == 'false'
+        run: |
+          # New Horizon workflows arrive active; 403 "not active" (seen on the fork) is tolerated.
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows" --paginate \
+            --jq '.workflows[] | select(.state=="active") | select(.path | startswith(".github/workflows/zenith-") | not) | .id' |
+          while read -r id; do
+            gh api -X PUT "repos/$GITHUB_REPOSITORY/actions/workflows/$id/disable" || echo "could not disable $id (tolerated)"
+          done
+
+      - name: Trigger release
+        if: steps.pick.outputs.skip == 'false' && vars.ZENITH_AUTOPUBLISH != 'off'
+        run: gh workflow run zenith-release.yml -f release="${{ steps.pick.outputs.release }}" -f date="${{ steps.pick.outputs.date }}"
