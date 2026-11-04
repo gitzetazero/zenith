@@ -16,6 +16,8 @@ concurrency: zenith-sync
 
 env:
   GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
+  # the extra `upstream` remote would otherwise make gh resolve horizon-rust/horizon
+  GH_REPO: ${{ github.repository }}
 
 jobs:
   sync:
