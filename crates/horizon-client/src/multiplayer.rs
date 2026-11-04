@@ -107,6 +107,8 @@ pub enum Screen {
         /// Server Resource Packs (`acceptTextures`): Enabled, Disabled, or
         /// none for Prompt.
         packs: Option<bool>,
+        /// zenith: the version to join as (`None` = automatic).
+        version: Option<horizon_protocol::adapter::ServerVersion>,
     },
     Direct {
         address: String,
@@ -784,7 +786,12 @@ impl Screen {
                     ),
                 ]
             }
-            Self::Edit { address, packs, .. } => vec![
+            Self::Edit {
+                address,
+                packs,
+                version,
+                ..
+            } => vec![
                 // ManageServerScreen's CycleButton, above Done.
                 b(
                     half(w) - 100.0,
@@ -793,6 +800,15 @@ impl Screen {
                     &pack_setting_label(*packs),
                     true,
                     60,
+                ),
+                // zenith: version selector, between the packs button and Done.
+                b(
+                    half(w) - 100.0,
+                    quarter(h) + 93.0,
+                    200.0,
+                    &crate::zenith_versions::version_label(*version),
+                    true,
+                    61,
                 ),
                 b(
                     half(w) - 100.0,
@@ -1526,6 +1542,7 @@ impl Screen {
                     address: String::new(),
                     focus: 1,
                     packs: None,
+                    version: None, // zenith:
                 }
             }
             (
@@ -1536,12 +1553,14 @@ impl Screen {
             ) => {
                 if let Some((i, s)) = selected.and_then(|i| servers.get(i).map(|s| (i, s.clone())))
                 {
+                    let version = crate::zenith_versions::override_for(&s.ip); // zenith:
                     *self = Self::Edit {
                         index: Some(i),
                         name: s.name,
                         address: s.ip,
                         focus: 0,
                         packs: s.accept_textures,
+                        version, // zenith:
                     };
                 }
             }
@@ -1667,12 +1686,17 @@ impl Screen {
                     None => Some(true),
                 }
             }
+            // zenith: Automatic, newest to oldest, and round again.
+            (Self::Edit { version, .. }, Some(61)) => {
+                *version = crate::zenith_versions::next_version(*version)
+            }
             (
                 Self::Edit {
                     index,
                     name,
                     address,
                     packs,
+                    version,
                     ..
                 },
                 Some(50),
@@ -1689,6 +1713,7 @@ impl Screen {
                     None => list.push(entry),
                 }
                 let _ = servers::save(&servers_file(saves), &list);
+                let _ = crate::zenith_versions::set_override(address.trim(), *version); // zenith:
                 *self = Self::list(saves);
             }
             (
@@ -2722,5 +2747,60 @@ mod tests {
         screen.click(Some(42), 0.0, 0.0, size, &saves);
         assert_eq!(cycle(&screen).unwrap().3, "Server Resource Packs: Prompt");
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn edit_cycles_and_saves_the_zenith_version() {
+        let _g = crate::zenith_versions::TEST_LOCK
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+        let dir = std::env::temp_dir().join(format!("zenith-mp-version-{}", std::process::id()));
+        let saves = dir.join("saves");
+        std::fs::create_dir_all(&saves).unwrap();
+        crate::zenith_versions::init(&dir);
+        servers::save(
+            &servers_file(&saves),
+            &[ServerEntry::new("V", "ver.example:25565")],
+        )
+        .unwrap();
+        let size = (427.0, 240.0);
+        let mut screen = Screen::list(&saves);
+        if let Screen::List { selected, .. } = &mut screen {
+            *selected = Some(0);
+        }
+        screen.click(Some(43), 0.0, 0.0, size, &saves);
+        let rect = |screen: &Screen, id: u8| {
+            screen
+                .buttons(size.0, size.1)
+                .into_iter()
+                .find(|b| b.5 == id)
+                .map(|b| (b.1, b.3))
+        };
+        let (top, label) = rect(&screen, 61).unwrap();
+        assert_eq!(label, "Versión: Automática");
+        // Between the packs button and Done: 20 high, no overlap.
+        assert!(
+            rect(&screen, 60).unwrap().0 + 20.0 <= top
+                && top + 20.0 <= rect(&screen, 50).unwrap().0
+        );
+        screen.click(Some(61), 0.0, 0.0, size, &saves);
+        assert_eq!(rect(&screen, 61).unwrap().1, "Versión: 26.3");
+        screen.click(Some(50), 0.0, 0.0, size, &saves);
+        assert!(crate::zenith_versions::override_for("ver.example:25565").is_some());
+        // Editing again starts from the saved one; round to Automatic and Done forgets it.
+        if let Screen::List { selected, .. } = &mut screen {
+            *selected = Some(0);
+        }
+        screen.click(Some(43), 0.0, 0.0, size, &saves);
+        for _ in 0..horizon_protocol::adapter::ServerVersion::ALL.len() {
+            screen.click(Some(61), 0.0, 0.0, size, &saves);
+        }
+        assert_eq!(rect(&screen, 61).unwrap().1, "Versión: Automática");
+        screen.click(Some(50), 0.0, 0.0, size, &saves);
+        assert_eq!(
+            crate::zenith_versions::override_for("ver.example:25565"),
+            None
+        );
+        // The dir stays: the process-wide overrides file still points into it for the other tests.
     }
 }

@@ -659,6 +659,11 @@ fn run(
             log::info!("Joining {address} as a {} server", version.name());
             c.adapt(version);
             adapted = Some(version); // zenith
+            // zenith: say which version the connection is translated as.
+            status(
+                send,
+                &tr(lang, "zenith.multiplayer.joining_as").replacen("%s", version.name(), 1),
+            );
         }
         (host, port, c)
     };

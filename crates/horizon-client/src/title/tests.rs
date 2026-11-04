@@ -1310,22 +1310,24 @@ fn tab_walks_the_edit_server_screen_through_its_buttons() {
         address: "localhost".into(),
         focus: 0,
         packs: None,
+        version: None, // zenith:
     });
     let focus = |f: &Fixture| match &f.title.mode {
         Mode::Multiplayer(Screen::Edit { focus, .. }) => (*focus, f.title.focused_button),
         _ => panic!("edit"),
     };
     let mut seen = Vec::new();
-    for _ in 0..5 {
+    for _ in 0..6 {
         f.title.tab_dir(false, size);
         seen.push(focus(&f));
     }
-    // Address, then packs (60), Done (50), Cancel (51), and round to the name.
+    // Address, then packs (60), version (61), Done (50), Cancel (51), and round to the name.
     assert_eq!(
         seen,
         [
             (1, None),
             (2, Some(60)),
+            (2, Some(61)), // zenith:
             (2, Some(50)),
             (2, Some(51)),
             (0, None)
@@ -1354,6 +1356,7 @@ fn server_fields_edit_at_their_cursor() {
         address: String::new(),
         focus: 1,
         packs: None,
+        version: None, // zenith:
     });
     f.title.type_text("localhost");
     for _ in 0..4 {
@@ -2404,6 +2407,7 @@ fn the_multiplayer_screens_have_their_own_ids() {
             address: String::new(),
             focus: 0,
             packs: None,
+            version: None, // zenith:
         }
         .id(),
         "add_server"
@@ -2415,6 +2419,7 @@ fn the_multiplayer_screens_have_their_own_ids() {
             address: String::new(),
             focus: 0,
             packs: None,
+            version: None, // zenith:
         }
         .id(),
         "edit_server"

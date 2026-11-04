@@ -1,0 +1,6 @@
+{
+  "zenith.multiplayer.version": "Versión: %s",
+  "zenith.multiplayer.version.auto": "Automática",
+  "zenith.multiplayer.version.experimental": "%s (experimental)",
+  "zenith.multiplayer.joining_as": "Entrando como %s"
+}

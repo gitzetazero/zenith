@@ -131,6 +131,40 @@ pub fn with_version(text: String, version: Option<ServerVersion>) -> String {
     }
 }
 
+/// Edit-server button cycle: Automatic (`None`), newest to oldest, Automatic again.
+pub fn next_version(v: Option<ServerVersion>) -> Option<ServerVersion> {
+    let all = ServerVersion::ALL;
+    match v {
+        None => all.first().copied(),
+        Some(v) => all
+            .iter()
+            .position(|a| *a == v)
+            .and_then(|i| all.get(i + 1).copied()),
+    }
+}
+
+/// A version's name, marked experimental below 1.21.8.
+fn name_label(name: &str) -> String {
+    if tuple_of(name) < (1, 21, 8) {
+        crate::lang::get_or(
+            "zenith.multiplayer.version.experimental",
+            "%s (experimental)",
+        )
+        .replacen("%s", name, 1)
+    } else {
+        name.to_owned()
+    }
+}
+
+/// The Edit-server button's label: "Versión: Automática" or "Versión: 26.2".
+pub fn version_label(v: Option<ServerVersion>) -> String {
+    let value = match v {
+        Some(v) => name_label(v.name()),
+        None => crate::lang::get_or("zenith.multiplayer.version.auto", "Automática"),
+    };
+    crate::lang::get_or("zenith.multiplayer.version", "Versión: %s").replacen("%s", &value, 1)
+}
+
 /// The overrides are process-wide: tests that touch them take turns.
 #[cfg(test)]
 pub(crate) static TEST_LOCK: Mutex<()> = Mutex::new(());
@@ -250,6 +284,22 @@ mod tests {
         std::fs::write(dir.join("zenith-servers.json"), "{ not json").unwrap();
         init(&dir);
         assert_eq!(override_for("x"), None);
+    }
+    #[test]
+    fn cycle_goes_auto_then_newest_to_oldest_then_auto() {
+        let mut seen = vec![];
+        let mut v = next_version(None);
+        while v.is_some() {
+            seen.push(v.unwrap());
+            v = next_version(v);
+        }
+        assert_eq!(seen, ServerVersion::ALL);
+    }
+    #[test]
+    fn label_marks_below_1_21_8_experimental() {
+        assert_eq!(name_label("1.21.4"), "1.21.4 (experimental)");
+        assert_eq!(name_label("1.21.8"), "1.21.8");
+        assert_eq!(version_label(None), "Versión: Automática");
     }
     #[test]
     fn with_version_appends_name() {
