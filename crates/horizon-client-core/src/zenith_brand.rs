@@ -33,7 +33,16 @@ pub fn apply(map: &mut HashMap<String, String>, _code: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test] fn replaces_whole_word() { assert_eq!(rebrand("Horizon Graphics"), "Zenith Graphics"); }
-    #[test] fn keeps_spanish_word() { assert_eq!(rebrand("Horizonte Horizon."), "Horizonte Zenith."); }
-    #[test] fn keeps_lowercase() { assert_eq!(rebrand("horizon-client"), "horizon-client"); }
+    #[test]
+    fn replaces_whole_word() {
+        assert_eq!(rebrand("Horizon Graphics"), "Zenith Graphics");
+    }
+    #[test]
+    fn keeps_spanish_word() {
+        assert_eq!(rebrand("Horizonte Horizon."), "Horizonte Zenith.");
+    }
+    #[test]
+    fn keeps_lowercase() {
+        assert_eq!(rebrand("horizon-client"), "horizon-client");
+    }
 }

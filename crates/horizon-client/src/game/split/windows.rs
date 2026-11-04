@@ -3,7 +3,8 @@
 use super::*;
 use horizon_client::split_layout::Placement;
 use winit::window::Window;
-use horizon_client_core::zenith_brand::WINDOW_TITLE; // zenith:
+// zenith:
+use horizon_client_core::zenith_brand::WINDOW_TITLE;
 
 /// Where a monitor is and its size, as windows are placed: macOS places them in points, each
 /// monitor at its own scale (pixels would be read at the window's scale: a window for a 1x TV
