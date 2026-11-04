@@ -562,7 +562,7 @@ impl<'a> Split<'a> {
                             }
                         }
                     }
-                    .with_title("Horizon")
+                    .with_title(horizon_client_core::zenith_brand::WINDOW_TITLE) // zenith:
                 }
             };
             let made = event_loop

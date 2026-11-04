@@ -427,6 +427,7 @@ impl Language {
         {
             apply_deprecated(&mut map, &bytes);
         }
+        crate::zenith_brand::apply(&mut map, code); // zenith:
         let bidirectional = available(sources)
             .iter()
             .any(|info| info.code == code && info.bidirectional);

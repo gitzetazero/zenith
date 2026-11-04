@@ -25,4 +25,5 @@ pub mod sound_source;
 pub mod text;
 pub mod uuid;
 pub mod who;
+pub mod zenith_brand; // zenith:
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;

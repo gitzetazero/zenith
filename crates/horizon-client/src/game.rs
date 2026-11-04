@@ -17307,7 +17307,7 @@ impl ApplicationHandler for Game<'_> {
         let size = self.options.window_size.map(f64::from);
         self.fullscreen = horizon_client::window::FullscreenState::new(fullscreen);
         let attributes = Window::default_attributes()
-            .with_title("Horizon")
+            .with_title(horizon_client_core::zenith_brand::WINDOW_TITLE) // zenith:
             .with_window_icon(horizon_client::window::icon());
         // Wayland names the window by its app id, which the horizon.desktop entry matches.
         #[cfg(target_os = "linux")]
@@ -21344,7 +21344,7 @@ impl Loading {
             .map(f64::from);
         self.fullscreen = horizon_client::window::FullscreenState::new(fullscreen);
         let attributes = Window::default_attributes()
-            .with_title("Horizon")
+            .with_title(horizon_client_core::zenith_brand::WINDOW_TITLE) // zenith:
             .with_window_icon(horizon_client::window::icon());
         // Wayland names the window by its app id, which the horizon.desktop entry matches.
         #[cfg(target_os = "linux")]
@@ -21866,13 +21866,7 @@ pub fn run_with() -> Result<()> {
     // horizon-ctl drives: those start in a source checkout and wrote the list there.
     if !options.offscreen && !synchronous_startup(&options) {
         horizon_client::heartbeat::start();
-        let player_dir = horizon_client::logging::player_dir();
-        if let Err(e) = horizon_client::multiplayer::add_official_server(&player_dir) {
-            log::warn!("could not add the official server to servers.dat: {e}");
-        }
-        if let Err(e) = horizon_client::multiplayer::add_partner_servers(&player_dir) {
-            log::warn!("could not add the partner servers to servers.dat: {e}");
-        }
+        // zenith: Horizon's official and partner servers are not added to servers.dat.
     }
     mods::register_components(&vanilla_root)?;
     mods::register_standalone_models();
