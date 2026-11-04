@@ -21868,6 +21868,11 @@ pub fn run_with() -> Result<()> {
         horizon_client::heartbeat::start();
         // zenith: Horizon's official and partner servers are not added to servers.dat.
     }
+    // zenith: the saved per-server versions live beside servers.dat.
+    if let Ok(cwd) = std::env::current_dir() {
+        let servers = horizon_client::multiplayer::servers_file(&cwd.join("saves"));
+        horizon_client::zenith_versions::init(servers.parent().unwrap_or(&cwd));
+    }
     mods::register_components(&vanilla_root)?;
     mods::register_standalone_models();
     let mut early_settings = Settings::load(&Game::options_path());

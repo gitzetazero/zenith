@@ -229,6 +229,8 @@ impl Session {
                     transferred,
                     &resources,
                     lan,
+                    // zenith: no forced version on the first attempt.
+                    None,
                 );
                 thread_far.cancel();
                 let from_server = result.is_ok();
@@ -562,19 +564,24 @@ fn connect_tcp(
 /// Whether joining servers of older releases is on (roadmap `older-servers`): off by default while the
 /// adapter is incomplete; `HORIZON_OLDER_SERVERS=1` turns it on.
 pub fn older_servers_enabled() -> bool {
-    std::env::var_os("HORIZON_OLDER_SERVERS").is_some_and(|v| v == "1")
+    // zenith: on unless HORIZON_OLDER_SERVERS=0.
+    std::env::var_os("HORIZON_OLDER_SERVERS").is_none_or(|v| v != "0")
 }
 
 /// The older release a server speaks, by its status ping, when Horizon can translate it; `None` for the
 /// pinned version, an unknown one, a failed ping, or with the feature off.
-fn older_server(address: &str) -> Option<horizon_protocol::adapter::ServerVersion> {
-    use horizon_protocol::adapter::ServerVersion;
+fn older_server(
+    address: &str,
+    forced: Option<horizon_protocol::adapter::ServerVersion>,
+) -> Option<horizon_protocol::adapter::ServerVersion> {
     if !older_servers_enabled() {
         return None;
     }
-    let (json, _) = ping(address, Duration::from_secs(5)).ok()?;
-    let protocol = i32::try_from(json["version"]["protocol"].as_i64()?).ok()?;
-    ServerVersion::from_protocol(protocol).filter(|v| *v != ServerVersion::Current)
+    // zenith: the forced version, a saved choice or the ping decide (crate::zenith_versions).
+    crate::zenith_versions::choose(address, forced, || {
+        let (json, _) = ping(address, Duration::from_secs(5)).ok()?;
+        i32::try_from(json["version"]["protocol"].as_i64()?).ok()
+    })
 }
 
 /// `Connection.exceptionCaught`: a read that timed out ends with
@@ -616,7 +623,13 @@ fn run(
     transferred: bool,
     resources: &Path,
     lan: bool,
+    // zenith: the version a retry joins as; `None` on the first attempt.
+    forced: Option<horizon_protocol::adapter::ServerVersion>,
 ) -> Result<Reason, Reason> {
+    // zenith: a retry only makes sense for a real server, not a local world or a friend's.
+    let retryable = local.is_none() && !address.starts_with(FRIEND) && forced.is_none();
+    let first_info = retryable.then(|| info.clone());
+    let mut adapted = None;
     let (host, port, mut c) = if let Some(pipe) = local {
         (address.to_owned(), 0, Connection::local(pipe))
     } else {
@@ -641,15 +654,22 @@ fn run(
             connect_tcp(&host, port, address.starts_with(FRIEND), READ_TIMEOUT)
                 .map_err(Reason::plain)?;
         if !address.starts_with(FRIEND)
-            && let Some(version) = older_server(address)
+            && let Some(version) = older_server(address, forced)
         {
             log::info!("Joining {address} as a {} server", version.name());
             c.adapt(version);
+            adapted = Some(version); // zenith
         }
         (host, port, c)
     };
     *shared_counters.lock().unwrap() = Some(c.reader.counters.clone());
-    let e = |e: horizon_protocol::Error| Reason::plain(connection_lost(e, lang));
+    // zenith: the lost-connection text names the version it was translated as.
+    let e = |e: horizon_protocol::Error| {
+        Reason::plain(crate::zenith_versions::with_version(
+            connection_lost(e, lang),
+            adapted,
+        ))
+    };
     c.send(
         &handshake::Serverbound::Intention(handshake::Intention {
             protocol: PROTOCOL_VERSION,
@@ -684,7 +704,34 @@ fn run(
                 break p.profile;
             }
             login::Clientbound::Disconnect(p) => {
-                return Ok(Reason::component(&p.reason_json, lang));
+                let reason = Reason::component(&p.reason_json, lang);
+                // zenith: the kick names a version range this client can translate: retry once as
+                // that version (`forced` is then set, so it cannot loop).
+                if let Some(info) = first_info
+                    && older_servers_enabled()
+                    && let Some(v) = crate::zenith_versions::retry_version(&reason.text)
+                {
+                    log::info!("{address} asks for {}: retrying", v.name());
+                    return run(
+                        None,
+                        address,
+                        name,
+                        auth,
+                        info,
+                        lang,
+                        send,
+                        shared_writer,
+                        configuring,
+                        shared_counters,
+                        cookies,
+                        far,
+                        transferred,
+                        resources,
+                        lan,
+                        Some(v),
+                    );
+                }
+                return Ok(reason);
             }
             login::Clientbound::Hello(hello) => {
                 status(send, &tr(lang, "connect.authorizing"));
@@ -1264,6 +1311,16 @@ mod tests {
         ] {
             let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
             let port = listener.local_addr().unwrap().port();
+            let _zenith = crate::zenith_versions::TEST_LOCK
+                .lock()
+                .unwrap_or_else(|e| e.into_inner());
+            // zenith: the translator is on by default and would ping first; a saved choice of the
+            // pinned version skips the ping.
+            crate::zenith_versions::set_override(
+                &format!("localhost:{port}"),
+                Some(horizon_protocol::adapter::ServerVersion::Current),
+            )
+            .unwrap();
             let session = Session::connect(
                 &format!("localhost:{port}"),
                 "Probe",

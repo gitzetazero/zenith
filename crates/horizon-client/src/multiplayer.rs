@@ -265,7 +265,12 @@ fn ping_all(servers: &[ServerEntry], pings: &Pings, icons: &Icons, file: &Path) 
                                     .and_then(
                                         horizon_protocol::adapter::ServerVersion::from_protocol,
                                     )
-                                    .is_some());
+                                    .is_some())
+                            // zenith: a saved version choice, or a "usa 1.7.2-26.2" version text.
+                            || (crate::net::older_servers_enabled()
+                                && (crate::zenith_versions::override_for(&address).is_some()
+                                    || crate::zenith_versions::retry_version(&version)
+                                        .is_some()));
                         if joinable {
                             Ping::Ok {
                                 motd,

@@ -139,6 +139,8 @@ pub mod ui_theme;
 pub mod vanillagen;
 pub mod win_screen;
 pub mod world_spawn;
+// zenith: version choice and the single retry on a named range.
+pub mod zenith_versions;
 pub use horizon_client_core::Result;
 pub use horizon_client_core::block_entity_nbt;
 pub use horizon_client_core::bossbar;
