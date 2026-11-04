@@ -100,12 +100,18 @@ pub fn override_for(address: &str) -> Option<ServerVersion> {
 /// Remembers (or with `None` forgets) the version for an address, and saves the file.
 pub fn set_override(address: &str, version: Option<ServerVersion>) -> std::io::Result<()> {
     let mut s = state();
-    match version {
+    // `Current` has nothing to translate: store nothing, so the ping still decides.
+    match version.filter(|v| *v != ServerVersion::Current) {
         Some(v) => s.1.insert(key(address), v.name().to_owned()),
         None => s.1.remove(&key(address)),
     };
     match &s.0 {
-        Some(file) => std::fs::write(file, serde_json::to_string_pretty(&s.1)?),
+        Some(file) => {
+            if let Some(dir) = file.parent() {
+                std::fs::create_dir_all(dir)?;
+            }
+            std::fs::write(file, serde_json::to_string_pretty(&s.1)?)
+        }
         None => Ok(()),
     }
 }
@@ -131,15 +137,16 @@ pub fn with_version(text: String, version: Option<ServerVersion>) -> String {
     }
 }
 
-/// Edit-server button cycle: Automatic (`None`), newest to oldest, Automatic again.
+/// Edit-server button cycle: Automatic (`None`), the older versions newest to oldest, Automatic again.
+/// `Current` is never offered: pinning it would skip the status ping and disable auto-detection.
 pub fn next_version(v: Option<ServerVersion>) -> Option<ServerVersion> {
-    let all = ServerVersion::ALL;
+    let older = &ServerVersion::ALL[1..];
     match v {
-        None => all.first().copied(),
-        Some(v) => all
+        None => older.first().copied(),
+        Some(v) => older
             .iter()
             .position(|a| *a == v)
-            .and_then(|i| all.get(i + 1).copied()),
+            .and_then(|i| older.get(i + 1).copied()),
     }
 }
 
@@ -166,6 +173,14 @@ pub fn version_label(v: Option<ServerVersion>) -> String {
 }
 
 /// The overrides are process-wide: tests that touch them take turns.
+/// Tests only: a stored `Current` (which `set_override` refuses) makes `choose` skip the status ping.
+#[cfg(test)]
+pub(crate) fn pin_current_for_test(address: &str) {
+    state()
+        .1
+        .insert(key(address), ServerVersion::Current.name().to_owned());
+}
+
 #[cfg(test)]
 pub(crate) static TEST_LOCK: Mutex<()> = Mutex::new(());
 
@@ -293,7 +308,16 @@ mod tests {
             seen.push(v.unwrap());
             v = next_version(v);
         }
-        assert_eq!(seen, ServerVersion::ALL);
+        assert_eq!(seen, ServerVersion::ALL[1..]);
+        assert_eq!(seen[0], ServerVersion::V26_2);
+    }
+    #[test]
+    fn setting_current_clears_the_override() {
+        let _g = LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        init(&temp("current"));
+        set_override("cur.example", Some(ServerVersion::V26_1)).unwrap();
+        set_override("cur.example", Some(ServerVersion::Current)).unwrap();
+        assert_eq!(override_for("cur.example"), None);
     }
     #[test]
     fn label_marks_below_1_21_8_experimental() {

@@ -1702,6 +1702,8 @@ impl Screen {
                 Some(50),
             ) => {
                 let mut list = servers::load(&servers_file(saves));
+                // zenith: the address this entry had, whose override moves with it.
+                let old_address = index.and_then(|i| list.get(i)).map(|e| e.ip.clone());
                 let mut entry = ServerEntry::new(name.trim(), address.trim());
                 entry.accept_textures = *packs;
                 match index.and_then(|i| list.get_mut(i)) {
@@ -1713,7 +1715,15 @@ impl Screen {
                     None => list.push(entry),
                 }
                 let _ = servers::save(&servers_file(saves), &list);
-                let _ = crate::zenith_versions::set_override(address.trim(), *version); // zenith:
+                // zenith: forget the old address's override; write only what changed.
+                if let Some(old) =
+                    old_address.filter(|o| !o.trim().eq_ignore_ascii_case(address.trim()))
+                {
+                    let _ = crate::zenith_versions::set_override(&old, None);
+                }
+                if crate::zenith_versions::override_for(address.trim()) != *version {
+                    let _ = crate::zenith_versions::set_override(address.trim(), *version);
+                }
                 *self = Self::list(saves);
             }
             (
@@ -2697,6 +2707,9 @@ mod tests {
 
     #[test]
     fn edit_cycles_and_saves_the_server_resource_pack_setting() {
+        let _g = crate::zenith_versions::TEST_LOCK // zenith: Done also saves the version override
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         let dir = std::env::temp_dir().join(format!("horizon-mp-packs-{}", std::process::id()));
         let saves = dir.join("saves");
         std::fs::create_dir_all(&saves).unwrap();
@@ -2784,7 +2797,7 @@ mod tests {
                 && top + 20.0 <= rect(&screen, 50).unwrap().0
         );
         screen.click(Some(61), 0.0, 0.0, size, &saves);
-        assert_eq!(rect(&screen, 61).unwrap().1, "Versión: 26.3");
+        assert_eq!(rect(&screen, 61).unwrap().1, "Versión: 26.2");
         screen.click(Some(50), 0.0, 0.0, size, &saves);
         assert!(crate::zenith_versions::override_for("ver.example:25565").is_some());
         // Editing again starts from the saved one; round to Automatic and Done forgets it.
@@ -2792,7 +2805,7 @@ mod tests {
             *selected = Some(0);
         }
         screen.click(Some(43), 0.0, 0.0, size, &saves);
-        for _ in 0..horizon_protocol::adapter::ServerVersion::ALL.len() {
+        for _ in 0..horizon_protocol::adapter::ServerVersion::ALL.len() - 1 {
             screen.click(Some(61), 0.0, 0.0, size, &saves);
         }
         assert_eq!(rect(&screen, 61).unwrap().1, "Versión: Automática");
@@ -2801,6 +2814,21 @@ mod tests {
             crate::zenith_versions::override_for("ver.example:25565"),
             None
         );
-        // The dir stays: the process-wide overrides file still points into it for the other tests.
+        // Changing the address moves the override: the old one is forgotten.
+        if let Screen::List { selected, .. } = &mut screen {
+            *selected = Some(0);
+        }
+        screen.click(Some(43), 0.0, 0.0, size, &saves);
+        screen.click(Some(61), 0.0, 0.0, size, &saves);
+        if let Screen::Edit { address, .. } = &mut screen {
+            *address = "other.example:25565".into();
+        }
+        screen.click(Some(50), 0.0, 0.0, size, &saves);
+        assert_eq!(
+            crate::zenith_versions::override_for("ver.example:25565"),
+            None
+        );
+        assert!(crate::zenith_versions::override_for("other.example:25565").is_some());
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

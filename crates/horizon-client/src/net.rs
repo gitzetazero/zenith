@@ -1322,11 +1322,7 @@ mod tests {
                 .unwrap_or_else(|e| e.into_inner());
             // zenith: the translator is on by default and would ping first; a saved choice of the
             // pinned version skips the ping.
-            crate::zenith_versions::set_override(
-                &format!("localhost:{port}"),
-                Some(horizon_protocol::adapter::ServerVersion::Current),
-            )
-            .unwrap();
+            crate::zenith_versions::pin_current_for_test(&format!("localhost:{port}"));
             let session = Session::connect(
                 &format!("localhost:{port}"),
                 "Probe",
@@ -1879,11 +1875,7 @@ mod tests {
     /// The reason a session ends with, joining `address` with the translator's saved choice for it
     /// pinned (no status ping, so the mock sees only login connections).
     fn kicked_reason(address: &str) -> String {
-        crate::zenith_versions::set_override(
-            address,
-            Some(horizon_protocol::adapter::ServerVersion::Current),
-        )
-        .unwrap();
+        crate::zenith_versions::pin_current_for_test(address);
         let session = Session::connect(
             address,
             "Tester",
