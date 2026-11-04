@@ -712,6 +712,7 @@ fn run(
                     && let Some(v) = crate::zenith_versions::retry_version(&reason.text)
                 {
                     log::info!("{address} asks for {}: retrying", v.name());
+                    drop(c); // zenith: the first attempt's socket closes before the retry's play session
                     return run(
                         None,
                         address,
@@ -1830,6 +1831,154 @@ mod tests {
     }
     /// No account never joins; the signed-in rule is compared with the real
     /// client login listener by test_lan_auth_parity.py.
+    /// A mock server on a loopback port: for each scripted login kick, accepts one connection, reads the
+    /// handshake and the login start, and kicks with that reason. Returns the handshake protocols it saw
+    /// and whether an extra connection arrived afterwards.
+    fn kicking_server(
+        kicks: Vec<&'static str>,
+    ) -> (u16, std::thread::JoinHandle<(Vec<i32>, bool)>) {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = listener.local_addr().unwrap().port();
+        let worker = std::thread::spawn(move || {
+            let mut protocols = Vec::new();
+            for text in kicks {
+                let (stream, _) = listener.accept().unwrap();
+                stream
+                    .set_read_timeout(Some(Duration::from_secs(10)))
+                    .unwrap();
+                let mut server = Connection::from_stream(stream).unwrap();
+                let (id, body) = server.recv().unwrap();
+                let handshake::Serverbound::Intention(packet) =
+                    handshake::Serverbound::decode(id, &body).unwrap()
+                else {
+                    panic!("expected login handshake")
+                };
+                protocols.push(packet.protocol);
+                server.recv().unwrap(); // login start
+                server
+                    .send(
+                        &login::Clientbound::Disconnect(login::Disconnect {
+                            reason_json: format!(r#"{{"text":"{text}"}}"#),
+                        })
+                        .encode(),
+                    )
+                    .unwrap();
+            }
+            listener.set_nonblocking(true).unwrap();
+            std::thread::sleep(Duration::from_millis(500));
+            (protocols, listener.accept().is_ok())
+        });
+        (port, worker)
+    }
+
+    /// The reason a session ends with, joining `address` with the translator's saved choice for it
+    /// pinned (no status ping, so the mock sees only login connections).
+    fn kicked_reason(address: &str) -> String {
+        crate::zenith_versions::set_override(
+            address,
+            Some(horizon_protocol::adapter::ServerVersion::Current),
+        )
+        .unwrap();
+        let session = Session::connect(
+            address,
+            "Tester",
+            None,
+            cfg::ClientInformation::new(8),
+            Arc::new(Language::new()),
+            PathBuf::new(),
+        );
+        loop {
+            if let Event::Disconnected { reason, .. } = session
+                .events
+                .recv_timeout(Duration::from_secs(30))
+                .unwrap()
+            {
+                return reason;
+            }
+        }
+    }
+
+    #[test]
+    fn a_kick_naming_a_range_retries_once_as_that_version() {
+        let _zenith = crate::zenith_versions::TEST_LOCK
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+        let (port, worker) = kicking_server(vec!["Please use 1.7.2-26.2", "second attempt kicked"]);
+        let reason = kicked_reason(&format!("127.0.0.1:{port}"));
+        let (protocols, third) = worker.join().unwrap();
+        assert_eq!(
+            protocols,
+            [
+                horizon_protocol::PROTOCOL_VERSION,
+                horizon_protocol::adapter::ServerVersion::V26_2.protocol()
+            ]
+        );
+        assert!(!third, "more than one retry");
+        assert_eq!(reason, "second attempt kicked");
+    }
+
+    #[test]
+    fn a_retry_that_is_kicked_with_a_range_again_does_not_loop() {
+        let _zenith = crate::zenith_versions::TEST_LOCK
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+        let (port, worker) = kicking_server(vec!["Please use 1.7.2-26.2", "Please use 1.7.2-26.1"]);
+        let reason = kicked_reason(&format!("127.0.0.1:{port}"));
+        let (protocols, third) = worker.join().unwrap();
+        assert_eq!(protocols.len(), 2);
+        assert!(!third, "a second retry");
+        assert_eq!(reason, "Please use 1.7.2-26.1");
+    }
+
+    #[test]
+    fn a_kick_without_a_range_is_not_retried() {
+        let _zenith = crate::zenith_versions::TEST_LOCK
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+        let (port, worker) = kicking_server(vec!["Baneado hasta 2026-11-05"]);
+        let reason = kicked_reason(&format!("127.0.0.1:{port}"));
+        let (protocols, third) = worker.join().unwrap();
+        assert_eq!(protocols, [horizon_protocol::PROTOCOL_VERSION]);
+        assert!(!third, "retried without a range");
+        assert_eq!(reason, "Baneado hasta 2026-11-05");
+    }
+
+    #[test]
+    fn a_local_connection_is_never_retried() {
+        let (client, server) = horizon_protocol::connection::Pipe::pair();
+        let worker = std::thread::spawn(move || {
+            let mut server = Connection::local(server);
+            server.recv().unwrap(); // intention
+            server.recv().unwrap(); // login start
+            server
+                .send(
+                    &login::Clientbound::Disconnect(login::Disconnect {
+                        reason_json: r#"{"text":"Please use 1.7.2-26.2"}"#.into(),
+                    })
+                    .encode(),
+                )
+                .unwrap();
+        });
+        let session = Session::connect_local(
+            client,
+            "Tester",
+            cfg::ClientInformation::new(8),
+            Arc::new(Language::new()),
+            PathBuf::new(),
+        );
+        let reason = loop {
+            if let Event::Disconnected { reason, .. } = session
+                .events
+                .recv_timeout(Duration::from_secs(30))
+                .unwrap()
+            {
+                break reason;
+            }
+        };
+        worker.join().unwrap();
+        assert_eq!(reason, "Please use 1.7.2-26.2");
+    }
+
     #[test]
     fn lan_login_continues_after_authentication_failure() {
         for lan in [true, false] {
