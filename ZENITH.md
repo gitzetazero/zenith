@@ -13,3 +13,7 @@ Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon) (Minecra
 ## Aviso legal
 
 Zenith no está afiliado, respaldado ni patrocinado por Mojang AB ni por Microsoft. Minecraft es una marca de Mojang AB. Este repositorio no contiene archivos de Mojang.
+
+## Known failing upstream tests
+
+- `entities::drop_motion_tests::drops_match_vanillas_motion_bit_for_bit` fails on upstream 83ad384f4 too (last bit of one f64 differs on this machine).

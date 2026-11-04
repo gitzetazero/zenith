@@ -323,7 +323,8 @@ mod tests {
         assert_eq!(zh("multiplayer.disconnect.server_shutdown"), "服务器已关闭");
         assert_eq!(
             zh("horizon.multiplayer.not_signed_in"),
-            "该服务器为在线模式服务器。请先在 Horizon 启动器中登录 Microsoft 账户再加入。"
+            // zenith: the rebrand turns Horizon into Zenith
+            "该服务器为在线模式服务器。请先在 Zenith 启动器中登录 Microsoft 账户再加入。"
         );
         // Shutdowns, a full server and a slow login are retried, kicks and
         // bans are not — whatever the resolved text says.
