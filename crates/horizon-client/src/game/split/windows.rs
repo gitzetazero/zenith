@@ -3,6 +3,7 @@
 use super::*;
 use horizon_client::split_layout::Placement;
 use winit::window::Window;
+use horizon_client_core::zenith_brand::WINDOW_TITLE; // zenith:
 
 /// Where a monitor is and its size, as windows are placed: macOS places them in points, each
 /// monitor at its own scale (pixels would be read at the window's scale: a window for a 1x TV
@@ -465,9 +466,10 @@ impl<'a> Split<'a> {
             n => format!(" - Window {n}"),
         };
         if self.players() > 1 && !who.is_empty() {
-            format!("Horizon{name} · {}", who.join(", "))
+            // zenith:
+            format!("{}{name} · {}", WINDOW_TITLE, who.join(", "))
         } else {
-            format!("Horizon{name}")
+            format!("{}{name}", WINDOW_TITLE) // zenith:
         }
     }
 
@@ -534,7 +536,7 @@ impl<'a> Split<'a> {
                 // Its own title for a moment: `above_menu_bar` finds it by it.
                 Some((at, size)) => {
                     let attributes = attributes
-                        .with_title(format!("Horizon {key}"))
+                        .with_title(format!("{WINDOW_TITLE} {key}")) // zenith:
                         .with_decorations(false)
                         .with_position(at)
                         .with_inner_size(size);
@@ -562,7 +564,7 @@ impl<'a> Split<'a> {
                             }
                         }
                     }
-                    .with_title(horizon_client_core::zenith_brand::WINDOW_TITLE) // zenith:
+                    .with_title(WINDOW_TITLE) // zenith:
                 }
             };
             let made = event_loop
@@ -579,7 +581,7 @@ impl<'a> Split<'a> {
                 let _ = window.request_inner_size(size);
                 window.set_outer_position(at);
                 #[cfg(target_os = "macos")]
-                above_menu_bar(&format!("Horizon {key}"));
+                above_menu_bar(&format!("{WINDOW_TITLE} {key}")); // zenith:
             }
             match made {
                 Ok((window, compositor)) => {
