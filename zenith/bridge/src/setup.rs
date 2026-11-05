@@ -178,6 +178,46 @@ pub fn setup(
     Ok(out)
 }
 
+pub const XMCL_EXE: &str = "XMCL.exe";
+
+/// `zenith-bridge start`: what the «Zenith Launcher» shortcut runs. Prepares the instance quietly like `setup`
+/// (no network: the Minecraft version comes from the installed build) and starts the XMCL that sits next to the
+/// bridge. Without XMCL's `root` file it only starts XMCL, whose own first run lets the player choose the data
+/// folder (we never write that file). A running XMCL is never started again, killed or touched.
+/// Returns the lines to show; empty means "all done, nothing to say".
+pub fn start(
+    env: &Env,
+    exe: &Path,
+    minecraft: impl FnOnce() -> (String, Option<String>),
+    spawn: impl FnOnce(&Path) -> Result<(), String>,
+) -> Result<Vec<String>, String> {
+    let xmcl = exe.parent().unwrap_or(Path::new("")).join(XMCL_EXE);
+    if !xmcl.is_file() {
+        return Err(format!(
+            "No encuentro {XMCL_EXE} junto a zenith-bridge.exe ({}). Reinstala Zenith Launcher.",
+            xmcl.display()
+        ));
+    }
+    let running = (env.xmcl_running)();
+    let first_run = matches!(
+        std::fs::metadata(env.appdata.join("xmcl").join("root")),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound
+    );
+    if first_run {
+        if running {
+            return Ok(vec!["XMCL ya está abierto. Elige su carpeta de datos, ciérralo del todo y abre «Zenith Launcher» otra vez para que se cree la instancia Zenith.".into()]);
+        }
+        spawn(&xmcl)?;
+        return Ok(vec!["Primera vez: XMCL te pedirá la carpeta de datos. Elígela, cierra XMCL del todo y abre «Zenith Launcher» otra vez: así se crea la instancia Zenith.".into()]);
+    }
+    setup(env, exe, minecraft)?;
+    if running {
+        return Ok(vec!["XMCL ya está abierto: la instancia Zenith se aplica al reiniciarlo. Ciérralo del todo y abre «Zenith Launcher» otra vez.".into()]);
+    }
+    spawn(&xmcl)?;
+    Ok(vec![])
+}
+
 /// Lines for `zenith-bridge status`. `java` is an already-installed Java 25 for the preparer, if any.
 pub fn status(env: &Env, java: Option<PathBuf>) -> Vec<String> {
     let store = Store {
@@ -274,4 +314,5 @@ pub fn use_version(home: &Path, version: &str) -> Result<String, String> {
     ))
 }
 
-pub const HELP: &str = "zenith-bridge: Zenith (Horizon) para XMCL\n\n  setup            instala el «Java» de Zenith y crea la instancia «Zenith» en XMCL\n  status           muestra el estado\n  use <versión>    fija una build instalada (para volver atrás)\n  use latest       vuelve a actualizar sola\n  help             esta ayuda\n\nXMCL lo ejecuta solo al pulsar Jugar.";
+pub const HELP: &str = "zenith-bridge: Zenith (Horizon) para XMCL\n\n  start            prepara la instancia «Zenith» y abre XMCL (lo que hace el acceso directo)
+  setup            instala el «Java» de Zenith y crea la instancia «Zenith» en XMCL\n  status           muestra el estado\n  use <versión>    fija una build instalada (para volver atrás)\n  use latest       vuelve a actualizar sola\n  help             esta ayuda\n\nXMCL lo ejecuta solo al pulsar Jugar.";

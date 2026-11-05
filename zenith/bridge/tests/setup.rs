@@ -1,5 +1,6 @@
+use std::cell::RefCell;
 use std::path::{Path, PathBuf};
-use zenith_bridge::setup::{Env, setup, use_version, write_instance};
+use zenith_bridge::setup::{Env, setup, start, use_version, write_instance};
 
 fn tmp(tag: &str) -> PathBuf {
     static N: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
@@ -232,4 +233,97 @@ fn use_pins_installed_builds_only() {
     );
     use_version(&home, "latest").unwrap();
     assert!(!home.join("pinned.txt").exists());
+}
+
+/// A fake install folder: the bridge with an XMCL.exe beside it.
+fn installed(base: &Path) -> PathBuf {
+    let dir = base.join("Zenith Launcher");
+    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(dir.join("XMCL.exe"), b"xmcl").unwrap();
+    let exe = dir.join("zenith-bridge.exe");
+    std::fs::write(&exe, b"bridge bytes").unwrap();
+    exe
+}
+
+#[test]
+fn start_without_root_only_starts_xmcl_and_creates_nothing() {
+    let base = tmp("start-absent");
+    let e = env(&base);
+    let exe = installed(&base);
+    let spawned = RefCell::new(vec![]);
+    let out = start(
+        &e,
+        &exe,
+        || panic!("no network"),
+        |p| {
+            spawned.borrow_mut().push(p.to_path_buf());
+            Ok(())
+        },
+    )
+    .unwrap()
+    .join(
+        "
+",
+    );
+    assert_eq!(*spawned.borrow(), vec![exe.with_file_name("XMCL.exe")]);
+    assert!(
+        out.contains("Primera vez") && out.contains("otra vez"),
+        "{out}"
+    );
+    assert!(!e.appdata.exists(), "XMCL's root file must stay XMCL's");
+    nothing_written(&base, &e);
+}
+
+#[test]
+fn start_with_root_prepares_quietly_then_starts_xmcl() {
+    let base = tmp("start-good");
+    let e = env(&base);
+    let root = good_root(&base, &e);
+    let exe = installed(&base);
+    let n = RefCell::new(0);
+    let out = start(&e, &exe, mc, |_| {
+        *n.borrow_mut() += 1;
+        Ok(())
+    })
+    .unwrap();
+    assert!(out.is_empty(), "{out:?}");
+    assert_eq!(*n.borrow(), 1);
+    assert_eq!(instance(&root)["name"], "Zenith");
+    assert_eq!(std::fs::read(e.java_exe()).unwrap(), b"bridge bytes");
+    // idempotent
+    start(&e, &exe, mc, |_| Ok(())).unwrap();
+}
+
+#[test]
+fn start_never_starts_a_running_xmcl() {
+    for with_root in [false, true] {
+        let base = tmp("start-running");
+        let mut e = env(&base);
+        e.xmcl_running = || true;
+        if with_root {
+            good_root(&base, &e);
+        }
+        let exe = installed(&base);
+        let out = start(&e, &exe, mc, |_| panic!("must not spawn"))
+            .unwrap()
+            .join(
+                "
+",
+            );
+        assert!(out.contains("otra vez"), "{out}");
+    }
+}
+
+#[test]
+fn start_refuses_odd_root_and_missing_xmcl() {
+    let base = tmp("start-odd");
+    let e = env(&base);
+    let exe = installed(&base);
+    std::fs::create_dir_all(root_file(&e).parent().unwrap()).unwrap();
+    std::fs::write(root_file(&e), r"Z:\no\existe").unwrap();
+    let err = start(&e, &exe, mc, |_| panic!("must not spawn")).unwrap_err();
+    assert!(err.contains("No he cambiado nada"), "{err}");
+    std::fs::remove_file(exe.with_file_name("XMCL.exe")).unwrap();
+    let err = start(&e, &exe, mc, |_| panic!("must not spawn")).unwrap_err();
+    assert!(err.contains("Reinstala"), "{err}");
 }

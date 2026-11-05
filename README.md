@@ -19,8 +19,13 @@ Todo el motor es obra del equipo de Horizon y sus colaboradores. Zenith solo añ
 
 ## Cómo se juega
 
-Experimental, solo Windows. Hace falta [XMCL](https://xmcl.app/en/) y una cuenta de Microsoft que sea dueña de Minecraft: Java Edition. Se instala con `zenith-bridge-windows-x64.exe setup`, que está en la página de Releases del repositorio. Los pasos están en [`zenith/README.md`](zenith/README.md).
-Todavía no se ha verificado contra la interfaz real de XMCL.
+Experimental, solo Windows. Hace falta una cuenta de Microsoft que sea dueña de Minecraft: Java Edition.
+
+1. En la página de Releases (pre-release `nightly`) descarga `Zenith-Launcher-Setup-x64.exe` y ejecútalo (se instala solo para tu usuario, sin administrador; Windows SmartScreen avisará porque no está firmado). Incluye el lanzador oficial [XMCL](https://xmcl.app/en/) sin modificar y el puente de Zenith. Alternativa sin instalador: `Zenith-Launcher-Portable-x64.zip`.
+2. Abre «Zenith Launcher». La primera vez XMCL te pide su carpeta de datos: elígela, cierra XMCL y abre «Zenith Launcher» otra vez (así se crea la instancia «Zenith»).
+3. Inicia sesión con la cuenta de Microsoft que tiene Java Edition y pulsa Jugar en la instancia «Zenith».
+
+Los pasos completos, las actualizaciones y los límites están en [`zenith/README.md`](zenith/README.md). Todavía no se ha verificado contra la interfaz real de XMCL ni con una instalación real del instalador.
 
 ## Qué está planeado
 

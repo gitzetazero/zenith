@@ -6,10 +6,10 @@ run-name: zenith-release ${{ inputs.date }}
 # Not affiliated with Mojang or Microsoft. Set the repository variable ZENITH_AUTOPUBLISH to `off` to stop it.
 #
 # Publish ordering (the old `nightly` is never deleted, so launchers always find a release):
-#   1. a DRAFT nightly-<date> gets all six files (the two archives, the bridge exe, the build stamp, SHA256SUMS and
-#      its signature); its file list is checked (a leftover draft or an unfinished dated release from an earlier
+#   1. a DRAFT nightly-<date> gets all eight files (the two game archives, the bridge exe, the build stamp, the
+#      launcher installer and portable zip, SHA256SUMS and its signature); its file list is checked (a leftover draft or an unfinished dated release from an earlier
 #      attempt is removed first);
-#   2. `nightly` is updated in place: the four signed files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
+#   2. `nightly` is updated in place: the six signed files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
 #      window a launcher finds sums that do not match the signature or the archives and fails closed; then its
 #      tag moves to this commit and its title changes; its assets are downloaded and verified again;
 #   3. only then is nightly-<date> published. Its existence means "done", so the gate lets a retry through while
@@ -209,6 +209,61 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+  # Zenith Launcher: the installer and the portable zip bundle the UNMODIFIED official XMCL (pinned version and
+  # SHA-256 in zenith/launcher/xmcl-pin.txt, checked again by build.sh, fail closed) with the bridge built above.
+  launcher:
+    needs: [gate, bridge]
+    if: needs.gate.outputs.go == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: zenith-bridge-windows-x64.exe
+          path: dist
+      - name: The pinned official XMCL release asset (never "latest")
+        run: |
+          set -euo pipefail
+          pin() { sed -n "s/^$1=//p" zenith/launcher/xmcl-pin.txt | tr -d '\015'; }
+          mkdir -p "$RUNNER_TEMP/xmcl"
+          curl --fail --location --silent --show-error --retry 3 -o "$RUNNER_TEMP/xmcl/$(pin asset)" "$(pin url)"
+          ls -l "$RUNNER_TEMP/xmcl"
+      - name: NSIS
+        run: |
+          set -euo pipefail
+          if ! command -v makensis > /dev/null && [ ! -x "/c/Program Files (x86)/NSIS/makensis.exe" ]; then
+            choco install nsis --version=3.11 --no-progress -y
+          fi
+      - name: Installer and portable zip
+        env:
+          DATE: ${{ inputs.date }}
+          SHORT: ${{ needs.gate.outputs.short }}
+        run: |
+          set -euo pipefail
+          export PATH="$PATH:/c/Program Files (x86)/NSIS"
+          makensis -VERSION
+          asset=$(sed -n 's/^asset=//p' zenith/launcher/xmcl-pin.txt | tr -d '\015')
+          mkdir -p out
+          bash zenith/launcher/build.sh "$RUNNER_TEMP/xmcl/$asset" dist/zenith-bridge-windows-x64.exe out "nightly-$DATE-$SHORT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: Zenith-Launcher-Setup-x64.exe
+          path: out/Zenith-Launcher-Setup-x64.exe
+          if-no-files-found: error
+          retention-days: 3
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: Zenith-Launcher-Portable-x64.zip
+          path: out/Zenith-Launcher-Portable-x64.zip
+          if-no-files-found: error
+          retention-days: 3
+
   # A release cannot be signed with a failing bridge: fmt, clippy and tests of zenith/bridge gate `sign`.
   bridge-tests:
     needs: gate
@@ -237,7 +292,7 @@ jobs:
           cargo test --manifest-path zenith/bridge/Cargo.toml --locked
 
   sign:
-    needs: [gate, build, bridge, bridge-tests]
+    needs: [gate, build, bridge, bridge-tests, launcher]
     if: needs.gate.outputs.go == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
@@ -251,7 +306,7 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: dist
-          pattern: '{horizon-*,zenith-bridge-*}'
+          pattern: '{horizon-*,zenith-bridge-*,Zenith-Launcher-*}'
           merge-multiple: true
       # The stamp tells launchers which commit this is and when it was built; being signed with the rest,
       # the bridge uses it to refuse a downgrade.
@@ -264,7 +319,8 @@ jobs:
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
         run: >
           bash tools/ci/sign_release.sh nightly dist/horizon-linux-x86_64.tar.gz dist/horizon-windows-x64.zip
-          dist/zenith-bridge-windows-x64.exe dist/zenith-build.txt
+          dist/zenith-bridge-windows-x64.exe dist/zenith-build.txt dist/Zenith-Launcher-Setup-x64.exe
+          dist/Zenith-Launcher-Portable-x64.zip
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: signature
@@ -289,7 +345,7 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: dist
-          pattern: '{horizon-*,zenith-bridge-*,signature}'
+          pattern: '{horizon-*,zenith-bridge-*,Zenith-Launcher-*,signature}'
           merge-multiple: true
       - name: The signature, checked as the bridge checks it
         run: cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" dist

@@ -110,7 +110,19 @@ fn show_text(text: &str, _: bool) {
     println!("{text}");
 }
 
-/// `setup`, `status`, `use`, `help`. None for anything else (that is XMCL calling).
+/// Starts XMCL without waiting for it or sharing our handles.
+fn spawn_xmcl(xmcl: &std::path::Path) -> Result<(), String> {
+    let mut cmd = std::process::Command::new(xmcl);
+    cmd.current_dir(xmcl.parent().unwrap_or(std::path::Path::new(".")))
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null());
+    cmd.spawn()
+        .map(|_| ())
+        .map_err(|e| format!("No puedo abrir {}: {e}", xmcl.display()))
+}
+
+/// `start`, `setup`, `status`, `use`, `help`. None for anything else (that is XMCL calling).
 fn cli(argv: &[String], store: &Store) -> Option<i32> {
     let env = setup::Env::from_env(&store.root);
     let result: Result<String, String> = match argv.first().map(String::as_str)? {
@@ -128,6 +140,20 @@ fn cli(argv: &[String], store: &Store) -> Option<i32> {
             Some(v) => setup::use_version(&store.root, v),
             None => Err("Uso: zenith-bridge use <versión|latest>".into()),
         },
+        "start" => std::env::current_exe()
+            .map_err(|e| e.to_string())
+            .and_then(|exe| {
+                // no network here: the version comes from the installed build, else the fallback
+                let minecraft = || {
+                    let v = store
+                        .current()
+                        .and_then(|b| pinned_minecraft(&b).ok())
+                        .unwrap_or_else(|| setup::FALLBACK_MINECRAFT.into());
+                    (v, None)
+                };
+                setup::start(&env, &exe, minecraft, spawn_xmcl).map(|l| l.join("
+"))
+            }),
         "setup" => std::env::current_exe()
             .map_err(|e| e.to_string())
             .and_then(|exe| {
@@ -157,7 +183,9 @@ fn cli(argv: &[String], store: &Store) -> Option<i32> {
         Ok(t) => (t, 0),
         Err(e) => (e, 1),
     };
-    show_text(&text, code == 0);
+    if code != 0 || !text.is_empty() {
+        show_text(&text, code == 0);
+    }
     Some(code)
 }
 
