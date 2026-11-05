@@ -1260,7 +1260,7 @@ fn receive_brand(payload: &cfg::CustomPayload, send: &Sender<Event>) {
 /// `ClientBrandRetriever.getClientModName`: vanilla's default client brand.
 fn brand() -> Vec<u8> {
     let mut w = horizon_protocol::buf::Writer::new();
-    w.string("vanilla");
+    w.string("zenith"); // zenith: the client names itself
     w.data
 }
 
@@ -1765,7 +1765,7 @@ mod tests {
                 cfg::Serverbound::decode(id, &body).unwrap(),
                 cfg::Serverbound::CustomPayload(cfg::CustomPayload {
                     channel: "minecraft:brand".into(),
-                    data: b"\x07vanilla".to_vec(),
+                    data: b"\x06zenith".to_vec(),
                 })
             );
             let (id, body) = server.recv().unwrap();
