@@ -34,9 +34,6 @@ old=$(release_id "$dated")
 if [[ -n "$old" ]]; then
   echo "removing the earlier $dated (release $old)"
   gh api -X DELETE "repos/$repo/releases/$old"
-  if gh api "repos/$repo/git/ref/tags/$dated" > /dev/null 2>&1; then
-    gh api -X DELETE "repos/$repo/git/refs/tags/$dated"
-  fi
 fi
 id=$(gh api -X POST "repos/$repo/releases" -f tag_name="$dated" -f target_commitish="$SHA" -f name="$title" \
   -F body=@notes.md -F draft=true -F prerelease=true --jq .id)
@@ -45,6 +42,11 @@ for file in "${archives[@]}" dist/SHA256SUMS dist/SHA256SUMS.sig; do
     -H "Content-Type: application/octet-stream" --input "$file" > /dev/null
 done
 [[ "$(assets_of "$id")" == "$want" ]] || { echo "::error::the draft's files are not the expected four"; exit 1; }
+# The token cannot delete tags (403), so a tag left by an earlier attempt is moved instead; a new one is made
+# from target_commitish when the release goes public.
+if gh api "repos/$repo/git/ref/tags/$dated" > /dev/null 2>&1; then
+  gh api -X PATCH "repos/$repo/git/refs/tags/$dated" -f sha="$SHA" -F force=true > /dev/null
+fi
 
 step "2. nightly"
 nightly=$(release_id nightly)
