@@ -1,4 +1,4 @@
-<img src="branding/png/banner.png" alt="Zenith: Minecraft en Rust, en su punto más alto. Fork de Horizon." width="100%">
+<img src="zenith/branding/png/banner.png" alt="Zenith: Minecraft en Rust, en su punto más alto. Fork de Horizon." width="100%">
 
 # Zenith
 
@@ -29,12 +29,12 @@ Solo Windows por ahora. Zenith Launcher (el programa que abre el juego) se está
 2. La primera vez te pide elegir una carpeta de datos. Elígela, cierra el launcher y ábrelo otra vez: así se crea la instancia «Zenith».
 3. Inicia sesión con tu cuenta de Microsoft.
 4. Elige la instancia «Zenith» y pulsa Jugar. La primera vez descarga y prepara los recursos: tarda desde unos segundos hasta unos minutos.
-5. Para jugar en un servidor, añádelo en Multijugador como siempre. Zenith detecta su versión. Más en [`SERVIDORES.md`](SERVIDORES.md).
+5. Para jugar en un servidor, añádelo en Multijugador como siempre. Zenith detecta su versión. Más en [`zenith/SERVERS.md`](zenith/SERVERS.md).
 
 ## Qué trae
 
 - El motor del juego, escrito en Rust.
-- Multijugador con traducción de versiones: entra a servidores de 1.20.2 a 26.2 además de 26.3, con un selector de versión para cada servidor. **Aún sin probar con servidores reales**: mira la tabla en [`SERVIDORES.md`](SERVIDORES.md).
+- Multijugador con traducción de versiones: entra a servidores de 1.20.2 a 26.2 además de 26.3, con un selector de versión para cada servidor. **Aún sin probar con servidores reales**: mira la tabla en [`zenith/SERVERS.md`](zenith/SERVERS.md).
 - Actualizaciones automáticas del juego, con firma comprobada antes de instalar.
 - Sin telemetría y sin cosméticos por defecto.
 
@@ -48,7 +48,7 @@ Solo Windows por ahora. Zenith Launcher (el programa que abre el juego) se está
 | 1.21.7 a 26.2 | Traducido | Traducido |
 | 1.20.2 a 1.21.6 | Traducido | Traducido, experimental |
 
-No se puede entrar a servidores anteriores a 1.20.2, a Bedrock ni a servidores que exigen mods. **Ninguna versión traducida se ha probado todavía contra un servidor real.** La tabla completa, cómo se elige la versión y cómo apagar el traductor están en [`SERVIDORES.md`](SERVIDORES.md).
+No se puede entrar a servidores anteriores a 1.20.2, a Bedrock ni a servidores que exigen mods. **Ninguna versión traducida se ha probado todavía contra un servidor real.** La tabla completa, cómo se elige la versión y cómo apagar el traductor están en [`zenith/SERVERS.md`](zenith/SERVERS.md).
 
 ## Compilar desde el código
 
@@ -79,11 +79,11 @@ Los archivos preparados quedan en `.local/`, que git ignora: no los subas ni los
 
 ## Más información
 
-- [`SERVIDORES.md`](SERVIDORES.md): versiones de servidor y cómo se elige.
+- [`zenith/SERVERS.md`](zenith/SERVERS.md): versiones de servidor y cómo se elige.
 - [`zenith/README.md`](zenith/README.md): guía del jugador con el launcher.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md) y [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md): cómo colaborar y cómo avisar de un fallo de seguridad.
 - [`ZENITH.md`](ZENITH.md): guía para quien mantiene el proyecto.
-- [`branding/BRAND.md`](branding/BRAND.md): logotipo y colores.
+- [`zenith/branding/BRAND.md`](zenith/branding/BRAND.md): logotipo y colores.
 
 ## Créditos y licencia
 

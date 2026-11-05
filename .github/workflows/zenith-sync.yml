@@ -1,29 +1,46 @@
 name: zenith-sync
 
-# Uses secrets.ZENITH_SYNC_TOKEN (contents + workflows on gitzetazero/zenith):
-# GITHUB_TOKEN cannot push merges that touch .github/workflows nor trigger other workflows.
+# Keeps Zenith's main level with horizon-rust/horizon main: every hour it merges Horizon's tip into main with a real
+# merge commit (never a rebase, never a force push to main), so every commit of ours stays. All the logic is in
+# zenith/ci/sync.py (runnable locally: `python zenith/ci/sync.py merge --upstream-ref upstream/main`).
+#
+#   merge     prune.py removes what Zenith never uses, merge=ours keeps our README/CONTRIBUTING, Cargo.toml/Cargo.lock
+#             take Horizon's and are pruned/regenerated; any other conflict blocks the sync.
+#   checks    check_zenith_intact.py (nothing of ours was dropped), unit tests, links, public tree, fmt, clippy,
+#             protocol tests, bridge fmt/clippy/tests, client build, launch API.
+#   blocked   (conflict or failed check) main is NOT touched: the attempt goes to branch sync/<date>-<short>, a PR
+#             and ONE issue labelled `sync`; the run ends red. main then stays behind until someone resolves it.
+#   release   after a merge (or when already level), zenith-release is dispatched only if the merged Horizon commit
+#             is covered by the newest Horizon nightly (its exporters must match the code); otherwise the job
+#             summary says "release pending".
+#
+# Uses secrets.ZENITH_SYNC_TOKEN (contents + workflows on gitzetazero/zenith): GITHUB_TOKEN cannot push merges that
+# touch .github/workflows nor trigger other workflows. The token is given only to the steps that push, open
+# PRs/issues or dispatch; the steps that run merged upstream code (cargo build/test/clippy, build.rs, proc macros)
+# never see it, and checkout does not keep it in .git/config.
 on:
   schedule:
-    - cron: "17 6 * * *"
+    - cron: "7 * * * *"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  issues: write
   pull-requests: write
-  actions: write
 
-concurrency: zenith-sync
+concurrency:
+  group: zenith-sync
+  cancel-in-progress: false
 
 env:
   # the extra `upstream` remote would otherwise make gh resolve horizon-rust/horizon
   GH_REPO: ${{ github.repository }}
 
-# The sync PAT is given only to the steps that push, open PRs, dispatch or disable workflows. The steps that run
-# the merged upstream code (cargo build/test/clippy, build.rs, proc macros) never see it, and checkout does not
-# keep it in .git/config.
 jobs:
   sync:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -31,113 +48,82 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Fetch Horizon main
+        run: |
+          git remote add upstream https://github.com/horizon-rust/horizon.git
+          git fetch upstream main --tags --quiet
+
+      - name: Merge Horizon main
+        id: merge
+        run: python3 zenith/ci/sync.py merge --upstream-ref upstream/main --output "$GITHUB_OUTPUT" || [ $? -eq 10 ]
+
+      - name: Report a blocked merge
+        if: steps.merge.outputs.outcome == 'blocked'
+        env:
+          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+          UPSTREAM_SHA: ${{ steps.merge.outputs.upstream }}
+          REASON: ${{ steps.merge.outputs.reason }}
+          COMMIT: ${{ steps.merge.outputs.commit }}
+          DETAILS: ${{ steps.merge.outputs.conflicts }}
+        run: |
+          python3 zenith/ci/sync.py report --reason "$REASON" --commit "$COMMIT" --conflicts "$DETAILS"
+          exit 1
+
       - name: Install system deps
+        if: steps.merge.outputs.outcome == 'merged'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        if: steps.merge.outputs.outcome == 'merged'
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+        if: steps.merge.outputs.outcome == 'merged'
 
-      - name: Pick nightly
-        id: pick
-        run: |
-          git remote add upstream https://github.com/horizon-rust/horizon.git
-          git fetch upstream main --tags
-          pick=$(python3 zenith/ci/pick_nightly.py --ref upstream/main)
-          echo "pick=$pick"
-          if [ "$pick" = "null" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; fi
-          tag=$(jq -r .tag <<<"$pick")
-          if git merge-base --is-ancestor "$tag" HEAD; then
-            echo "already merged: $tag"; echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
-          fi
-          {
-            echo "skip=false"
-            echo "tag=$tag"
-            echo "release=$(jq -r .release <<<"$pick")"
-            echo "date=$(jq -r .date <<<"$pick")"
-            echo "short=$(jq -r .short <<<"$pick")"
-          } >> "$GITHUB_OUTPUT"
-
-      # README.md merge=ours (.gitattributes) only works if the driver exists: `true` keeps our side without a conflict
-      - name: Enable merge=ours driver
-        run: git config merge.ours.driver true
-
-      - name: Merge nightly source
-        id: merge
-        if: steps.pick.outputs.skip == 'false'
-        env:
-          TAG: ${{ steps.pick.outputs.tag }}
-        run: |
-          git config user.name zenith-sync
-          git config user.email zenith-sync@users.noreply.github.com
-          if ! git merge --no-edit "$TAG"; then
-            git diff --name-only --diff-filter=U > "$RUNNER_TEMP/conflicts.txt"
-            git merge --abort
-            echo "conflict=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Report merge conflicts
-        if: steps.merge.outputs.conflict == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
-          TAG: ${{ steps.pick.outputs.tag }}
-          BRANCH: sync/${{ steps.pick.outputs.date }}-${{ steps.pick.outputs.short }}
-        run: |
-          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TAG^{commit}:refs/heads/$BRANCH"
-          printf 'Automatic merge of %s conflicts in:\n\n%s\n' "$TAG" "$(cat "$RUNNER_TEMP/conflicts.txt")" > "$RUNNER_TEMP/body.md"
-          gh pr create --base main --head "$BRANCH" --title "sync: $TAG (conflicts)" --body-file "$RUNNER_TEMP/body.md"
-          exit 1
-
-      - name: Check merged tree
+      - name: Check the merged tree
         id: check
-        if: steps.pick.outputs.skip == 'false' && steps.merge.outputs.conflict != 'true'
-        run: |
-          # Zenith is client-only: the dedicated server and bot benchmark are not built or tested
-          step=""
-          python3 tools/check_public_tree.py || step="check_public_tree"
-          [ -n "$step" ] || cargo fmt --all --check || step="cargo fmt"
-          [ -n "$step" ] || cargo clippy --workspace --exclude horizon-server --exclude horizon-bots --all-targets --locked -- -D warnings || step="cargo clippy"
-          [ -n "$step" ] || cargo test --workspace --exclude horizon-server --exclude horizon-bots --locked || step="cargo test"
-          [ -n "$step" ] || cargo fmt --manifest-path zenith/bridge/Cargo.toml --check || step="bridge cargo fmt"
-          [ -n "$step" ] || cargo clippy --manifest-path zenith/bridge/Cargo.toml --all-targets --locked -- -D warnings || step="bridge cargo clippy"
-          [ -n "$step" ] || cargo test --manifest-path zenith/bridge/Cargo.toml --locked || step="bridge cargo test"
-          [ -n "$step" ] || cargo build -p horizon-client --locked || step="cargo build client"
-          [ -n "$step" ] || python3 zenith/ci/check_launch_api.py target/debug/horizon-client || step="launch API check"
-          echo "failed=$step" >> "$GITHUB_OUTPUT"
+        if: steps.merge.outputs.outcome == 'merged'
+        run: python3 zenith/ci/sync.py checks | tee "$RUNNER_TEMP/checks.log"; grep '^failed=' "$RUNNER_TEMP/checks.log" >> "$GITHUB_OUTPUT"
 
       - name: Report a failed check
-        if: steps.check.outputs.failed != ''
+        if: steps.merge.outputs.outcome == 'merged' && steps.check.outputs.failed != ''
         env:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
-          TAG: ${{ steps.pick.outputs.tag }}
+          GITHUB_TOKEN: ${{ github.token }}
+          UPSTREAM_SHA: ${{ steps.merge.outputs.upstream }}
+          COMMIT: ${{ steps.merge.outputs.commit }}
           FAILED: ${{ steps.check.outputs.failed }}
-          BRANCH: sync/${{ steps.pick.outputs.date }}-${{ steps.pick.outputs.short }}
         run: |
-          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
-          gh pr create --base main --head "$BRANCH" --title "sync: $TAG (failed: $FAILED)" --body "Merging $TAG into main failed the step: $FAILED."
+          python3 zenith/ci/sync.py report --reason "failed check: $FAILED" --commit "$COMMIT"
           exit 1
 
       - name: Push main
-        if: steps.pick.outputs.skip == 'false' && steps.check.outputs.failed == ''
-        env:
-          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
-        run: git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
-
-      - name: Disable non-zenith workflows
-        if: steps.pick.outputs.skip == 'false' && steps.check.outputs.failed == ''
+        id: push
+        if: steps.merge.outputs.outcome == 'merged' && steps.check.outputs.failed == ''
         env:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
         run: |
-          # New Horizon workflows arrive active; 403 "not active" (seen on the fork) is tolerated.
-          gh api "repos/$GITHUB_REPOSITORY/actions/workflows" --paginate             --jq '.workflows[] | select(.state=="active") | select(.path | startswith(".github/workflows/zenith-") | not) | .id' |
-          while read -r id; do
-            gh api -X PUT "repos/$GITHUB_REPOSITORY/actions/workflows/$id/disable" || echo "could not disable $id (tolerated)"
-          done
+          # A normal fast-forward push of the merge commit. If main moved meanwhile it is rejected and the next
+          # hourly run starts again from the new main (nothing is forced).
+          if git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main; then
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::main moved while the sync ran; the next run retries"
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      # zenith-release.yml requires `date` to be today's UTC date, not the upstream nightly's.
-      - name: Trigger release
-        if: steps.pick.outputs.skip == 'false' && steps.check.outputs.failed == '' && vars.ZENITH_AUTOPUBLISH != 'off'
+      - name: Close the sync issue
+        if: steps.push.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
-          RELEASE: ${{ steps.pick.outputs.release }}
-        run: gh workflow run zenith-release.yml -f release="$RELEASE" -f date="$(date -u +%F)"
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 zenith/ci/sync.py resolved
+
+      # zenith-release.yml requires `date` to be today's UTC date. Only a Horizon commit covered by a Horizon
+      # nightly may be published (the exporters come from that nightly); the sync.py release step decides.
+      - name: Release if the merged Horizon commit is covered by a nightly
+        if: (steps.merge.outputs.outcome == 'up-to-date' || steps.push.outputs.pushed == 'true') && vars.ZENITH_AUTOPUBLISH != 'off'
+        env:
+          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
+          UPSTREAM: ${{ steps.merge.outputs.upstream }}
+        run: python3 zenith/ci/sync.py release --upstream "$UPSTREAM" | tee -a "$GITHUB_STEP_SUMMARY"

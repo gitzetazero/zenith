@@ -72,4 +72,4 @@ Es un programa de ventana: sin consola, el resultado sale en un cuadro de diálo
 - Una instancia Zenith solo sirve para la versión de Minecraft de su build (hoy 26.3).
 - La ruta de la carpeta de datos de XMCL no debe pasar de unos 300 caracteres.
 
-Para servidores y versiones, mira [`SERVIDORES.md`](../SERVIDORES.md).
+Para servidores y versiones, mira [`SERVERS.md`](SERVERS.md).

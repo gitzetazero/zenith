@@ -1,93 +1,131 @@
-# Guía para quien mantiene Zenith
+# Maintainer guide
 
-Esta guía es para quien mantiene o colabora en el código. Si solo quieres jugar, lee el [README](README.md).
+This guide is for people who maintain or contribute to the code. If you only want to play, read the [README](README.md).
 
-## Cómo funciona el fork
+## How the fork works
 
-Zenith nace de [Horizon](https://github.com/horizon-rust/horizon) (Minecraft en Rust, licencia MIT). Zenith añade una capa encima y recibe el trabajo de Horizon por sincronización. Reglas:
+Zenith comes from [Horizon](https://github.com/horizon-rust/horizon) (Minecraft in Rust, MIT licence). Zenith adds a layer on top and receives Horizon's work by merging. Rules:
 
-1. **No renombrar lo interno.** Crates, rutas, binarios internos y variables `HORIZON_*` siguen igual. Renombrarlos daría conflictos en cada sincronización.
-2. **El código propio va en `zenith/`**, con su propio workspace de Cargo (como `launcher/`), para no tocar el `Cargo.toml` ni el `Cargo.lock` de Horizon. En los archivos de Horizon solo caben enganches pequeños marcados con `// zenith:`, sin reformatear nada.
-3. **Primero mirar arriba.** Antes de arreglar algo, comprueba con `gh pr list -R horizon-rust/horizon --search` que Horizon no lo esté haciendo ya.
-4. **Lo genérico se propone a Horizon.** Reduce la diferencia entre los dos.
-5. **Seguridad heredada:** `tools/check_public_tree.py` debe pasar, no se sube ningún archivo de Mojang, y toda ejecución de prueba usa carpetas temporales en `HORIZON_HOME` y `HORIZON_LAUNCHER_HOME`.
+1. **Do not rename internals.** Crates, paths, internal binaries and `HORIZON_*` variables stay as they are. Renaming them would conflict on every sync.
+2. **Our own code goes in `zenith/`**, with its own Cargo workspace where it is Rust (the bridge), so Horizon's `Cargo.toml` and `Cargo.lock` stay untouched. In Horizon's files only small hooks fit, marked `// zenith:`, with no reformatting.
+3. **Look upstream first.** Before fixing something, check with `gh pr list -R horizon-rust/horizon --search` that Horizon is not already doing it.
+4. **Send generic work to Horizon.** It shrinks the difference between the two.
+5. **Inherited safety:** `tools/check_public_tree.py` must pass, no Mojang file is ever committed, and every test run uses temporary folders for `HORIZON_HOME` and `HORIZON_LAUNCHER_HOME`.
 
-## Sincronización con Horizon
+## Repository layout
 
-El workflow `zenith-sync` (`.github/workflows/zenith-sync.yml`) corre cada día, o a mano:
+```
+README.md  ZENITH.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  SECURITY.md  CODE_OF_CONDUCT.md   (GitHub expects these in the root)
+Cargo.toml  Cargo.lock  .gitattributes  native-hooks.json  research-lock.json
+crates/        Horizon's engine and client crates (+ a few Zenith files marked `zenith:` or named zenith_*)
+xtask/         Horizon's build tasks (one marked edit: the TOOLS list)
+tests/ tools/ mods/ third_party/ docs/ roadmap/ packaging/   Horizon's, kept as they are
+.github/       zenith-sync.yml, zenith-release.yml, issue and PR templates (ours); CODEOWNERS and friends (Horizon's)
+zenith/
+  README.md          player guide (install, update, uninstall)
+  SERVERS.md         server versions and how the translator picks one
+  bridge/            the bridge (own workspace): ownership check, signed installs, launch
+  launcher/          the interim installer (bundles XMCL)
+  branding/          logo, palette, banners, icons and the tools that regenerate them
+  ci/                sync, prune, intact check, link check, release publisher and their tests
+```
 
-1. Elige la última compilación nocturna de Horizon (`zenith/ci/pick_nightly.py`) y, si no está ya en `main`, la fusiona.
-2. Si hay conflictos, no toca `main`: sube una rama `sync/...` y abre un PR que lista los archivos en conflicto.
-3. Si no, comprueba el árbol fusionado (compilación, pruebas, clippy), publica `main` y lanza `zenith-release`.
+| Ownership | Paths |
+|---|---|
+| **Ours** (Horizon does not have them, no conflict possible) | `ZENITH.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `zenith/**`, `docs/superpowers/**`, `.github/ISSUE_TEMPLATE/**`, `.github/PULL_REQUEST_TEMPLATE/**`, `.github/workflows/zenith-*.yml`, `crates/horizon-client/src/zenith_versions.rs`, `crates/horizon-client-core/src/zenith_brand.rs`, `crates/horizon-client/assets/zenith/**`, the translator files under `crates/horizon-protocol/src/adapter/` |
+| **Ours, but Horizon has the file too** (`merge=ours` in `.gitattributes`) | `README.md`, `CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE/config.yml` |
+| **Horizon's, with a small Zenith edit** (`// zenith:` markers) | a dozen files under `crates/` and `xtask/src/main.rs` (the list is in `zenith/ci/zenith-manifest.json`) |
+| **Inherited and kept as they are** | everything else: `crates/**`, `tests/`, `tools/`, `docs/` (except pruned files), `ROADMAP.md`, `AGENTS.md`, `CLAUDE.md`, `THIRD_PARTY_NOTICES.md`... They describe Horizon's project |
+| **Pruned** (Zenith never uses them; deleted and kept deleted by the sync) | the dedicated server and bots, Horizon's Rust launcher, the telemetry server, the mod registry service, historical `benchmarks/`, Horizon's CI workflows. The list is `zenith/ci/prune-paths.txt` |
 
-Para que `README.md` y los demás archivos propios no se pisen, `.gitattributes` los marca con `merge=ours` y el workflow activa el driver (`git config merge.ours.driver true`). Si añades un archivo propio que Horizon también tenga, márcalo igual.
+Zenith is client-only: the integrated single-player server lives inside `horizon-client`, so `horizon-server` and `horizon-bots` are not needed to build or test the client. A crate that a client crate depends on is never pruned (`horizon-server-files`, `horizon-mcp`, `horizon-bench`... stay).
 
-Estado: se ha ejecutado una sola vez y no había nada nuevo que fusionar, así que el camino de fusión y comprobación no está probado.
+## Sync with Horizon
 
-### Qué es de quién
+The workflow `zenith-sync` (`.github/workflows/zenith-sync.yml`) runs **every hour** (`7 * * * *`) or by hand. The goal: `main` stays level with Horizon's `main` (GitHub's "N commits behind" stays at 0) and **never loses anything of ours**. All the logic is in `zenith/ci/sync.py`, so you can run it locally.
 
-**Archivos propios de Zenith** (Horizon no los tiene, no hay conflicto posible): `ZENITH.md`, `SERVIDORES.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `branding/**`, `zenith/**`, `docs/superpowers/**`, `.github/ISSUE_TEMPLATE/**`, `.github/PULL_REQUEST_TEMPLATE/**` y los workflows `zenith-*.yml`.
+1. `git fetch upstream main`. If Horizon's tip is already in `main`, the run ends green at once.
+2. Otherwise it merges the tip with a **real merge commit** (no rebase, never a force push to `main`), so every commit of ours stays in the history.
+3. Automatic conflict handling, in this order:
+   - `zenith/ci/prune.py` deletes what is in `prune-paths.txt` (this settles modify/delete conflicts on pruned files and drops pruned files that Horizon adds, such as new workflows) and removes pruned crates from the root `Cargo.toml`;
+   - files marked `merge=ours` in `.gitattributes` keep our side;
+   - `Cargo.toml` and `Cargo.lock` take Horizon's side, then pruning and `cargo metadata` bring them back to our crate set;
+   - any **other** conflict blocks the sync.
+4. `zenith/ci/check_zenith_intact.py` compares the merged tree with `zenith/ci/zenith-manifest.json`: every Zenith-own file still exists, no Horizon file has fewer `// zenith:` markers than before, and the key identifiers are still there (`zenith_versions`, `zenith_brand`, older servers on by default, cosmetics `ON_BY_DEFAULT` false, the telemetry endpoint test, the workspace members). This is what catches a merge that is clean for git but silently drops our work. When you change Zenith's own work on purpose, run `python zenith/ci/check_zenith_intact.py --update` and commit the manifest.
+5. Checks (`sync.py checks`): the zenith/ci unit tests, `check_public_tree.py`, `check_links.py`, `cargo fmt`, `cargo clippy -D warnings` on the whole (pruned) workspace, `cargo test -p horizon-protocol`, the bridge's fmt/clippy/tests, the client build and `check_launch_api.py`.
+6. All green: the merge commit is pushed to `main` (a normal push; if `main` moved meanwhile the next hourly run retries) and any open `sync` issue is closed.
 
-**Archivos propios que Horizon también tiene** y que `merge=ours` protege: `README.md`, `CONTRIBUTING.md`.
+**When it is blocked** (a conflict, the intact check or a failed check) `main` is not touched. The attempt goes to a branch `sync/<date>-<short>`, a pull request is opened (or updated), **one** issue titled "Sync blocked: conflict with upstream" with the label `sync` is opened (or commented on), and the run ends red. `main` then stays behind Horizon until a person (or an agent) resolves it: merge `upstream/main` locally, fix the conflicts keeping both sides' intent, run the checks and push. The next hourly run closes the issue.
 
-**Archivos de Horizon que se dejan como están** (reescribirlos daría conflicto en cada sincronización): `ROADMAP.md`, `AGENTS.md`, `CLAUDE.md`, `docs/**` (menos `docs/superpowers/`), `.github/pull_request_template.md` y `THIRD_PARTY_NOTICES.md`. Describen el proyecto de Horizon.
+### Releases and the nightly rule
 
-## Qué cambia Zenith en el juego
+The sync merges continuously, but a **game build is published only from a commit whose Horizon part is covered by a Horizon nightly**: Zenith's release reuses the `exporters/` of a Horizon nightly Release, and if the code moved on, those classes could mismatch (unverified). After a successful push (or when already level) the sync dispatches `zenith-release` only if the merged Horizon commit is an ancestor of (or equal to) the commit of the newest `nightly-source/*` tag (`git merge-base --is-ancestor`). Otherwise the job summary says "release pending: waiting for the next Horizon nightly". The release gate still allows at most one release per UTC day (`force` publishes again), and the repository variable `ZENITH_AUTOPUBLISH=off` stops publishing. Consequence to know: while Horizon commits land faster than its nightlies, Zenith's `main` is level but the published nightly lags.
 
-- Nombre en pantalla «Zenith» y sin los servidores de Horizon.
-- Traductor de versiones de servidor, activado por defecto, con selector por servidor (`crates/horizon-client/src/zenith_versions.rs`). Viene del PR #8718 de Horizon, que sigue en borrador. Ver [`SERVIDORES.md`](SERVIDORES.md).
-- Puente y launcher (`zenith/bridge`, `zenith/launcher`): comprueba que la cuenta tiene el juego, instala las builds firmadas y arranca el cliente.
-- Solo cliente: `horizon-server`, sus archivos de empaquetado y `docs/hosting` no se compilan ni se publican. El servidor integrado del modo un jugador va dentro del cliente. La única edición en archivos de Horizon es la lista `TOOLS` de `xtask/src/main.rs` (marcada `// zenith:`).
+### Files Horizon also has
 
-### Traductor de versiones (PR #8718)
+`.gitattributes` marks `README.md`, `CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/config.yml` with `merge=ours` and the workflow enables the driver (`git config merge.ours.driver true`). If you add an own file that Horizon also has, mark it the same way and add it to `EXTRA_FILES` in `zenith/ci/check_zenith_intact.py`.
 
-Está integrado desde el commit `cc3ee16e4664eeced430dc05d68074602d79ba63` de la rama `feature/older-servers-1.21.8`. Para volver a traerlo:
+### Pruning more (or less)
+
+Edit `zenith/ci/prune-paths.txt` (directory prefixes end in `/`, `!` keeps). Run `python zenith/ci/prune.py`, then `cargo metadata` and the checks, and commit. Never prune a path that a client crate, `xtask` or the bridge builds from (check with `cargo metadata`).
+
+## What Zenith changes in the game
+
+- On-screen name "Zenith" and none of Horizon's servers.
+- Server version translator, on by default, with a per-server selector (`crates/horizon-client/src/zenith_versions.rs`). It comes from Horizon PR #8718, which is still a draft. See [`zenith/SERVERS.md`](zenith/SERVERS.md).
+- Bridge and launcher (`zenith/bridge`, `zenith/launcher`): checks the account owns the game, installs the signed builds and starts the client.
+- Client only: see "Repository layout". The one edit in Horizon's files for this is the `TOOLS` list in `xtask/src/main.rs` (marked `// zenith:`).
+
+### Version translator (PR #8718)
+
+It was merged from commit `cc3ee16e4664eeced430dc05d68074602d79ba63` of branch `feature/older-servers-1.21.8`. To bring it again:
 
 ```sh
 git fetch https://github.com/TheApple05/horizon.git feature/older-servers-1.21.8
 git merge --no-ff FETCH_HEAD
 ```
 
-Cuando Horizon fusione el PR, la sincronización puede dar conflictos en `crates/horizon-protocol/src/adapter*`, `item.rs` y `tools/generate_registry_id_adapter.py`: resuélvelos quedándote con la versión de Horizon. Al fusionar se añadieron a mano `..BEFORE_26_1` en 1.21.8 y `dropped_components: &[]` en `v1_21_8_ids.rs`, y `item.rs` solo guarda el parche de componentes sin adaptador activo.
+When Horizon merges the PR, the sync may conflict in `crates/horizon-protocol/src/adapter*`, `item.rs` and `tools/generate_registry_id_adapter.py`: resolve by taking Horizon's version. When merging, `..BEFORE_26_1` was added by hand in 1.21.8 and `dropped_components: &[]` in `v1_21_8_ids.rs`, and `item.rs` only keeps the component patch without an active adapter.
 
-## Compilar, probar y publicar
+## Build, test and publish
 
 ```sh
-cargo build --release -p horizon-client              # el juego
-cargo test -p horizon-protocol -p horizon-client     # protocolo y selector de versiones
-cd zenith/bridge && cargo test                       # el puente (otro workspace)
-python tools/check_public_tree.py                    # comprobación del árbol público
-python -m unittest discover zenith/ci               # pruebas de la sincronización
+cargo build --release -p horizon-client              # the game
+cargo test -p horizon-protocol -p horizon-client     # protocol and version selector
+cd zenith/bridge && cargo test                       # the bridge (another workspace)
+python tools/check_public_tree.py                    # public tree check
+python -m unittest discover zenith/ci                # sync, prune, intact and link checks
+python zenith/ci/check_links.py                      # relative links in our markdown
 ```
 
-Publicar: el workflow `zenith-release` (`workflow_dispatch`, con la fecha UTC) compila `main`, firma `SHA256SUMS` y publica `nightly-<fecha>` y la release móvil `nightly`. La variable de repositorio `ZENITH_AUTOPUBLISH=off` lo detiene. El instalador se construye con `zenith/launcher/build.sh` (ver el encabezado del script).
+Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` and the moving `nightly` release (`zenith/ci/zenith_publish.sh`). The installer is built with `zenith/launcher/build.sh` (see the script header).
 
-Los nombres de binarios y variables siguen siendo los de Horizon: `horizon-client`, `horizon-prepare`, `HORIZON_HOME`, `HORIZON_OLDER_SERVERS`, etc.
+Binary and variable names are still Horizon's: `horizon-client`, `horizon-prepare`, `HORIZON_HOME`, `HORIZON_OLDER_SERVERS`, etc.
 
-## Pruebas que fallan a propósito o por conocidas
+## Tests that fail on purpose or are known
 
-- `entities::drop_motion_tests::drops_match_vanillas_motion_bit_for_bit` falla también en Horizon (el último bit de un `f64` difiere en algunos equipos).
-- Zenith tiene su propio `README.md`, así que fallan `tests/test_parity.py` y `tests/test_parity_gaps.py::test_the_readme_agrees_with_itself` (esperan las tablas de paridad de Horizon). La sincronización no las ejecuta; si corres toda la suite de Python, sáltalas. `tools/parity_gaps.py` tampoco encontrará su bloque en el README.
+- `entities::drop_motion_tests::drops_match_vanillas_motion_bit_for_bit` also fails on Horizon (the last bit of an `f64` differs on some machines).
+- Zenith has its own `README.md`, so `tests/test_parity.py` and `tests/test_parity_gaps.py::test_the_readme_agrees_with_itself` fail (they expect Horizon's parity tables). The sync does not run them; skip them if you run the whole Python suite. `tools/parity_gaps.py` will not find its block in the README either.
 
-## Estado
+## Status
 
-Verificado: versiones firmadas y pruebas de manipulación, pruebas del puente, prueba de humo del cliente real con propietario inyectado.
+Verified: signed versions and tamper tests, bridge tests, smoke test of the real client with an injected owner.
 
-Sin verificar: Play real desde el launcher, la respuesta real de la API de propietario, el camino de fusión de la sincronización, los adaptadores de servidor contra servidores reales (la matriz real no se ha ejecutado) y Linux.
+Not verified: real Play from the launcher, the real owner API response, server adapters against real servers (the real matrix has not been run) and Linux.
 
-## Launcher propio (fase 6)
+## Own launcher (phase 6)
 
-Estado: empezando. Se está traduciendo XMCL v0.73.1 (MIT, TypeScript/Vue/Electron) a Rust como programa propio: <https://github.com/gitzetazero/zenith-launcher>. No sirve todavía para jugar y no tiene inicio de sesión. Etapas (el detalle está en `docs/xmcl-parity.md` de ese repositorio):
+Status: starting. XMCL v0.73.1 (MIT, TypeScript/Vue/Electron) is being translated to Rust as its own program: <https://github.com/gitzetazero/zenith-launcher>. It is not usable for playing yet and has no sign-in. Stages (detail in that repository's `docs/xmcl-parity.md`):
 
-1. Ventana, componentes, temas, idiomas y ajustes.
-2. Cuenta de Microsoft, instancias y arranque de Zenith. Desde aquí sustituye al puente y a XMCL.
-3. Descargas: Minecraft, Java, Forge, Fabric, Quilt, OptiFine, espejos.
-4. Recursos: mods, shaders, resource packs, mundos, Modrinth, CurseForge, `.hmod`.
-5. Modpacks: importar y exportar.
-6. El resto: multijugador P2P y cuentas de terceros.
+1. Window, components, themes, languages and settings.
+2. Microsoft account, instances and starting Zenith. From here it replaces the bridge and XMCL.
+3. Downloads: Minecraft, Java, Forge, Fabric, Quilt, OptiFine, mirrors.
+4. Resources: mods, shaders, resource packs, worlds, Modrinth, CurseForge, `.hmod`.
+5. Modpacks: import and export.
+6. The rest: P2P multiplayer and third-party accounts.
 
-El inicio de sesión real necesita una app de Azure propia y la aprobación de Mojang (`docs/microsoft-account.md`). Hasta entonces solo hay cuentas offline de desarrollo, que nunca son una forma de jugar. El instalador y el zip portátil que empaquetan XMCL sin modificar son provisionales: se retirarán cuando la etapa 2 esté lista.
+Real sign-in needs an Azure app of our own and Mojang's approval (`docs/microsoft-account.md`). Until then there are only offline development accounts, which are never a way to play. The installer and the portable zip that package unmodified XMCL are interim: they will be withdrawn when stage 2 is ready.
 
-## Aviso legal
+## Legal notice
 
-Zenith no está afiliado, respaldado ni patrocinado por Mojang AB ni por Microsoft. Minecraft es una marca de Mojang Synergies AB. Este repositorio no contiene archivos de Mojang.
+Zenith is not affiliated with, endorsed or sponsored by Mojang AB or Microsoft. Minecraft is a trademark of Mojang Synergies AB. This repository contains no Mojang files.

@@ -349,9 +349,9 @@ jobs:
           merge-multiple: true
       - name: The signature, checked as the bridge checks it
         run: cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" dist
-      - name: Publish (tools/ci/zenith_publish.sh, ordering in the header)
+      - name: Publish (zenith/ci/zenith_publish.sh, ordering in the header)
         env:
           GH_TOKEN: ${{ github.token }}
           DATE: ${{ inputs.date }}
           SHA: ${{ github.sha }}
-        run: bash tools/ci/zenith_publish.sh
+        run: bash zenith/ci/zenith_publish.sh
