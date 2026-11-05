@@ -21,7 +21,7 @@ No se distribuye ningún archivo de Mojang: XMCL descarga Minecraft y el puente 
 
 La primera vez XMCL descarga Minecraft 26.3 (es normal) y Zenith prepara sus recursos: de unos 30 segundos a unos minutos. Si no tienes un Java 25 instalado, Zenith descarga el runtime de Java de Mojang para esa preparación.
 
-No hay límite de longitud para la carpeta de datos de XMCL: el puente no usa un comando previo (que obligaría a pasar por `cmd.exe`, con su límite de 8191 caracteres) sino el campo Java de la instancia.
+El límite de longitud de la ruta de la carpeta de datos de XMCL es de unos 300 caracteres (el límite de 32767 de CreateProcess en Windows): el puente no usa un comando previo (que obligaría a pasar por `cmd.exe`, con su límite de 8191 caracteres) sino el campo Java de la instancia.
 
 ## Por qué aparece un «Java 25» en XMCL
 
@@ -50,8 +50,8 @@ Automáticas: al pulsar Jugar el puente busca la última build y la instala tras
 
 ## Privacidad
 
-- Telemetría y cosméticos de Zenith están desactivados. La telemetría de XMCL es cosa de XMCL: puedes desactivarla en Ajustes, General, «desactivar telemetría» (`disableTelemetry`).
-- El puente contacta solo con: `api.minecraftservices.com` (comprobar que tu cuenta tiene el juego); `github.com` y su CDN de descargas (builds y actualizaciones); `launchermeta.mojang.com`, `piston-meta.mojang.com` y `piston-data.mojang.com` (el jar del servidor y, si no hay un Java 25, el runtime de Java de Mojang). Todo por https y comprobando hashes o firmas.
+- Telemetría y cosméticos de Zenith están desactivados por defecto, también si ejecutas `horizon-client.exe` sin el puente (solo se activan con `HORIZON_TELEMETRY_URL` o `HORIZON_COSMETICS=1`). La telemetría de XMCL es cosa de XMCL: puedes desactivarla en Ajustes, General, «desactivar telemetría» (`disableTelemetry`).
+- El puente contacta solo con: `api.minecraftservices.com` (comprobar que tu cuenta tiene el juego); `github.com` y su CDN de descargas (builds y actualizaciones); `launchermeta.mojang.com`, `piston-meta.mojang.com` y `piston-data.mojang.com` (el jar del servidor y, si no hay un Java 25, el runtime de Java de Mojang). Todo por https. La API de propiedad de la cuenta y los índices de Mojang dependen solo de TLS; las builds del juego llevan firma Ed25519 y los archivos de Mojang (jar del servidor, runtime de Java) se comprueban con sha1. El exe del puente no está firmado para Windows (SmartScreen puede avisar).
 - Guarda en `%APPDATA%\zenith` un registro y una caché de qué cuenta posee el juego; no guarda tu token.
 
 ## Límites conocidos
