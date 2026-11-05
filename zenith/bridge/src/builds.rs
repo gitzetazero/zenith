@@ -47,7 +47,7 @@ impl Store {
         Store { root }
     }
 
-    fn builds(&self) -> PathBuf {
+    pub fn builds(&self) -> PathBuf {
         self.root.join("builds")
     }
 
