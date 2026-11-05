@@ -6,18 +6,17 @@ jobs:
   t:
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - env:
           GH_TOKEN: ${{ github.token }}
           SHA: ${{ github.sha }}
         run: |
           r=$GITHUB_REPOSITORY
-          echo hi > f.txt
-          try() { echo "== $1"; shift; "$@" 2>&1 | head -5 || true; }
-          try "api draft target sha" gh api -X POST repos/$r/releases -f tag_name=zdbg-1 -f target_commitish=$SHA -F draft=true -f name=dbg
-          try "api draft target main" gh api -X POST repos/$r/releases -f tag_name=zdbg-2 -f target_commitish=main -F draft=true -f name=dbg
-          try "api draft no target" gh api -X POST repos/$r/releases -f tag_name=zdbg-3 -F draft=true -f name=dbg
-          try "gh create draft" gh release create zdbg-4 --draft --target $SHA --title dbg f.txt
-          try "gh create draft prerelease" gh release create zdbg-5 --draft --prerelease --target $SHA --title dbg f.txt
+          echo hi > f.txt; echo notes > n.md
+          try() { echo "== $1"; shift; "$@" 2>&1 | cut -c1-200 | head -5 || true; }
+          try "gh create draft prerelease" gh release create zdbg-6 --draft --prerelease --target $SHA --title dbg --notes-file n.md f.txt
           try "list" gh api repos/$r/releases --jq '.[]|[.id,.tag_name,.draft]|join(" ")'
-          for id in $(gh api repos/$r/releases --jq '.[]|select(.draft and (.tag_name|startswith("zdbg-")))|.id'); do gh api -X DELETE repos/$r/releases/$id; done
+          for id in $(gh api repos/$r/releases --jq '.[]|select(.tag_name|startswith("zdbg-"))|.id'); do gh api -X DELETE repos/$r/releases/$id; done
           gh api repos/$r/releases --jq '.[]|[.id,.tag_name,.draft]|join(" ")'
