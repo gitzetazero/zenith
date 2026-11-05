@@ -1,78 +1,93 @@
-# Zenith
+# Guía para quien mantiene Zenith
 
-Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon) (Minecraft en Rust, licencia MIT). Todo el mérito del motor es del equipo de Horizon; Zenith solo añade una capa encima y mantiene la sincronización con su trabajo.
+Esta guía es para quien mantiene o colabora en el código. Si solo quieres jugar, lee el [README](README.md).
 
-## Reglas del fork
+## Cómo funciona el fork
+
+Zenith nace de [Horizon](https://github.com/horizon-rust/horizon) (Minecraft en Rust, licencia MIT). Zenith añade una capa encima y recibe el trabajo de Horizon por sincronización. Reglas:
 
 1. **No renombrar lo interno.** Crates, rutas, binarios internos y variables `HORIZON_*` siguen igual. Renombrarlos daría conflictos en cada sincronización.
-2. **Código de Zenith en `zenith/`, con su propio workspace de Cargo** (como hace `launcher/`), para no tocar el `Cargo.toml` ni el `Cargo.lock` de Horizon. En archivos de Horizon, solo enganches pequeños marcados con `// zenith:`, sin reformatear nada.
-3. **Primero mirar arriba.** Antes de arreglar algo, comprobar con `gh pr list --search` que Horizon no lo está haciendo ya.
-4. **Lo genérico se propone a Horizon.** Reduce nuestra diferencia. Cada PR externo necesita el visto bueno del usuario y sigue las reglas de agentes de su `AGENTS.md`.
-5. **Se heredan sus reglas de seguridad:** `tools/check_public_tree.py`, nada de archivos de Mojang en el repo, y carpetas temporales `HORIZON_HOME` / `HORIZON_LAUNCHER_HOME` en cualquier ejecución de prueba.
+2. **El código propio va en `zenith/`**, con su propio workspace de Cargo (como `launcher/`), para no tocar el `Cargo.toml` ni el `Cargo.lock` de Horizon. En los archivos de Horizon solo caben enganches pequeños marcados con `// zenith:`, sin reformatear nada.
+3. **Primero mirar arriba.** Antes de arreglar algo, comprueba con `gh pr list -R horizon-rust/horizon --search` que Horizon no lo esté haciendo ya.
+4. **Lo genérico se propone a Horizon.** Reduce la diferencia entre los dos.
+5. **Seguridad heredada:** `tools/check_public_tree.py` debe pasar, no se sube ningún archivo de Mojang, y toda ejecución de prueba usa carpetas temporales en `HORIZON_HOME` y `HORIZON_LAUNCHER_HOME`.
 
-## Marca
+## Sincronización con Horizon
 
-**Archivos propios de Zenith:** `README.md` (protegido con `merge=ours` en `.gitattributes`: la sincronización nunca lo pisa), `ZENITH.md`, `docs/superpowers/**`, `zenith/**` y `branding/**` (la marca: logotipos, paleta e iconos; upstream no tiene ese directorio).
+El workflow `zenith-sync` (`.github/workflows/zenith-sync.yml`) corre cada día, o a mano:
 
-**Archivos de Horizon que se dejan como están a propósito**, porque reescribirlos daría conflicto en cada sincronización: `ROADMAP.md`, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `docs/**` y `THIRD_PARTY_NOTICES.md`. `CONTRIBUTING.md`, `AGENTS.md` y `CLAUDE.md` describen las reglas de Horizon; el contrato de Zenith es este `ZENITH.md`.
+1. Elige la última compilación nocturna de Horizon (`zenith/ci/pick_nightly.py`) y, si no está ya en `main`, la fusiona.
+2. Si hay conflictos, no toca `main`: sube una rama `sync/...` y abre un PR que lista los archivos en conflicto.
+3. Si no, comprueba el árbol fusionado (compilación, pruebas, clippy), publica `main` y lanza `zenith-release`.
 
-## Aviso legal
+Para que `README.md` y los demás archivos propios no se pisen, `.gitattributes` los marca con `merge=ours` y el workflow activa el driver (`git config merge.ours.driver true`). Si añades un archivo propio que Horizon también tenga, márcalo igual.
 
-Zenith no está afiliado, respaldado ni patrocinado por Mojang AB ni por Microsoft. Minecraft es una marca de Mojang AB. Este repositorio no contiene archivos de Mojang.
+Estado: se ha ejecutado una sola vez y no había nada nuevo que fusionar, así que el camino de fusión y comprobación no está probado.
 
-## Known failing upstream tests
+### Qué es de quién
 
-- `entities::drop_motion_tests::drops_match_vanillas_motion_bit_for_bit` fails on upstream 83ad384f4 too (last bit of one f64 differs on this machine).
+**Archivos propios de Zenith** (Horizon no los tiene, no hay conflicto posible): `ZENITH.md`, `SERVIDORES.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `branding/**`, `zenith/**`, `docs/superpowers/**`, `.github/ISSUE_TEMPLATE/**`, `.github/PULL_REQUEST_TEMPLATE/**` y los workflows `zenith-*.yml`.
 
-## Tests de Python que fallan por nuestro README
+**Archivos propios que Horizon también tiene** y que `merge=ours` protege: `README.md`, `CONTRIBUTING.md`.
 
-Zenith tiene su propio `README.md`, así que dos tests de Horizon que lo leen fallan a propósito: `tests/test_parity.py` y `tests/test_parity_gaps.py::test_the_readme_agrees_with_itself` (esperan las tablas y badges de paridad de Horizon). La sincronización diaria no ejecuta esos tests; si se ejecuta la suite completa de Python, hay que saltarlos. `tools/parity_gaps.py` también escribe en el README y no encontrará su bloque.
+**Archivos de Horizon que se dejan como están** (reescribirlos daría conflicto en cada sincronización): `ROADMAP.md`, `AGENTS.md`, `CLAUDE.md`, `docs/**` (menos `docs/superpowers/`), `.github/pull_request_template.md` y `THIRD_PARTY_NOTICES.md`. Describen el proyecto de Horizon.
 
-## Servidores 1.20.2 a 1.21.8 (Horizon #8718)
+## Qué cambia Zenith en el juego
 
-Integrado el PR horizon-rust/horizon#8718 (borrador de TheApple05, adaptadores nativos para servidores antiguos)
-en el commit `cc3ee16e4664eeced430dc05d68074602d79ba63` de la rama `feature/older-servers-1.21.8`.
+- Nombre en pantalla «Zenith» y sin los servidores de Horizon.
+- Traductor de versiones de servidor, activado por defecto, con selector por servidor (`crates/horizon-client/src/zenith_versions.rs`). Viene del PR #8718 de Horizon, que sigue en borrador. Ver [`SERVIDORES.md`](SERVIDORES.md).
+- Puente y launcher (`zenith/bridge`, `zenith/launcher`): comprueba que la cuenta tiene el juego, instala las builds firmadas y arranca el cliente.
+- Solo cliente: `horizon-server`, sus archivos de empaquetado y `docs/hosting` no se compilan ni se publican. El servidor integrado del modo un jugador va dentro del cliente. La única edición en archivos de Horizon es la lista `TOOLS` de `xtask/src/main.rs` (marcada `// zenith:`).
 
-Volver a traerlo:
+### Traductor de versiones (PR #8718)
 
-```bash
+Está integrado desde el commit `cc3ee16e4664eeced430dc05d68074602d79ba63` de la rama `feature/older-servers-1.21.8`. Para volver a traerlo:
+
+```sh
 git fetch https://github.com/TheApple05/horizon.git feature/older-servers-1.21.8
 git merge --no-ff FETCH_HEAD
 ```
 
-La selección sigue siendo la de Zenith (`zenith_versions::choose`, activa por defecto);
-`HORIZON_OLDER_SERVERS=0` la apaga. Las versiones por debajo de 1.21.8 salen como "(experimental)".
+Cuando Horizon fusione el PR, la sincronización puede dar conflictos en `crates/horizon-protocol/src/adapter*`, `item.rs` y `tools/generate_registry_id_adapter.py`: resuélvelos quedándote con la versión de Horizon. Al fusionar se añadieron a mano `..BEFORE_26_1` en 1.21.8 y `dropped_components: &[]` en `v1_21_8_ids.rs`, y `item.rs` solo guarda el parche de componentes sin adaptador activo.
 
-Cuando Horizon fusione el PR, la sincronización con upstream puede dar conflictos en
-`crates/horizon-protocol/src/adapter*`, `item.rs` y `tools/generate_registry_id_adapter.py`: resolverlos
-quedándose con la versión de upstream. Al fusionar se añadieron a mano `..BEFORE_26_1` en 1.21.8 y
-`dropped_components: &[]` en `v1_21_8_ids.rs`, y `item.rs` solo guarda el parche de componentes sin adaptador activo.
+## Compilar, probar y publicar
 
-## Solo cliente
+```sh
+cargo build --release -p horizon-client              # el juego
+cargo test -p horizon-protocol -p horizon-client     # protocolo y selector de versiones
+cd zenith/bridge && cargo test                       # el puente (otro workspace)
+python tools/check_public_tree.py                    # comprobación del árbol público
+python -m unittest discover zenith/ci               # pruebas de la sincronización
+```
 
-Zenith es solo el cliente: el servidor dedicado (`horizon-server`, los archivos `horizon-server-*`, `package-server`, `docs/hosting`) no se compila, empaqueta ni publica. Su código sigue en el repo sin tocar para evitar conflictos al sincronizar; la única edición es la lista `TOOLS` de `xtask/src/main.rs` (marcada `// zenith:`), que ya no exige `horizon-server`. El servidor integrado de un jugador va dentro del cliente.
+Publicar: el workflow `zenith-release` (`workflow_dispatch`, con la fecha UTC) compila `main`, firma `SHA256SUMS` y publica `nightly-<fecha>` y la release móvil `nightly`. La variable de repositorio `ZENITH_AUTOPUBLISH=off` lo detiene. El instalador se construye con `zenith/launcher/build.sh` (ver el encabezado del script).
+
+Los nombres de binarios y variables siguen siendo los de Horizon: `horizon-client`, `horizon-prepare`, `HORIZON_HOME`, `HORIZON_OLDER_SERVERS`, etc.
+
+## Pruebas que fallan a propósito o por conocidas
+
+- `entities::drop_motion_tests::drops_match_vanillas_motion_bit_for_bit` falla también en Horizon (el último bit de un `f64` difiere en algunos equipos).
+- Zenith tiene su propio `README.md`, así que fallan `tests/test_parity.py` y `tests/test_parity_gaps.py::test_the_readme_agrees_with_itself` (esperan las tablas de paridad de Horizon). La sincronización no las ejecuta; si corres toda la suite de Python, sáltalas. `tools/parity_gaps.py` tampoco encontrará su bloque en el README.
 
 ## Estado
 
 Verificado: versiones firmadas y pruebas de manipulación, pruebas del puente, prueba de humo del cliente real con propietario inyectado.
 
-Sin verificar: Play real desde XMCL, respuesta real de la API de propietario, el camino de fusión de la sincronización, adaptadores 1.20.2-1.21.8 contra servidores reales, Linux.
+Sin verificar: Play real desde el launcher, la respuesta real de la API de propietario, el camino de fusión de la sincronización, los adaptadores de servidor contra servidores reales (la matriz real no se ha ejecutado) y Linux.
 
-## Launcher (fase 6)
+## Launcher propio (fase 6)
 
-Estado: **empezando**. La fase 6 traduce XMCL v0.73.1 (MIT, TypeScript/Vue/Electron) a Rust, como programa propio de Zenith. Hay un esqueleto que abre una ventana, un inventario de lo que hay que traducir y una primera pieza portada con sus tests (el esquema de `instance.json`). No sirve todavía para jugar y no tiene inicio de sesión.
-
-Dónde está: https://github.com/gitzetazero/zenith-launcher (publicado el 2026-11-05 por indicacion del usuario). No tiene remoto; no hay repositorio en GitHub.
-
-Plan por etapas (detalle en `docs/xmcl-parity.md` del repositorio del launcher, que es el contrato):
+Estado: empezando. Se está traduciendo XMCL v0.73.1 (MIT, TypeScript/Vue/Electron) a Rust como programa propio: <https://github.com/gitzetazero/zenith-launcher>. No sirve todavía para jugar y no tiene inicio de sesión. Etapas (el detalle está en `docs/xmcl-parity.md` de ese repositorio):
 
 1. Ventana, componentes, temas, idiomas y ajustes.
-2. Cuenta de Microsoft, instancias y arranque de Zenith. Desde aquí sustituye al puente y a XMCL para jugar a Zenith.
-3. Descargas: Minecraft, Java, Forge, Fabric, Quilt, OptiFine, espejos, instancias Java.
+2. Cuenta de Microsoft, instancias y arranque de Zenith. Desde aquí sustituye al puente y a XMCL.
+3. Descargas: Minecraft, Java, Forge, Fabric, Quilt, OptiFine, espejos.
 4. Recursos: mods, shaders, resource packs, mundos, Modrinth, CurseForge, `.hmod`.
 5. Modpacks: importar y exportar.
 6. El resto: multijugador P2P y cuentas de terceros.
 
-Bloqueado hasta que el usuario actúe: el inicio de sesión real necesita una app de Azure propia y la aprobación de Mojang (`docs/microsoft-account.md`). Hasta entonces solo hay cuentas offline de desarrollo, que nunca son una forma de jugar.
+El inicio de sesión real necesita una app de Azure propia y la aprobación de Mojang (`docs/microsoft-account.md`). Hasta entonces solo hay cuentas offline de desarrollo, que nunca son una forma de jugar. El instalador y el zip portátil que empaquetan XMCL sin modificar son provisionales: se retirarán cuando la etapa 2 esté lista.
 
-El instalador y el zip portable que empaquetan XMCL sin modificar (Electron) son un paso **provisional**: se usan hasta que la etapa 2 esté lista y se retiran entonces.
+## Aviso legal
+
+Zenith no está afiliado, respaldado ni patrocinado por Mojang AB ni por Microsoft. Minecraft es una marca de Mojang Synergies AB. Este repositorio no contiene archivos de Mojang.

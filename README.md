@@ -2,73 +2,93 @@
 
 # Zenith
 
-Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon), Minecraft: Java Edition 26.3 reescrito en Rust, que se mantiene al día con los arreglos de Horizon y busca más compatibilidad (entre otras cosas, entrar a servidores de versiones más antiguas) y tener su propio launcher.
+## Qué es
 
-> **Estado: temprano, privado primero.** El repositorio y la Release `nightly` (con el exe del puente) son públicos, pero no hay anuncio y todo es experimental y sin verificar con la interfaz real de XMCL. Lo que sigue describe lo que existe hoy, no una promesa.
+Zenith es Minecraft: Java Edition 26.3 escrito de nuevo en Rust. Se instala, entras con tu cuenta de Microsoft y juegas, solo o en servidores. Además de los servidores 26.3, puede entrar a servidores de versiones anteriores (de 1.20.2 en adelante).
 
-## Crédito a Horizon
+> **Estado: temprano y experimental.** No hay anuncio todavía. Lo que sigue describe lo que existe hoy, no una promesa.
 
-Todo el motor es obra del equipo de Horizon y sus colaboradores. Zenith solo añade una capa encima y recibe su trabajo por sincronización. Si te interesa el proyecto de fondo, está en **[github.com/horizon-rust/horizon](https://github.com/horizon-rust/horizon)**: ve a apoyarlo a él.
+## Descargar e instalar
 
-## Qué es distinto hoy
+Solo Windows por ahora. Zenith Launcher (el programa que abre el juego) se está terminando y todavía no tiene su propia página de descargas. Mientras tanto hay un instalador provisional:
 
-- **Nombre:** el juego muestra "Zenith" y ya no ofrece los servidores de Horizon.
-- **Servidores más antiguos:** el traductor de versiones viene activado por defecto, con un selector de versión por servidor. Hay adaptadores de 1.20.2 a 26.2; los de 1.20.2 a 1.21.7 son experimentales.
-  Vienen del [PR #8718 de Horizon](https://github.com/horizon-rust/horizon/pull/8718), que sigue en borrador y **no se ha probado contra servidores reales**.
-- **Todo lo demás es Horizon.** La `main` de Zenith ya contiene la `main` de Horizon hasta el 2026-11-04, y un workflow diario (`zenith-sync`) fusiona las nuevas compilaciones nocturnas de Horizon. Se ha ejecutado una sola vez y no había nada nuevo que fusionar, así que el camino de fusión y comprobación todavía no está probado.
+1. Ve a [Releases](https://github.com/gitzetazero/zenith/releases/tag/nightly) y descarga `Zenith-Launcher-Setup-x64.exe`. Si prefieres no instalar, hay una versión portátil: `Zenith-Launcher-Portable-x64.zip`.
+2. Ejecútalo. Se instala solo para tu usuario, sin administrador. Windows avisará («Windows protegió su PC») porque el instalador no está firmado: elige «Más información» y «Ejecutar de todas formas».
+3. Los pasos de la primera vez, las actualizaciones y los límites están en [`zenith/README.md`](zenith/README.md).
 
-**Solo cliente.** Zenith no compila, empaqueta ni publica el servidor dedicado de Horizon; el servidor integrado del modo un jugador va dentro del cliente.
+## Requisitos
 
-## Cómo se juega
+- Windows 10 u 11 de 64 bits.
+- Una tarjeta gráfica con Vulkan o DirectX 12.
+- Una cuenta de Microsoft que tenga **Minecraft: Java Edition**.
+- Tu propia copia de los archivos del juego. Zenith no incluye código ni recursos de Minecraft: el launcher descarga el juego de Mojang con tu cuenta y Zenith prepara sus recursos en tu equipo a partir de esa copia.
 
-Experimental, solo Windows. Hace falta una cuenta de Microsoft que sea dueña de Minecraft: Java Edition.
+## Cómo jugar
 
-1. En la página de Releases (pre-release `nightly`) descarga `Zenith-Launcher-Setup-x64.exe` y ejecútalo (se instala solo para tu usuario, sin administrador; Windows SmartScreen avisará porque no está firmado). Incluye el lanzador oficial [XMCL](https://xmcl.app/en/) sin modificar y el puente de Zenith. Alternativa sin instalador: `Zenith-Launcher-Portable-x64.zip`.
-2. Abre «Zenith Launcher». La primera vez XMCL te pide su carpeta de datos: elígela, cierra XMCL y abre «Zenith Launcher» otra vez (así se crea la instancia «Zenith»).
-3. Inicia sesión con la cuenta de Microsoft que tiene Java Edition y pulsa Jugar en la instancia «Zenith».
+1. Instala y abre «Zenith Launcher».
+2. La primera vez te pide elegir una carpeta de datos. Elígela, cierra el launcher y ábrelo otra vez: así se crea la instancia «Zenith».
+3. Inicia sesión con tu cuenta de Microsoft.
+4. Elige la instancia «Zenith» y pulsa Jugar. La primera vez descarga y prepara los recursos: tarda desde unos segundos hasta unos minutos.
+5. Para jugar en un servidor, añádelo en Multijugador como siempre. Zenith detecta su versión. Más en [`SERVIDORES.md`](SERVIDORES.md).
 
-Los pasos completos, las actualizaciones y los límites están en [`zenith/README.md`](zenith/README.md). Todavía no se ha verificado contra la interfaz real de XMCL ni con una instalación real del instalador.
+## Qué trae
 
-## Qué está planeado
+- El motor del juego, escrito en Rust.
+- Multijugador con traducción de versiones: entra a servidores de 1.20.2 a 26.2 además de 26.3, con un selector de versión para cada servidor. **Aún sin probar con servidores reales**: mira la tabla en [`SERVIDORES.md`](SERVIDORES.md).
+- Actualizaciones automáticas del juego, con firma comprobada antes de instalar.
+- Sin telemetría y sin cosméticos por defecto.
 
-Nada de esto existe todavía:
+**En camino** (todavía no existe): shaders que funcionen bien, presets de rendimiento y un launcher propio hecho en Rust.
 
-- Presets de FPS (máximo, equilibrado, calidad).
-- Shaders que funcionen bien.
-- Un launcher propio en Rust, traducción de XMCL.
+## Servidores y versiones soportadas
 
-El detalle, el orden y los riesgos están en [`ZENITH.md`](ZENITH.md) y en el
-[diseño](docs/superpowers/specs/2026-11-04-zenith-design.md).
+| Versión del servidor | Cómo se entra | Estado |
+|---|---|---|
+| 26.3 | Nativo | Nativo (26.3) |
+| 1.21.7 a 26.2 | Traducido | Traducido |
+| 1.20.2 a 1.21.6 | Traducido | Traducido, experimental |
+
+No se puede entrar a servidores anteriores a 1.20.2, a Bedrock ni a servidores que exigen mods. **Ninguna versión traducida se ha probado todavía contra un servidor real.** La tabla completa, cómo se elige la versión y cómo apagar el traductor están en [`SERVIDORES.md`](SERVIDORES.md).
 
 ## Compilar desde el código
 
-Hace falta Rust 1.90+, Python 3.10+, JDK 25 y, en Linux, `libasound2-dev libudev-dev`.
-`horizon-prepare` construye los recursos del juego a partir de **tu propia copia** de Minecraft: Java Edition 26.3 (comprobada contra `research-lock.json`) y nunca la descarga.
-No subas nunca archivos del juego al repositorio.
+Hace falta Rust 1.90 o más, Python 3.10 o más, JDK 25 y, en Linux, `libasound2-dev libudev-dev`.
+La preparación construye los recursos del juego a partir de **tu propia copia** de Minecraft: Java Edition 26.3 y nunca la descarga. No subas nunca archivos del juego al repositorio.
 
-1. **Cliente:** juega 26.3 una vez con el launcher oficial. Zenith lee `~/.minecraft` (o `--minecraft-dir` / `HORIZON_MINECRAFT_DIR`).
-2. **Jar del servidor:** el jar del servidor 26.3 (`downloads.server.url` en `versions/26.3/26.3.json`), pasado una vez con `--server-jar` o `HORIZON_SERVER_JAR`.
+1. **Cliente:** juega 26.3 una vez con el launcher oficial. Zenith lee `~/.minecraft` (o la ruta de `--minecraft-dir` / `HORIZON_MINECRAFT_DIR`).
+2. **Jar del servidor:** el jar del servidor 26.3, pasado una vez con `--server-jar` o `HORIZON_SERVER_JAR`.
 
 ```sh
 git clone https://github.com/gitzetazero/zenith.git
 cd zenith
-cargo run --release -p horizon-prepare -- --prepare --server-jar ~/Downloads/server.jar   # necesita JDK 25
-cargo run --release -p horizon-prepare -- sounds   # opcional: sonidos de tu instalación del launcher
+cargo run --release -p horizon-prepare -- --prepare --server-jar ~/Downloads/server.jar
 cargo run --release -p horizon-client
 ```
 
-Los archivos preparados quedan en `.local/`, ignorado por git: no los subas ni los compartas.
-Los crates, binarios y variables `HORIZON_*` conservan su nombre a propósito (ver `ZENITH.md`).
-Opciones, controles y arquitectura: [docs/native-client.md](docs/native-client.md).
+Los archivos preparados quedan en `.local/`, que git ignora: no los subas ni los compartas. Los nombres internos (`horizon-client`, `HORIZON_*`) no se han cambiado a propósito; ver [`ZENITH.md`](ZENITH.md).
+
+## Problemas conocidos
+
+- Todo es experimental y solo se ha probado con pruebas automáticas, no con el instalador en un Windows real.
+- Los servidores traducidos no se han probado con servidores reales.
+- El instalador y el programa que prepara el juego no están firmados para Windows: SmartScreen y algunos antivirus avisarán.
+- Solo Windows. Los mods de Java no funcionan: Zenith no ejecuta la JVM de Minecraft.
+- Una instancia de Zenith solo sirve para la versión del juego que trae (hoy 26.3).
+
+¿Algo más? [Abre un aviso](https://github.com/gitzetazero/zenith/issues/new/choose).
 
 ## Más información
 
-- [`ZENITH.md`](ZENITH.md): reglas del fork, qué archivos son de Zenith y cuáles de Horizon.
-- [`docs/superpowers/specs/`](docs/superpowers/specs/) y [`docs/superpowers/plans/`](docs/superpowers/plans/): el diseño y el plan de trabajo.
-- Documentación de Horizon (en inglés): [docs/README.md](docs/README.md) y [ROADMAP.md](ROADMAP.md), que describen Horizon, no Zenith.
+- [`SERVIDORES.md`](SERVIDORES.md): versiones de servidor y cómo se elige.
+- [`zenith/README.md`](zenith/README.md): guía del jugador con el launcher.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md) y [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md): cómo colaborar y cómo avisar de un fallo de seguridad.
+- [`ZENITH.md`](ZENITH.md): guía para quien mantiene el proyecto.
+- [`branding/BRAND.md`](branding/BRAND.md): logotipo y colores.
 
-## Licencia y avisos
+## Créditos y licencia
 
-[MIT](LICENSE), con el copyright de Horizon y el de los colaboradores de Zenith. Las dependencias conservan sus licencias ([avisos](THIRD_PARTY_NOTICES.md)).
+Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon). Gracias al equipo de Horizon y a sus colaboradores: el motor es obra suya, y Zenith recibe sus mejoras por sincronización. Si te gusta lo que hacen, apóyalos a ellos.
 
-Minecraft es una marca de Mojang Synergies AB. Zenith no está afiliado a Mojang ni a Microsoft, ni respaldado por ellos. No contiene código, recursos ni datos de Minecraft: necesitas tu propia copia de Java Edition 26.3.
+El código es [MIT](LICENSE). Los avisos de copyright originales se conservan en el archivo de licencia, junto al de los colaboradores de Zenith. Las dependencias conservan sus licencias ([avisos](THIRD_PARTY_NOTICES.md)).
+
+Minecraft es una marca de Mojang Synergies AB. Zenith no está afiliado a Mojang ni a Microsoft, ni respaldado por ellos. No contiene código, recursos ni datos de Minecraft: necesitas tu propia copia de Java Edition.
