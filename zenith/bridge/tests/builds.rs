@@ -425,6 +425,22 @@ fn pinned_version_does_not_update() {
 }
 
 #[test]
+fn offline_fails_after_one_try_saying_so() {
+    let s = store();
+    let n = Cell::new(0);
+    let f = |_: &str| -> Result<Option<Vec<u8>>, String> {
+        n.set(n.get() + 1);
+        Err(format!(
+            "{} o GitHub no responde (dns)",
+            zenith_bridge::builds::OFFLINE
+        ))
+    };
+    let e = update(&s, &key(), &f).unwrap_err();
+    assert!(e.starts_with("sin conexión"), "{e}");
+    assert_eq!(n.get(), 1);
+}
+
+#[test]
 fn a_mismatching_window_keeps_current_and_retries_once() {
     let (s, k) = (store(), key());
     let cur = install(&s, &k, 1, "old");

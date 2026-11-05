@@ -70,7 +70,7 @@ fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
     let pinned = pinned_minecraft(&build)?;
     if pinned != a.version {
         return Err(format!(
-            "Esta instancia debe ser Minecraft {pinned} (la de XMCL es {}).",
+            "Esta instancia debe ser Minecraft {pinned} (la de XMCL es {}). Vuelve a ejecutar «zenith-bridge-windows-x64.exe setup» (descárgalo de la página de Releases; si hay un exe más nuevo, usa ese) para actualizar la instancia y las copias de Java.",
             a.version
         ));
     }

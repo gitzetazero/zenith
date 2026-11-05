@@ -8,6 +8,8 @@ use std::time::Duration;
 
 pub const REPO: &str = "gitzetazero/zenith";
 const MAX_DOWNLOAD: u64 = 1 << 30;
+/// Starts the error of a fetch that never reached the server; `update` does not wait to retry it.
+pub const OFFLINE: &str = "sin conexión a internet";
 
 /// The keys the nightly's checksums are signed with, built in.
 pub fn embedded_keys() -> Vec<PublicKey> {
@@ -500,6 +502,7 @@ fn update(
         };
         match try_once() {
             Ok(dir) => return Ok(dir),
+            Err(e) if e.starts_with(OFFLINE) => return Err(e), // offline: a retry would only wait
             Err(e) => last = e,
         }
     }
@@ -529,6 +532,7 @@ pub fn http_fetch(url: &str) -> Result<Option<Vec<u8>>, String> {
             Ok(Some(body))
         }
         Err(ureq::Error::Status(404, _)) => Ok(None),
+        Err(e @ ureq::Error::Transport(_)) => Err(format!("{OFFLINE} o GitHub no responde ({e})")),
         Err(e) => Err(e.to_string()),
     }
 }
