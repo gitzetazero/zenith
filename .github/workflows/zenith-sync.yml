@@ -88,6 +88,8 @@ jobs:
           [ -n "$step" ] || cargo fmt --all --check || step="cargo fmt"
           [ -n "$step" ] || cargo clippy --workspace --all-targets --locked -- -D warnings || step="cargo clippy"
           [ -n "$step" ] || cargo test --workspace --locked || step="cargo test"
+          [ -n "$step" ] || cargo fmt --manifest-path zenith/bridge/Cargo.toml --check || step="bridge cargo fmt"
+          [ -n "$step" ] || cargo clippy --manifest-path zenith/bridge/Cargo.toml --all-targets --locked -- -D warnings || step="bridge cargo clippy"
           [ -n "$step" ] || cargo test --manifest-path zenith/bridge/Cargo.toml --locked || step="bridge cargo test"
           if [ -n "$step" ]; then
             git push -f origin "HEAD:refs/heads/$BRANCH"
