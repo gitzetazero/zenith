@@ -206,21 +206,29 @@ def report(repo, reason, commit, conflicts, dry):
     labels = json.loads(gh("label", "list", "--json", "name", "--limit", "200") or "[]")
     if not dry and LABEL not in [x["name"] for x in labels]:
         gh("label", "create", LABEL, "--color", "d93f0b", "--description", "Zenith/Horizon sync is blocked")
-    issues = json.loads(gh("issue", "list", "--label", LABEL, "--state", "open", "--json", "number,title") or "[]")
+    # The PR above already carries the report; a repository with Issues turned off must not hide it, so the issue
+    # is best effort (the run still ends red).
+    issues = json.loads(gh("issue", "list", "--label", LABEL, "--state", "open", "--json", "number,title", check=False) or "[]")
     mine = [i for i in issues if i["title"] == ISSUE_TITLE]
     if mine:
-        gh("issue", "comment", str(mine[0]["number"]), "--body-file", tmp)
+        done = gh("issue", "comment", str(mine[0]["number"]), "--body-file", tmp, check=False)
     else:
-        gh("issue", "create", "--title", ISSUE_TITLE, "--label", LABEL, "--body-file", tmp)
+        done = gh("issue", "create", "--title", ISSUE_TITLE, "--label", LABEL, "--body-file", tmp, check=False)
+    if not dry and not done:
+        print("::warning::could not open or update the sync issue (are Issues enabled?); see the pull request")
     return 0
 
 
 def resolved(dry):
     gh = Gh(dry)
-    issues = json.loads(gh("issue", "list", "--label", LABEL, "--state", "open", "--json", "number,title") or "[]")
+    issues = json.loads(gh("issue", "list", "--label", LABEL, "--state", "open", "--json", "number,title", check=False) or "[]")
     for i in issues:
         if i["title"] == ISSUE_TITLE:
-            gh("issue", "close", str(i["number"]), "--comment", "Sync is current again: closing.")
+            gh("issue", "close", str(i["number"]), "--comment", "Sync is current again: closing.", check=False)
+    prs = json.loads(gh("pr", "list", "--state", "open", "--json", "number,headRefName", check=False) or "[]")
+    for p in prs:  # attempts of earlier blocked runs: main now contains Horizon's tip, so they are obsolete
+        if p["headRefName"].startswith("sync/"):
+            gh("pr", "close", str(p["number"]), "--delete-branch", "--comment", "Sync is current again: closing.", check=False)
     return 0
 
 

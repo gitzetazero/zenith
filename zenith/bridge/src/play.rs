@@ -23,7 +23,11 @@ pub fn tool(build: &Path, name: &str) -> PathBuf {
 /// The game executable: `zenith` in current builds, `horizon-client` in older ones.
 pub fn client(build: &Path) -> PathBuf {
     let z = tool(build, "zenith");
-    if z.is_file() { z } else { tool(build, "horizon-client") }
+    if z.is_file() {
+        z
+    } else {
+        tool(build, "horizon-client")
+    }
 }
 
 /// A GUI-subsystem bridge has no console: without this a console child would open its own window.
