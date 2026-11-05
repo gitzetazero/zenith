@@ -171,3 +171,20 @@ fn session_json_has_required_fields() {
     let v: serde_json::Value = serde_json::from_str(&a.session_json()).unwrap();
     assert!(v.get("xuid").is_none());
 }
+
+#[test]
+fn non_utf8_argument_is_lossy_not_a_panic() {
+    #[cfg(windows)]
+    let bad = {
+        use std::os::windows::ffi::OsStringExt;
+        std::ffi::OsString::from_wide(&[0x61, 0xD800, 0x62])
+    };
+    #[cfg(unix)]
+    let bad = {
+        use std::os::unix::ffi::OsStringExt;
+        std::ffi::OsString::from_vec(vec![b'a', 0xFF, b'b'])
+    };
+    let argv = zenith_bridge::args::collect_args(vec!["java".into(), bad].into_iter());
+    assert_eq!(argv, ["java", "a\u{FFFD}b"]);
+    assert!(LaunchArgs::parse(&argv).is_err());
+}

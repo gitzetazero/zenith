@@ -135,3 +135,42 @@ fn gate_unreachable_without_cache_refuses() {
     gate(OwnerCheck::Owner, "other", &c, 1000).unwrap();
     assert!(gate(down(), "u", &c, 1000).is_err());
 }
+
+#[test]
+fn gate_future_dated_entry_is_not_accepted_offline() {
+    let c = cache("f");
+    gate(OwnerCheck::Owner, "u", &c, 1_000_000).unwrap();
+    assert!(gate(down(), "u", &c, 500_000).is_err());
+}
+
+#[test]
+fn gate_corrupt_cache_is_empty_then_rewritten() {
+    let c = cache("g");
+    std::fs::create_dir_all(c.parent().unwrap()).unwrap();
+    std::fs::write(&c, "{not json").unwrap();
+    assert!(gate(down(), "u", &c, 1000).is_err());
+    gate(OwnerCheck::Owner, "u", &c, 1000).unwrap();
+    gate(down(), "u", &c, 1001).unwrap();
+}
+
+#[test]
+fn gate_write_is_atomic_and_leaves_no_temp_file() {
+    let c = cache("h");
+    gate(OwnerCheck::Owner, "u", &c, 1000).unwrap();
+    gate(OwnerCheck::Owner, "u", &c, 2000).unwrap();
+    let names: Vec<_> = std::fs::read_dir(c.parent().unwrap())
+        .unwrap()
+        .map(|e| e.unwrap().file_name())
+        .collect();
+    assert_eq!(names, ["owners.json"]);
+}
+
+#[test]
+fn gate_not_owner_removes_the_positive_entry() {
+    let c = cache("i");
+    gate(OwnerCheck::Owner, "u", &c, 1000).unwrap();
+    gate(OwnerCheck::Owner, "keep", &c, 1000).unwrap();
+    assert!(gate(OwnerCheck::NotOwner, "u", &c, 1001).is_err());
+    assert!(gate(down(), "u", &c, 1002).is_err());
+    gate(down(), "keep", &c, 1002).unwrap();
+}

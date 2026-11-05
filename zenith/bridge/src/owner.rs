@@ -49,6 +49,19 @@ pub fn check(base_url: &str, token: &str) -> OwnerCheck {
     }
 }
 
+/// Temp file + rename, so a crash never leaves a half-written cache. A failed write only costs the offline grace.
+fn save(cache: &Path, owners: Map<String, Value>) {
+    if let Some(dir) = cache.parent() {
+        let _ = std::fs::create_dir_all(dir);
+    }
+    let tmp = cache.with_extension("json.tmp");
+    if std::fs::write(&tmp, Value::Object(owners).to_string()).is_ok()
+        && std::fs::rename(&tmp, cache).is_err()
+    {
+        let _ = std::fs::remove_file(&tmp);
+    }
+}
+
 /// Decides whether to start. `cache` is `owners.json`: UUID -> unix time of the last positive check.
 pub fn gate(result: OwnerCheck, uuid: &str, cache: &Path, now_secs: u64) -> Result<(), String> {
     let key = uuid.replace('-', "").to_lowercase();
@@ -59,20 +72,22 @@ pub fn gate(result: OwnerCheck, uuid: &str, cache: &Path, now_secs: u64) -> Resu
     match result {
         OwnerCheck::Owner => {
             owners.insert(key, now_secs.into());
-            // a cache that can't be written only costs the offline grace
-            if let Some(dir) = cache.parent() {
-                let _ = std::fs::create_dir_all(dir);
-            }
-            let _ = std::fs::write(cache, Value::Object(owners).to_string());
+            save(cache, owners);
             Ok(())
         }
-        OwnerCheck::NotOwner => Err(
-            "Inicia sesión en XMCL con una cuenta de Microsoft que posea Minecraft: Java Edition."
-                .into(),
-        ),
+        OwnerCheck::NotOwner => {
+            if owners.remove(&key).is_some() {
+                save(cache, owners);
+            }
+            Err(
+                "Inicia sesión en XMCL con una cuenta de Microsoft que posea Minecraft: Java Edition."
+                    .into(),
+            )
+        }
         OwnerCheck::Unreachable(why) => {
+            // a future-dated entry (clock moved back) is not trusted
             let last = owners.get(&key).and_then(Value::as_u64);
-            if last.is_some_and(|t| now_secs.saturating_sub(t) < CACHE_SECS) {
+            if last.is_some_and(|t| t <= now_secs && now_secs - t < CACHE_SECS) {
                 Ok(())
             } else {
                 Err(format!(

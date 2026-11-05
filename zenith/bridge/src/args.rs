@@ -1,6 +1,12 @@
 use std::fmt;
 use std::path::PathBuf;
 
+/// The command line as text. A non-UTF-8 argument is converted lossily instead of panicking
+/// (`std::env::args` would, invisibly, in a GUI-subsystem exe).
+pub fn collect_args(args: impl Iterator<Item = std::ffi::OsString>) -> Vec<String> {
+    args.map(|a| a.to_string_lossy().into_owned()).collect()
+}
+
 /// What XMCL passed to the game, reduced to what Horizon needs.
 pub struct LaunchArgs {
     pub java: PathBuf,

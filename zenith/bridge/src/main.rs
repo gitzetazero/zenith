@@ -3,7 +3,7 @@
 
 use std::io::Write;
 use std::path::PathBuf;
-use zenith_bridge::args::LaunchArgs;
+use zenith_bridge::args::{LaunchArgs, collect_args};
 
 fn home() -> PathBuf {
     if let Some(h) = std::env::var_os("ZENITH_HOME") {
@@ -14,8 +14,7 @@ fn home() -> PathBuf {
 }
 
 /// A GUI-subsystem exe has no console, so every error also goes to `<home>/logs/bridge.log`.
-fn fail(msg: &str) -> ! {
-    eprintln!("Zenith: {msg}");
+fn log(msg: &str) {
     let logs = home().join("logs");
     let _ = std::fs::create_dir_all(&logs);
     if let Ok(mut f) = std::fs::OpenOptions::new()
@@ -28,11 +27,18 @@ fn fail(msg: &str) -> ! {
             .map_or(0, |d| d.as_secs());
         let _ = writeln!(f, "[{secs}] {msg}");
     }
+}
+
+fn fail(msg: &str) -> ! {
+    eprintln!("Zenith: {msg}");
+    log(msg);
     std::process::exit(1);
 }
 
 fn main() {
-    let argv: Vec<String> = std::env::args().skip(1).collect();
+    // the panic message only: never the arguments, which carry the access token
+    std::panic::set_hook(Box::new(|info| log(&format!("panic: {info}"))));
+    let argv = collect_args(std::env::args_os().skip(1));
     if let Err(e) = LaunchArgs::parse(&argv) {
         fail(&e);
     }
