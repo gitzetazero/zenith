@@ -2,44 +2,62 @@
 #![cfg_attr(windows, windows_subsystem = "windows")]
 
 use std::io::Write;
-use std::path::PathBuf;
-use zenith_bridge::args::{LaunchArgs, collect_args};
+use zenith_bridge::args::collect_args;
+use zenith_bridge::builds::{Store, embedded_keys, http_fetch};
+use zenith_bridge::owner::{self, MINECRAFT_API};
+use zenith_bridge::play::Stream;
+use zenith_bridge::run::{Deps, run};
 
-fn home() -> PathBuf {
-    if let Some(h) = std::env::var_os("ZENITH_HOME") {
-        return h.into();
+/// No console to read errors from: show them.
+#[cfg(windows)]
+fn show_error(text: &str) {
+    #[link(name = "user32")]
+    unsafe extern "system" {
+        fn MessageBoxW(
+            hwnd: *mut std::ffi::c_void,
+            text: *const u16,
+            caption: *const u16,
+            kind: u32,
+        ) -> i32;
     }
-    let base = std::env::var_os("APPDATA").unwrap_or_else(|| ".".into());
-    PathBuf::from(base).join("zenith")
+    let wide = |s: &str| s.encode_utf16().chain([0]).collect::<Vec<u16>>();
+    // 0x10 = MB_ICONERROR
+    unsafe {
+        MessageBoxW(
+            std::ptr::null_mut(),
+            wide(text).as_ptr(),
+            wide("Zenith").as_ptr(),
+            0x10,
+        )
+    };
 }
 
-/// A GUI-subsystem exe has no console, so every error also goes to `<home>/logs/bridge.log`.
-fn log(msg: &str) {
-    let logs = home().join("logs");
-    let _ = std::fs::create_dir_all(&logs);
-    if let Ok(mut f) = std::fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(logs.join("bridge.log"))
-    {
-        let secs = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map_or(0, |d| d.as_secs());
-        let _ = writeln!(f, "[{secs}] {msg}");
-    }
-}
-
-fn fail(msg: &str) -> ! {
-    eprintln!("Zenith: {msg}");
-    log(msg);
-    std::process::exit(1);
-}
+#[cfg(not(windows))]
+fn show_error(_: &str) {}
 
 fn main() {
+    let store = Store::from_env();
     // the panic message only: never the arguments, which carry the access token
-    std::panic::set_hook(Box::new(|info| log(&format!("panic: {info}"))));
+    let panic_store = Store {
+        root: store.root.clone(),
+    };
+    std::panic::set_hook(Box::new(move |info| {
+        panic_store.log(&format!("panic: {info}"))
+    }));
     let argv = collect_args(std::env::args_os().skip(1));
-    if let Err(e) = LaunchArgs::parse(&argv) {
-        fail(&e);
-    }
+    let deps = Deps {
+        home: store.root,
+        keys: embedded_keys(),
+        check_owner: Box::new(|token| owner::check(MINECRAFT_API, token)),
+        fetch: Box::new(http_fetch),
+        emit: Box::new(|stream, line| {
+            // a closed pipe is not worth dying for
+            let _ = match stream {
+                Stream::Out => writeln!(std::io::stdout(), "{line}"),
+                Stream::Err => writeln!(std::io::stderr(), "{line}"),
+            };
+        }),
+        show_error: Box::new(show_error),
+    };
+    std::process::exit(run(&argv, &deps));
 }

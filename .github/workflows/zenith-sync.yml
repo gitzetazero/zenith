@@ -91,6 +91,7 @@ jobs:
           [ -n "$step" ] || cargo fmt --manifest-path zenith/bridge/Cargo.toml --check || step="bridge cargo fmt"
           [ -n "$step" ] || cargo clippy --manifest-path zenith/bridge/Cargo.toml --all-targets --locked -- -D warnings || step="bridge cargo clippy"
           [ -n "$step" ] || cargo test --manifest-path zenith/bridge/Cargo.toml --locked || step="bridge cargo test"
+          [ -n "$step" ] || python3 zenith/ci/check_launch_api.py target/debug/horizon-client || step="launch API check"
           if [ -n "$step" ]; then
             git push -f origin "HEAD:refs/heads/$BRANCH"
             gh pr create --base main --head "$BRANCH" --title "sync: $TAG (failed: $step)" \

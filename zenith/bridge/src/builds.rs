@@ -86,7 +86,7 @@ impl Store {
     }
 
     /// A GUI-subsystem exe has no console, so warnings go to `<root>/logs/bridge.log`.
-    fn log(&self, msg: &str) {
+    pub fn log(&self, msg: &str) {
         let logs = self.root.join("logs");
         let _ = std::fs::create_dir_all(&logs);
         if let Ok(mut f) = std::fs::OpenOptions::new()
