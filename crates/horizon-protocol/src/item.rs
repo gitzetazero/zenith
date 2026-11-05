@@ -1129,9 +1129,9 @@ fn read_stack(r: &mut Reader, delimited: bool) -> Result<Option<Stack>> {
         patch.byte_array(value);
     }
     removed.iter().for_each(|kind| patch.varint(*kind));
-    // An adapter may have changed component layouts as well as ids: its original bytes are not a pinned
-    // patch, so none is kept and it is rebuilt from the normalized values when needed.
-    let wire = ((!added.is_empty() || !removed.is_empty()) && ids::active().is_none())
+    // The releases through 1.21.8 changed component layouts as well as ids: their original bytes are not a
+    // pinned patch, so none is kept and it is rebuilt from the normalized values when needed.
+    let wire = ((!added.is_empty() || !removed.is_empty()) && !ids::quirks().count_first_templates)
         .then(|| patch.data.into());
     Ok(Some(Stack {
         item,
@@ -1303,6 +1303,41 @@ mod tests {
         let mut r = Reader::new(&w.data);
         assert_eq!(C::read(&mut r).unwrap(), v);
         assert_eq!(r.remaining(), 0);
+    }
+
+    #[test]
+    fn wire_patch_is_kept_for_1_21_10_and_dropped_through_1_21_8() {
+        // damage 3 as a pinned patch: one added component, none removed.
+        let mut p = Writer::new();
+        p.varint(1);
+        p.varint(0);
+        p.varint(component::DAMAGE);
+        p.byte_array(&[3]);
+        let mut bytes = Writer::new();
+        bytes.varint(1); // count
+        bytes.varint(7); // item
+        bytes.varint(1);
+        bytes.varint(0);
+        bytes.varint(component::DAMAGE);
+        bytes.bytes(&[3]);
+        let read = |v: crate::adapter::ServerVersion| {
+            let _up = ids::renumbering(v.ids().unwrap(), ids::Way::Up);
+            Slot::read(&mut Reader::new(&bytes.data)).unwrap().unwrap()
+        };
+        let kept = read(crate::adapter::ServerVersion::V1_21_10);
+        assert_eq!(kept.wire.0.as_deref(), Some(&p.data[..]));
+        assert!(
+            read(crate::adapter::ServerVersion::V1_21_8)
+                .wire
+                .0
+                .is_none()
+        );
+        assert!(
+            read(crate::adapter::ServerVersion::V1_20_5)
+                .wire
+                .0
+                .is_none()
+        );
     }
 
     #[test]
