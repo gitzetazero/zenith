@@ -137,7 +137,7 @@ Extras:              … --versionType release --foo "bar baz"
 
 La Ñ y otros caracteres no ASCII pasan intactos en ambos sentidos (verificado con el volcado: el puente recibe `Jose Ñ` correctamente).
 
-**Para `setup` (tarea 10): `prependCommand` debe llevar la ruta del puente entre comillas dobles.** Con argumentos propios del puente se pueden añadir detrás.
+(Superseded: ver apartado 10) **Para `setup` (tarea 10): `prependCommand` debe llevar la ruta del puente entre comillas dobles.** Con argumentos propios del puente se pueden añadir detrás.
 
 ### Ejecución (`@xmcl/core` `launch()`)
 
@@ -298,11 +298,13 @@ Variables `HORIZON_HOME`, `HORIZON_NO_AUDIO=1`, `HORIZON_NO_HEARTBEAT=1`, `HORIZ
 | 9 | La carpeta preparada es de solo lectura tras prepararse | El cliente escribe `horizon-data.bin` (120 MB) en ella en la primera arrancada. | Debe ser escribible. Una primera arrancada tarda además unos 17 s en segundo plano. |
 | 8 | `install` extrae el zip en `builds/<v>` y `current()` es esa carpeta | El zip trae una carpeta raíz `horizon-windows-x64/`. | El ejecutable está en `builds/<v>/horizon-windows-x64/horizon-client.exe`; o se quita la carpeta raíz al extraer. Verificar también que `enclosed_name()` tolera esa estructura. |
 | 8 | `SHA256SUMS` lista lo que descarga el puente | `SHA256SUMS` lista también el `.tar.gz` de Linux; `verify` exige tener todos los archivos listados. | El puente verifica con `check` sobre el archivo concreto, no con el comando `verify` de la carpeta. |
-| 10 | `setup` escribe `instance.json` y funciona con cualquier raíz | **Con la raíz por defecto, `cmd.exe` rechaza la orden (apartado 2).** | Decisión pendiente antes de la tarea 10 (ver abajo). |
+| 10 (Superseded: ver apartado 10) | `setup` escribe `instance.json` y funciona con cualquier raíz | **Con la raíz por defecto, `cmd.exe` rechaza la orden (apartado 2).** | Decisión pendiente antes de la tarea 10 (ver abajo). |
 | 10 | Una ruta con espacios necesita comillas (`quotes_path_with_spaces`) | Confirmado: comillas dobles. Sin ellas se parte en piezas. | Ya previsto. Escribir `"<ruta>"` en `prependCommand`. La prueba debe usar una ruta con Ñ. |
 | 10 | XMCL carga la instancia nada más escribirla | Se carga al arrancar XMCL; hay que reiniciarlo (ya está previsto en el README). | Sin cambios, pero `setup` debe avisar si XMCL está en marcha. |
 
 ### Decisión pendiente por el hallazgo del límite de `cmd.exe`
+
+(Superseded: ver apartado 10; se eligió el puente como «Java» de la instancia.)
 
 No se resuelve aquí. Opciones, de más barata a más cara, ninguna probada con XMCL real:
 

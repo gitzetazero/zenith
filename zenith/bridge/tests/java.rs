@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
-use zenith_bridge::java::{find_or_install, parse_major};
+use zenith_bridge::java::{find_or_install, parse_major, path_candidates, valid_component};
 use zenith_bridge::prepare::sha1_hex;
 
 type Fetched = Result<Option<Vec<u8>>, String>;
@@ -174,4 +174,85 @@ fn bad_hash_host_or_path_is_refused() {
         assert!(r.is_err(), "{name} {url}");
         assert!(!home.join("java-runtime/x.dll").exists());
     }
+}
+
+#[test]
+fn relative_path_entries_are_never_probed() {
+    let looked = RefCell::new(Vec::new());
+    let is_file = |p: &Path| {
+        looked.borrow_mut().push(p.to_path_buf());
+        true
+    };
+    let abs = std::env::temp_dir().join("jdk25").join("bin");
+    let path = std::env::join_paths([
+        PathBuf::from("."),
+        PathBuf::from("bin"),
+        PathBuf::from(""),
+        abs.clone(),
+    ])
+    .unwrap();
+    let got = path_candidates(&path, &is_file);
+    assert_eq!(got, vec![abs.parent().unwrap().to_path_buf()]);
+    assert!(looked.borrow().iter().all(|p| p.is_absolute()));
+}
+
+#[test]
+fn component_names_are_validated() {
+    for ok in ["java-runtime-epsilon", "jre_1.2"] {
+        assert!(valid_component(ok), "{ok}");
+    }
+    for bad in ["", ".", "..", "../x", "a/b", "a\\b", "C:x", "a b", "x..y"] {
+        assert!(!valid_component(bad), "{bad:?}");
+    }
+    let home = tmp("comp");
+    let nofetch = |u: &str| -> Fetched { panic!("fetched {u}") };
+    let r = find_or_install(&home, "../evil", &[], &nofetch, &probe_is(25));
+    assert!(r.is_err());
+    assert!(!home.join("java-runtime").exists());
+}
+
+#[test]
+fn colliding_or_stream_file_names_are_refused() {
+    let body = b"LIB";
+    for name in ["lib/x.dll:evil", "bin/JAVA.EXE"] {
+        let home = tmp("names");
+        let f = mojang(
+            name,
+            "https://piston-data.mojang.com/x",
+            body,
+            sha1_hex(body),
+        );
+        let r = find_or_install(&home, "java-runtime-epsilon", &[], &f, &probe_is(25));
+        assert!(r.is_err(), "{name}");
+    }
+}
+
+#[test]
+fn failed_download_leaves_no_part_file() {
+    let home = tmp("part");
+    let f = mojang(
+        "lib/x.dll",
+        "https://piston-data.mojang.com/x",
+        b"LIB",
+        sha1_hex(b"other"),
+    );
+    assert!(find_or_install(&home, "java-runtime-epsilon", &[], &f, &probe_is(25)).is_err());
+    let left: Vec<_> = walk(&home)
+        .into_iter()
+        .filter(|p| p.to_string_lossy().ends_with(".part"))
+        .collect();
+    assert!(left.is_empty(), "{left:?}");
+}
+
+fn walk(d: &Path) -> Vec<PathBuf> {
+    let mut v = Vec::new();
+    for e in std::fs::read_dir(d).into_iter().flatten().flatten() {
+        let p = e.path();
+        if p.is_dir() {
+            v.extend(walk(&p));
+        } else {
+            v.push(p);
+        }
+    }
+    v
 }

@@ -63,7 +63,11 @@ fn show_text(text: &str, ok: bool) {
     let attached = unsafe { AttachConsole(u32::MAX) } != 0;
     let mut h = unsafe { GetStdHandle(-11i32 as u32) };
     let con = if (h == 0 || h == -1) && attached {
-        std::fs::OpenOptions::new().write(true).open("CONOUT$").ok()
+        std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open("CONOUT$")
+            .ok()
     } else {
         None
     };
@@ -77,11 +81,13 @@ fn show_text(text: &str, ok: bool) {
     let mut mode = 0u32;
     if unsafe { GetConsoleMode(h, &mut mode) } != 0 {
         // a console: UTF-16, so accents show whatever its code page is
-        let wide: Vec<u16> = format!("{}\r\n", text.replace('\n', "\r\n"))
+        // `lines()` normalises \r\n and \n once
+        let lines: Vec<&str> = text.lines().collect();
+        let wide: Vec<u16> = format!("{}\r\n", lines.join("\r\n"))
             .encode_utf16()
             .collect();
         let mut written = 0u32;
-        unsafe {
+        let wrote = unsafe {
             WriteConsoleW(
                 h,
                 wide.as_ptr(),
@@ -89,9 +95,13 @@ fn show_text(text: &str, ok: bool) {
                 &mut written,
                 std::ptr::null(),
             )
-        };
-    } else {
-        let _ = writeln!(std::io::stdout(), "{text}"); // a pipe or file: UTF-8
+        } != 0;
+        if !wrote {
+            message_box(text, if ok { 0x40 } else { 0x10 });
+        }
+    } else if writeln!(std::io::stdout(), "{text}").is_err() {
+        // a pipe or file: UTF-8; never lose the text
+        message_box(text, if ok { 0x40 } else { 0x10 });
     }
 }
 

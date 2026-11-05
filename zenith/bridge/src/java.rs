@@ -47,15 +47,12 @@ pub fn probe_major(home: &Path) -> Option<u32> {
 pub fn system_candidates() -> Vec<PathBuf> {
     let mut v = Vec::new();
     if let Some(h) = std::env::var_os("JAVA_HOME") {
-        v.push(PathBuf::from(h));
+        v.extend(absolute(PathBuf::from(h)));
     }
-    for dir in std::env::split_paths(&std::env::var_os("PATH").unwrap_or_default()) {
-        if dir.join("java.exe").is_file()
-            && let Some(home) = dir.parent()
-        {
-            v.push(home.to_path_buf());
-        }
-    }
+    v.extend(path_candidates(
+        &std::env::var_os("PATH").unwrap_or_default(),
+        &|p| p.is_file(),
+    ));
     for pf in ["ProgramFiles", "ProgramW6432"] {
         let Some(pf) = std::env::var_os(pf) else {
             continue;
@@ -71,6 +68,32 @@ pub fn system_candidates() -> Vec<PathBuf> {
         }
     }
     v
+}
+
+/// The path without surrounding quotes, only if absolute: a relative one would run whatever the
+/// current folder holds.
+fn absolute(p: PathBuf) -> Option<PathBuf> {
+    let s = p.to_string_lossy();
+    let q = PathBuf::from(s.trim().trim_matches('"'));
+    q.is_absolute().then_some(q)
+}
+
+/// Java homes for the absolute `PATH` entries that hold a `java.exe` (`is_file` is injected for tests).
+pub fn path_candidates(path: &std::ffi::OsStr, is_file: &dyn Fn(&Path) -> bool) -> Vec<PathBuf> {
+    std::env::split_paths(path)
+        .filter_map(absolute)
+        .filter(|d| is_file(&d.join("java.exe")))
+        .filter_map(|d| d.parent().map(Path::to_path_buf))
+        .collect()
+}
+
+/// A Mojang runtime component name such as `java-runtime-epsilon`; it becomes a folder name.
+pub fn valid_component(c: &str) -> bool {
+    !c.is_empty()
+        && c != "."
+        && !c.contains("..")
+        && c.chars()
+            .all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, '.' | '_' | '-'))
 }
 
 fn lower(p: &Path) -> String {
@@ -93,6 +116,9 @@ pub fn find_installed(
     candidates: &[PathBuf],
     probe: &dyn Fn(&Path) -> Option<u32>,
 ) -> Option<PathBuf> {
+    if !valid_component(component) {
+        return None;
+    }
     std::iter::once(home.join("java-runtime").join(component))
         .chain(candidates.iter().cloned())
         .find(|c| usable(home, c, probe))
@@ -107,6 +133,11 @@ pub fn find_or_install(
     fetch: Fetch,
     probe: &dyn Fn(&Path) -> Option<u32>,
 ) -> Result<PathBuf, String> {
+    if !valid_component(component) {
+        return Err(format!(
+            "nombre de componente de Java no válido: {component:?}"
+        ));
+    }
     if let Some(j) = find_installed(home, component, candidates, probe) {
         return Ok(j);
     }
@@ -165,9 +196,16 @@ fn install(dest: &Path, component: &str, fetch: Fetch) -> Result<(), String> {
         .ok_or("el manifiesto de Java no lista archivos")?;
     // check every entry before writing anything
     let mut todo = Vec::new();
+    let mut seen = std::collections::HashSet::new();
     for (name, f) in files {
         if f["type"] != "file" {
             continue;
+        }
+        // NTFS: `name:stream` writes a hidden stream; names differing only by case are one file
+        if name.contains(':') || !seen.insert(name.to_lowercase()) {
+            return Err(format!(
+                "nombre de archivo no válido o repetido {name:?} en el manifiesto de Java"
+            ));
         }
         let ok = !name.contains('\\')
             && Path::new(name)
@@ -188,10 +226,15 @@ fn install(dest: &Path, component: &str, fetch: Fetch) -> Result<(), String> {
         let body = get_checked(fetch, url, sha1)?;
         let dir = path.parent().ok_or("ruta sin carpeta")?;
         std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-        let tmp = path.with_extension("part");
+        let mut tmp_name = path.file_name().unwrap_or_default().to_os_string();
+        tmp_name.push(".part");
+        let tmp = path.with_file_name(tmp_name);
         std::fs::write(&tmp, body)
             .and_then(|_| std::fs::rename(&tmp, &path))
-            .map_err(|e| format!("{}: {e}", path.display()))?;
+            .map_err(|e| {
+                let _ = std::fs::remove_file(&tmp);
+                format!("{}: {e}", path.display())
+            })?;
     }
     Ok(())
 }
