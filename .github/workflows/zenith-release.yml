@@ -95,7 +95,8 @@ jobs:
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/horizon-dl"
           gh release download "$RELEASE" -R horizon-rust/horizon -p 'horizon-linux-x86_64.tar.gz' -D "$RUNNER_TEMP/horizon-dl"
-          tar xzf "$RUNNER_TEMP/horizon-dl/horizon-linux-x86_64.tar.gz" --strip-components=1 horizon-linux-x86_64/exporters
+          # stdin: GNU tar reads "D:\..." as host:file
+          gzip -dc < "$RUNNER_TEMP/horizon-dl/horizon-linux-x86_64.tar.gz" | tar x --strip-components=1 horizon-linux-x86_64/exporters
           test -f exporters/manifest.json
           stray=$(find exporters -type f ! -path exporters/manifest.json \
             ! \( -name '*.class' \( -path 'exporters/server/dev/horizonlab/parity/*' -o -path 'exporters/client/dev/horizonlab/parity/*' \) \))
