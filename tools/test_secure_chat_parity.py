@@ -66,7 +66,7 @@ PROPERTIES = {
 
 def account(name):
     """The mock services' account id for a name."""
-    return hashlib.md5(f'account:{name}'.encode()).hexdigest()
+    return hashlib.sha256(f'account:{name}'.encode()).hexdigest()[:32]
 
 
 class Services:
