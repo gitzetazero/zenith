@@ -1,9 +1,7 @@
 //! Signed Zenith builds: fetched from the `nightly` Release of the fork, verified against the
 //! embedded keys, and unpacked under `<root>/builds/<version>/`.
 
-use horizon_release_sign::{
-    PublicKey, SIGNATURE, SUMS, check, nightly_digest, nightly_version, sha256_hex,
-};
+use horizon_release_sign::{PublicKey, SIGNATURE, SUMS, check, nightly_digest, sha256_hex};
 use std::io::{Cursor, Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -24,9 +22,8 @@ pub fn asset_name() -> &'static str {
     }
 }
 
-pub fn api_url() -> String {
-    format!("https://api.github.com/repos/{REPO}/releases/tags/nightly")
-}
+/// The build stamp: `commit=<40 hex>` and `built=<UTC time>`, signed through SHA256SUMS like the archive.
+pub const STAMP: &str = "zenith-build.txt";
 
 pub fn asset_url(name: &str) -> String {
     format!("https://github.com/{REPO}/releases/download/nightly/{name}")
@@ -54,7 +51,7 @@ impl Store {
     fn read(&self, file: &str) -> Option<String> {
         let text = std::fs::read_to_string(self.root.join(file)).ok()?;
         let text = text.trim();
-        (!text.is_empty()).then(|| text.to_string())
+        valid_version(text).ok().map(|()| text.to_string())
     }
 
     fn current_version(&self) -> Option<String> {
@@ -101,20 +98,34 @@ impl Store {
         }
     }
 
-    /// Verifies `archive` against the nightly-signed `sums`, unpacks it as `version` and makes it
-    /// the current build. Nothing is unpacked unless the signature and the digest check out.
+    /// The stamp saved in the installed build's folder, if there is a valid one.
+    pub fn installed_stamp(&self) -> Option<Stamp> {
+        let text = std::fs::read_to_string(self.current()?.join(STAMP)).ok()?;
+        Stamp::parse(&text).ok()
+    }
+
+    /// Verifies `archive` and the build `stamp` against the nightly-signed `sums` (the stamp before it
+    /// is parsed), refuses a build older than the installed one, unpacks it as the version the stamp
+    /// names and makes it the current build. Nothing is unpacked unless everything checks out.
     pub fn install(
         &self,
-        version: &str,
         archive: &[u8],
+        stamp: &[u8],
         sums: &[u8],
         signature: &str,
         keys: &[PublicKey],
     ) -> Result<PathBuf, String> {
-        valid_version(version)?;
         let asset = asset_name();
         let expected = nightly_digest(asset, Some(sums), Some(signature), keys)?;
         check(asset, &expected, &sha256_hex(archive))?;
+        let stamp = verified_stamp(stamp, sums, signature, keys)?;
+        let version = stamp.version();
+        valid_version(&version)?;
+        if let Some(have) = self.installed_stamp() {
+            if stamp.built < have.built {
+                return Err(downgrade(&stamp, &have));
+            }
+        }
         if !asset.ends_with(".zip") {
             // shortcut: Windows first; the Linux .tar.gz needs flate2+tar here, when Linux is wired up.
             return Err(format!("installing {asset} is not supported yet"));
@@ -122,13 +133,21 @@ impl Store {
 
         let builds = self.builds();
         let tmp = builds.join(format!("{version}.tmp"));
-        let dest = builds.join(version);
+        let dest = builds.join(&version);
+        // The same signed build is already the one in use (or pinned): never touch its folder.
+        if dest.is_dir()
+            && (self.current_version().as_deref() == Some(version.as_str())
+                || self.pinned().as_deref() == Some(version.as_str()))
+        {
+            return Ok(dest);
+        }
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(&tmp).map_err(|e| e.to_string())?;
         let done = extract_zip(archive, &tmp).and_then(|()| {
             if !tmp.join("horizon-client.exe").is_file() {
                 return Err("the archive has no horizon-client.exe".to_string());
             }
+            std::fs::write(tmp.join(STAMP), stamp.text()).map_err(|e| e.to_string())?;
             let _ = std::fs::remove_dir_all(&dest);
             std::fs::rename(&tmp, &dest).map_err(|e| e.to_string())
         });
@@ -138,8 +157,12 @@ impl Store {
         }
 
         let previous = self.current_version();
-        write_atomic(&self.root.join("current.txt"), version)?;
-        self.prune(&[Some(version), previous.as_deref(), self.pinned().as_deref()]);
+        write_atomic(&self.root.join("current.txt"), &version)?;
+        self.prune(&[
+            Some(&version),
+            previous.as_deref(),
+            self.pinned().as_deref(),
+        ]);
         Ok(dest)
     }
 
@@ -154,6 +177,103 @@ impl Store {
             }
         }
     }
+}
+
+/// What the signed `zenith-build.txt` says: the commit built and when (UTC, `yyyy-mm-ddTHH:MM:SSZ`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Stamp {
+    pub commit: String,
+    pub built: String,
+}
+
+impl Stamp {
+    /// Exactly two LF-terminated lines, `commit=<40 lowercase hex>` then `built=<UTC time>`.
+    pub fn parse(text: &str) -> Result<Stamp, String> {
+        let bad = || format!("{STAMP} is malformed");
+        let mut lines = text.strip_suffix('\n').ok_or_else(bad)?.split('\n');
+        let commit = lines
+            .next()
+            .and_then(|l| l.strip_prefix("commit="))
+            .ok_or_else(bad)?;
+        let built = lines
+            .next()
+            .and_then(|l| l.strip_prefix("built="))
+            .ok_or_else(bad)?;
+        let commit_ok = commit.len() == 40
+            && commit
+                .bytes()
+                .all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'));
+        // One character class per position: D digit, anything else literal.
+        let time_ok = built.len() == 20
+            && built
+                .bytes()
+                .zip("DDDD-DD-DDTDD:DD:DDZ".bytes())
+                .all(|(b, p)| {
+                    if p == b'D' {
+                        b.is_ascii_digit()
+                    } else {
+                        b == p
+                    }
+                });
+        if lines.next().is_some() || !commit_ok || !time_ok {
+            return Err(bad());
+        }
+        Ok(Stamp {
+            commit: commit.into(),
+            built: built.into(),
+        })
+    }
+
+    /// The build's identity, from the signed stamp: `nightly-<date built>-<first 7 of the commit>`.
+    pub fn version(&self) -> String {
+        format!("nightly-{}-{}", &self.built[..10], &self.commit[..7])
+    }
+
+    fn text(&self) -> String {
+        format!("commit={}\nbuilt={}\n", self.commit, self.built)
+    }
+}
+
+/// The stamp, once its digest is found in the signed sums (before anything is parsed).
+fn verified_stamp(
+    stamp: &[u8],
+    sums: &[u8],
+    signature: &str,
+    keys: &[PublicKey],
+) -> Result<Stamp, String> {
+    let expected = nightly_digest(STAMP, Some(sums), Some(signature), keys)?;
+    check(STAMP, &expected, &sha256_hex(stamp))?;
+    Stamp::parse(std::str::from_utf8(stamp).map_err(|_| format!("{STAMP} is not text"))?)
+}
+
+fn downgrade(new: &Stamp, have: &Stamp) -> String {
+    format!(
+        "downgrade refused: the release was built {} but the installed build {}",
+        new.built, have.built
+    )
+}
+
+/// A name that is safe on any system: relative, no `..`, no `:` (drive letters, alternate data
+/// streams), no Windows device names, no trailing dot or space, no control characters.
+fn safe_name(name: &str) -> bool {
+    !name.starts_with(['/', '\\'])
+        && name.split(['/', '\\']).all(|part| {
+            let stem = part
+                .split('.')
+                .next()
+                .unwrap_or_default()
+                .trim_end()
+                .to_ascii_uppercase();
+            let numbered = stem.len() == 4
+                && (stem.starts_with("COM") || stem.starts_with("LPT"))
+                && stem.ends_with(|c: char| c.is_ascii_digit());
+            part != ".."
+                && !matches!(stem.as_str(), "CON" | "PRN" | "AUX" | "NUL")
+                && !numbered
+                && !part.contains(':')
+                && !part.ends_with(['.', ' '])
+                && !part.chars().any(char::is_control)
+        })
 }
 
 // The version names a folder, so it can't be a path.
@@ -189,6 +309,9 @@ fn extract_zip(archive: &[u8], dest: &Path) -> Result<(), String> {
     let mut paths = Vec::new();
     for i in 0..zip.len() {
         let f = zip.by_index(i).map_err(|e| e.to_string())?;
+        if !safe_name(f.name()) {
+            return Err(format!("unsafe path in the archive: {}", f.name()));
+        }
         let path = f
             .enclosed_name()
             .ok_or_else(|| format!("unsafe path in the archive: {}", f.name()))?;
@@ -270,16 +393,6 @@ fn update(
 ) -> Result<PathBuf, String> {
     let get =
         |url: String, what: &str| fetch(&url)?.ok_or_else(|| format!("{what} is not published"));
-    let release: serde_json::Value =
-        serde_json::from_slice(&get(api_url(), "the nightly release")?)
-            .map_err(|e| e.to_string())?;
-    let text = |k: &str| release[k].as_str().unwrap_or_default().to_string();
-    let version = nightly_version(&text("name"), &text("published_at"));
-    if store.current_version().as_deref() == Some(version.as_str()) {
-        if let Some(current) = store.current() {
-            return Ok(current);
-        }
-    }
     let mut last = String::new();
     for attempt in 0..2 {
         if attempt > 0 {
@@ -288,9 +401,21 @@ fn update(
         let try_once = || -> Result<PathBuf, String> {
             let sums = get(asset_url(SUMS), SUMS)?;
             let sig = get(asset_url(SIGNATURE), SIGNATURE)?;
-            let archive = get(asset_url(asset_name()), asset_name())?;
+            let stamp = get(asset_url(STAMP), STAMP)?;
             let sig = String::from_utf8(sig).map_err(|_| format!("{SIGNATURE} is not text"))?;
-            store.install(&version, &archive, &sums, &sig, keys)
+            // The identity comes from the signed stamp, never from the release title.
+            let new = verified_stamp(&stamp, &sums, &sig, keys)?;
+            if let (Some(have), Some(current)) = (store.installed_stamp(), store.current()) {
+                if new.built < have.built {
+                    store.log(&downgrade(&new, &have));
+                    return Ok(current);
+                }
+                if new == have {
+                    return Ok(current);
+                }
+            }
+            let archive = get(asset_url(asset_name()), asset_name())?;
+            store.install(&archive, &stamp, &sums, &sig, keys)
         };
         match try_once() {
             Ok(dir) => return Ok(dir),
@@ -307,10 +432,12 @@ pub fn http_fetch(url: &str) -> Result<Option<Vec<u8>>, String> {
         .https_only(true) // a redirect to plain http fails too
         .timeout_connect(Duration::from_secs(15))
         .timeout_read(Duration::from_secs(120))
+        .timeout(Duration::from_secs(300)) // overall, so a trickling download cannot hang the launch
         .user_agent(concat!("zenith-bridge/", env!("CARGO_PKG_VERSION")))
         .build();
-    let mut req = agent.get(url).set("Accept", "application/vnd.github+json");
+    let mut req = agent.get(url);
     if url.starts_with("https://api.github.com/") {
+        req = req.set("Accept", "application/vnd.github+json");
         if let Ok(token) = std::env::var("GITHUB_TOKEN") {
             if !token.is_empty() {
                 req = req.set("Authorization", &format!("Bearer {token}"));
