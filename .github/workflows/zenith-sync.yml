@@ -15,26 +15,28 @@ permissions:
 concurrency: zenith-sync
 
 env:
-  GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
   # the extra `upstream` remote would otherwise make gh resolve horizon-rust/horizon
   GH_REPO: ${{ github.repository }}
 
+# The sync PAT is given only to the steps that push, open PRs, dispatch or disable workflows. The steps that run
+# the merged upstream code (cargo build/test/clippy, build.rs, proc macros) never see it, and checkout does not
+# keep it in .git/config.
 jobs:
   sync:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: main
-          token: ${{ secrets.ZENITH_SYNC_TOKEN }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install system deps
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
 
       - name: Pick nightly
         id: pick
@@ -61,27 +63,34 @@ jobs:
         run: git config merge.ours.driver true
 
       - name: Merge nightly source
+        id: merge
         if: steps.pick.outputs.skip == 'false'
         env:
           TAG: ${{ steps.pick.outputs.tag }}
-          BRANCH: sync/${{ steps.pick.outputs.date }}-${{ steps.pick.outputs.short }}
         run: |
           git config user.name zenith-sync
           git config user.email zenith-sync@users.noreply.github.com
           if ! git merge --no-edit "$TAG"; then
-            files=$(git diff --name-only --diff-filter=U)
+            git diff --name-only --diff-filter=U > "$RUNNER_TEMP/conflicts.txt"
             git merge --abort
-            git push -f origin "$TAG^{commit}:refs/heads/$BRANCH"
-            gh pr create --base main --head "$BRANCH" --title "sync: $TAG (conflicts)" \
-              --body "Automatic merge of $TAG conflicts in:"$'\n\n'"$files"
-            exit 1
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Check merged tree
-        if: steps.pick.outputs.skip == 'false'
+      - name: Report merge conflicts
+        if: steps.merge.outputs.conflict == 'true'
         env:
+          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
           TAG: ${{ steps.pick.outputs.tag }}
           BRANCH: sync/${{ steps.pick.outputs.date }}-${{ steps.pick.outputs.short }}
+        run: |
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TAG^{commit}:refs/heads/$BRANCH"
+          printf 'Automatic merge of %s conflicts in:\n\n%s\n' "$TAG" "$(cat "$RUNNER_TEMP/conflicts.txt")" > "$RUNNER_TEMP/body.md"
+          gh pr create --base main --head "$BRANCH" --title "sync: $TAG (conflicts)" --body-file "$RUNNER_TEMP/body.md"
+          exit 1
+
+      - name: Check merged tree
+        id: check
+        if: steps.pick.outputs.skip == 'false' && steps.merge.outputs.conflict != 'true'
         run: |
           # Zenith is client-only: the dedicated server and bot benchmark are not built or tested
           step=""
@@ -94,27 +103,41 @@ jobs:
           [ -n "$step" ] || cargo test --manifest-path zenith/bridge/Cargo.toml --locked || step="bridge cargo test"
           [ -n "$step" ] || cargo build -p horizon-client --locked || step="cargo build client"
           [ -n "$step" ] || python3 zenith/ci/check_launch_api.py target/debug/horizon-client || step="launch API check"
-          if [ -n "$step" ]; then
-            git push -f origin "HEAD:refs/heads/$BRANCH"
-            gh pr create --base main --head "$BRANCH" --title "sync: $TAG (failed: $step)" \
-              --body "Merging $TAG into main failed the step: $step."
-            exit 1
-          fi
+          echo "failed=$step" >> "$GITHUB_OUTPUT"
+
+      - name: Report a failed check
+        if: steps.check.outputs.failed != ''
+        env:
+          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
+          TAG: ${{ steps.pick.outputs.tag }}
+          FAILED: ${{ steps.check.outputs.failed }}
+          BRANCH: sync/${{ steps.pick.outputs.date }}-${{ steps.pick.outputs.short }}
+        run: |
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
+          gh pr create --base main --head "$BRANCH" --title "sync: $TAG (failed: $FAILED)" --body "Merging $TAG into main failed the step: $FAILED."
+          exit 1
 
       - name: Push main
-        if: steps.pick.outputs.skip == 'false'
-        run: git push origin HEAD:main
+        if: steps.pick.outputs.skip == 'false' && steps.check.outputs.failed == ''
+        env:
+          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
+        run: git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
 
       - name: Disable non-zenith workflows
-        if: steps.pick.outputs.skip == 'false'
+        if: steps.pick.outputs.skip == 'false' && steps.check.outputs.failed == ''
+        env:
+          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
         run: |
           # New Horizon workflows arrive active; 403 "not active" (seen on the fork) is tolerated.
-          gh api "repos/$GITHUB_REPOSITORY/actions/workflows" --paginate \
-            --jq '.workflows[] | select(.state=="active") | select(.path | startswith(".github/workflows/zenith-") | not) | .id' |
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows" --paginate             --jq '.workflows[] | select(.state=="active") | select(.path | startswith(".github/workflows/zenith-") | not) | .id' |
           while read -r id; do
             gh api -X PUT "repos/$GITHUB_REPOSITORY/actions/workflows/$id/disable" || echo "could not disable $id (tolerated)"
           done
 
+      # zenith-release.yml requires `date` to be today's UTC date, not the upstream nightly's.
       - name: Trigger release
-        if: steps.pick.outputs.skip == 'false' && vars.ZENITH_AUTOPUBLISH != 'off'
-        run: gh workflow run zenith-release.yml -f release="${{ steps.pick.outputs.release }}" -f date="${{ steps.pick.outputs.date }}"
+        if: steps.pick.outputs.skip == 'false' && steps.check.outputs.failed == '' && vars.ZENITH_AUTOPUBLISH != 'off'
+        env:
+          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
+          RELEASE: ${{ steps.pick.outputs.release }}
+        run: gh workflow run zenith-release.yml -f release="$RELEASE" -f date="$(date -u +%F)"
