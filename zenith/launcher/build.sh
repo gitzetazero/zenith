@@ -10,14 +10,15 @@ zip=$1; bridge=$2; out=$3; label=$4; installer=${5:-yes}
 pin() { sed -n "s/^$1=//p" "$here/xmcl-pin.txt" | tr -d '\r'; }
 want=$(pin sha256); asset=$(pin asset)
 [[ "$(basename "$zip")" == "$asset" ]] || { echo "::error::$zip is not the pinned asset $asset"; exit 1; }
-got=$(sha256sum "$zip" | cut -d' ' -f1)
+got=$(sha256sum < "$zip" | cut -d" " -f1)
 [[ "$got" == "$want" ]] || { echo "::error::SHA-256 of $asset is $got, the pin says $want"; exit 1; }
 [[ -f "$bridge" ]] || { echo "::error::no bridge exe at $bridge"; exit 1; }
 
+win() { if command -v cygpath > /dev/null; then cygpath -w "$1"; else echo "$1"; fi; } # native tools want C:\ paths
 mkdir -p "$out"; out=$(cd "$out" && pwd)
 work=$(mktemp -d); trap 'rm -rf "$work"' EXIT
 stage="$work/stage"; mkdir -p "$stage/licencias"
-if command -v 7z > /dev/null; then 7z x -y -o"$stage" "$zip" > /dev/null; else unzip -q "$zip" -d "$stage"; fi
+if command -v 7z > /dev/null; then 7z x -y "-o$(win "$stage")" "$(win "$zip")" > /dev/null; else unzip -q "$zip" -d "$stage"; fi
 [[ -f "$stage/XMCL.exe" && -f "$stage/resources/app.asar" ]] || { echo "::error::XMCL.exe or resources/app.asar missing in the zip"; exit 1; }
 cp "$bridge" "$stage/zenith-bridge.exe"
 cp "$here/LICENSE.xmcl" "$stage/licencias/XMCL-LICENSE.txt"
@@ -31,7 +32,7 @@ cp -r "$stage/." "$p/"
 printf '@echo off\r\nstart "" "%%~dp0zenith-bridge.exe" start\r\n' > "$p/Zenith Launcher.cmd"
 { printf '\xEF\xBB\xBF'; sed 's/$/\r/' "$here/README-PORTABLE.txt"; } > "$p/README-PORTABLE.txt"
 rm -f "$out/Zenith-Launcher-Portable-x64.zip"
-(cd "$work/portable" && 7z a -tzip -mx=5 "$out/Zenith-Launcher-Portable-x64.zip" Zenith-Launcher-Portable > /dev/null)
+(cd "$work/portable" && 7z a -tzip -mx=5 "$(win "$out/Zenith-Launcher-Portable-x64.zip")" Zenith-Launcher-Portable > /dev/null)
 
 if [[ "$installer" == --no-installer ]]; then ls -l "$out"; exit 0; fi
 # The installer's file list and the uninstaller's come from the same staged tree, so the uninstaller deletes
@@ -46,7 +47,6 @@ done > "$work/gen/install.nsh"
 (cd "$stage" && find . -mindepth 1 -type d | LC_ALL=C sort -r) | while IFS= read -r d; do
   d=${d#./}; printf 'RMDir "$INSTDIR\\%s"\n' "${d//\//\\}"
 done > "$work/gen/rmdir.nsh"
-win() { if command -v cygpath > /dev/null; then cygpath -w "$1"; else echo "$1"; fi; }
 MSYS_NO_PATHCONV=1 makensis -V2 -INPUTCHARSET UTF8 \
   -DSTAGE="$(win "$stage")" -DGEN="$(win "$work/gen")" -DOUT="$(win "$out/Zenith-Launcher-Setup-x64.exe")" \
   -DVERSION="$label" "$(win "$here/installer.nsi")"
