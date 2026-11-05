@@ -75,10 +75,20 @@ def merge(repo, ref, no_cargo=False, output=None):
         emit({"outcome": "up-to-date", **base}, output)
         return 0
     head = rev(repo, "HEAD")
+    if git(repo, "status", "--porcelain", "--untracked-files=no").stdout.strip():
+        # the blocked paths below `reset --hard`: never run on a tree with work in it
+        emit({"outcome": "blocked", "reason": "dirty-worktree", "commit": upstream, "conflicts": "uncommitted changes", **base}, output)
+        return BLOCKED
     git(repo, "config", "merge.ours.driver", "true")  # README.md & co: merge=ours in .gitattributes
     git(repo, "config", "user.name", "zenith-sync")
     git(repo, "config", "user.email", "zenith-sync@users.noreply.github.com")
-    git(repo, "merge", "--no-commit", "--no-ff", upstream, check=False)
+    started = git(repo, "merge", "--no-commit", "--no-ff", upstream, check=False)
+    if git(repo, "rev-parse", "-q", "--verify", "MERGE_HEAD", check=False).returncode != 0:
+        # git refused to start the merge (dirty tree, no identity...): never commit the tree as a fake "merge"
+        git(repo, "reset", "--hard", head)
+        why = (started.stderr or started.stdout).strip().replace(chr(10), " ")[:300]
+        emit({"outcome": "blocked", "reason": "merge-not-started", "commit": upstream, "conflicts": why, **base}, output)
+        return BLOCKED
     resolve_generated(repo)
     prune.prune(repo, os.path.join(HERE, "prune-paths.txt"))  # also removes pruned files the merge brought in
     left = unmerged(repo)
@@ -92,6 +102,10 @@ def merge(repo, ref, no_cargo=False, output=None):
     git(repo, "add", "-A")
     git(repo, "commit", "-q", "-m", f"Merge horizon-rust/horizon main ({base['short']}) into main")
     merged = rev(repo, "HEAD")
+    if git(repo, "merge-base", "--is-ancestor", upstream, merged, check=False).returncode != 0:
+        git(repo, "reset", "--hard", head)
+        emit({"outcome": "blocked", "reason": "upstream-not-merged", "commit": merged, **base}, output)
+        return BLOCKED
     with open(os.path.join(repo, "zenith/ci/zenith-manifest.json"), encoding="utf-8") as f:
         bad = check_zenith_intact.check(repo, json.load(f))
     if bad:

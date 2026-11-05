@@ -109,6 +109,15 @@ class SyncTest(unittest.TestCase):
         self.assertEqual(rc, sync.BLOCKED)
         self.assertEqual(git(r, "rev-parse", "HEAD").stdout, before)
 
+    def test_dirty_worktree_is_refused_and_left_alone(self):
+        r = setup()
+        refresh_manifest(r)
+        fake_upstream(r, **{"crates__engine.rs": "fn engine() { new(); }\n"})
+        write(r, "crates/engine.rs", "fn engine() { local(); }\n")
+        rc, out = self.go(r)
+        self.assertEqual((rc, out["reason"]), (sync.BLOCKED, "dirty-worktree"))
+        self.assertIn("local()", open(os.path.join(r, "crates/engine.rs")).read())
+
     def test_release_decision(self):
         r = setup()
         up = git(r, "rev-parse", "up").stdout.strip()
