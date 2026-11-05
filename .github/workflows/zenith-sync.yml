@@ -83,14 +83,16 @@ jobs:
           TAG: ${{ steps.pick.outputs.tag }}
           BRANCH: sync/${{ steps.pick.outputs.date }}-${{ steps.pick.outputs.short }}
         run: |
+          # Zenith is client-only: the dedicated server and bot benchmark are not built or tested
           step=""
           python3 tools/check_public_tree.py || step="check_public_tree"
           [ -n "$step" ] || cargo fmt --all --check || step="cargo fmt"
-          [ -n "$step" ] || cargo clippy --workspace --all-targets --locked -- -D warnings || step="cargo clippy"
-          [ -n "$step" ] || cargo test --workspace --locked || step="cargo test"
+          [ -n "$step" ] || cargo clippy --workspace --exclude horizon-server --exclude horizon-bots --all-targets --locked -- -D warnings || step="cargo clippy"
+          [ -n "$step" ] || cargo test --workspace --exclude horizon-server --exclude horizon-bots --locked || step="cargo test"
           [ -n "$step" ] || cargo fmt --manifest-path zenith/bridge/Cargo.toml --check || step="bridge cargo fmt"
           [ -n "$step" ] || cargo clippy --manifest-path zenith/bridge/Cargo.toml --all-targets --locked -- -D warnings || step="bridge cargo clippy"
           [ -n "$step" ] || cargo test --manifest-path zenith/bridge/Cargo.toml --locked || step="bridge cargo test"
+          [ -n "$step" ] || cargo build -p horizon-client --locked || step="cargo build client"
           [ -n "$step" ] || python3 zenith/ci/check_launch_api.py target/debug/horizon-client || step="launch API check"
           if [ -n "$step" ]; then
             git push -f origin "HEAD:refs/heads/$BRANCH"

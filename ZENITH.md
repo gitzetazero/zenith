@@ -51,3 +51,9 @@ quedándose con la versión de upstream. Al fusionar se añadieron a mano `..BEF
 ## Solo cliente
 
 Zenith es solo el cliente: el servidor dedicado (`horizon-server`, los archivos `horizon-server-*`, `package-server`, `docs/hosting`) no se compila, empaqueta ni publica. Su código sigue en el repo sin tocar para evitar conflictos al sincronizar; la única edición es la lista `TOOLS` de `xtask/src/main.rs` (marcada `// zenith:`), que ya no exige `horizon-server`. El servidor integrado de un jugador va dentro del cliente.
+
+## Estado
+
+Verificado: versiones firmadas y pruebas de manipulación, pruebas del puente, prueba de humo del cliente real con propietario inyectado.
+
+Sin verificar: Play real desde XMCL, respuesta real de la API de propietario, el camino de fusión de la sincronización, adaptadores 1.20.2-1.21.8 contra servidores reales, Linux.

@@ -13,13 +13,19 @@ Todo el motor es obra del equipo de Horizon y sus colaboradores. Zenith solo añ
 - **Nombre:** el juego muestra "Zenith" y ya no ofrece los servidores de Horizon.
 - **Servidores más antiguos:** el traductor de versiones viene activado por defecto, con un selector de versión por servidor. Hay adaptadores de 1.20.2 a 26.2; los de 1.20.2 a 1.21.7 son experimentales.
   Vienen del [PR #8718 de Horizon](https://github.com/horizon-rust/horizon/pull/8718), que sigue en borrador y **no se ha probado contra servidores reales**.
-- **Todo lo demás es Horizon**, sincronizado desde sus compilaciones nocturnas.
+- **Todo lo demás es Horizon.** La `main` de Zenith ya contiene la `main` de Horizon hasta el 2026-11-04, y un workflow diario (`zenith-sync`) fusiona las nuevas compilaciones nocturnas de Horizon. Se ha ejecutado una sola vez y no había nada nuevo que fusionar, así que el camino de fusión y comprobación todavía no está probado.
+
+**Solo cliente.** Zenith no compila, empaqueta ni publica el servidor dedicado de Horizon; el servidor integrado del modo un jugador va dentro del cliente.
+
+## Cómo se juega
+
+Experimental, solo Windows. Hace falta [XMCL](https://xmcl.app/en/) y una cuenta de Microsoft que sea dueña de Minecraft: Java Edition. Se instala con `zenith-bridge-windows-x64.exe setup`, que está en la página de Releases del repositorio. Los pasos están en [`zenith/README.md`](zenith/README.md).
+Todavía no se ha verificado contra la interfaz real de XMCL.
 
 ## Qué está planeado
 
 Nada de esto existe todavía:
 
-- Jugar desde [XMCL](https://xmcl.app/en/) mediante un pequeño puente.
 - Presets de FPS (máximo, equilibrado, calidad).
 - Shaders que funcionen bien.
 - Un launcher propio en Rust, traducción de XMCL.
