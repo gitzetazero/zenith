@@ -57,3 +57,22 @@ Zenith es solo el cliente: el servidor dedicado (`horizon-server`, los archivos 
 Verificado: versiones firmadas y pruebas de manipulación, pruebas del puente, prueba de humo del cliente real con propietario inyectado.
 
 Sin verificar: Play real desde XMCL, respuesta real de la API de propietario, el camino de fusión de la sincronización, adaptadores 1.20.2-1.21.8 contra servidores reales, Linux.
+
+## Launcher (fase 6)
+
+Estado: **empezando**. La fase 6 traduce XMCL v0.73.1 (MIT, TypeScript/Vue/Electron) a Rust, como programa propio de Zenith. Hay un esqueleto que abre una ventana, un inventario de lo que hay que traducir y una primera pieza portada con sus tests (el esquema de `instance.json`). No sirve todavía para jugar y no tiene inicio de sesión.
+
+Dónde está: repositorio local, pendiente de que el usuario autorice publicarlo. No tiene remoto; no hay repositorio en GitHub.
+
+Plan por etapas (detalle en `docs/xmcl-parity.md` del repositorio del launcher, que es el contrato):
+
+1. Ventana, componentes, temas, idiomas y ajustes.
+2. Cuenta de Microsoft, instancias y arranque de Zenith. Desde aquí sustituye al puente y a XMCL para jugar a Zenith.
+3. Descargas: Minecraft, Java, Forge, Fabric, Quilt, OptiFine, espejos, instancias Java.
+4. Recursos: mods, shaders, resource packs, mundos, Modrinth, CurseForge, `.hmod`.
+5. Modpacks: importar y exportar.
+6. El resto: multijugador P2P y cuentas de terceros.
+
+Bloqueado hasta que el usuario actúe: el inicio de sesión real necesita una app de Azure propia y la aprobación de Mojang (`docs/microsoft-account.md`). Hasta entonces solo hay cuentas offline de desarrollo, que nunca son una forma de jugar.
+
+El instalador y el zip portable que empaquetan XMCL sin modificar (Electron) son un paso **provisional**: se usan hasta que la etapa 2 esté lista y se retiran entonces.
