@@ -6,9 +6,10 @@ run-name: zenith-release ${{ inputs.date }}
 # Not affiliated with Mojang or Microsoft. Set the repository variable ZENITH_AUTOPUBLISH to `off` to stop it.
 #
 # Publish ordering (the old `nightly` is never deleted, so launchers always find a release):
-#   1. a DRAFT nightly-<date> gets all four files; its file list is checked (a leftover draft or an unfinished
-#      dated release from an earlier attempt is removed first);
-#   2. `nightly` is updated in place: the archives, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
+#   1. a DRAFT nightly-<date> gets all six files (the two archives, the bridge exe, the build stamp, SHA256SUMS and
+#      its signature); its file list is checked (a leftover draft or an unfinished dated release from an earlier
+#      attempt is removed first);
+#   2. `nightly` is updated in place: the four signed files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
 #      window a launcher finds sums that do not match the signature or the archives and fails closed; then its
 #      tag moves to this commit and its title changes; its assets are downloaded and verified again;
 #   3. only then is nightly-<date> published. Its existence means "done", so the gate lets a retry through while
@@ -79,10 +80,10 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
       - name: Exporters from the Horizon Release, signature checked (our own classes only)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -105,7 +106,7 @@ jobs:
           stray=$(find exporters ! -type d ! -path exporters/manifest.json \
             ! \( -name '*.class' \( -path 'exporters/server/dev/horizonlab/parity/*' -o -path 'exporters/client/dev/horizonlab/parity/*' \) \))
           [ -z "$stray" ] || { echo "::error::not one of our classes: $stray"; exit 1; }
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: exporters
           path: exporters/
@@ -141,17 +142,17 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
         with:
           shared-key: zenith-${{ matrix.name }}
       - name: ALSA and udev headers
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libasound2-dev libudev-dev
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: exporters
           path: exporters
@@ -168,38 +169,81 @@ jobs:
             *) 7z a -tzip "${{ matrix.asset }}" "${{ matrix.dir }}" > /dev/null ;;
           esac
           ls -l "${{ matrix.asset }}"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ matrix.asset }}
           path: dist/${{ matrix.asset }}
           if-no-files-found: error
           retention-days: 3
 
+  bridge:
+    needs: gate
+    if: needs.gate.outputs.go == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      RUSTFLAGS: -C target-feature=+crt-static
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+        with:
+          workspaces: zenith/bridge
+          shared-key: zenith-bridge
+      - name: Build the bridge (its own workspace)
+        run: |
+          set -euo pipefail
+          cargo build --release --locked --manifest-path zenith/bridge/Cargo.toml
+          mkdir -p dist
+          cp zenith/bridge/target/release/zenith-bridge.exe dist/zenith-bridge-windows-x64.exe
+          ls -l dist
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: zenith-bridge-windows-x64.exe
+          path: dist/zenith-bridge-windows-x64.exe
+          if-no-files-found: error
+          retention-days: 3
+
   sign:
-    needs: [gate, build]
+    needs: [gate, build, bridge]
     if: needs.gate.outputs.go == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
       # Nothing from the repository but the signing script, which only hashes and signs the archives.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           sparse-checkout: tools/ci/sign_release.sh
           sparse-checkout-cone-mode: false
           persist-credentials: false
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: dist
-          pattern: horizon-*
+          pattern: '{horizon-*,zenith-bridge-*}'
           merge-multiple: true
+      # The stamp tells launchers which commit this is and when it was built; being signed with the rest,
+      # the bridge uses it to refuse a downgrade.
+      - name: Build stamp
+        env:
+          SHA: ${{ github.sha }}
+        run: printf 'commit=%s\nbuilt=%s\n' "$SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/zenith-build.txt
       - name: Sign the checksums for the nightly channel
         env:
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
-        run: bash tools/ci/sign_release.sh nightly dist/horizon-linux-x86_64.tar.gz dist/horizon-windows-x64.zip
-      - uses: actions/upload-artifact@v7
+        run: >
+          bash tools/ci/sign_release.sh nightly dist/horizon-linux-x86_64.tar.gz dist/horizon-windows-x64.zip
+          dist/zenith-bridge-windows-x64.exe dist/zenith-build.txt
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: signature
-          path: dist/SHA256SUMS*
+          path: |
+            dist/SHA256SUMS*
+            dist/zenith-build.txt
           if-no-files-found: error
           retention-days: 3
 
@@ -211,14 +255,14 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: actions/download-artifact@v8
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: dist
-          pattern: '{horizon-*,signature}'
+          pattern: '{horizon-*,zenith-bridge-*,signature}'
           merge-multiple: true
       - name: The signature, checked as the bridge checks it
         run: cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" dist

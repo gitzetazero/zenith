@@ -15,8 +15,8 @@ No se distribuye ningún archivo de Mojang: XMCL descarga Minecraft y el puente 
 ## Instalación
 
 1. Instala XMCL, ábrelo una vez, elige la carpeta de datos y ciérralo.
-2. En la pestaña Releases de este repositorio descarga `zenith-bridge-windows-x64.exe` y comprueba que su SHA-256 coincide con su entrada en `SHA256SUMS` (`certutil -hashfile zenith-bridge-windows-x64.exe SHA256`).
-3. Ejecuta `zenith-bridge-windows-x64.exe setup` desde una consola. Copia el puente a `%APPDATA%\zenith\java\bin` (como `java.exe` y `javaw.exe`) y crea la instancia **Zenith** en la carpeta de datos de XMCL. Si XMCL estaba abierto, ciérralo del todo y ábrelo otra vez: la instancia se aplica al reiniciarlo.
+2. En la pestaña Releases de este repositorio, en la pre-release `nightly`, descarga `zenith-bridge-windows-x64.exe` y comprueba que su SHA-256 coincide con su línea de `SHA256SUMS` (`certutil -hashfile zenith-bridge-windows-x64.exe SHA256`). Puedes dejarlo en cualquier carpeta.
+3. Desde una consola, ejecuta `zenith-bridge-windows-x64.exe setup`. Copia el puente a `%APPDATA%\zenith\java\bin` (como `java.exe` y `javaw.exe`) y crea la instancia **Zenith** en la carpeta de datos de XMCL. Si XMCL estaba abierto, ciérralo del todo y ábrelo otra vez: la instancia se aplica al reiniciarlo.
 4. En XMCL inicia sesión con tu cuenta de Microsoft, elige la instancia Zenith y pulsa Jugar.
 
 La primera vez XMCL descarga Minecraft 26.3 (es normal) y Zenith prepara sus recursos: de unos 30 segundos a unos minutos. Si no tienes un Java 25 instalado, Zenith descarga el runtime de Java de Mojang para esa preparación.
@@ -38,7 +38,7 @@ Es un programa de ventana: haciendo doble clic o sin consola, el resultado sale 
 
 ## Actualizaciones
 
-Automáticas: al pulsar Jugar el puente busca la última build, verifica su firma y su hash, y la instala. Sin conexión usa la ya instalada. Para quedarte en una versión, usa `use`. Las copias de `java.exe`/`javaw.exe` solo se renuevan con `setup`.
+Automáticas: al pulsar Jugar el puente busca la última build y la instala tras verificarla él mismo: la firma de `SHA256SUMS`, el hash del archivo y un sello de compilación firmado (`zenith-build.txt`) con el que rechaza una build más antigua que la instalada. Sin conexión usa la ya instalada. Para quedarte en una versión, usa `use`. Las copias de `java.exe`/`javaw.exe` son el puente que ejecutaste con `setup`: renovarlas exige descargar un `zenith-bridge-windows-x64.exe` más nuevo (comprobando su hash) y ejecutar `setup` otra vez.
 
 ## Solución de problemas
 
