@@ -27,7 +27,8 @@ pub use pose::{Pose, pose_matrix};
 /// cosmetic (`prefs::Others::effective`, the same day: a player who owns none sees a vanilla game
 /// and the game asks nothing about other players, as CONTRIBUTING.md asks), until the player
 /// chooses. `HORIZON_COSMETICS=0` turns everything off.
-pub const ON_BY_DEFAULT: bool = true;
+// zenith: off unless HORIZON_COSMETICS=1 (the shipped client must not contact Horizon's service by default).
+pub const ON_BY_DEFAULT: bool = false;
 
 /// The cosmetics service (`HORIZON_COSMETICS_API` overrides it).
 pub const API: &str = "https://cosmetics.playhorizon.dev";
@@ -42,6 +43,9 @@ pub fn enabled() -> bool {
         _ => ON_BY_DEFAULT,
     })
 }
+
+// zenith: the shipped client stays quiet unless HORIZON_COSMETICS=1 (checked when compiling).
+const _: () = assert!(!ON_BY_DEFAULT);
 
 /// `HORIZON_COSMETICS=1` asked for this run: the launcher shows its Wardrobe even while the
 /// cosmetics service has no Shop to show (development, screenshots).
