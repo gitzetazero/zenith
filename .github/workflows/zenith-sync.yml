@@ -51,7 +51,10 @@ jobs:
       - name: Fetch Horizon main
         run: |
           git remote add upstream https://github.com/horizon-rust/horizon.git
-          git fetch upstream main --tags --quiet
+          git fetch upstream main --no-tags --quiet
+          # Only Horizon's permanent nightly-source/* tags: its other tags (`nightly`...) clash with ours and would
+          # make a plain `--tags` fetch fail ("would clobber existing tag").
+          git fetch upstream 'refs/tags/nightly-source/*:refs/tags/nightly-source/*' --quiet
 
       - name: Merge Horizon main
         id: merge
