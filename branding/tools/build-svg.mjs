@@ -113,7 +113,7 @@ function banner(launcher) {
   if (!launcher) {
     const z = word('ZENITH', { x, y: 168, cap: 96, color: P.white, id: 'z', track: 3 });
     b += z.svg;
-    b += textPath(f6, 'Minecraft Java en su punto más alto.', x, 342, 36, P.white).svg;
+    b += textPath(f6, 'Minecraft en Rust, en su punto más alto.', x, 342, 36, P.white).svg;
     b += textPath(f5, 'fork de Horizon', x, 392, 24, P.mute).svg;
   } else {
     const z = word('ZENITH', { x, y: 148, cap: 84, color: P.white, id: 'z', track: 3 });

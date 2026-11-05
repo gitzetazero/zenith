@@ -1,4 +1,4 @@
-<img src="branding/png/banner.png" alt="Zenith: Minecraft Java en su punto más alto. Fork de Horizon." width="100%">
+<img src="branding/png/banner.png" alt="Zenith: Minecraft en Rust, en su punto más alto. Fork de Horizon." width="100%">
 
 # Zenith
 

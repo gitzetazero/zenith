@@ -18,10 +18,10 @@ esquinas vivas. Es propio y no es una fuente.
 
 ## Lema
 
-Principal: **Minecraft Java en su punto más alto.** (zenith es el punto más alto). Alternativas:
+Principal: **Minecraft en Rust, en su punto más alto.** (zenith es el punto más alto). Alternativas:
 
-- Minecraft, sin techo.
-- Lleva Minecraft más arriba.
+- Minecraft en Rust, sin techo.
+- Lleva Minecraft en Rust más arriba.
 
 ## Archivos
 
