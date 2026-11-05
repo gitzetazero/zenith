@@ -59,7 +59,7 @@ SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMain} "Unmodified XMCL and the Zenith bridge, in the chosen folder."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} "Creates a "Zenith Launcher" shortcut on the desktop."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} "Creates a $\"Zenith Launcher$\" shortcut on the desktop."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ; Only what this installer put in its own folder, its two shortcuts and its two registry keys.
