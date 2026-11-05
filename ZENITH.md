@@ -17,3 +17,23 @@ Zenith no está afiliado, respaldado ni patrocinado por Mojang AB ni por Microso
 ## Known failing upstream tests
 
 - `entities::drop_motion_tests::drops_match_vanillas_motion_bit_for_bit` fails on upstream 83ad384f4 too (last bit of one f64 differs on this machine).
+
+## Servidores 1.20.2 a 1.21.8 (Horizon #8718)
+
+Integrado el PR horizon-rust/horizon#8718 (borrador de TheApple05, adaptadores nativos para servidores antiguos)
+en el commit `cc3ee16e4664eeced430dc05d68074602d79ba63` de la rama `feature/older-servers-1.21.8`.
+
+Volver a traerlo:
+
+```bash
+git fetch https://github.com/TheApple05/horizon.git feature/older-servers-1.21.8
+git merge --no-ff FETCH_HEAD
+```
+
+La selección sigue siendo la de Zenith (`zenith_versions::choose`, activa por defecto);
+`HORIZON_OLDER_SERVERS=0` la apaga. Las versiones por debajo de 1.21.8 salen como "(experimental)".
+
+Cuando Horizon fusione el PR, la sincronización con upstream puede dar conflictos en
+`crates/horizon-protocol/src/adapter*`, `item.rs` y `tools/generate_registry_id_adapter.py`: resolverlos
+quedándose con la versión de upstream. Al fusionar se añadieron a mano `..BEFORE_26_1` en 1.21.8 y
+`dropped_components: &[]` en `v1_21_8_ids.rs`, y `item.rs` solo guarda el parche de componentes sin adaptador activo.

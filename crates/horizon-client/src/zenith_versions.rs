@@ -234,6 +234,29 @@ mod tests {
         );
     }
     #[test]
+    fn range_up_to_1_21_8_gives_the_1_21_8_variant() {
+        assert_eq!(
+            retry_version("usa 1.7.2-1.21.8"),
+            Some(ServerVersion::V1_21_8)
+        );
+    }
+    #[test]
+    fn cycle_reaches_the_older_adapters_and_labels_them_experimental() {
+        assert_eq!(
+            next_version(Some(ServerVersion::V1_21_3)),
+            Some(ServerVersion::V1_21_1)
+        );
+        assert!(ServerVersion::ALL.contains(&ServerVersion::V1_20_2));
+        assert_eq!(
+            name_label(ServerVersion::V1_20_2.name()),
+            format!("{} (experimental)", ServerVersion::V1_20_2.name())
+        );
+        assert_eq!(
+            name_label(ServerVersion::V1_21_8.name()),
+            ServerVersion::V1_21_8.name()
+        );
+    }
+    #[test]
     fn range_too_old_gives_none() {
         assert_eq!(retry_version("usa 1.7.2-1.12.2"), None);
     }
