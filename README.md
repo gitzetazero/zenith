@@ -8,13 +8,15 @@ Zenith es Minecraft: Java Edition 26.3 escrito de nuevo en Rust. Se instala, ent
 
 > **Estado: temprano y experimental.** No hay anuncio todavía. Lo que sigue describe lo que existe hoy, no una promesa.
 
-## Descargar e instalar
+## Download and install
 
-Solo Windows por ahora. Zenith Launcher (el programa que abre el juego) se está terminando y todavía no tiene su propia página de descargas. Mientras tanto hay un instalador provisional:
+Windows only for now. Download **Zenith Launcher** from the [zenith-launcher Releases](https://github.com/gitzetazero/zenith-launcher/releases) page (a fork of XMCL with Zenith built in):
 
-1. Ve a [Releases](https://github.com/gitzetazero/zenith/releases/tag/nightly) y descarga `Zenith-Launcher-Setup-x64.exe`. Si prefieres no instalar, hay una versión portátil: `Zenith-Launcher-Portable-x64.zip`.
-2. Ejecútalo. Se instala solo para tu usuario, sin administrador. Windows avisará («Windows protegió su PC») porque el instalador no está firmado: elige «Más información» y «Ejecutar de todas formas».
-3. Los pasos de la primera vez, las actualizaciones y los límites están en [`zenith/README.md`](zenith/README.md).
+1. Get `Zenith-Launcher-Setup-x64.exe` (per-user installer, no administrator) or `Zenith-Launcher-Portable-x64.exe`, and check it against `SHA256SUMS`.
+2. Run it. Windows will warn you ("Windows protected your PC") because the build is not code-signed: choose "More info", then "Run anyway".
+3. First-run steps, updates and limits are in [`zenith/README.md`](zenith/README.md). Note: Microsoft sign-in in Zenith Launcher needs an Azure app approved by Mojang that does not exist yet, so for now it shows a message instead of signing in.
+
+(The older interim installer on the [`nightly` release](https://github.com/gitzetazero/zenith/releases/tag/nightly) bundles unmodified XMCL and is being withdrawn.)
 
 ## Requisitos
 
@@ -25,7 +27,7 @@ Solo Windows por ahora. Zenith Launcher (el programa que abre el juego) se está
 
 ## Cómo jugar
 
-1. Instala y abre «Zenith Launcher».
+1. Install and open "Zenith Launcher".
 2. La primera vez te pide elegir una carpeta de datos. Elígela, cierra el launcher y ábrelo otra vez: así se crea la instancia «Zenith».
 3. Inicia sesión con tu cuenta de Microsoft.
 4. Elige la instancia «Zenith» y pulsa Jugar. La primera vez descarga y prepara los recursos: tarda desde unos segundos hasta unos minutos.

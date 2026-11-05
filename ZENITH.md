@@ -25,7 +25,7 @@ zenith/
   README.md          player guide (install, update, uninstall)
   SERVERS.md         server versions and how the translator picks one
   bridge/            the bridge (own workspace): ownership check, signed installs, launch
-  launcher/          the interim installer (bundles XMCL)
+  launcher/          the interim installer (bundles unmodified XMCL; superseded by the zenith-launcher fork)
   branding/          logo, palette, banners, icons and the tools that regenerate them
   ci/                sync, prune, intact check, link check, release publisher and their tests
 ```
@@ -113,18 +113,16 @@ Verified: signed versions and tamper tests, bridge tests, smoke test of the real
 
 Not verified: real Play from the launcher, the real owner API response, server adapters against real servers (the real matrix has not been run) and Linux.
 
-## Own launcher (phase 6)
+## Launcher
 
-Status: starting. XMCL v0.73.1 (MIT, TypeScript/Vue/Electron) is being translated to Rust as its own program: <https://github.com/gitzetazero/zenith-launcher>. It is not usable for playing yet and has no sign-in. Stages (detail in that repository's `docs/xmcl-parity.md`):
+Zenith Launcher is our own fork of XMCL (Voxelum, MIT, Electron + Vue), renamed and re-branded, with the Zenith bridge built in: <https://github.com/gitzetazero/zenith-launcher> (releases: <https://github.com/gitzetazero/zenith-launcher/releases>). It replaces the earlier plan of porting XMCL to Rust (archived as `gitzetazero/zenith-launcher-rust-port`) and the interim installer that bundled unmodified XMCL (`zenith/launcher/`).
 
-1. Window, components, themes, languages and settings.
-2. Microsoft account, instances and starting Zenith. From here it replaces the bridge and XMCL.
-3. Downloads: Minecraft, Java, Forge, Fabric, Quilt, OptiFine, mirrors.
-4. Resources: mods, shaders, resource packs, worlds, Modrinth, CurseForge, `.hmod`.
-5. Modpacks: import and export.
-6. The rest: P2P multiplayer and third-party accounts.
-
-Real sign-in needs an Azure app of our own and Mojang's approval (`docs/microsoft-account.md`). Until then there are only offline development accounts, which are never a way to play. The installer and the portable zip that package unmodified XMCL are interim: they will be withdrawn when stage 2 is ready.
+- Base: XMCL v0.73.1, kept mergeable with upstream (`git fetch upstream && git merge <tag>`); our changes are marked `// zenith:` or live in new files. Details, and the table of third-party IDs and endpoints XMCL embedded and what we did about each, are in the fork's `docs/ZENITH-LAUNCHER.md`.
+- No telemetry, no XMCL-hosted services. XMCL's Microsoft application ID is **not** used.
+- On first start the launcher creates the `Zenith` instance, whose Java is a copy of the bundled bridge.
+- The release workflow downloads the bridge from this repository's `nightly` release and verifies the Ed25519 signature of `SHA256SUMS` and the exe's SHA-256 before bundling it.
+- **Open problem:** Microsoft sign-in needs an Azure app of our own, approved by Mojang (`ZENITH_MSA_CLIENT_ID`). Until then it shows a clear message instead of signing in. The first releases are unsigned (SmartScreen warns) and not verified on third-party PCs.
+- `zenith/launcher/` (the interim installer built by `build.sh`) stays only while its release assets are still published; the fork's releases are the primary route.
 
 ## Legal notice
 
