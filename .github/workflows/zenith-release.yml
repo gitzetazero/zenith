@@ -222,57 +222,9 @@ jobs:
           merge-multiple: true
       - name: The signature, checked as the bridge checks it
         run: cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" dist
-      - name: Publish (ordering in the header)
+      - name: Publish (tools/ci/zenith_publish.sh, ordering in the header)
         env:
           GH_TOKEN: ${{ github.token }}
           DATE: ${{ inputs.date }}
           SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          repo=$GITHUB_REPOSITORY
-          dated="nightly-$DATE"
-          title="Nightly $DATE · ${SHA:0:7}"
-          want="SHA256SUMS SHA256SUMS.sig horizon-linux-x86_64.tar.gz horizon-windows-x64.zip"
-          {
-            echo "Zenith build of commit ${SHA:0:7}, signed for the nightly channel (SHA256SUMS, SHA256SUMS.sig)."
-            echo
-            echo "Zenith is an independent project. It is not affiliated with, endorsed by or sponsored by Mojang or Microsoft; Minecraft is their trademark. No Minecraft code or assets are included: the game files come from your own copy."
-            echo
-            echo "Built on [Horizon](https://github.com/horizon-rust/horizon)."
-          } > notes.md
-          archives=(dist/horizon-windows-x64.zip dist/horizon-linux-x86_64.tar.gz)
-          # The id of the release (draft or not) with this tag, empty if none.
-          release_id() { gh api --paginate "repos/$repo/releases" --jq ".[] | select(.tag_name == \"$1\") | .id" | sed -n 1p; }
-          assets_of() { gh api "repos/$repo/releases/$1" --jq '[.assets[].name] | sort | join(" ")'; }
-
-          # 1. The dated release as a draft: an earlier attempt's leftover (draft or published) goes first.
-          old=$(release_id "$dated")
-          if [[ -n "$old" ]]; then
-            gh api -X DELETE "repos/$repo/releases/$old"
-            if gh api "repos/$repo/git/ref/tags/$dated" > /dev/null 2>&1; then
-              gh api -X DELETE "repos/$repo/git/refs/tags/$dated"
-            fi
-          fi
-          gh release create "$dated" --draft --prerelease --target "$SHA" --title "$title" --notes-file notes.md \
-            "${archives[@]}" dist/SHA256SUMS dist/SHA256SUMS.sig
-          id=$(release_id "$dated")
-          [[ "$(assets_of "$id")" == "$want" ]] || { echo "::error::the draft's files are not the expected four"; exit 1; }
-
-          # 2. `nightly` updated in place: archives, SHA256SUMS, then SHA256SUMS.sig last.
-          if [[ -n "$(release_id nightly)" ]]; then
-            gh release upload nightly --clobber -R "$repo" "${archives[@]}"
-            gh release upload nightly --clobber -R "$repo" dist/SHA256SUMS
-            gh release upload nightly --clobber -R "$repo" dist/SHA256SUMS.sig
-            gh api -X PATCH "repos/$repo/git/refs/tags/nightly" -f sha="$SHA" -F force=true > /dev/null
-            gh release edit nightly -R "$repo" --title "$title" --notes-file notes.md --prerelease --latest=false
-          else
-            gh release create nightly --prerelease --latest=false --target "$SHA" --title "$title" --notes-file notes.md \
-              "${archives[@]}" dist/SHA256SUMS dist/SHA256SUMS.sig
-          fi
-          [[ "$(assets_of "$(release_id nightly)")" == "$want" ]] || { echo "::error::nightly does not hold exactly the expected four files"; exit 1; }
-          rm -rf check && mkdir check
-          gh release download nightly -R "$repo" -D check
-          cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" check
-
-          # 3. Last: the dated release goes public. Its existence means everything above finished.
-          gh api -X PATCH "repos/$repo/releases/$id" -F draft=false -f make_latest=false > /dev/null
+        run: bash tools/ci/zenith_publish.sh

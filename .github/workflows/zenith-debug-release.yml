@@ -1,22 +1,32 @@
 name: zenith-debug-release
-on: workflow_dispatch
+# temporary: runs the publish step on the artifacts of an earlier run
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        type: string
+        required: true
 permissions:
   contents: write
+  actions: read
 jobs:
-  t:
+  publish:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          pattern: '{horizon-*,signature}'
+          merge-multiple: true
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+      - run: cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" dist
       - env:
           GH_TOKEN: ${{ github.token }}
+          DATE: ${{ github.event.repository.pushed_at && '2026-11-05' }}
           SHA: ${{ github.sha }}
-        run: |
-          r=$GITHUB_REPOSITORY
-          echo hi > f.txt; echo notes > n.md
-          try() { echo "== $1"; shift; "$@" 2>&1 | cut -c1-200 | head -5 || true; }
-          try "gh create draft prerelease" gh release create zdbg-6 --draft --prerelease --target $SHA --title dbg --notes-file n.md f.txt
-          try "list" gh api repos/$r/releases --jq '.[]|[.id,.tag_name,.draft]|join(" ")'
-          for id in $(gh api repos/$r/releases --jq '.[]|select(.tag_name|startswith("zdbg-"))|.id'); do gh api -X DELETE repos/$r/releases/$id; done
-          gh api repos/$r/releases --jq '.[]|[.id,.tag_name,.draft]|join(" ")'
+        run: bash tools/ci/zenith_publish.sh
