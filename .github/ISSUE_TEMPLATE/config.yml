@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Fallo de seguridad
+    url: https://github.com/gitzetazero/zenith/security/advisories/new
+    about: Avisa en privado. No publiques detalles en un aviso.

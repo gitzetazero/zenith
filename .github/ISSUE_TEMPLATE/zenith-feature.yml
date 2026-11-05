@@ -1,0 +1,14 @@
+name: Idea
+description: Propón algo nuevo para Zenith
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Qué te gustaría
+    validations:
+      required: true
+  - type: textarea
+    id: por-que
+    attributes:
+      label: Para qué te sirve
