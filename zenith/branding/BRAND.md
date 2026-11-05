@@ -1,58 +1,56 @@
-# Marca de Zenith
+# Zenith brand
 
-Zenith no está afiliado a Mojang ni a Microsoft. Minecraft es una marca de Mojang Synergies AB.
-Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon) y su lanzador es un fork
-de XMCL. La marca es original: no imita logotipos, tipografías ni recursos de Minecraft, de
-Horizon ni de XMCL.
+Zenith is not affiliated with Mojang or Microsoft. Minecraft is a trademark of Mojang Synergies AB.
+Zenith is a fork of [Horizon](https://github.com/horizon-rust/horizon) and its launcher is a fork of XMCL.
+The brand is original: it does not imitate logos, typefaces or assets of Minecraft, Horizon or XMCL.
 
-## La idea
+## The idea
 
-*Zenith* es el punto más alto: el sol en su cenit, el punto justo sobre tu cabeza. El proyecto
-base se llama Horizon, así que la idea es **subir por encima del horizonte**. El símbolo es un
-disco solar en lo alto y, debajo, el arco claro de un horizonte curvo, dentro de un cuadrado de
-esquinas redondeadas con un degradado de índigo (noche) a violeta (amanecer). Son dos formas
-simples, así que se lee bien a 16 px.
+*Zenith* is the highest point, the spot straight above your head. The mark is a wide **Z whose upper corner is lit by a zenith star**: a four-point amber star that sits just above the end of the top bar and never touches it. Two simple shapes, so it reads at 16 px. It replaces the first mark (an arc and a disc), which looked like a generic user avatar and is retired.
 
-El logotipo de texto (`ZENITH`, `LAUNCHER`) está dibujado a mano con trazos geométricos y
-esquinas vivas. Es propio y no es una fuente.
+The lettering (`ZENITH`, `LAUNCHER`) is drawn by hand as filled outlines (cap height 76, stems 15, bars 14) with wide geometric letterforms that match the wide Z. It is our own drawing, not a font.
 
-## Lema
+## Tagline
 
-Principal: **Minecraft en Rust, en su punto más alto.** (zenith es el punto más alto). Alternativas:
+Main: **Minecraft in Rust, at its highest point.** Alternatives:
 
-- Minecraft en Rust, sin techo.
-- Lleva Minecraft en Rust más arriba.
+- Minecraft in Rust, no ceiling.
+- Take Minecraft in Rust higher.
 
-## Archivos
+Banners say "a fork of Horizon" (game) and "a fork of XMCL" (launcher).
 
-| Archivo | Uso |
+## Files
+
+| File | Use |
 |---|---|
-| `logo-mark.svg` | Símbolo, cuadrado. Funciona sobre fondo oscuro y claro (lleva su propio fondo). |
-| `logo-mark-mono-black.svg`, `logo-mark-mono-white.svg` | Una sola tinta; el símbolo queda calado (transparente) sobre un cuadrado sólido. |
-| `logo-mark-launcher.svg` | Símbolo con la insignia de "jugar" para Zenith Launcher. |
-| `logo-wordmark.svg`, `logo-wordmark-launcher.svg` | Símbolo + `ZENITH` / `ZENITH LAUNCHER`. El texto cambia a claro con `prefers-color-scheme: dark`. |
-| `banner.svg`, `banner-launcher.svg` | 1280x640 para README y redes. |
-| `png/` | Exportaciones: `logo-mark-{16..1024}.png`, `banner.png`, `banner-launcher.png`, `social-preview.png`. |
-| `icons/` | `zenith.ico`, `zenith-launcher.ico` (capas 16 a 256 px), `icon-512.png`, `icon-1024.png` (Electron/electron-builder). |
-| `palette.json`, `palette.css` | Colores y variables CSS (tema oscuro y claro) para el tema del lanzador. |
-| `tools/` | Scripts para regenerarlo todo (ver `tools/README.md`). |
+| `logo-mark.svg` | The mark on a transparent background, for **dark** backgrounds: mist `#F4F1FF` Z and amber `#FFB938` star. |
+| `logo-mark-light.svg` | The mark for **light** backgrounds: deep indigo `#231B8F` Z and violet `#5B4BFF` star (amber is too weak on white). |
+| `logo-mark-mono-black.svg`, `logo-mark-mono-white.svg` | One ink: Z and star in the same colour. |
+| `logo-tile.svg` | App icon: rounded square with the indigo-to-violet gradient, mist Z and amber star. Used for `icons/` and the ICO layers of 32 px and above. |
+| `logo-tile-small.svg` | The same tile hand-tuned for 16 and 24 px (heavier Z, fuller star). |
+| `logo-wordmark.svg`, `logo-wordmark-launcher.svg` | Mark + `ZENITH` / `ZENITH LAUNCHER`. Mark and text switch to the dark colourway with `prefers-color-scheme: dark`. |
+| `banner.svg`, `banner-launcher.svg` | 1280x640 for the README and social networks. |
+| `png/` | Exports: `logo-tile-{16..1024}.png`, `logo-mark-{dark,light}-{16,32,64,256}.png`, `logo-mark-256.png` (transparent), `banner.png`, `banner-launcher.png`, `social-preview.png`. |
+| `icons/` | `zenith.ico` and `zenith-launcher.ico` (layers 16 to 256 px; the launcher uses the same icon, because a badge is not legible at 16 px), `icon-512.png`, `icon-1024.png` (Electron/electron-builder). |
+| `palette.json`, `palette.css` | Colours and CSS variables (dark and light theme) for the launcher theme. |
+| `tools/` | Scripts that regenerate everything (see `tools/README.md`). |
 
-## Paleta
+## Palette
 
-Marca:
+Brand:
 
-| Nombre | Hex | Uso |
+| Name | Hex | Use |
 |---|---|---|
-| Primario | `#5B4BFF` | Violeta del degradado del símbolo, botones de marca |
-| Primario profundo | `#231B8F` | Índigo del degradado, parte alta del símbolo |
-| Acento (sol) | `#FFB938` | Disco solar, destacados; degradado hasta `#FF9A3C` |
-| Noche | `#0E1030` | Fondo oscuro |
-| Tinta | `#14163A` | Texto sobre fondo claro |
-| Bruma | `#F4F1FF` | Arco del horizonte, fondo claro suave |
+| Primary | `#5B4BFF` | Violet: tile gradient end, star on light backgrounds, brand buttons |
+| Primary deep | `#231B8F` | Indigo: tile gradient start, Z on light backgrounds |
+| Accent (star) | `#FFB938` | The star on dark backgrounds, highlights (`#FF9A3C` is the warm variant) |
+| Night | `#0E1030` | Dark background |
+| Ink | `#14163A` | Text on light backgrounds |
+| Mist | `#F4F1FF` | The Z on dark backgrounds, soft light background |
 
-Tokens de interfaz:
+Interface tokens:
 
-| Token | Oscuro | Claro |
+| Token | Dark | Light |
 |---|---|---|
 | surface | `#0E1030` | `#FAF9FF` |
 | surface-variant | `#1A1D45` | `#ECEAFB` |
@@ -66,45 +64,34 @@ Tokens de interfaz:
 | text-primary | `#F2F1FF` | `#14163A` |
 | text-secondary | `#A9A9D6` | `#55577F` |
 
-## Tamaños mínimos y espacio libre
+## Minimum size and clear space
 
-- Símbolo: mínimo 16 px (favicon, bandeja); a 16 y 24 px usa siempre el símbolo solo, nunca el
-  logotipo de texto.
-- Logotipo con texto: que la altura de las letras mayúsculas sea de al menos 14 px.
-- Espacio libre alrededor: al menos la cuarta parte del lado del símbolo (1/4 del ancho del
-  símbolo) por todos los lados.
-- La insignia de "jugar" del lanzador solo se usa a 32 px o más en material de marca; en iconos
-  pequeños es aceptable porque la forma sigue siendo legible.
+- Mark: at least 16 px (favicon, tray). At 16 and 24 px use the tile (`logo-tile-small.svg`) or the bare mark, never the lockup with text.
+- Lockup with text: capital letters at least 14 px tall.
+- Clear space: at least a quarter of the mark's width on every side.
+- The star never touches the Z (at least 14 design units apart). Do not enlarge or move it.
 
-## Qué hacer y qué no
+## Do and don't
 
-Sí:
-- Usa los archivos SVG o PNG tal cual; escala proporcionalmente.
-- Usa el símbolo sobre fondos oscuros o claros; ya lleva su fondo.
-- Usa las variantes monocromas cuando solo hay una tinta (sellos, grabado, impresión en negro).
+Do:
+- Use the SVG or PNG files as they are; scale proportionally.
+- Use `logo-mark.svg` on dark backgrounds and `logo-mark-light.svg` on light ones.
+- Use the mono variants when there is only one ink (stamps, engraving, black print).
 
-No:
-- No deformes, gires, recortes ni cambies los colores del símbolo.
-- No pongas sombras, brillos ni contornos sobre el símbolo.
-- No lo combines con imágenes de bloques, creepers ni logotipos de Minecraft, Mojang o Microsoft.
-- No uses el logotipo de Horizon ni el de XMCL en lugar del de Zenith, ni de forma que parezca un
-  producto oficial de ellos.
-- No sugieras que Zenith es un producto oficial de Mojang o Microsoft.
+Don't:
+- Do not stretch, rotate, crop or recolour the mark, and do not add shadows, glows or outlines.
+- Do not combine it with block, creeper or other Minecraft, Mojang or Microsoft imagery.
+- Do not use Horizon's or XMCL's logo instead of Zenith's, or in a way that looks like an official product of theirs.
+- Do not suggest that Zenith is an official product of Mojang or Microsoft.
 
-## Tipografía
+## Typeface
 
-Recomendada, no incluida: **Inter** (SIL Open Font License 1.1, <https://rsms.me/inter/>) para
-interfaz y documentación, en pesos 500 y 600 para titulares. Si no está disponible, la pila
-`system-ui, "Segoe UI", Roboto, sans-serif` es válida. El eslogan de los banners es Inter 600/500
-convertido a contornos, de modo que los SVG no necesitan la fuente instalada; Inter se distribuye
-con su licencia OFL (Copyright 2016 The Inter Project Authors).
+Recommended, not included: **Inter** (SIL Open Font License 1.1, <https://rsms.me/inter/>) for interface and docs, weights 500 and 600 for headings. If it is not available, the stack `system-ui, "Segoe UI", Roboto, sans-serif` is fine. The banner taglines are Inter 600/500 converted to outlines, so the SVGs do not need the font installed; Inter is distributed with its OFL licence (Copyright 2016 The Inter Project Authors).
 
-## Subir la vista previa social en GitHub
+## Upload the social preview on GitHub
 
-La API de GitHub no tiene un endpoint para esto: es un paso manual. En el repositorio:
-**Settings > Social preview > Edit > Upload an image** y elige `zenith/branding/png/social-preview.png`
-(1280x640).
+The GitHub API has no endpoint for this: it is a manual step. In the repository: **Settings > Social preview > Edit > Upload an image** and choose `zenith/branding/png/social-preview.png` (1280x640).
 
-## Regenerar
+## Regenerate
 
-Ver `tools/README.md`.
+See `tools/README.md`.

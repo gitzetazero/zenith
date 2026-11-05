@@ -11,20 +11,29 @@ const { Resvg } = createRequire(path.join(path.resolve(deps), 'x.js'))('@resvg/r
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 for (const d of ['png', 'icons']) mkdirSync(path.join(root, d), { recursive: true });
 
-const png = (svg, width) =>
-  new Resvg(readFileSync(path.join(root, svg), 'utf8'), { fitTo: { mode: 'width', value: width }, font: { loadSystemFonts: false } }).render().asPng();
+const png = (svg, width, background) =>
+  new Resvg(readFileSync(path.join(root, svg), 'utf8'),
+    { fitTo: { mode: 'width', value: width }, font: { loadSystemFonts: false }, ...(background ? { background } : {}) }).render().asPng();
 const put = (rel, buf) => writeFileSync(path.join(root, rel), buf);
+// Hand-tuned small tile for 16-24 px (heavier Z, fuller star), the normal tile above.
+const tileFor = s => (s <= 24 ? 'logo-tile-small.svg' : 'logo-tile.svg');
 
-for (const s of [16, 32, 48, 64, 128, 256, 512, 1024]) put(`png/logo-mark-${s}.png`, png('logo-mark.svg', s));
+for (const s of [16, 24, 32, 48, 64, 128, 256, 512, 1024]) put(`png/logo-tile-${s}.png`, png(tileFor(s), s));
+// the bare mark on its two backgrounds (looked at by eye when the mark changes)
+for (const s of [16, 32, 64, 256]) {
+  put(`png/logo-mark-dark-${s}.png`, png('logo-mark.svg', s, '#0E1030'));
+  put(`png/logo-mark-light-${s}.png`, png('logo-mark-light.svg', s, '#FFFFFF'));
+}
+put('png/logo-mark-256.png', png('logo-mark.svg', 256)); // transparent, for dark backgrounds
 put('png/banner.png', png('banner.svg', 1280));
 put('png/banner-launcher.png', png('banner-launcher.svg', 1280));
 put('png/social-preview.png', png('banner.svg', 1280));
-put('icons/icon-1024.png', png('logo-mark.svg', 1024));
-put('icons/icon-512.png', png('logo-mark.svg', 512));
+put('icons/icon-1024.png', png('logo-tile.svg', 1024));
+put('icons/icon-512.png', png('logo-tile.svg', 512));
 
 // ICO container with PNG-compressed layers (Vista+ format, 256 stored as 0).
-function ico(svg, sizes) {
-  const imgs = sizes.map(s => png(svg, s));
+function ico(sizes) {
+  const imgs = sizes.map(s => png(tileFor(s), s));
   const head = Buffer.alloc(6 + 16 * sizes.length);
   head.writeUInt16LE(1, 2); head.writeUInt16LE(sizes.length, 4);
   let off = head.length;
@@ -38,6 +47,6 @@ function ico(svg, sizes) {
   return Buffer.concat([head, ...imgs]);
 }
 const SIZES = [16, 24, 32, 48, 64, 128, 256];
-put('icons/zenith.ico', ico('logo-mark.svg', SIZES));
-put('icons/zenith-launcher.ico', ico('logo-mark-launcher.svg', SIZES));
+put('icons/zenith.ico', ico(SIZES));
+put('icons/zenith-launcher.ico', ico(SIZES)); // same icon: a badge is not legible at 16 px
 console.log('rendered');
