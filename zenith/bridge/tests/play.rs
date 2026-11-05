@@ -134,6 +134,7 @@ fn prepare_cmd_args() {
         Path::new("P"),
         Path::new("J.jar"),
         Path::new("W"),
+        Path::new("C:/jdk"),
     );
     let v = strs(&c);
     for pair in [
@@ -212,6 +213,7 @@ struct Fx {
     out: Rc<RefCell<Vec<(Stream, String)>>>,
     errors: Rc<RefCell<Vec<String>>>,
     fetched: Rc<RefCell<Vec<String>>>,
+    java: Result<PathBuf, String>,
 }
 
 fn fake_exe() -> PathBuf {
@@ -245,6 +247,7 @@ fn fx(name: &str, behavior: Value, extra: &[&str]) -> Fx {
     let mut argv = s(&[
         "C:\\jdk\\bin\\javaw.exe",
         "-Xmx2G",
+        "net.minecraft.client.main.Main",
         "--username",
         "Alex",
         "--version",
@@ -266,13 +269,16 @@ fn fx(name: &str, behavior: Value, extra: &[&str]) -> Fx {
         out: Default::default(),
         errors: Default::default(),
         fetched: Default::default(),
+        java: Ok(PathBuf::from("C:/jdk")),
     }
 }
 
 impl Fx {
     fn run(&self, owner: fn() -> OwnerCheck) -> i32 {
         let (out, errors, fetched) = (self.out.clone(), self.errors.clone(), self.fetched.clone());
+        let java = self.java.clone();
         let deps = Deps {
+            find_java: Box::new(move |_| java.clone()),
             home: self.home.clone(),
             keys: vec![],
             check_owner: Box::new(move |_| owner()),
@@ -526,7 +532,7 @@ fn session_json_escapes_quotes_and_backslashes() {
 #[test]
 fn run_without_a_java_folder_fails_clearly() {
     let mut f = fx("nojava", serde_json::json!({ "minecraft": "26.3" }), &[]);
-    f.argv[0] = "javaw.exe".into();
+    f.java = Err("No hay Java 25".into());
     assert_eq!(f.run(owner), 1);
     assert!(f.errors.borrow()[0].contains("Java"), "{:?}", f.errors);
     assert!(!f.records().iter().any(|r| has_flag(r, "--prepare")));

@@ -9,10 +9,14 @@ use zenith_bridge::play::Stream;
 use zenith_bridge::prepare::pinned_minecraft;
 use zenith_bridge::run::{Deps, run};
 use zenith_bridge::setup;
+use zenith_bridge::shim;
 
 /// No console to read errors from: show them.
 #[cfg(windows)]
 fn show_error(text: &str) {
+    if std::env::var_os("ZENITH_NO_DIALOG").is_some() {
+        return; // test seam: a modal box would hang the test run
+    }
     message_box(text, 0x10); // MB_ICONERROR
 }
 
@@ -121,8 +125,24 @@ fn main() {
     std::panic::set_hook(Box::new(move |info| {
         panic_store.log(&format!("panic: {info}"))
     }));
-    let argv = collect_args(std::env::args_os().skip(1));
-    if argv.is_empty() {
+    let mut argv = collect_args(std::env::args_os().skip(1));
+    let exe = std::env::current_exe().unwrap_or_default();
+    let shim_mode = shim::is_shim_name(&exe);
+    if shim_mode {
+        match shim::probe(&argv) {
+            Some(shim::Reply::Stderr(t)) => {
+                let _ = writeln!(std::io::stderr(), "{t}");
+                std::process::exit(0);
+            }
+            Some(shim::Reply::Stdout(t)) => {
+                let _ = writeln!(std::io::stdout(), "{t}");
+                std::process::exit(0);
+            }
+            // a game launch: XMCL's own view of the command line starts with the Java's path
+            None => argv.insert(0, exe.to_string_lossy().into_owned()),
+        }
+    }
+    if !shim_mode && argv.is_empty() {
         show_text(setup::HELP, true); // double-clicked: XMCL always passes arguments
         std::process::exit(0);
     }
@@ -134,7 +154,17 @@ fn main() {
     ) {
         std::process::exit(code);
     }
+    let java_home = store.root.clone();
     let deps = Deps {
+        find_java: Box::new(move |component| {
+            zenith_bridge::java::find_or_install(
+                &java_home,
+                component,
+                &zenith_bridge::java::system_candidates(),
+                &http_fetch,
+                &zenith_bridge::java::probe_major,
+            )
+        }),
         home: store.root,
         keys: embedded_keys(),
         check_owner: Box::new(|token| owner::check(MINECRAFT_API, token)),

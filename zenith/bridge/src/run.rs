@@ -13,6 +13,10 @@ use std::path::PathBuf;
 use std::process::Stdio;
 
 pub type Fetch = Box<dyn Fn(&str) -> Result<Option<Vec<u8>>, String>>;
+/// Minecraft's client entry point in the arguments XMCL passes.
+pub const MAIN_CLASS: &str = "net.minecraft.client.main.Main";
+
+pub type FindJava = Box<dyn Fn(&str) -> Result<PathBuf, String>>;
 pub type Emit = Box<dyn Fn(Stream, &str)>;
 
 pub struct Deps {
@@ -22,6 +26,9 @@ pub struct Deps {
     /// Asks the Minecraft services whether the token's account owns the game.
     pub check_owner: Box<dyn Fn(&str) -> OwnerCheck>,
     pub fetch: Fetch,
+    /// A Java home for `horizon-prepare`, given the version JSON's `javaVersion.component`.
+    /// Called only after the ownership check (it may download).
+    pub find_java: FindJava,
     /// One line for the bridge's stdout or stderr (XMCL's game log).
     pub emit: Emit,
     /// A refusal or failure, for a dialog: a GUI-subsystem exe has no console to read.
@@ -45,6 +52,9 @@ pub fn run(argv: &[String], d: &Deps) -> i32 {
 }
 
 fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
+    if !argv.iter().any(|a| a == MAIN_CLASS) {
+        return Err("Esta instancia no es un Minecraft de Zenith: solo se puede jugar la instancia «Zenith» de XMCL (este «Java» no sirve para otras instancias).".into());
+    }
     let a = LaunchArgs::parse(argv)?;
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -86,9 +96,12 @@ fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
         let jar = d.home.join("server-jars").join(format!("{pinned}.jar"));
         ensure_server_jar(&version_json, &jar, |u| (d.fetch)(u))?;
         ensure_index_alias(&version_json, &a.assets_dir)?;
-        if a.java_home().is_empty() {
-            return Err("XMCL passed a Java path without a folder; cannot prepare Horizon.".into());
-        }
+        let component = std::fs::read(&version_json)
+            .ok()
+            .and_then(|b| serde_json::from_slice::<serde_json::Value>(&b).ok())
+            .and_then(|v| v["javaVersion"]["component"].as_str().map(str::to_string))
+            .unwrap_or_else(|| "java-runtime-epsilon".into());
+        let java_home = (d.find_java)(&component)?;
         let work = d
             .home
             .join("work")
@@ -97,7 +110,7 @@ fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
             let _ = std::fs::remove_dir_all(&work);
         })?;
         let done = run_prepare(
-            prepare_cmd(&build, &a, &prepared, &jar, &work),
+            prepare_cmd(&build, &a, &prepared, &jar, &work, &java_home),
             &mut |s, l| (d.emit)(s, l),
         );
         let _ = std::fs::remove_dir_all(&work); // ~400 MB of scratch

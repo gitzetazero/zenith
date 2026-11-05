@@ -37,6 +37,7 @@ pub fn prepare_cmd(
     prepared: &Path,
     server_jar: &Path,
     work: &Path,
+    java_home: &Path,
 ) -> Command {
     let mc = a.minecraft_root();
     let v = &a.version;
@@ -55,14 +56,14 @@ pub fn prepare_cmd(
         .arg("--assets-dir")
         .arg(&a.assets_dir)
         .arg("--java-home")
-        .arg(a.java_home())
+        .arg(java_home)
         .arg("--output")
         .arg(prepared)
         .args(["--complete", "--progress", "json"]);
     c
 }
 
-fn sha1_hex(bytes: &[u8]) -> String {
+pub fn sha1_hex(bytes: &[u8]) -> String {
     Sha1::digest(bytes)
         .iter()
         .map(|b| format!("{b:02x}"))

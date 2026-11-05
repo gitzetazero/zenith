@@ -47,7 +47,6 @@ fn parses_real_xmcl_line() {
     assert_eq!(a.access_token, "FAKE_TOKEN");
     assert_eq!(a.game_dir, PathBuf::from("C:/fake/xmcl/instances/Zenith"));
     assert_eq!(a.minecraft_root(), PathBuf::from("C:/fake/xmcl"));
-    assert_eq!(a.java_home(), "C:\\fake\\xmcl\\jre\\java-runtime-epsilon");
     assert_eq!((a.width, a.height, a.fullscreen), (None, None, false));
     assert_eq!((a.join, a.world), (None, None));
 }
@@ -121,7 +120,6 @@ fn spaces_and_accents_in_paths() {
     let a = LaunchArgs::parse(&v).unwrap();
     assert_eq!(a.game_dir, PathBuf::from("C:/Users/José Ñ/inst ances/Z"));
     assert_eq!(a.minecraft_root(), PathBuf::from("C:/Users/José Ñ"));
-    assert_eq!(a.java_home(), "C:\\Users\\José Ñ\\jre");
 }
 
 #[test]

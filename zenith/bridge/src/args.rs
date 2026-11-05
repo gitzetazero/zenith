@@ -7,7 +7,8 @@ pub fn collect_args(args: impl Iterator<Item = std::ffi::OsString>) -> Vec<Strin
     args.map(|a| a.to_string_lossy().into_owned()).collect()
 }
 
-/// What XMCL passed to the game, reduced to what Horizon needs.
+/// What XMCL passed to the game, reduced to what Horizon needs. `java` is the bridge itself
+/// (it is the instance's "Java"): nothing is derived from it.
 pub struct LaunchArgs {
     pub java: PathBuf,
     pub version: String,
@@ -105,16 +106,6 @@ impl LaunchArgs {
             .parent()
             .map(PathBuf::from)
             .unwrap_or_default()
-    }
-
-    /// The JDK folder (parent of `bin`). Split by hand: XMCL mixes `\` and `/`, and a `Path` on another OS ignores `\`.
-    pub fn java_home(&self) -> String {
-        let java = self.java.to_string_lossy();
-        let mut s: &str = &java;
-        for _ in 0..2 {
-            s = s.rsplit_once(['\\', '/']).map_or("", |(head, _)| head);
-        }
-        s.to_string()
     }
 }
 
