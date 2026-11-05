@@ -10,6 +10,12 @@ Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon) (Minecra
 4. **Lo genérico se propone a Horizon.** Reduce nuestra diferencia. Cada PR externo necesita el visto bueno del usuario y sigue las reglas de agentes de su `AGENTS.md`.
 5. **Se heredan sus reglas de seguridad:** `tools/check_public_tree.py`, nada de archivos de Mojang en el repo, y carpetas temporales `HORIZON_HOME` / `HORIZON_LAUNCHER_HOME` en cualquier ejecución de prueba.
 
+## Marca
+
+**Archivos propios de Zenith:** `README.md` (protegido con `merge=ours` en `.gitattributes`: la sincronización nunca lo pisa), `ZENITH.md`, `docs/superpowers/**` y `zenith/**`.
+
+**Archivos de Horizon que se dejan como están a propósito**, porque reescribirlos daría conflicto en cada sincronización: `ROADMAP.md`, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `docs/**` y `THIRD_PARTY_NOTICES.md`. `CONTRIBUTING.md`, `AGENTS.md` y `CLAUDE.md` describen las reglas de Horizon; el contrato de Zenith es este `ZENITH.md`.
+
 ## Aviso legal
 
 Zenith no está afiliado, respaldado ni patrocinado por Mojang AB ni por Microsoft. Minecraft es una marca de Mojang AB. Este repositorio no contiene archivos de Mojang.

@@ -56,6 +56,10 @@ jobs:
             echo "short=$(jq -r .short <<<"$pick")"
           } >> "$GITHUB_OUTPUT"
 
+      # README.md merge=ours (.gitattributes) only works if the driver exists: `true` keeps our side without a conflict
+      - name: Enable merge=ours driver
+        run: git config merge.ours.driver true
+
       - name: Merge nightly source
         if: steps.pick.outputs.skip == 'false'
         env:
