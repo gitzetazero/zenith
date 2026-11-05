@@ -12,7 +12,7 @@ Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon) (Minecra
 
 ## Marca
 
-**Archivos propios de Zenith:** `README.md` (protegido con `merge=ours` en `.gitattributes`: la sincronización nunca lo pisa), `ZENITH.md`, `docs/superpowers/**` y `zenith/**`.
+**Archivos propios de Zenith:** `README.md` (protegido con `merge=ours` en `.gitattributes`: la sincronización nunca lo pisa), `ZENITH.md`, `docs/superpowers/**`, `zenith/**` y `branding/**` (la marca: logotipos, paleta e iconos; upstream no tiene ese directorio).
 
 **Archivos de Horizon que se dejan como están a propósito**, porque reescribirlos daría conflicto en cada sincronización: `ROADMAP.md`, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `docs/**` y `THIRD_PARTY_NOTICES.md`. `CONTRIBUTING.md`, `AGENTS.md` y `CLAUDE.md` describen las reglas de Horizon; el contrato de Zenith es este `ZENITH.md`.
 
