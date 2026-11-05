@@ -1,27 +1,27 @@
-# Seguridad
+# Security
 
-## Cómo avisar de una vulnerabilidad
+## How to report a vulnerability
 
-**No abras un aviso público ni publiques detalles.**
+**Do not open a public issue and do not publish details.**
 
-Usa el aviso privado de GitHub: en este repositorio, pestaña **Security**, botón **Report a vulnerability**
-(<https://github.com/gitzetazero/zenith/security/advisories/new>). Solo lo ve quien mantiene el proyecto.
+Use GitHub's private advisory: in this repository, the **Security** tab, then **Report a vulnerability**
+(<https://github.com/gitzetazero/zenith/security/advisories/new>). Only the maintainers see it.
 
-Incluye qué has encontrado, cómo reproducirlo y qué versión (nightly) usabas. Respondemos en cuanto podemos; es un proyecto pequeño y no prometemos plazos.
+Say what you found, how to reproduce it and which version (nightly) you were using. We answer as soon as we can; this is a small project and we do not promise deadlines.
 
-## Qué entra
+## What is in scope
 
-- El **puente** (`zenith-bridge`) y el instalador de Zenith Launcher.
-- Las **actualizaciones firmadas**: la verificación de firmas, hashes y del sello de compilación.
-- La **comprobación de propiedad** de la cuenta (que solo juegue quien tiene Minecraft: Java Edition).
-- Los **cambios de Zenith en el cliente del juego**, en especial el traductor de versiones de servidor y el selector de versión.
+- The **bridge** (`zenith-bridge`) and the Zenith Launcher installer.
+- The **signed updates**: the verification of signatures, hashes and the build stamp.
+- The account's **ownership check** (that only people who own Minecraft: Java Edition can play).
+- **Zenith's changes to the game client**, especially the server version translator and the version selector.
 
-## Qué no entra
+## What is out of scope
 
-- Fallos del proyecto de origen, [Horizon](https://github.com/horizon-rust/horizon), que no cambia Zenith: avísales a ellos.
-- Fallos de XMCL, Minecraft, Mojang o Microsoft: avisa a sus responsables.
-- Que el instalador no esté firmado para Windows o que SmartScreen avise: ya se sabe y está dicho en el README.
+- Bugs in the project we come from, [Horizon](https://github.com/horizon-rust/horizon), that Zenith does not change: report them there.
+- Bugs in XMCL, Minecraft, Mojang or Microsoft: report them to their owners.
+- The installer not being code-signed for Windows, or SmartScreen warning: this is known and stated in the README.
 
-## Versiones con soporte
+## Supported versions
 
-Solo la última versión `nightly` publicada en [Releases](https://github.com/gitzetazero/zenith/releases/tag/nightly).
+Only the latest `nightly` published in [Releases](https://github.com/gitzetazero/zenith/releases/tag/nightly).

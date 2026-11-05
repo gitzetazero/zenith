@@ -1,14 +1,14 @@
 name: Idea
-description: Propón algo nuevo para Zenith
+description: Suggest something new for Zenith
 labels: ["enhancement"]
 body:
   - type: textarea
     id: idea
     attributes:
-      label: Qué te gustaría
+      label: What you would like
     validations:
       required: true
   - type: textarea
-    id: por-que
+    id: why
     attributes:
-      label: Para qué te sirve
+      label: What it is for

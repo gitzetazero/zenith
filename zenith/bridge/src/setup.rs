@@ -51,28 +51,28 @@ fn strict_root(appdata: &Path) -> Result<PathBuf, String> {
     let bytes = match std::fs::read(&file) {
         Ok(b) => b,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-            return Err("XMCL aún no está inicializado. Abre XMCL una vez, elige la carpeta de datos y vuelve a ejecutar «zenith-bridge setup». No he creado nada.".into());
+            return Err("XMCL is not initialised yet. Open XMCL once, choose the data folder and run \"zenith-bridge setup\" again. Nothing was created.".into());
         }
         Err(e) => {
             return Err(format!(
-                "No puedo leer {} ({e}). No he cambiado nada.",
+                "Cannot read {} ({e}). Nothing was changed.",
                 file.display()
             ));
         }
     };
     let text = String::from_utf8(bytes)
-        .map_err(|_| format!("{} no es texto UTF-8. No he cambiado nada.", file.display()))?;
+        .map_err(|_| format!("{} is not UTF-8 text. Nothing was changed.", file.display()))?;
     let text = text.trim();
     if text.is_empty() {
         return Err(format!(
-            "{} está vacío. Abre XMCL, elige la carpeta de datos y vuelve a ejecutar «setup». No he cambiado nada.",
+            "{} is empty. Open XMCL, choose the data folder and run \"setup\" again. Nothing was changed.",
             file.display()
         ));
     }
     let root = PathBuf::from(text);
     if !root.is_dir() {
         return Err(format!(
-            "La carpeta de datos de XMCL ({}) no existe. Ábrela en XMCL o corrígela y vuelve a ejecutar «setup». No he cambiado nada.",
+            "XMCL's data folder ({}) does not exist. Open it in XMCL or fix it and run \"setup\" again. Nothing was changed.",
             root.display()
         ));
     }
@@ -127,7 +127,7 @@ fn install_copy(src: &[u8], dst: &Path) -> Result<bool, String> {
     std::fs::rename(&tmp, dst).map_err(|e| {
         let _ = std::fs::remove_file(&tmp);
         format!(
-            "No puedo reemplazar {} ({e}): cierra el juego y vuelve a ejecutar setup. La copia anterior sigue en su sitio.",
+            "Cannot replace {} ({e}): close the game and run setup again. The previous copy is still in place.",
             dst.display()
         )
     })?;
@@ -142,7 +142,7 @@ pub fn setup(
     minecraft: impl FnOnce() -> (String, Option<String>),
 ) -> Result<Vec<String>, String> {
     let root = strict_root(&env.appdata)?;
-    let mut out = vec![format!("Carpeta de datos de XMCL: {}", root.display())];
+    let mut out = vec![format!("XMCL data folder: {}", root.display())];
 
     let bytes = std::fs::read(exe).map_err(|e| format!("{}: {e}", exe.display()))?;
     let java = env.java_exe();
@@ -151,9 +151,9 @@ pub fn setup(
     let a = install_copy(&bytes, &java)?;
     let b = install_copy(&bytes, &javaw)?;
     out.push(if a || b {
-        format!("«Java» de Zenith instalado en {}.", java.display())
+        format!("Zenith's \"Java\" installed in {}.", java.display())
     } else {
-        "El «Java» de Zenith ya estaba instalado.".into()
+        "Zenith's \"Java\" was already installed.".into()
     });
 
     let (version, note) = minecraft();
@@ -161,26 +161,26 @@ pub fn setup(
     let (file, changed) = write_instance(&root, &java, &version)?;
     out.push(if changed {
         format!(
-            "Instancia «Zenith» (Minecraft {version}) escrita en {}. Si ya existía, la primera versión quedó como instance.json.bak.",
+            "\"Zenith\" instance (Minecraft {version}) written to {}. If it already existed, the first version was kept as instance.json.bak.",
             file.display()
         )
     } else {
-        "La instancia «Zenith» ya estaba al día: no he cambiado nada.".into()
+        "The \"Zenith\" instance was already up to date: nothing was changed.".into()
     });
     if (env.xmcl_running)() {
-        out.push("XMCL está abierto: cierra XMCL del todo y ábrelo de nuevo; la instancia se aplica al reiniciarlo.".into());
+        out.push("XMCL is open: close XMCL completely and open it again; the instance is applied on restart.".into());
     }
     out.push(String::new());
-    out.push("Siguientes pasos:".into());
-    out.push("1. Abre XMCL e inicia sesión con tu cuenta de Microsoft (debe tener Minecraft: Java Edition).".into());
-    out.push("2. Elige la instancia «Zenith» y pulsa Jugar.".into());
-    out.push(format!("3. La primera vez XMCL descarga Minecraft {version} (es normal; el Java que verá en la lista es el de Zenith) y Zenith prepara sus recursos y, si no hay un Java 25 instalado, descarga el de Mojang (de unos 30 segundos a unos minutos)."));
+    out.push("Next steps:".into());
+    out.push("1. Open XMCL and sign in with your Microsoft account (it must own Minecraft: Java Edition).".into());
+    out.push("2. Choose the \"Zenith\" instance and press Play.".into());
+    out.push(format!("3. The first time XMCL downloads Minecraft {version} (this is normal; the Java it shows in the list is Zenith's) and Zenith prepares its resources and, if no Java 25 is installed, downloads Mojang's (from about 30 seconds to a few minutes)."));
     Ok(out)
 }
 
 pub const XMCL_EXE: &str = "XMCL.exe";
 
-/// `zenith-bridge start`: what the «Zenith Launcher» shortcut runs. Prepares the instance quietly like `setup`
+/// `zenith-bridge start`: what the "Zenith Launcher" shortcut runs. Prepares the instance quietly like `setup`
 /// (no network: the Minecraft version comes from the installed build) and starts the XMCL that sits next to the
 /// bridge. Without XMCL's `root` file it only starts XMCL, whose own first run lets the player choose the data
 /// folder (we never write that file). A running XMCL is never started again, killed or touched.
@@ -194,7 +194,7 @@ pub fn start(
     let xmcl = exe.parent().unwrap_or(Path::new("")).join(XMCL_EXE);
     if !xmcl.is_file() {
         return Err(format!(
-            "No encuentro {XMCL_EXE} junto a zenith-bridge.exe ({}). Reinstala Zenith Launcher.",
+            "Cannot find {XMCL_EXE} next to zenith-bridge.exe ({}). Reinstall Zenith Launcher.",
             xmcl.display()
         ));
     }
@@ -205,14 +205,14 @@ pub fn start(
     );
     if first_run {
         if running {
-            return Ok(vec!["XMCL ya está abierto. Elige su carpeta de datos, ciérralo del todo y abre «Zenith Launcher» otra vez para que se cree la instancia Zenith.".into()]);
+            return Ok(vec!["XMCL is already open. Choose its data folder, close it completely and open \"Zenith Launcher\" again so the Zenith instance is created.".into()]);
         }
         spawn(&xmcl)?;
-        return Ok(vec!["Primera vez: XMCL te pedirá la carpeta de datos. Elígela, cierra XMCL del todo y abre «Zenith Launcher» otra vez: así se crea la instancia Zenith.".into()]);
+        return Ok(vec!["First time: XMCL will ask for the data folder. Choose it, close XMCL completely and open \"Zenith Launcher\" again: this creates the Zenith instance.".into()]);
     }
     setup(env, exe, minecraft)?;
     if running {
-        return Ok(vec!["XMCL ya está abierto: la instancia Zenith se aplica al reiniciarlo. Ciérralo del todo y abre «Zenith Launcher» otra vez.".into()]);
+        return Ok(vec!["XMCL is already open: the Zenith instance is applied when it restarts. Close it completely and open \"Zenith Launcher\" again.".into()]);
     }
     spawn(&xmcl)?;
     Ok(vec![])
@@ -224,57 +224,57 @@ pub fn status(env: &Env, java: Option<PathBuf>) -> Vec<String> {
         root: env.home.clone(),
     };
     let root = xmcl_root(&env.appdata);
-    let yes = |b: bool| if b { "sí" } else { "no" };
+    let yes = |b: bool| if b { "yes" } else { "no" };
     let mut out = vec![
         format!(
-            "Carpeta de datos de XMCL: {}",
+            "XMCL data folder: {}",
             root.as_ref()
-                .map_or("no encontrada (XMCL no se ha abierto)".into(), |r| r
+                .map_or("not found (XMCL has never been opened)".into(), |r| r
                     .display()
                     .to_string())
         ),
         format!(
-            "Instancia Zenith: {}",
+            "Zenith instance: {}",
             yes(root
                 .as_ref()
                 .is_some_and(|r| r.join("instances/Zenith/instance.json").is_file()))
         ),
         format!(
-            "«Java» de Zenith instalado: {}",
+            "Zenith's \"Java\" installed: {}",
             yes(env.java_exe().is_file() && env.java_exe().with_file_name("javaw.exe").is_file())
         ),
         format!(
-            "Java 25 para preparar recursos: {}",
+            "Java 25 for preparing resources: {}",
             java.map_or(
-                "ninguno (se descargará el de Mojang al jugar)".into(),
+                "none (Mojang's will be downloaded when you play)".into(),
                 |j| j.display().to_string()
             )
         ),
         format!(
-            "Build instalada: {}",
+            "Installed build: {}",
             store
                 .current()
                 .and_then(|d| d.file_name().map(|n| n.to_string_lossy().into_owned()))
-                .unwrap_or_else(|| "ninguna".into())
+                .unwrap_or_else(|| "none".into())
         ),
         format!(
-            "Versión fijada: {}",
+            "Pinned version: {}",
             store
                 .pinned()
-                .unwrap_or_else(|| "ninguna (se actualiza sola)".into())
+                .unwrap_or_else(|| "none (updates itself)".into())
         ),
         format!(
-            "Caché de cuenta (owners.json): {}",
+            "Account cache (owners.json): {}",
             yes(env.home.join("owners.json").is_file())
         ),
-        "Últimas líneas de bridge.log:".into(),
+        "Last lines of bridge.log:".into(),
     ];
     let log = std::fs::read_to_string(env.home.join("logs").join("bridge.log")).unwrap_or_default();
     let lines: Vec<&str> = log.lines().collect();
     for l in &lines[lines.len().saturating_sub(10)..] {
         let low = l.to_lowercase();
         out.push(if low.contains("token") || low.contains("bearer") {
-            "  [línea omitida: podría contener un secreto]".into()
+            "  [line omitted: it might contain a secret]".into()
         } else {
             format!("  {l}")
         });
@@ -289,7 +289,7 @@ pub fn use_version(home: &Path, version: &str) -> Result<String, String> {
     };
     if version == "latest" {
         store.set_pinned(None)?;
-        return Ok("Zenith vuelve a actualizarse solo a la última build.".into());
+        return Ok("Zenith updates itself to the latest build again.".into());
     }
     if !store.builds().join(version).is_dir() {
         let mut have: Vec<String> = std::fs::read_dir(store.builds())
@@ -300,9 +300,9 @@ pub fn use_version(home: &Path, version: &str) -> Result<String, String> {
             .collect();
         have.sort();
         return Err(format!(
-            "La versión {version} no está instalada. Instaladas: {}.",
+            "Version {version} is not installed. Installed: {}.",
             if have.is_empty() {
-                "ninguna".into()
+                "none".into()
             } else {
                 have.join(", ")
             }
@@ -310,9 +310,9 @@ pub fn use_version(home: &Path, version: &str) -> Result<String, String> {
     }
     store.set_pinned(Some(version))?;
     Ok(format!(
-        "Zenith queda fijado en {version}. «zenith-bridge use latest» lo libera."
+        "Zenith is pinned to {version}. \"zenith-bridge use latest\" releases it."
     ))
 }
 
-pub const HELP: &str = "zenith-bridge: Zenith (Horizon) para XMCL\n\n  start            prepara la instancia «Zenith» y abre XMCL (lo que hace el acceso directo)
-  setup            instala el «Java» de Zenith y crea la instancia «Zenith» en XMCL\n  status           muestra el estado\n  use <versión>    fija una build instalada (para volver atrás)\n  use latest       vuelve a actualizar sola\n  help             esta ayuda\n\nXMCL lo ejecuta solo al pulsar Jugar.";
+pub const HELP: &str = "zenith-bridge: Zenith (Horizon) for XMCL\n\n  start            prepares the \"Zenith\" instance and opens XMCL (what the shortcut does)
+  setup            installs Zenith's \"Java\" and creates the \"Zenith\" instance in XMCL\n  status           shows the state\n  use <version>    pins an installed build (to go back)\n  use latest       updates itself again\n  help             this help\n\nXMCL runs it by itself when you press Play.";

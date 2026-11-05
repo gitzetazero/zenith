@@ -57,7 +57,7 @@ fn absent_root_is_refused_and_nothing_is_created() {
     let base = tmp("absent");
     let e = env(&base);
     let err = setup(&e, &fake_exe(&base), || panic!("no network")).unwrap_err();
-    assert!(err.contains("Abre XMCL una vez"), "{err}");
+    assert!(err.contains("Open XMCL once"), "{err}");
     assert!(!e.appdata.exists());
     nothing_written(&base, &e);
 }
@@ -80,7 +80,7 @@ fn odd_roots_are_refused_and_untouched() {
             std::fs::write(root_file(&e), &content).unwrap();
         }
         let err = setup(&e, &fake_exe(&base), || panic!("no network")).unwrap_err();
-        assert!(err.contains("No he cambiado nada"), "{tag}: {err}");
+        assert!(err.contains("Nothing was changed"), "{tag}: {err}");
         if tag != "dirnotfile" {
             assert_eq!(std::fs::read(root_file(&e)).unwrap(), content);
         }
@@ -118,8 +118,8 @@ fn identical_rerun_changes_nothing() {
     let exe = fake_exe(&base);
     setup(&e, &exe, mc).unwrap();
     let out = setup(&e, &exe, mc).unwrap().join("\n");
-    assert!(out.contains("ya estaba al día"), "{out}");
-    assert!(out.contains("ya estaba instalado"), "{out}");
+    assert!(out.contains("was already up to date"), "{out}");
+    assert!(out.contains("was already installed"), "{out}");
 }
 
 #[test]
@@ -128,10 +128,10 @@ fn offline_note_is_shown() {
     let e = env(&base);
     good_root(&base, &e);
     let out = setup(&e, &fake_exe(&base), || {
-        ("26.3".into(), Some("sin conexión".into()))
+        ("26.3".into(), Some("no internet connection".into()))
     })
     .unwrap();
-    assert!(out.contains(&"sin conexión".to_string()));
+    assert!(out.contains(&"no internet connection".to_string()));
 }
 
 #[test]
@@ -141,7 +141,7 @@ fn running_xmcl_is_reported_with_restart() {
     e.xmcl_running = || true;
     good_root(&base, &e);
     let out = setup(&e, &fake_exe(&base), mc).unwrap().join("\n");
-    assert!(out.contains("ábrelo de nuevo"), "{out}");
+    assert!(out.contains("open it again"), "{out}");
 }
 
 #[cfg(windows)]
@@ -166,7 +166,7 @@ fn locked_shim_is_reported_and_old_copy_kept() {
         .open(e.java_exe())
         .unwrap();
     let err = setup(&e, &exe, mc).unwrap_err();
-    assert!(err.contains("cierra el juego"), "{err}");
+    assert!(err.contains("close the game"), "{err}");
     assert_eq!(std::fs::read(e.java_exe()).unwrap(), b"bridge bytes");
     assert!(!e.java_exe().with_extension("exe.new").exists());
 }
@@ -266,10 +266,7 @@ fn start_without_root_only_starts_xmcl_and_creates_nothing() {
 ",
     );
     assert_eq!(*spawned.borrow(), vec![exe.with_file_name("XMCL.exe")]);
-    assert!(
-        out.contains("Primera vez") && out.contains("otra vez"),
-        "{out}"
-    );
+    assert!(out.contains("First time") && out.contains("again"), "{out}");
     assert!(!e.appdata.exists(), "XMCL's root file must stay XMCL's");
     nothing_written(&base, &e);
 }
@@ -310,7 +307,7 @@ fn start_never_starts_a_running_xmcl() {
                 "
 ",
             );
-        assert!(out.contains("otra vez"), "{out}");
+        assert!(out.contains("again"), "{out}");
     }
 }
 
@@ -322,8 +319,8 @@ fn start_refuses_odd_root_and_missing_xmcl() {
     std::fs::create_dir_all(root_file(&e).parent().unwrap()).unwrap();
     std::fs::write(root_file(&e), r"Z:\no\existe").unwrap();
     let err = start(&e, &exe, mc, |_| panic!("must not spawn")).unwrap_err();
-    assert!(err.contains("No he cambiado nada"), "{err}");
+    assert!(err.contains("Nothing was changed"), "{err}");
     std::fs::remove_file(exe.with_file_name("XMCL.exe")).unwrap();
     let err = start(&e, &exe, mc, |_| panic!("must not spawn")).unwrap_err();
-    assert!(err.contains("Reinstala"), "{err}");
+    assert!(err.contains("Reinstall"), "{err}");
 }

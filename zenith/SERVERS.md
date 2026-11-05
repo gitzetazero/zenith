@@ -1,57 +1,57 @@
-# Servidores y versiones soportadas
+# Supported servers and versions
 
-Zenith es Minecraft 26.3. Para entrar a un servidor de otra versión, traduce lo que se dicen el juego y el servidor. Esa traducción viene activada y no tienes que hacer nada: Zenith mira qué versión usa el servidor y se adapta.
+Zenith is Minecraft 26.3. To join a server of another version, it translates what the game and the server say to each other. The translation is on by default and you do not have to do anything: Zenith checks which version the server uses and adapts.
 
-> **Importante, sin rodeos:** ninguna de las versiones traducidas se ha probado todavía contra un servidor real. El traductor tiene pruebas automáticas del protocolo y de cada versión, pero no se ha hecho la prueba con servidores de verdad. Si entras a uno, puede fallar. Cuéntanos qué pasó en un [aviso](https://github.com/gitzetazero/zenith/issues/new/choose).
+> **Important, plainly:** none of the translated versions has been tested against a real server yet. The translator has automated tests of the protocol and of each version, but it has not been tried on real servers. If you join one, it may fail. Tell us what happened in an [issue](https://github.com/gitzetazero/zenith/issues/new/choose).
 
-## Tabla de versiones
+## Version table
 
-| Versión del servidor | Protocolo | Cómo se entra | Estado | Notas |
+| Server version | Protocol | How you join | Status | Notes |
 |---|---|---|---|---|
-| 26.3 | 777 | Nativo | Nativo (26.3) | La versión de Zenith: no se traduce nada. |
-| 26.2 | 776 | Traducido | Traducido | Selector: «26.2». |
-| 26.1, 26.1.1 y 26.1.2 | 775 | Traducido | Traducido | Las tres comparten protocolo. Selector: «26.1». |
-| 1.21.11 | 774 | Traducido | Traducido | |
-| 1.21.9 y 1.21.10 | 773 | Traducido | Traducido | Selector: «1.21.10». |
-| 1.21.7 y 1.21.8 | 772 | Traducido | Traducido | Selector: «1.21.8». |
-| 1.21.6 | 771 | Traducido | Traducido, experimental | |
-| 1.21.5 | 770 | Traducido | Traducido, experimental | |
-| 1.21.4 | 769 | Traducido | Traducido, experimental | |
-| 1.21.2 y 1.21.3 | 768 | Traducido | Traducido, experimental | Selector: «1.21.3». |
-| 1.21 y 1.21.1 | 767 | Traducido | Traducido, experimental | Selector: «1.21.1». |
-| 1.20.5 y 1.20.6 | 766 | Traducido | Traducido, experimental | Selector: «1.20.5». |
-| 1.20.3 y 1.20.4 | 765 | Traducido | Traducido, experimental | Selector: «1.20.3». |
-| 1.20.2 | 764 | Traducido | Traducido, experimental | La más antigua que se puede traducir. |
+| 26.3 | 777 | Native | Native (26.3) | Zenith's own version: nothing is translated. |
+| 26.2 | 776 | Translated | Translated | Selector: "26.2". |
+| 26.1, 26.1.1 and 26.1.2 | 775 | Translated | Translated | The three share a protocol. Selector: "26.1". |
+| 1.21.11 | 774 | Translated | Translated | |
+| 1.21.9 and 1.21.10 | 773 | Translated | Translated | Selector: "1.21.10". |
+| 1.21.7 and 1.21.8 | 772 | Translated | Translated | Selector: "1.21.8". |
+| 1.21.6 | 771 | Translated | Translated, experimental | |
+| 1.21.5 | 770 | Translated | Translated, experimental | |
+| 1.21.4 | 769 | Translated | Translated, experimental | |
+| 1.21.2 and 1.21.3 | 768 | Translated | Translated, experimental | Selector: "1.21.3". |
+| 1.21 and 1.21.1 | 767 | Translated | Translated, experimental | Selector: "1.21.1". |
+| 1.20.5 and 1.20.6 | 766 | Translated | Translated, experimental | Selector: "1.20.5". |
+| 1.20.3 and 1.20.4 | 765 | Translated | Translated, experimental | Selector: "1.20.3". |
+| 1.20.2 | 764 | Translated | Translated, experimental | The oldest that can be translated. |
 
-«Experimental» es la marca que el selector de versión pone a 1.21.6 y a las anteriores. El resto no se marca, pero tampoco está probado con servidores reales.
+"Experimental" is the mark the version selector puts on 1.21.6 and older. The rest are not marked, but they are not tested with real servers either.
 
-## Qué NO se puede
+## What you CANNOT do
 
-- **Versiones anteriores a 1.20.2** (por ejemplo 1.8, 1.12 o 1.16). Eso deja fuera muchos servidores de PvP clásicos.
-- **Bedrock.** Es otro juego con otro protocolo.
-- **Servidores que exigen mods** en el cliente: Zenith no ejecuta mods de Java.
-- **Servidores que solo aceptan un cliente concreto** (por ejemplo, con una lista de clientes permitidos).
-- Los servidores que están detrás de Velocity, BungeeCord, Paper o con mods solo del lado del servidor (Fabric, por ejemplo) funcionan si aceptan el protocolo de arriba, porque para el jugador son un servidor normal.
+- **Versions older than 1.20.2** (for example 1.8, 1.12 or 1.16). That rules out many classic PvP servers.
+- **Bedrock.** It is another game with another protocol.
+- **Servers that require mods** on the client: Zenith does not run Java mods.
+- **Servers that only accept one specific client** (for example, with an allow-list of clients).
+- Servers behind Velocity, BungeeCord, Paper, or with server-side-only mods (Fabric, for example) work if they accept the protocols above, because to the player they are a normal server.
 
-## Cómo elige Zenith la versión
+## How Zenith chooses the version
 
-1. **Automático.** Al pulsar el servidor, Zenith le pregunta qué versión usa (la misma consulta que hace la lista de servidores) y elige el traductor que corresponde. Si el servidor ya es 26.3, no traduce.
-2. **Tu elección.** En la pantalla *Editar servidor* hay un botón «Versión». Pásalo hasta la que quieras o déjalo en «Automática». Guarda tu elección por dirección en `zenith-servers.json`, junto a tu lista de servidores. Si fijas una versión, ya no consulta al servidor.
-3. **Un reintento.** Si el servidor te echa con un mensaje que dice un rango de versiones («usa 1.7.2-26.2», por ejemplo), Zenith vuelve a entrar una sola vez con la versión más nueva que pueda traducir dentro de ese rango. Si falla otra vez, se detiene: no hay bucles. No reintenta en mundos locales ni si ya elegiste una versión.
+1. **Automatic.** When you click the server, Zenith asks it which version it uses (the same query the server list makes) and picks the matching translator. If the server is already 26.3, nothing is translated.
+2. **Your choice.** The *Edit server* screen has a "Version" button. Cycle it to the one you want or leave it on "Automatic". Your choice is saved per address in `zenith-servers.json`, next to your server list. If you fix a version, Zenith no longer asks the server.
+3. **One retry.** If the server kicks you with a message that states a version range ("use 1.7.2-26.2", for example), Zenith joins again once with the newest version it can translate inside that range. If that fails too, it stops: there are no loops. It does not retry on local worlds or if you already chose a version.
 
-Si la conexión se corta en un servidor traducido, el mensaje de error termina con la versión usada, por ejemplo «(26.2)».
+If the connection drops on a translated server, the error message ends with the version used, for example "(26.2)".
 
-## Apagar el traductor
+## Turning the translator off
 
-Pon la variable de entorno `HORIZON_OLDER_SERVERS=0` antes de abrir el juego. Con ella solo se entra a servidores 26.3. Se llama así porque Zenith conserva los nombres internos de su base.
+Set the environment variable `HORIZON_OLDER_SERVERS=0` before opening the game. With it you can only join 26.3 servers. It has this name because Zenith keeps the internal names of its base.
 
-## Cosas que verás
+## Things you will notice
 
-- El juego es 26.3: bloques, objetos y mobs de versiones más nuevas que el servidor pueden verse distintos o faltar en servidores antiguos, y los de versiones más antiguas pueden verse como en 26.3.
-- Algunos anticheats pueden reaccionar a un cliente traducido. Si te expulsan, no es culpa tuya: avísanos.
-- Funciones que un servidor antiguo no tiene no funcionan: el traductor no las inventa.
+- The game is 26.3: blocks, items and mobs from versions newer than the server may look different or be missing on old servers, and those from older versions may look as in 26.3.
+- Some anticheats may react to a translated client. If you are kicked, it is not your fault: tell us.
+- Features that an old server does not have do not work: the translator does not invent them.
 
-## Cómo se ha comprobado
+## How it was checked
 
-- Sí: pruebas automáticas del protocolo y de cada traductor; los números y nombres de esta tabla salen del código (`crates/horizon-protocol/src/adapter.rs`).
-- No: ninguna prueba contra servidores reales de ninguna versión. La matriz de pruebas con servidores reales todavía no se ha ejecutado.
+- Yes: automated tests of the protocol and of each translator; the numbers and names in this table come from the code (`crates/horizon-protocol/src/adapter.rs`).
+- No: no test against real servers of any version. The test matrix with real servers has not been run yet.

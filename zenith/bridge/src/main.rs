@@ -138,7 +138,7 @@ fn cli(argv: &[String], store: &Store) -> Option<i32> {
         }
         "use" => match argv.get(1) {
             Some(v) => setup::use_version(&store.root, v),
-            None => Err("Uso: zenith-bridge use <versión|latest>".into()),
+            None => Err("Usage: zenith-bridge use <version|latest>".into()),
         },
         "start" => std::env::current_exe()
             .map_err(|e| e.to_string())
@@ -168,7 +168,7 @@ fn cli(argv: &[String], store: &Store) -> Option<i32> {
                             (
                                 setup::FALLBACK_MINECRAFT.into(),
                                 Some(format!(
-                                    "Sin conexión con las builds de Zenith ({e}): uso Minecraft {}. Vuelve a ejecutar «setup» con internet para confirmarlo.",
+                                    "No connection to Zenith's builds ({e}): using Minecraft {}. Run \"setup\" again with internet to confirm it.",
                                     setup::FALLBACK_MINECRAFT
                                 )),
                             )

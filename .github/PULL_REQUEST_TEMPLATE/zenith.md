@@ -1,14 +1,14 @@
-## Qué cambia y por qué
+## What changes and why
 
-<!-- Qué hace este cambio y por qué. Enlaza el aviso que arregla ("Arregla #123"). -->
+<!-- What this change does and why. Link the issue it fixes ("Fixes #123"). -->
 
-## Cómo lo probaste
+## How you tested it
 
-<!-- Comandos que ejecutaste y qué viste. Di también lo que NO probaste. -->
+<!-- Commands you ran and what you saw. Also say what you did NOT test. -->
 
-## Lista rápida
+## Quick checklist
 
-- [ ] No añade archivos de Mojang ni de Minecraft.
-- [ ] El código nuevo es mío o de un proyecto con licencia compatible (indica cuál).
-- [ ] `python tools/check_public_tree.py` pasa.
-- [ ] La documentación que toca sigue siendo cierta.
+- [ ] It adds no Mojang or Minecraft files.
+- [ ] The new code is mine or from a project with a compatible licence (say which).
+- [ ] `python tools/check_public_tree.py` passes.
+- [ ] The documentation it touches is still true.

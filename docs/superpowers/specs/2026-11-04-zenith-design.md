@@ -1,276 +1,278 @@
-# Zenith: diseño del fork de Horizon
+# Zenith: design of the Horizon fork
 
-## Contexto
+> Historical design document (translated to English). Later decisions changed some parts: the Rust port of XMCL (phase 6) was replaced by a fork of XMCL (Zenith Launcher), and the repository was reorganised so everything of ours lives under `zenith/`. `ZENITH.md` is the current maintainer guide.
 
-Zenith es un fork de [horizon-rust/horizon](https://github.com/horizon-rust/horizon), Minecraft: Java Edition 26.3 reescrito en Rust (licencia MIT). Nace por un problema real: el usuario no pudo entrar a `<servidor de prueba>` ("¡Cliente no compatible! Por favor, usa 1.7.2-26.2"). Horizon ya trae un traductor de versiones, pero está apagado por defecto (`older_servers_enabled()`, `crates/horizon-client/src/net.rs:564`).
+## Context
 
-Objetivo: un cliente con más compatibilidad (entre otras cosas, servidores de versiones más antiguas), que se use desde [XMCL](https://xmcl.app/en/) y después desde una traducción completa de XMCL a Rust, con más FPS y shaders que funcionen, recibiendo siempre los parches de Horizon.
+Zenith is a fork of [horizon-rust/horizon](https://github.com/horizon-rust/horizon), Minecraft: Java Edition 26.3 rewritten in Rust (MIT licence). It started from a real problem: the user could not join `<test server>` ("Unsupported client! Please use 1.7.2-26.2"). Horizon already ships a version translator, but it is off by default (`older_servers_enabled()`, `crates/horizon-client/src/net.rs:564`).
 
-### Qué responde hoy ese servidor (medido con pings de estado, sin login)
+Goal: a client with more compatibility (among other things, servers of older versions) that is used from [XMCL](https://xmcl.app/en/) and later from a complete translation of XMCL to Rust, with more FPS and shaders that work, always receiving Horizon's patches.
 
-- Es un proxy Velocity con una sola dirección y anuncia `Velocity 1.7.2-26.3`. La captura decía 26.2, así que lo más probable es que se haya actualizado desde entonces. **Puede que hoy ya se pueda entrar sin traductor; falta probarlo.**
-- Devuelve el número de versión que se le declara: 777, 776, 775, 767 y 47 respondieron igual en la última medición. Su ping no sirve para saber qué versión usar.
-- Con pings seguidos corta las conexiones a partir del cuarto. Con pausas de 15 s respondió a todos. Parece un límite de frecuencia.
+### What that server answers today (measured with status pings, no login)
 
-## Decisiones del usuario
+- It is a Velocity proxy with a single address and announces `Velocity 1.7.2-26.3`. The capture said 26.2, so it was most likely updated since. **Today it may already be possible to join without the translator; this has not been tried.**
+- It returns the version number it is told: 777, 776, 775, 767 and 47 answered the same in the last measurement. Its ping cannot tell which version to use.
+- With consecutive pings it cuts the connections from the fourth on. With 15 s pauses it answered all of them. It looks like a rate limit.
 
-- **Nombre:** Zenith.
-- **Launcher:** XMCL traducido por completo a Rust (1:1), funcionando con el fork. Hasta entonces, XMCL normal con un puente. Los cuatro frentes pedidos antes siguen siendo la meta: más opciones de juego, mods y shaders más fáciles, apariencia y diagnóstico.
-- **Versiones:** el juego sigue siendo una sola versión por dentro y traduce para los servidores, como ViaFabric. No se juega "de verdad" en versiones antiguas.
-- **Servidores objetivo:** 1.20.2 o más, incluidas las redes que aceptan rangos. El mínimo pedido al principio, 1.21.8, es obligatorio.
-- **Público:** privado primero (el usuario y sus amigos), preparado para abrirse después.
-- **Repositorio:** público en GitHub, sin anunciarlo.
-- **Descargas:** GitHub Releases públicas sin anunciar, antes de revisar el tema legal. El usuario acepta que cualquiera con el enlace pueda bajarlas.
-- **Publicación:** automática. Si la sincronización pasa las comprobaciones, se publica y se instala sola.
-- **Rendimiento:** más FPS sin instalar nada. No se cargan `.jar` de Sodium ni similares, y no hay catálogo de mods de rendimiento.
-- **Shaders:** Complementary, BSL, Bliss o Photon, y Sildur's o ligeros.
-- **Parches:** Zenith se mantiene al día con los del repo original.
+## The user's decisions
 
-## Objetivos, no objetivos y anti-objetivos
+- **Name:** Zenith.
+- **Launcher:** XMCL translated completely to Rust (1:1), working with the fork. Until then, regular XMCL with a bridge. The four fronts asked for earlier remain the goal: more game options, easier mods and shaders, appearance and diagnostics.
+- **Versions:** the game stays a single version inside and translates for servers, like ViaFabric. It does not "really" play on old versions.
+- **Target servers:** 1.20.2 or newer, including networks that accept ranges. The minimum asked for at first, 1.21.8, is mandatory.
+- **Audience:** private first (the user and friends), prepared to open up later.
+- **Repository:** public on GitHub, not announced.
+- **Downloads:** public GitHub Releases, not announced, before the legal side is reviewed. The user accepts that anyone with the link can download them.
+- **Publishing:** automatic. If the sync passes the checks, it publishes and installs itself.
+- **Performance:** more FPS without installing anything. No Sodium `.jar` or similar is loaded, and there is no catalogue of performance mods.
+- **Shaders:** Complementary, BSL, Bliss or Photon, and Sildur's or light ones.
+- **Patches:** Zenith stays up to date with the original repository's.
 
-**Objetivos**
-- Abrir XMCL, pulsar Jugar y estar en Zenith con la cuenta de Microsoft del jugador.
-- Entrar sin configurar nada a servidores de 1.20.2 a 26.3, incluido `<servidor de prueba>`.
-- Traer los parches de Horizon cada día, con mínima intervención manual.
-- Mejorar FPS y shaders con mejoras medibles.
+## Goals, non-goals and anti-goals
 
-**No objetivos por ahora**
-- Servidores que solo aceptan versiones anteriores a 1.20.2 (por ejemplo, 1.8 PvP).
-- Jugar con las reglas o el mundo de una versión antigua.
-- Ejecutar mods Java en el motor de Rust.
-- Mejorar el launcher de Rust de Horizon: queda en el repo sin tocar y Zenith no lo distribuye.
-- Web, registro de mods o servicios propios.
+**Goals**
+- Open XMCL, press Play and be in Zenith with the player's Microsoft account.
+- Join servers from 1.20.2 to 26.3 without configuring anything, including `<test server>`.
+- Bring in Horizon's patches every day, with minimal manual work.
+- Improve FPS and shaders with measurable gains.
 
-**Sería un fracaso aunque funcione**
-- Que traer parches de Horizon sea tan doloroso que el fork se quede atrás.
-- Que Zenith toque o sobrescriba los mundos de la instalación de Horizon del usuario.
-- Que el juego contacte servicios de Horizon sin que el jugador lo pida.
-- Que Zenith arranque para una cuenta que no posee el juego.
-- Publicar archivos de Mojang o shader packs de terceros en el repo.
+**Non-goals for now**
+- Servers that only accept versions older than 1.20.2 (for example 1.8 PvP).
+- Playing with the rules or the world of an old version.
+- Running Java mods in the Rust engine.
+- Improving Horizon's Rust launcher: it stays in the repo untouched and Zenith does not distribute it.
+- A website, a mod registry or services of our own.
 
-## Reglas del fork (decisión de Claude)
+**A failure even if it works**
+- Bringing in Horizon's patches is so painful that the fork falls behind.
+- Zenith touches or overwrites the worlds of the user's Horizon installation.
+- The game contacts Horizon's services without the player asking.
+- Zenith starts for an account that does not own the game.
+- Publishing Mojang files or third-party shader packs in the repo.
 
-Son lo que hace viable la sincronización. Irán en `ZENITH.md`.
+## Fork rules (Claude's decision)
 
-1. **No renombrar lo interno.** Crates, rutas, binarios internos y variables `HORIZON_*` siguen igual. Renombrarlos daría conflictos en cada sincronización.
-2. **Código de Zenith en `zenith/`, con su propio workspace de Cargo** (como hace `launcher/`), para no tocar el `Cargo.toml` ni el `Cargo.lock` de Horizon. En archivos de Horizon, solo enganches pequeños marcados con `// zenith:`, sin reformatear nada.
-3. **Primero mirar arriba.** Antes de arreglar algo, comprobar con `gh pr list --search` que Horizon no lo está haciendo ya.
-4. **Lo genérico se propone a Horizon.** Reduce nuestra diferencia. Cada PR externo necesita el visto bueno del usuario y sigue las reglas de agentes de su `AGENTS.md`.
-5. **Se heredan sus reglas de seguridad:** `tools/check_public_tree.py`, nada de archivos de Mojang en el repo, y carpetas temporales `HORIZON_HOME` / `HORIZON_LAUNCHER_HOME` en cualquier ejecución de prueba.
+They are what makes syncing viable. They go in `ZENITH.md`.
 
-## Fase 1: base del fork
+1. **Do not rename internals.** Crates, paths, internal binaries and `HORIZON_*` variables stay the same. Renaming them would conflict on every sync.
+2. **Zenith's code goes in `zenith/`, with its own Cargo workspace** (as `launcher/` does), so Horizon's `Cargo.toml` and `Cargo.lock` stay untouched. In Horizon's files only small hooks marked `// zenith:` fit, with no reformatting.
+3. **Look upstream first.** Before fixing something, check with `gh pr list --search` that Horizon is not already doing it.
+4. **Generic work is proposed to Horizon.** It reduces our difference. Every outside PR needs the user's approval and follows the agent rules of its `AGENTS.md`.
+5. **Its safety rules are inherited:** `tools/check_public_tree.py`, no Mojang files in the repo, and temporary `HORIZON_HOME` / `HORIZON_LAUNCHER_HOME` folders in every test run.
 
-**Primera comprobación, porque decide el resto.** `xtask package` necesita `exporters/`, que Horizon compila contra los jars de Mojang en su Mac (`.github/workflows/game-build.yml`). Los runners gratuitos no tienen esos jars. Plan: reutilizar los `exporters/` del archivo publicado de la misma nightly. Según `docs/launcher-preparation.md` son solo clases originales de Horizon, y Zenith no modifica sus fuentes. Si no se pueden obtener, la publicación automática no funciona en runners gratuitos y se vuelve al usuario con las alternativas (su PC como runner o publicación manual).
+## Phase 1: the base of the fork
 
-**Repositorio**
-- Fork público en GitHub como `gitzetazero/zenith`, remoto `upstream`, clonado en `C:\Users\<usuario>\Documents\horizon`.
-- Desactivar los workflows heredados con `gh workflow disable`, sin borrarlos: dependen de runners y secretos de Horizon, y borrarlos daría conflictos.
+**First check, because it decides the rest.** `xtask package` needs `exporters/`, which Horizon compiles against Mojang's jars on its Mac (`.github/workflows/game-build.yml`). Free runners do not have those jars. Plan: reuse the `exporters/` of the archive published with the same nightly. According to `docs/launcher-preparation.md` they are only original Horizon classes, and Zenith does not change their sources. If they cannot be obtained, automatic publishing does not work on free runners and the user gets the alternatives back (their own PC as a runner, or manual publishing).
 
-**Sincronización** (`.github/workflows/zenith-sync.yml`, diario, en runners gratuitos de GitHub)
-- Toma la última etiqueta `nightly-source/*` alcanzable desde `upstream/main`. Esas etiquetas son permanentes, y se excluyen las nightlies con PRs sin integrar. No sigue cada commit: Horizon hace miles a la semana.
-- Fusiona con merge en una rama temporal y ejecuta fmt, clippy y tests.
-- Comprueba que `horizon-client --launch-api` sigue ofreciendo las opciones que usa el puente de la fase 2. Esa API es experimental y este es el aviso temprano si cambia.
-- Si todo pasa, empuja a `main` y dispara la publicación. Si hay conflicto o algo falla, abre un PR con la lista de archivos y no toca `main` ni publica.
-- Usa un token con permiso de workflows, porque `GITHUB_TOKEN` no puede empujar los cambios de Horizon en `.github/workflows`.
+**Repository**
+- Public fork on GitHub as `gitzetazero/zenith`, remote `upstream`, cloned at `C:\Users\<user>\Documents\horizon`.
+- Disable the inherited workflows with `gh workflow disable`, without deleting them: they depend on Horizon's runners and secrets, and deleting them would cause conflicts.
 
-**Publicación automática** (`.github/workflows/zenith-release.yml`)
-- Compila el juego y el puente para Windows y Linux, firma y publica como máximo una build al día.
-- Límite aceptado: nadie abre el juego antes de publicar. El smoke test de Horizon cubre su commit, no nuestra fusión, y un fallo que solo se vea jugando llegará a todos.
-- Dos frenos baratos: la variable de repo `ZENITH_AUTOPUBLISH=off` detiene las publicaciones, y el puente conserva la build anterior para volver atrás.
+**Sync** (`.github/workflows/zenith-sync.yml`, daily, on free GitHub runners)
+- Takes the latest `nightly-source/*` tag reachable from `upstream/main`. Those tags are permanent, and nightlies with unmerged PRs are excluded. It does not follow every commit: Horizon makes thousands a week.
+- Merges into a temporary branch and runs fmt, clippy and tests.
+- Checks that `horizon-client --launch-api` still offers the options the phase 2 bridge uses. That API is experimental and this is the early warning if it changes.
+- If everything passes, it pushes to `main` and triggers publishing. If there is a conflict or something fails, it opens a PR with the list of files and neither touches `main` nor publishes.
+- Uses a token with workflow permission, because `GITHUB_TOKEN` cannot push Horizon's changes to `.github/workflows`.
 
-**Identidad del juego** (mínimo cambio posible)
-- Firma: clave propia para los archivos de Zenith, verificada por el puente con `crates/horizon-release-sign`. La privada es un secreto de Actions.
-- Nombre visible: sustituir "Horizon" por "Zenith" en un solo punto, al cargar los textos del juego, sin editar los archivos de idioma.
-- Tráfico del juego (decisión de Claude): lista blanca de destinos. Permitidos: Microsoft, Xbox y Mojang, y GitHub para las builds. Solo cuando el jugador lo pide: relay de amigos. Apagados: telemetría y ping "I'm playing" (`crates/horizon-telemetry`, `crates/horizon-client/src/heartbeat.rs`) y cosméticos (`HORIZON_COSMETICS=0`, hoy activos por defecto y ligados al UUID). Se prefieren variables de entorno fijadas por el puente antes que cambiar código.
-- Se mantienen `LICENSE`, `THIRD_PARTY_NOTICES.md`, el aviso de no afiliación con Mojang y Microsoft, y el crédito a Horizon.
+**Automatic publishing** (`.github/workflows/zenith-release.yml`)
+- Builds the game and the bridge for Windows and Linux, signs, and publishes at most one build a day.
+- Accepted limit: nobody opens the game before publishing. Horizon's smoke test covers its commit, not our merge, and a failure that only shows when playing will reach everybody.
+- Two cheap brakes: the repo variable `ZENITH_AUTOPUBLISH=off` stops publishing, and the bridge keeps the previous build to go back to.
 
-Como Zenith no distribuye el launcher de Rust, ya no hace falta tocar `launcher/`. Esto elimina la zona con más riesgo de conflictos.
+**Game identity** (smallest possible change)
+- Signing: our own key for Zenith's files, verified by the bridge with `crates/horizon-release-sign`. The private half is an Actions secret.
+- Visible name: replace "Horizon" with "Zenith" in a single place, when the game's texts are loaded, without editing the language files.
+- Game traffic (Claude's decision): an allow list of destinations. Allowed: Microsoft, Xbox and Mojang, and GitHub for the builds. Only when the player asks: the friends relay. Off: telemetry and the "I'm playing" ping (`crates/horizon-telemetry`, `crates/horizon-client/src/heartbeat.rs`) and cosmetics (`HORIZON_COSMETICS=0`, active by default today and tied to the UUID). Environment variables set by the bridge are preferred over changing code.
+- `LICENSE`, `THIRD_PARTY_NOTICES.md`, the notice of non-affiliation with Mojang and Microsoft, and the credit to Horizon are kept.
 
-**Terminado cuando:**
-- Una nightly real llega a `main` y se publica sola.
-- El archivo publicado supera la verificación de firma.
+Because Zenith does not distribute the Rust launcher, `launcher/` no longer needs to be touched. This removes the area with the most conflict risk.
 
-## Fase 2: XMCL como launcher, con un puente
+**Done when:**
+- A real nightly reaches `main` and is published by itself.
+- The published archive passes signature verification.
 
-**Por qué es viable.** Horizon documenta cómo arrancarlo desde launchers externos ([`docs/api/launch-guide.md`](https://github.com/horizon-rust/horizon/blob/main/docs/api/launch-guide.md), API experimental 0.1.0). XMCL (MIT, Electron) permite por instancia un "comando previo" que se antepone a la orden de arranque (`prependCommand`, `xmcl-keystone-ui/src/views/BaseSettingJava.vue:157`, `packages/core/launch.ts:701`). No hay que modificar XMCL.
+## Phase 2: XMCL as the launcher, with a bridge
 
-**Inicio de sesión.** Lo hace XMCL, sin modificar y con su propio registro, como con cualquier otro juego. Zenith no incluye ni copia ningún ID de aplicación, así que esta fase no necesita aprobación de Mojang.
+**Why it is viable.** Horizon documents how to start it from external launchers ([`docs/api/launch-guide.md`](https://github.com/horizon-rust/horizon/blob/main/docs/api/launch-guide.md), experimental API 0.1.0). XMCL (MIT, Electron) allows a per-instance "prepend command" that is put before the launch command (`prependCommand`, `xmcl-keystone-ui/src/views/BaseSettingJava.vue:157`, `packages/core/launch.ts:701`). XMCL does not have to be modified.
 
-**El puente:** `zenith/bridge/`, un programa pequeño en Rust (`zenith-bridge.exe`). XMCL descarga Minecraft 26.3 y Java, y ejecuta `zenith-bridge <java> … net.minecraft.client.main.Main --username … --uuid … --accessToken … --gameDir …`. El puente no arranca Java. Hace esto:
-1. **Lee los argumentos** de XMCL.
-2. **Comprueba que la cuenta posee el juego** (paso 0 de la guía de Horizon): rechaza si `--userType` no es `msa` y pregunta a los servicios de Minecraft con ese token. Las cuentas offline, ely.by o LittleSkin no arrancan Zenith.
-3. **Instala o actualiza Zenith** desde las Releases, verificando la firma. Conserva la build anterior.
-4. **Prepara los recursos:** `horizon-prepare --check` y, si falla, `--prepare --complete --progress json` con los archivos que XMCL ya descargó y su Java (`--java-home`). Solo para ese dueño descarga el jar del servidor, que la preparación necesita. Hay una sola carpeta preparada por versión de Minecraft. La primera vez tarda minutos, así que debe verse una ventana de progreso.
-5. **Arranca el juego:** `horizon-client --resources P --game-dir G --home G --width W --height H --session-stdin`. La sesión va por entrada estándar, nunca por la línea de comandos. Reenvía la salida, devuelve el código de salida y escribe la ruta del informe de fallo en el formato que XMCL detecta (`Crash report saved to:`).
+**Sign-in.** XMCL does it, unmodified and with its own registration, as for any other game. Zenith includes and copies no application ID, so this phase needs no approval from Mojang.
 
-**Primero una prueba desechable**, con la nightly actual de Horizon sin cambios, antes de construir el puente de verdad. Debe responder:
-- si XMCL acepta el comando previo y qué argumentos exactos pasa;
-- si deja de marcar la instancia como "arrancando" sin un log de Java;
-- si funciona su pestaña de shaders en una instancia vanilla;
-- si `--minecraft-dir` sirve con la estructura de carpetas de XMCL.
+**The bridge:** `zenith/bridge/`, a small Rust program (`zenith-bridge.exe`). XMCL downloads Minecraft 26.3 and Java, and runs `zenith-bridge <java> … net.minecraft.client.main.Main --username … --uuid … --accessToken … --gameDir …`. The bridge does not start Java. It does this:
+1. **Reads the arguments** from XMCL.
+2. **Checks that the account owns the game** (step 0 of Horizon's guide): it refuses if `--userType` is not `msa` and asks the Minecraft services with that token. Offline, ely.by or LittleSkin accounts do not start Zenith.
+3. **Installs or updates Zenith** from the Releases, verifying the signature. It keeps the previous build.
+4. **Prepares the resources:** `horizon-prepare --check` and, if it fails, `--prepare --complete --progress json` with the files XMCL already downloaded and its Java (`--java-home`). Only for that owner does it download the server jar, which the preparation needs. There is a single prepared folder per Minecraft version. The first time takes minutes, so a progress window must be visible.
+5. **Starts the game:** `horizon-client --resources P --game-dir G --home G --width W --height H --session-stdin`. The session goes through standard input, never through the command line. It forwards the output, returns the exit code and writes the crash report path in the format XMCL detects (`Crash report saved to:`).
 
-**Puesta en marcha.** `zenith-bridge setup` deja listo el puente en una carpeta fija y crea la instancia "Zenith" de 26.3 con el comando previo. Si el formato de instancia de XMCL no lo permite con seguridad, se queda en tres pasos manuales documentados.
+**First a throwaway test**, with Horizon's current nightly unchanged, before building the real bridge. It must answer:
+- whether XMCL accepts the prepend command and exactly which arguments it passes;
+- whether it stops marking the instance as "launching" without a Java log;
+- whether its shaders tab works on a vanilla instance;
+- whether `--minecraft-dir` works with XMCL's folder structure.
 
-**Qué da esta fase y qué no**
+**Setup.** `zenith-bridge setup` leaves the bridge ready in a fixed folder and creates the 26.3 "Zenith" instance with the prepend command. If XMCL's instance format does not allow that safely, it stays as three documented manual steps.
 
-| Lo que pediste | Con el puente | Con el launcher en Rust (fase 6) |
+**What this phase gives and what it does not**
+
+| What you asked for | With the bridge | With the Rust launcher (phase 6) |
 | --- | --- | --- |
-| Apariencia | La de XMCL | Marca y tema de Zenith |
-| Opciones de juego | Instancias de XMCL y ajustes dentro del juego | Presets de FPS y ajustes de Zenith en el launcher |
-| Mods y shaders | Shaders y resource packs desde Modrinth y CurseForge (por confirmar en la prueba) | Pestaña de mods filtrada, con `.hmod` |
-| Diagnóstico | Lo que XMCL detecte de fallos y logs | Panel propio |
+| Appearance | XMCL's | Zenith's brand and theme |
+| Game options | XMCL instances and in-game settings | FPS presets and Zenith settings in the launcher |
+| Mods and shaders | Shaders and resource packs from Modrinth and CurseForge (to be confirmed in the test) | Filtered mods tab, with `.hmod` |
+| Diagnostics | Whatever XMCL detects from crashes and logs | Own panel |
 
-**Lo que se pierde respecto al launcher de Horizon**, salvo que se añada luego:
-- Compilar mods nativos (`.hnmod`).
-- Portar modpacks.
-- Alojar servidores.
-- Actualizaciones con la lista de versiones de Horizon.
+**What is lost compared with Horizon's launcher**, unless added later:
+- Building native mods (`.hnmod`).
+- Porting modpacks.
+- Hosting servers.
+- Updates with Horizon's list of versions.
 
-Además, la pestaña de mods de XMCL ofrecerá mods Java que no funcionan en Zenith.
+Also, XMCL's mods tab will offer Java mods that do not work in Zenith.
 
-**Límite heredado.** XMCL pasa el token por la línea de comandos al puente, como hace con cualquier juego. Otros programas de ese usuario podrían leerlo mientras dura el arranque. Desaparece en la fase 6.
+**Inherited limit.** XMCL passes the token on the command line to the bridge, as it does for any game. Other programs of that user could read it during startup. It disappears in phase 6.
 
-**Tests.** El analizador de argumentos con líneas reales de XMCL, el rechazo de cuentas sin propiedad o no `msa`, y la comprobación de que el token nunca aparece en la orden de `horizon-client`.
+**Tests.** The argument parser with real XMCL lines, the refusal of accounts that do not own the game or are not `msa`, and the check that the token never appears in the `horizon-client` command.
 
-**Terminado cuando:**
-- En un perfil limpio de XMCL, con la cuenta del usuario, Jugar abre Zenith en un servidor online.
-- Una cuenta offline se rechaza con un mensaje claro.
-- Una build con firma mala se rechaza.
-- Una captura de tráfico de 10 minutos de juego muestra solo destinos de la lista blanca.
-- `%APPDATA%\horizon` y `%APPDATA%\horizon-launcher` quedan sin cambios (comparación antes y después).
+**Done when:**
+- On a clean XMCL profile, with the user's account, Play opens Zenith on an online server.
+- An offline account is refused with a clear message.
+- A build with a bad signature is refused.
+- A 10-minute traffic capture of play shows only allow-listed destinations.
+- `%APPDATA%\horizon` and `%APPDATA%\horizon-launcher` stay unchanged (before and after comparison).
 
-## Fase 3: entrar a los servidores
+## Phase 3: joining servers
 
-**Elegir versión.** Hoy se elige por coincidencia exacta del número que anuncia el servidor (`older_server`, `net.rs:570`). Nuevo orden:
-1. La versión elegida a mano para ese servidor, si la hay.
-2. El número anunciado, si es uno que sabemos traducir. Se reutilizan `ServerVersion::from_protocol` y `ALL` (`crates/horizon-protocol/src/adapter.rs`).
-3. Si el servidor rechaza durante el login (`net.rs:686`) con un mensaje que incluye un rango como "1.7.2-26.2": un único reintento con la versión más nueva que sabemos traducir dentro de ese rango.
+**Choosing the version.** Today it is chosen by exact match of the number the server announces (`older_server`, `net.rs:570`). New order:
+1. The version chosen by hand for that server, if any.
+2. The announced number, if it is one we know how to translate. `ServerVersion::from_protocol` and `ALL` (`crates/horizon-protocol/src/adapter.rs`) are reused.
+3. If the server refuses during login (`net.rs:686`) with a message that includes a range such as "1.7.2-26.2": a single retry with the newest version we can translate inside that range.
 
-No se sondea con pings por versión: `<servidor de prueba>` responde que sí a todas y corta los pings rápidos, así que no aportaría nada y podría activar protecciones. Sin rango en el mensaje no hay reintento, y el error sugiere usar el selector.
+There is no probing with pings per version: `<test server>` answers yes to all of them and cuts fast pings, so it would add nothing and could trigger protections. Without a range in the message there is no retry, and the error suggests using the selector.
 
-**Cambios**
-- `older_servers_enabled()` pasa a estar activo por defecto; `HORIZON_OLDER_SERVERS=0` lo apaga.
-- La lista de servidores (`crates/horizon-client/src/multiplayer.rs:261`) usa la misma lógica, para no marcar como incompatible un servidor al que sí se puede entrar.
-- Selector por servidor ("Automática", "26.2", …) en la pantalla de edición. Se guarda en un archivo aparte de Zenith indexado por dirección, para no alterar `servers.dat`, que debe seguir siendo compatible con vanilla. Las versiones de 1.20.2 a 1.21.7 se marcan como experimentales.
-- Mostrar "Entrando como 26.2" al conectar. Si la traducción falla, el error dice con qué versión se intentó.
+**Changes**
+- `older_servers_enabled()` becomes active by default; `HORIZON_OLDER_SERVERS=0` turns it off.
+- The server list (`crates/horizon-client/src/multiplayer.rs:261`) uses the same logic, so a server that can be joined is not marked incompatible.
+- Per-server selector ("Automatic", "26.2", …) in the edit screen. It is saved in a separate Zenith file indexed by address, so `servers.dat`, which must stay compatible with vanilla, is not altered. Versions from 1.20.2 to 1.21.7 are marked experimental.
+- Show "Joining as 26.2" when connecting. If the translation fails, the error says which version was tried.
 
-**Integrar 1.20.2 a 1.21.8.** Hoy el traductor cubre de 1.21.9 a 26.2. El resto está en [horizon-rust/horizon#8718](https://github.com/horizon-rust/horizon/pull/8718): borrador con conflictos, +18.944 líneas, en desarrollo activo. Se fusiona su rama en Zenith y se resuelven los conflictos. Cuando Horizon lo integre, la sincronización lo absorbe. Mientras tanto, cada cambio de esa rama se vuelve a traer a mano.
+**Integrating 1.20.2 to 1.21.8.** Today the translator covers 1.21.9 to 26.2. The rest is in [horizon-rust/horizon#8718](https://github.com/horizon-rust/horizon/pull/8718): a draft with conflicts, +18,944 lines, under active development. Its branch is merged into Zenith and the conflicts are resolved. When Horizon merges it, the sync absorbs it. Meanwhile every change in that branch is brought again by hand.
 
-**Sin copiar código de Via.** ViaVersion y ViaFabricPlus son GPL-3; Zenith sigue siendo MIT.
+**No Via code is copied.** ViaVersion and ViaFabricPlus are GPL-3; Zenith stays MIT.
 
-**Límite conocido.** El juego sigue siendo 26.3 por dentro. En servidores antiguos puede haber diferencias visibles, y algunos anticheats podrían reaccionar.
+**Known limit.** The game is still 26.3 inside. On old servers there can be visible differences, and some anticheats may react.
 
-**Comprobación**
-- Tests de `crates/horizon-protocol` y tests nuevos del selector, con la respuesta real de `<servidor de prueba>` y el mensaje de la captura como datos de prueba.
-- Matriz con servidores vanilla reales en local, en modo offline, uno por protocolo: 1.20.2, 1.20.4, 1.20.6, 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.6, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 y 26.3. Con `horizon-ctl`: entrar, moverse, romper y poner un bloque, chat, inventario, cambiar de dimensión, morir y reaparecer. Se ejecuta a mano, no en cada sincronización, y los jars no se suben al repo.
-- `<servidor de prueba>` en automático y también forzando 26.2 con el selector, porque si entra directo como 26.3 la prueba no ejercita el traductor.
+**Verification**
+- Tests of `crates/horizon-protocol` and new selector tests, with the real response of `<test server>` and the captured message as test data.
+- A matrix with real vanilla servers locally, in offline mode, one per protocol: 1.20.2, 1.20.4, 1.20.6, 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.6, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 and 26.3. With `horizon-ctl`: join, move, break and place a block, chat, inventory, change dimension, die and respawn. It is run by hand, not on every sync, and the jars are not uploaded to the repo.
+- `<test server>` on automatic and also forcing 26.2 with the selector, because if it joins directly as 26.3 the test does not exercise the translator.
 
-**Terminado cuando (decisión de Claude):**
-- De 1.21.8 a 26.3, toda la matriz pasa. Es obligatorio.
-- De 1.20.2 a 1.21.7, se hace lo posible y lo que falle queda listado como problema conocido.
-- El usuario entra a `<servidor de prueba>` desde XMCL sin configurar nada más y juega 30 minutos sin expulsiones. Una expulsión por anticheat se investiga; si viene de ser 26.3 por dentro y no se puede arreglar, se documenta y decide el usuario.
+**Done when (Claude's decision):**
+- From 1.21.8 to 26.3, the whole matrix passes. It is mandatory.
+- From 1.20.2 to 1.21.7, do what is possible and list what fails as a known problem.
+- The user joins `<test server>` from XMCL without configuring anything else and plays 30 minutes without being kicked. A kick by anticheat is investigated; if it comes from being 26.3 inside and cannot be fixed, it is documented and the user decides.
 
-## Fase 4: más FPS
+## Phase 4: more FPS
 
-- Medir primero: `tools/perf_bench.py` en el PC del usuario, Zenith contra la misma nightly de Horizon.
-- Entregable: presets "Máximo FPS", "Equilibrado" y "Calidad" sobre los ajustes que ya existen (`docs/graphics.md`). Se eligen en el juego, y en el launcher cuando exista la fase 6.
-- El motor solo se toca si el benchmark demuestra la mejora, y primero se propone a Horizon, que ya trabaja en esto. Así no se pierde al sincronizar.
-- No se promete un porcentaje antes de medir: depende del PC, y el punto de partida se fija en la primera medición.
+- Measure first: `tools/perf_bench.py` on the user's PC, Zenith against the same Horizon nightly.
+- Deliverable: "Max FPS", "Balanced" and "Quality" presets over the settings that already exist (`docs/graphics.md`). They are chosen in the game, and in the launcher when phase 6 exists.
+- The engine is only touched if the benchmark proves the improvement, and it is proposed to Horizon first, which is already working on this. That way nothing is lost when syncing.
+- No percentage is promised before measuring: it depends on the PC, and the starting point is fixed in the first measurement.
 
-## Fase 5: shaders
+## Phase 5: shaders
 
-- Partir del código existente (`crates/horizon-shaders`, `crates/horizon-client/src/game/shader_packs.rs`), no reescribir.
-- Primero comprobar su estado real ejecutándolo: la hoja de ruta y `docs/shaders.md` no coinciden del todo, y hay fallos abiertos como [#9137](https://github.com/horizon-rust/horizon/issues/9137).
-- Orden: Sildur's o ligeros → BSL → Complementary → Bliss y Photon.
-- Listo por pack: carga sin errores en Windows, mundo normal, Nether y End, escena fija capturada con `horizon-ctl` y comparada a ojo con el mismo pack en Iris sobre una instancia Java de XMCL, sin caída de FPS inaceptable para el usuario.
-- Los packs nunca se suben al repo: se descargan en local (licencias de cada pack). Los datos de prueba del repo son packs propios, como `crates/horizon-shaders/tests/packs/terrain-test`.
+- Start from the existing code (`crates/horizon-shaders`, `crates/horizon-client/src/game/shader_packs.rs`), do not rewrite.
+- First check its real state by running it: the roadmap and `docs/shaders.md` do not fully agree, and there are open failures such as [#9137](https://github.com/horizon-rust/horizon/issues/9137).
+- Order: Sildur's or light ones → BSL → Complementary → Bliss and Photon.
+- Done per pack: loads without errors on Windows, normal world, Nether and End, a fixed scene captured with `horizon-ctl` and compared by eye with the same pack in Iris on an XMCL Java instance, with no frame-rate drop unacceptable to the user.
+- Packs are never uploaded to the repo: they are downloaded locally (each pack's licence). The repo's test data are packs of our own, such as `crates/horizon-shaders/tests/packs/terrain-test`.
 
-## Fase 6: XMCL traducido a Rust (launcher Zenith)
+## Phase 6: XMCL translated to Rust (Zenith launcher)
 
-**Decisión del usuario: traducción completa 1:1.** Es la pieza más grande de todo el proyecto: unos 7,8 MB de TypeScript y Vue en unos 1.400 archivos, sin contar tests. Mayor que el launcher de Horizon entero (3,3 MB). Mientras dura, se sigue jugando con XMCL normal y el puente, así que nadie espera. Tendrá su propio plan detallado, con maquetas para aprobar antes de construir.
+**User's decision: complete 1:1 translation.** It is the largest piece of the whole project: about 7.8 MB of TypeScript and Vue in about 1,400 files, not counting tests. Larger than all of Horizon's launcher (3.3 MB). While it lasts, play continues with regular XMCL and the bridge, so nobody waits. It will have its own detailed plan, with mock-ups to approve before building.
 
-**Condición para empezar (decisión de Claude):** tener la aprobación de Mojang. Sin ella, el launcher resultante no podría iniciar sesión, y no conviene invertir en esto antes de saberlo.
+**Condition to start (Claude's decision):** having Mojang's approval. Without it, the resulting launcher could not sign in, and it is not worth investing in this before knowing.
 
-**Bloqueos que solo puede resolver el usuario**
-- **ID de aplicación propio.** Un launcher nuevo no puede usar el de XMCL, que está en `xmcl-runtime/user/pluginOfficialUserApi.ts:12`, ni el de otra aplicación. Ese valor no se traduce. El usuario registra una app en Azure y pide a Mojang la aprobación ("App ID review"; Horizon documenta que tarda de días a semanas, pasos en `docs/microsoft-account.md`). Conviene pedirla al empezar la fase 1, porque no depende de nada.
-- **Clave propia de la API de CurseForge**, por el mismo motivo.
-- **Si Mojang lo rechaza:** Zenith sigue funcionando con XMCL normal y el puente, y esta fase se replantea con el usuario. No se bloquea nada más.
+**Blockers only the user can resolve**
+- **Own application ID.** A new launcher cannot use XMCL's, which is in `xmcl-runtime/user/pluginOfficialUserApi.ts:12`, nor another application's. That value is not translated. The user registers an app in Azure and asks Mojang for approval ("App ID review"; Horizon documents that it takes days to weeks, steps in `docs/microsoft-account.md`). It is worth asking at the start of phase 1, because it depends on nothing.
+- **Own CurseForge API key**, for the same reason.
+- **If Mojang rejects it:** Zenith keeps working with regular XMCL and the bridge, and this phase is rethought with the user. Nothing else is blocked.
 
-**Decisiones de Claude, revisables en el plan de esta fase**
-- **Repositorio:** `gitzetazero/zenith-launcher`, nuevo, conservando la licencia MIT y el copyright de XMCL. La base queda fijada en la última versión de XMCL al empezar (hoy v0.73.1).
-- **Interfaz:** GPUI Fast, el mismo framework del launcher de Horizon. Vuetify no existe en Rust, así que primero se construye una biblioteca de componentes equivalente. "1:1" significa mismas pantallas, flujos y opciones, no igualdad de píxeles.
-- **Reutilización:** los archivos de idioma de XMCL se conservan. Antes de escribir algo de cero se mira el launcher de Horizon (MIT), que ya resuelve cuentas, descargas y Modrinth en Rust. El puente de la fase 2 pasa a ser una biblioteca, y el token deja de ir por la línea de comandos.
+**Claude's decisions, reviewable in this phase's plan**
+- **Repository:** `gitzetazero/zenith-launcher`, new, keeping XMCL's MIT licence and copyright. The base is fixed at XMCL's latest version when starting (v0.73.1 today).
+- **Interface:** GPUI Fast, the same framework as Horizon's launcher. Vuetify does not exist in Rust, so an equivalent component library is built first. "1:1" means the same screens, flows and options, not pixel equality.
+- **Reuse:** XMCL's language files are kept. Before writing anything from scratch, Horizon's launcher (MIT) is looked at, which already solves accounts, downloads and Modrinth in Rust. The phase 2 bridge becomes a library, and the token stops going on the command line.
 
-**El inventario es el contrato.** `docs/xmcl-parity.md` lista cada uno de los 52 servicios, cada pantalla y cada paquete `@xmcl/*`, con su estado: pendiente, portado o excluido. Solo el usuario puede aprobar una exclusión. Excepciones propuestas desde el principio:
-- `xmcl-electron-app` y `deskgap-app`, porque los sustituye el propio programa en Rust.
-- La telemetría de XMCL y su canal de actualización, porque se sustituyen por los de Zenith.
+**The inventory is the contract.** `docs/xmcl-parity.md` lists each of the 52 services, each screen and each `@xmcl/*` package, with its state: pending, ported or excluded. Only the user can approve an exclusion. Exceptions proposed from the start:
+- `xmcl-electron-app` and `deskgap-app`, because the Rust program itself replaces them.
+- XMCL's telemetry and its update channel, because they are replaced by Zenith's.
 
-**Orden, para que cada etapa sea usable**
-1. Ventana, componentes, temas, idiomas y ajustes.
-2. Cuenta de Microsoft, instancias y arranque de Zenith. Desde aquí ya puede sustituir a XMCL para jugar a Zenith.
-3. Descargas: Minecraft, Java, Forge, Fabric, Quilt, OptiFine y espejos, con instancias Java.
-4. Recursos: mods, shaders, resource packs y mundos, Modrinth y CurseForge, y `.hmod`.
-5. Modpacks: importar y exportar.
-6. El resto, incluidos multijugador P2P y cuentas de terceros (Yggdrasil, ely.by, LittleSkin).
+**Order, so every stage is usable**
+1. Window, components, themes, languages and settings.
+2. Microsoft account, instances and starting Zenith. From here it can already replace XMCL to play Zenith.
+3. Downloads: Minecraft, Java, Forge, Fabric, Quilt, OptiFine and mirrors, with Java instances.
+4. Resources: mods, shaders, resource packs and worlds, Modrinth and CurseForge, and `.hmod`.
+5. Modpacks: import and export.
+6. The rest, including P2P multiplayer and third-party accounts (Yggdrasil, ely.by, LittleSkin).
 
-Lo propio de Zenith se añade cuando exista su equivalente: presets de FPS, diagnóstico, avisos de qué mods funcionan en cada instancia, y marca y tema.
+What is Zenith's own is added when its equivalent exists: FPS presets, diagnostics, notices of which mods work on each instance, and brand and theme.
 
-**Cuentas sin propiedad.** Las cuentas offline o de terceros nunca arrancan el motor de Zenith. Si se portan para instancias Java se decide con el usuario al llegar a esa etapa.
+**Accounts that do not own the game.** Offline or third-party accounts never start Zenith's engine. Whether they are ported for Java instances is decided with the user when that stage is reached.
 
-**Método.** Los tests de XMCL (unos 2 MB) se traducen también y sirven de especificación.
+**Method.** XMCL's tests (about 2 MB) are translated too and serve as the specification.
 
-**Mantenerse al día con XMCL.** Ya no se puede fusionar su código. Un workflow semanal abre un issue con los commits nuevos de XMCL desde la base (en el último mes, 41 commits y 3 versiones), y se decide cuáles traducir.
+**Keeping up with XMCL.** Its code can no longer be merged. A weekly workflow opens an issue with XMCL's new commits since the base (in the last month, 41 commits and 3 versions), and it is decided which to translate.
 
-**Terminado cuando:**
-- El inventario no tiene pendientes.
-- Los tests traducidos pasan.
-- Cada pantalla se ha comparado con XMCL a 1200x720 y 800x400 (su ventana por defecto y su mínima).
-- El usuario lo usa en lugar de XMCL y da el visto bueno.
+**Done when:**
+- The inventory has nothing pending.
+- The translated tests pass.
+- Every screen has been compared with XMCL at 1200x720 and 800x400 (its default and minimum window).
+- The user uses it instead of XMCL and gives the go-ahead.
 
-## Orden y alcance
+## Order and scope
 
-Orden (decisión de Claude): Fase 1 → 2 → 3 → 4 → 5 → 6. El puente va antes que el traductor porque permite jugar y probar Zenith con la cuenta del usuario sin esperar a Mojang. La traducción va la última porque es la más grande, necesita la aprobación de Mojang y nada depende de ella: los presets de FPS se eligen en el juego hasta entonces.
+Order (Claude's decision): Phase 1 → 2 → 3 → 4 → 5 → 6. The bridge goes before the translator because it allows playing and testing Zenith with the user's account without waiting for Mojang. The translation goes last because it is the largest, needs Mojang's approval and nothing depends on it: FPS presets are chosen in the game until then.
 
-Aprobar este plan aprueba el diseño completo y permite construir las fases 1, 2 y 3, **incluidos crear el fork público y publicar builds automáticamente**. Cada una de las demás tendrá su plan detallado antes de empezar.
+Approving this plan approves the complete design and allows building phases 1, 2 and 3, **including creating the public fork and publishing builds automatically**. Each of the others will have its detailed plan before starting.
 
-## Lo que necesita el usuario
+## What the user needs to do
 
-1. **Volver a probar `<servidor de prueba>`** con Horizon tal cual: el servidor ya anuncia 26.3.
-2. **Instalar XMCL** en este PC e iniciar sesión con su cuenta, para la prueba desechable de la fase 2. No se ha comprobado si ya está instalado.
-3. **Crear el token de sincronización** (permisos de contenido y workflows) y guardarlo como secreto del repo, sin pegarlo en el chat.
-4. **Generar la clave de firma** con el comando que le dé Claude y guardarla como secreto. La privada nunca va al chat ni al repo.
-5. **Registrar la app de Azure y pedir aprobación a Mojang**, cuanto antes aunque sea para la fase 6, porque tarda. También una clave de la API de CurseForge. Claude da los pasos; las cuentas son suyas.
-6. **Aprobar cada PR hacia Horizon** y las maquetas del launcher.
+1. **Try `<test server>` again** with Horizon as it is: the server now announces 26.3.
+2. **Install XMCL** on this PC and sign in with their account, for the phase 2 throwaway test. It has not been checked whether it is already installed.
+3. **Create the sync token** (contents and workflows permissions) and save it as a repo secret, without pasting it in the chat.
+4. **Generate the signing key** with the command Claude gives and save it as a secret. The private half never goes to the chat or the repo.
+5. **Register the Azure app and ask Mojang for approval**, as soon as possible even if it is for phase 6, because it takes time. Also a CurseForge API key. Claude gives the steps; the accounts are theirs.
+6. **Approve every PR to Horizon** and the launcher mock-ups.
 
-## Riesgos
+## Risks
 
-- **Publicación automática sin abrir el juego:** es el riesgo aceptado con más impacto. Si hay un fallo, se usa `ZENITH_AUTOPUBLISH=off` y se vuelve a la build anterior.
-- **Tamaño de la traducción 1:1:** es varias veces mayor que el resto de lo que hay que construir y deja a Zenith manteniendo un launcher completo por su cuenta. Traducir también lo que no sirve en Zenith (como los instaladores de loaders para el motor de Rust) añade trabajo sin ganancia para ese motor. El inventario permite excluir partes si el usuario cambia de idea.
-- **`exporters/`:** si no se pueden reutilizar, la publicación automática cambia (ver fase 1).
-- **Launch API experimental:** puede cambiar sin aviso. Se detecta en la sincronización antes de publicar, y entonces hay que ajustar el puente.
-- **Dependencia de XMCL:** el comando previo y el formato de argumentos son de XMCL y pueden cambiar en sus actualizaciones, que no controlamos hasta tener el launcher en Rust. XMCL también tiene telemetría propia, con ajuste para apagarla (`disableTelemetry`). Conviene apagarla si no se quiere enviar.
-- **Ritmo de Horizon:** los conflictos más probables estarán en el traductor. Si la sincronización se atasca, se pausa la fase en curso y se atiende primero, porque mantenerse al día es un objetivo y no un extra.
-- **#8718 sin terminar:** puede cambiar mucho o no integrarse. Si se abandona, ese código pasa a ser nuestro y 1.21.8 depende de ello. De 1.21.9 a 26.2 no depende de él.
-- **Traductor experimental:** activarlo por defecto puede provocar expulsiones. Por eso hay interruptor, selector y mensajes claros.
-- **Normas de los servidores:** entrar con un cliente no oficial puede ir contra las reglas de un servidor. El usuario debería revisar las de `<servidor de prueba>` antes de la prueba de 30 minutos.
-- **Cambio de versión base:** el usuario ya tiene `26.4-snapshot-6` instalado. Cuando Horizon pase a otra versión, llegará como un parche grande en la sincronización, y el puente debe seguir la versión que declare `horizon-prepare --launch-api`.
-- **Legal:** el repo original tiene issues abiertos sobre sus afirmaciones de "clean room" ([#1555](https://github.com/horizon-rust/horizon/issues/1555), [#6741](https://github.com/horizon-rust/horizon/issues/6741)). No se han evaluado aquí y el fork los heredaría desde la primera Release pública. Conviene consultar a un abogado antes de anunciarlo.
-- **Nombre, antes de anunciarlo:** `zenith-rust` está libre en GitHub, pero "Zenith" ya se usa en otros proyectos de Minecraft, incluido un repo de cheats. Revisarlo entonces.
+- **Automatic publishing without opening the game:** the accepted risk with the most impact. If there is a failure, `ZENITH_AUTOPUBLISH=off` is used and the previous build is restored.
+- **Size of the 1:1 translation:** several times larger than the rest of what must be built, and it leaves Zenith maintaining a complete launcher on its own. Translating also what is useless in Zenith (such as the loader installers for the Rust engine) adds work with no gain for that engine. The inventory allows excluding parts if the user changes their mind.
+- **`exporters/`:** if they cannot be reused, automatic publishing changes (see phase 1).
+- **Experimental launch API:** it can change without notice. It is detected in the sync before publishing, and then the bridge has to be adjusted.
+- **Dependence on XMCL:** the prepend command and the argument format are XMCL's and can change in its updates, which we do not control until we have the Rust launcher. XMCL also has its own telemetry, with a setting to turn it off (`disableTelemetry`). It should be turned off if it is not to be sent.
+- **Horizon's pace:** the most likely conflicts will be in the translator. If the sync gets stuck, the phase in progress is paused and it is handled first, because staying up to date is a goal and not an extra.
+- **#8718 unfinished:** it can change a lot or not be merged. If it is abandoned, that code becomes ours and 1.21.8 depends on it. From 1.21.9 to 26.2 does not depend on it.
+- **Experimental translator:** turning it on by default can cause kicks. That is why there is a switch, a selector and clear messages.
+- **Server rules:** joining with an unofficial client may go against a server's rules. The user should review those of `<test server>` before the 30-minute test.
+- **Base version change:** the user already has `26.4-snapshot-6` installed. When Horizon moves to another version, it will arrive as a large patch in the sync, and the bridge must follow the version declared by `horizon-prepare --launch-api`.
+- **Legal:** the original repo has open issues about its "clean room" claims ([#1555](https://github.com/horizon-rust/horizon/issues/1555), [#6741](https://github.com/horizon-rust/horizon/issues/6741)). They were not evaluated here and the fork would inherit them from the first public Release. A lawyer should be consulted before announcing it.
+- **Name, before announcing it:** `zenith-rust` is free on GitHub, but "Zenith" is already used by other Minecraft projects, including a cheats repo. Review it then.
 
-## Verificación global
+## Global verification
 
-- `git log` confirma que `main` contiene la última nightly y `git diff <nightly>..main --stat` muestra una diferencia pequeña fuera de `zenith/`.
-- `python3 tools/pr_ready.py` pasa en cada cambio. Necesita JDK 25, que falta en este PC (Rust 1.99 y Python 3.12 ya están).
-- Las pruebas de `ZENITH.md` se ejecutan en Windows. Horizon solo declara sus harnesses en Linux y macOS, así que Windows es el hueco a vigilar.
-- Después de cada fase, el usuario lo prueba en su PC.
+- `git log` confirms that `main` contains the latest nightly and `git diff <nightly>..main --stat` shows a small difference outside `zenith/`.
+- `python3 tools/pr_ready.py` passes on every change. It needs JDK 25, which this PC lacks (Rust 1.99 and Python 3.12 are already there).
+- The tests in `ZENITH.md` are run on Windows. Horizon only declares its harnesses on Linux and macOS, so Windows is the gap to watch.
+- After each phase, the user tests it on their PC.
 
-## Sin comprobar todavía
+## Not yet verified
 
-Nada se ha compilado ni ejecutado: esto sale de leer los repos en GitHub y de los pings al servidor. Sin confirmar:
-- Si hoy se puede entrar a `<servidor de prueba>` como 26.3, porque un ping no prueba el login.
-- Por qué cambió el rango respecto a la captura.
-- Qué responde Velocity a una versión que no soporta. De memoria, su versión máxima, en cuyo caso el paso 2 del selector ya resolvería el caso de la captura.
-- Todo lo que debe responder la prueba desechable de la fase 2. Mientras no se haga, la viabilidad con XMCL es una deducción a partir de su código, no un hecho.
-- De dónde obtener `exporters/`.
-- El tiempo real de compilación en GitHub.
-- Si GPUI Fast cubre todo lo que XMCL hace con Vuetify y Electron. Se valida con la primera etapa de la fase 6.
+Nothing has been compiled or run: this comes from reading the repos on GitHub and from pings to the server. Unconfirmed:
+- Whether `<test server>` can be joined today as 26.3, because a ping does not prove the login.
+- Why the range changed compared with the capture.
+- What Velocity answers to a version it does not support. From memory, its maximum version, in which case step 2 of the selector would already solve the captured case.
+- Everything the phase 2 throwaway test must answer. Until it is done, viability with XMCL is a deduction from its code, not a fact.
+- Where to get `exporters/` from.
+- The real build time on GitHub.
+- Whether GPUI Fast covers everything XMCL does with Vuetify and Electron. It is validated with the first stage of phase 6.

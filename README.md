@@ -1,12 +1,12 @@
-<img src="zenith/branding/png/banner.png" alt="Zenith: Minecraft en Rust, en su punto más alto. Fork de Horizon." width="100%">
+<img src="zenith/branding/png/banner.png" alt="Zenith: Minecraft in Rust, at its highest point. A fork of Horizon." width="100%">
 
 # Zenith
 
-## Qué es
+## What it is
 
-Zenith es Minecraft: Java Edition 26.3 escrito de nuevo en Rust. Se instala, entras con tu cuenta de Microsoft y juegas, solo o en servidores. Además de los servidores 26.3, puede entrar a servidores de versiones anteriores (de 1.20.2 en adelante).
+Zenith is Minecraft: Java Edition 26.3 rewritten in Rust. You install it, sign in with your Microsoft account and play, alone or on servers. Besides 26.3 servers, it can join servers of older versions (from 1.20.2 on).
 
-> **Estado: temprano y experimental.** No hay anuncio todavía. Lo que sigue describe lo que existe hoy, no una promesa.
+> **Status: early and experimental.** There is no announcement yet. What follows describes what exists today, not a promise.
 
 ## Download and install
 
@@ -18,47 +18,47 @@ Windows only for now. Download **Zenith Launcher** from the [zenith-launcher Rel
 
 (The older interim installer on the [`nightly` release](https://github.com/gitzetazero/zenith/releases/tag/nightly) bundles unmodified XMCL and is being withdrawn.)
 
-## Requisitos
+## Requirements
 
-- Windows 10 u 11 de 64 bits.
-- Una tarjeta gráfica con Vulkan o DirectX 12.
-- Una cuenta de Microsoft que tenga **Minecraft: Java Edition**.
-- Tu propia copia de los archivos del juego. Zenith no incluye código ni recursos de Minecraft: el launcher descarga el juego de Mojang con tu cuenta y Zenith prepara sus recursos en tu equipo a partir de esa copia.
+- Windows 10 or 11, 64-bit.
+- A graphics card with Vulkan or DirectX 12.
+- A Microsoft account that owns **Minecraft: Java Edition**.
+- Your own copy of the game files. Zenith contains no Minecraft code or assets: the launcher downloads the game from Mojang with your account, and Zenith prepares its resources on your computer from that copy.
 
-## Cómo jugar
+## How to play
 
 1. Install and open "Zenith Launcher".
-2. La primera vez te pide elegir una carpeta de datos. Elígela, cierra el launcher y ábrelo otra vez: así se crea la instancia «Zenith».
-3. Inicia sesión con tu cuenta de Microsoft.
-4. Elige la instancia «Zenith» y pulsa Jugar. La primera vez descarga y prepara los recursos: tarda desde unos segundos hasta unos minutos.
-5. Para jugar en un servidor, añádelo en Multijugador como siempre. Zenith detecta su versión. Más en [`zenith/SERVERS.md`](zenith/SERVERS.md).
+2. The first time it asks you to choose a data folder. Choose it, close the launcher and open it again: this creates the "Zenith" instance.
+3. Sign in with your Microsoft account.
+4. Choose the "Zenith" instance and press Play. The first time it downloads and prepares the resources: from a few seconds to a few minutes.
+5. To play on a server, add it under Multiplayer as usual. Zenith detects its version. More in [`zenith/SERVERS.md`](zenith/SERVERS.md).
 
-## Qué trae
+## What it brings
 
-- El motor del juego, escrito en Rust.
-- Multijugador con traducción de versiones: entra a servidores de 1.20.2 a 26.2 además de 26.3, con un selector de versión para cada servidor. **Aún sin probar con servidores reales**: mira la tabla en [`zenith/SERVERS.md`](zenith/SERVERS.md).
-- Actualizaciones automáticas del juego, con firma comprobada antes de instalar.
-- Sin telemetría y sin cosméticos por defecto.
+- The game engine, written in Rust.
+- Multiplayer with version translation: join servers from 1.20.2 to 26.2 as well as 26.3, with a version selector for each server. **Not tested against real servers yet**: see the table in [`zenith/SERVERS.md`](zenith/SERVERS.md).
+- Automatic game updates, with the signature checked before installing.
+- No telemetry and no cosmetics by default.
 
-**En camino** (todavía no existe): shaders que funcionen bien, presets de rendimiento y un launcher propio hecho en Rust.
+**Coming** (does not exist yet): shaders that work well and performance presets.
 
-## Servidores y versiones soportadas
+## Supported servers and versions
 
-| Versión del servidor | Cómo se entra | Estado |
+| Server version | How you join | Status |
 |---|---|---|
-| 26.3 | Nativo | Nativo (26.3) |
-| 1.21.7 a 26.2 | Traducido | Traducido |
-| 1.20.2 a 1.21.6 | Traducido | Traducido, experimental |
+| 26.3 | Native | Native (26.3) |
+| 1.21.7 to 26.2 | Translated | Translated |
+| 1.20.2 to 1.21.6 | Translated | Translated, experimental |
 
-No se puede entrar a servidores anteriores a 1.20.2, a Bedrock ni a servidores que exigen mods. **Ninguna versión traducida se ha probado todavía contra un servidor real.** La tabla completa, cómo se elige la versión y cómo apagar el traductor están en [`zenith/SERVERS.md`](zenith/SERVERS.md).
+You cannot join servers older than 1.20.2, Bedrock servers or servers that require mods. **No translated version has been tested against a real server yet.** The full table, how the version is chosen and how to turn the translator off are in [`zenith/SERVERS.md`](zenith/SERVERS.md).
 
-## Compilar desde el código
+## Build from source
 
-Hace falta Rust 1.90 o más, Python 3.10 o más, JDK 25 y, en Linux, `libasound2-dev libudev-dev`.
-La preparación construye los recursos del juego a partir de **tu propia copia** de Minecraft: Java Edition 26.3 y nunca la descarga. No subas nunca archivos del juego al repositorio.
+You need Rust 1.90 or newer, Python 3.10 or newer, JDK 25 and, on Linux, `libasound2-dev libudev-dev`.
+Preparation builds the game resources from **your own copy** of Minecraft: Java Edition 26.3 and never downloads it. Never commit game files to the repository.
 
-1. **Cliente:** juega 26.3 una vez con el launcher oficial. Zenith lee `~/.minecraft` (o la ruta de `--minecraft-dir` / `HORIZON_MINECRAFT_DIR`).
-2. **Jar del servidor:** el jar del servidor 26.3, pasado una vez con `--server-jar` o `HORIZON_SERVER_JAR`.
+1. **Client:** play 26.3 once with the official launcher. Zenith reads `~/.minecraft` (or the path in `--minecraft-dir` / `HORIZON_MINECRAFT_DIR`).
+2. **Server jar:** the 26.3 server jar, passed once with `--server-jar` or `HORIZON_SERVER_JAR`.
 
 ```sh
 git clone https://github.com/gitzetazero/zenith.git
@@ -67,30 +67,30 @@ cargo run --release -p horizon-prepare -- --prepare --server-jar ~/Downloads/ser
 cargo run --release -p horizon-client
 ```
 
-Los archivos preparados quedan en `.local/`, que git ignora: no los subas ni los compartas. Los nombres internos (`horizon-client`, `HORIZON_*`) no se han cambiado a propósito; ver [`ZENITH.md`](ZENITH.md).
+Prepared files end up in `.local/`, which git ignores: do not commit or share them. Internal names (`horizon-client`, `HORIZON_*`) were deliberately not changed; see [`ZENITH.md`](ZENITH.md).
 
-## Problemas conocidos
+## Known problems
 
-- Todo es experimental y solo se ha probado con pruebas automáticas, no con el instalador en un Windows real.
-- Los servidores traducidos no se han probado con servidores reales.
-- El instalador y el programa que prepara el juego no están firmados para Windows: SmartScreen y algunos antivirus avisarán.
-- Solo Windows. Los mods de Java no funcionan: Zenith no ejecuta la JVM de Minecraft.
-- Una instancia de Zenith solo sirve para la versión del juego que trae (hoy 26.3).
+- Everything is experimental and has only been tested with automated tests, not with the installer on a real Windows machine.
+- Translated servers have not been tested against real servers.
+- The installer and the program that prepares the game are not code-signed for Windows: SmartScreen and some antivirus programs will warn you.
+- Windows only. Java mods do not work: Zenith does not run Minecraft's JVM.
+- A Zenith instance only works for the game version it ships with (today 26.3).
 
-¿Algo más? [Abre un aviso](https://github.com/gitzetazero/zenith/issues/new/choose).
+Anything else? [Open an issue](https://github.com/gitzetazero/zenith/issues/new/choose).
 
-## Más información
+## More information
 
-- [`zenith/SERVERS.md`](zenith/SERVERS.md): versiones de servidor y cómo se elige.
-- [`zenith/README.md`](zenith/README.md): guía del jugador con el launcher.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md) y [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md): cómo colaborar y cómo avisar de un fallo de seguridad.
-- [`ZENITH.md`](ZENITH.md): guía para quien mantiene el proyecto.
-- [`zenith/branding/BRAND.md`](zenith/branding/BRAND.md): logotipo y colores.
+- [`zenith/SERVERS.md`](zenith/SERVERS.md): server versions and how one is chosen.
+- [`zenith/README.md`](zenith/README.md): player guide for the launcher.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md) and [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md): how to contribute and how to report a security problem.
+- [`ZENITH.md`](ZENITH.md): guide for the people who maintain the project.
+- [`zenith/branding/BRAND.md`](zenith/branding/BRAND.md): logo and colours.
 
-## Créditos y licencia
+## Credits and licence
 
-Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon). Gracias al equipo de Horizon y a sus colaboradores: el motor es obra suya, y Zenith recibe sus mejoras por sincronización. Si te gusta lo que hacen, apóyalos a ellos.
+Zenith is a fork of [Horizon](https://github.com/horizon-rust/horizon). Thanks to the Horizon team and its contributors: the engine is their work, and Zenith receives their improvements by syncing. If you like what they do, support them.
 
-El código es [MIT](LICENSE). Los avisos de copyright originales se conservan en el archivo de licencia, junto al de los colaboradores de Zenith. Las dependencias conservan sus licencias ([avisos](THIRD_PARTY_NOTICES.md)).
+The code is [MIT](LICENSE). The original copyright notices are kept in the licence file, next to those of Zenith's contributors. Dependencies keep their licences ([notices](THIRD_PARTY_NOTICES.md)).
 
-Minecraft es una marca de Mojang Synergies AB. Zenith no está afiliado a Mojang ni a Microsoft, ni respaldado por ellos. No contiene código, recursos ni datos de Minecraft: necesitas tu propia copia de Java Edition.
+Minecraft is a trademark of Mojang Synergies AB. Zenith is not affiliated with, or endorsed by, Mojang or Microsoft. It contains no Minecraft code, assets or data: you need your own copy of Java Edition.

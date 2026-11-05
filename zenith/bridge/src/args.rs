@@ -58,7 +58,7 @@ impl LaunchArgs {
             (a.starts_with("-javaagent:") && a.to_lowercase().contains("authlib-injector"))
                 || a.starts_with("-Dauthlibinjector")
         }) {
-            return Err("Inicia sesión en XMCL con una cuenta de Microsoft que posea Minecraft: Java Edition (las cuentas ely.by y LittleSkin no sirven).".into());
+            return Err("Sign in to XMCL with a Microsoft account that owns Minecraft: Java Edition (ely.by and LittleSkin accounts do not work).".into());
         }
         let join = value(argv, "--quickPlayMultiplayer")
             .map(str::to_string)

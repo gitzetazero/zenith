@@ -1,7 +1,7 @@
 //! Signed Zenith builds: fetched from the `nightly` Release of the fork, verified against the
 //! embedded keys, and unpacked under `<root>/builds/<version>/`.
 
-use horizon_release_sign::{PublicKey, SIGNATURE, SUMS, check, nightly_digest, sha256_hex};
+use horizon_release_sign::{NIGHTLY, PublicKey, SIGNATURE, SUMS, check, sha256_hex, verify};
 use std::io::{Cursor, Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -9,11 +9,29 @@ use std::time::Duration;
 pub const REPO: &str = "gitzetazero/zenith";
 const MAX_DOWNLOAD: u64 = 1 << 30;
 /// Starts the error of a fetch that never reached the server; `update` does not wait to retry it.
-pub const OFFLINE: &str = "sin conexión a internet";
+pub const OFFLINE: &str = "no internet connection";
 
 /// The keys the nightly's checksums are signed with, built in.
 pub fn embedded_keys() -> Vec<PublicKey> {
     horizon_release_sign::parse_keys(include_str!("../zenith-release-keys.txt")).unwrap_or_default()
+}
+
+/// The signed SHA-256 of `asset`: `signature` must sign `sums` for the `nightly` channel (Zenith signs its
+/// Nightly that way; Horizon's own Nightlies are signed per version since its SHA256SUMS.v2.sig).
+fn nightly_digest(
+    asset: &str,
+    sums: Option<&[u8]>,
+    signature: Option<&str>,
+    keys: &[PublicKey],
+) -> Result<String, String> {
+    let (Some(sums), Some(signature)) = (sums, signature) else {
+        return Err("The Nightly build is not signed: not installed.".into());
+    };
+    verify(NIGHTLY, sums, signature, keys)?
+        .into_iter()
+        .find(|(n, _)| n == asset)
+        .map(|(_, hex)| hex)
+        .ok_or_else(|| format!("{asset} is not in the signed checksums, so it was not installed."))
 }
 
 pub fn asset_name() -> &'static str {
@@ -532,7 +550,9 @@ pub fn http_fetch(url: &str) -> Result<Option<Vec<u8>>, String> {
             Ok(Some(body))
         }
         Err(ureq::Error::Status(404, _)) => Ok(None),
-        Err(e @ ureq::Error::Transport(_)) => Err(format!("{OFFLINE} o GitHub no responde ({e})")),
+        Err(e @ ureq::Error::Transport(_)) => {
+            Err(format!("{OFFLINE} or GitHub is not answering ({e})"))
+        }
         Err(e) => Err(e.to_string()),
     }
 }

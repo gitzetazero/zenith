@@ -80,7 +80,7 @@ pub fn gate(result: OwnerCheck, uuid: &str, cache: &Path, now_secs: u64) -> Resu
                 save(cache, owners);
             }
             Err(
-                "Inicia sesión en XMCL con una cuenta de Microsoft que posea Minecraft: Java Edition."
+                "Sign in to XMCL with a Microsoft account that owns Minecraft: Java Edition."
                     .into(),
             )
         }
@@ -91,7 +91,7 @@ pub fn gate(result: OwnerCheck, uuid: &str, cache: &Path, now_secs: u64) -> Resu
                 Ok(())
             } else {
                 Err(format!(
-                    "No se pudo comprobar que la cuenta posee Minecraft ({why}). Conéctate a internet e inténtalo de nuevo."
+                    "Could not check that the account owns Minecraft ({why}). Connect to the internet and try again."
                 ))
             }
         }

@@ -400,7 +400,7 @@ fn refused_account_reaches_nothing() {
     assert_eq!(f.run(|| OwnerCheck::NotOwner), 1);
     assert!(f.fetched.borrow().is_empty(), "no network after a refusal");
     assert!(f.records().is_empty(), "nothing was run");
-    assert!(f.errors.borrow()[0].contains("posea Minecraft"));
+    assert!(f.errors.borrow()[0].contains("owns Minecraft"));
 }
 
 #[test]
@@ -408,7 +408,7 @@ fn wrong_minecraft_version_is_refused() {
     let f = fx("wrongver", serde_json::json!({ "minecraft": "27.0" }), &[]);
     assert_eq!(f.run(owner), 1);
     assert!(
-        f.errors.borrow()[0].contains("Esta instancia debe ser Minecraft 27.0"),
+        f.errors.borrow()[0].contains("This instance must be Minecraft 27.0"),
         "{:?}",
         f.errors
     );
@@ -533,7 +533,7 @@ fn session_json_escapes_quotes_and_backslashes() {
 #[test]
 fn run_without_a_java_folder_fails_clearly() {
     let mut f = fx("nojava", serde_json::json!({ "minecraft": "26.3" }), &[]);
-    f.java = Err("No hay Java 25".into());
+    f.java = Err("No Java 25".into());
     assert_eq!(f.run(owner), 1);
     assert!(f.errors.borrow()[0].contains("Java"), "{:?}", f.errors);
     assert!(!f.records().iter().any(|r| has_flag(r, "--prepare")));
@@ -543,7 +543,7 @@ fn run_without_a_java_folder_fails_clearly() {
 fn unreachable_owner_check_without_cache_refuses() {
     let f = fx("unreach", serde_json::json!({ "minecraft": "26.3" }), &[]);
     assert_eq!(f.run(|| OwnerCheck::Unreachable("offline".into())), 1);
-    assert!(f.errors.borrow()[0].contains("No se pudo comprobar"));
+    assert!(f.errors.borrow()[0].contains("Could not check"));
     assert!(f.records().is_empty());
 }
 

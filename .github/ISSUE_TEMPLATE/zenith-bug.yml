@@ -1,35 +1,35 @@
-name: Fallo
-description: Algo no funciona en Zenith o en su launcher
+name: Bug
+description: Something does not work in Zenith or its launcher
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Gracias por avisar. **Fallos de seguridad: no uses este formulario**, lee `SECURITY.md`.
+        Thanks for reporting. **Security problems: do not use this form**, read `SECURITY.md`.
   - type: textarea
-    id: que-pasa
+    id: what-happened
     attributes:
-      label: Qué pasó
-      description: Qué esperabas y qué ocurrió en su lugar.
+      label: What happened
+      description: What you expected and what happened instead.
     validations:
       required: true
   - type: textarea
-    id: pasos
+    id: steps
     attributes:
-      label: Cómo repetirlo
+      label: How to repeat it
       placeholder: "1. ...\n2. ..."
   - type: input
     id: version
     attributes:
-      label: Versión de Zenith (nightly)
+      label: Zenith version (nightly)
       placeholder: "Nightly 2026-11-05"
   - type: input
-    id: servidor
+    id: server
     attributes:
-      label: Si fue en un servidor, su versión (no su dirección si es privado)
+      label: If it was on a server, its version (not its address if it is private)
       placeholder: "1.21.4"
   - type: textarea
     id: extra
     attributes:
-      label: Windows, tarjeta gráfica y registro
-      description: "Pega aquí el registro del puente (%APPDATA%\\zenith\\logs\\bridge.log) si ayuda. Quita tus datos personales."
+      label: Windows, graphics card and log
+      description: "Paste the bridge log (%APPDATA%\zenith\logs\bridge.log) here if it helps. Remove your personal data."

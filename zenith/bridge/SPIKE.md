@@ -1,221 +1,221 @@
-# Prueba desechable con XMCL (forma estática)
+# Throwaway test with XMCL (static form)
 
-Tarea 5 del plan de las fases 1 a 3. No se manejó la interfaz de XMCL: nadie podía hacer clic en el equipo y no había aprobación para controlar la pantalla. Se hizo lo que sí se puede hacer sin ella: leer el código de XMCL, ejecutar su generador de argumentos y su manera de lanzar procesos contra el JSON real de la versión 26.3, y probar la nightly real de Zenith. Todo lo que de verdad necesita la interfaz está en el apartado "Lo que NO se pudo verificar".
+Task 5 of the phases 1 to 3 plan. XMCL's interface was not driven: nobody could click on the machine and there was no approval to control the screen. What can be done without it was done: reading XMCL's code, running its argument generator and its way of launching processes against the real JSON of version 26.3, and testing Zenith's real nightly. Everything that really needs the interface is in the section "What could NOT be verified".
 
-- XMCL: `Voxelum/x-minecraft-launcher`, commit `aeb5240` (rama principal el 2026-11-05), XMCL 0.73.1, `@xmcl/core` 2.16.3.
-- Zenith: Release `nightly` de `gitzetazero/zenith` ("Nightly 2026-11-05 · b933efa").
-- Todo lo descargado y generado vive fuera del repositorio, en `%TEMP%\zenith-spike`.
+- XMCL: `Voxelum/x-minecraft-launcher`, commit `aeb5240` (main branch on 2026-11-05), XMCL 0.73.1, `@xmcl/core` 2.16.3.
+- Zenith: `nightly` Release of `gitzetazero/zenith` ("Nightly 2026-11-05 · b933efa").
+- Everything downloaded and generated lives outside the repository, in `%TEMP%\zenith-spike`.
 - Fixture: `zenith/bridge/tests/fixtures/xmcl-args.txt`.
 
-## Resumen de lo importante
+## Summary of what matters
 
-1. **Bloqueante para el plan.** En Windows, con un comando previo XMCL lanza con `shell: true`, es decir, a través de `cmd.exe`, cuyo límite es 8191 caracteres. La orden de Minecraft 26.3 mide unos 6900 caracteres más 82 veces la longitud de la raíz de datos de XMCL. Con la raíz por defecto (`%APPDATA%\xmcl`, unos 35 a 40 caracteres) la orden tiene unos 9500 a 10 000 caracteres y **`cmd.exe` la rechaza con "La línea de comandos es demasiado larga" sin llegar a ejecutar el puente**. Solo funciona con una raíz de unos 19 caracteres o menos (por ejemplo `C:\xmcl`). Medido, no supuesto.
-2. **El puente debe ser un ejecutable de subsistema Windows** (`#![windows_subsystem = "windows"]`). Con `shell: true` y `detached: true`, un ejecutable de consola pierde su salida estándar: XMCL no la recibe y nunca verá `LWJGL Version: ` ni `Crash report saved to:`. Medido.
-3. **Hay dos supuestos de la tarea 6 que son falsos para 26.3.** No existe `--userType` y `--width/--height` no aparecen con `-1`. Además `--clientId` y `--xuid` llegan como texto literal sin sustituir (`${clientid}`, `${auth_xuid}`).
+1. **Blocking for the plan.** On Windows, with a prepend command XMCL launches with `shell: true`, that is, through `cmd.exe`, whose limit is 8191 characters. The Minecraft 26.3 command is about 6900 characters plus 82 times the length of XMCL's data root. With the default root (`%APPDATA%\xmcl`, about 35 to 40 characters) the command is about 9500 to 10 000 characters and **`cmd.exe` rejects it with "The command line is too long" without ever running the bridge**. It only works with a root of about 19 characters or less (for example `C:\xmcl`). Measured, not assumed.
+2. **The bridge must be a Windows-subsystem executable** (`#![windows_subsystem = "windows"]`). With `shell: true` and `detached: true`, a console executable loses its standard output: XMCL does not receive it and never sees `LWJGL Version: ` or `Crash report saved to:`. Measured.
+3. **Two assumptions of task 6 are false for 26.3.** There is no `--userType`, and `--width/--height` do not appear with `-1`. Also `--clientId` and `--xuid` arrive as literal text, unsubstituted (`${clientid}`, `${auth_xuid}`).
 
-## 1. Argumentos exactos que pasa XMCL
+## 1. The exact arguments XMCL passes
 
-### Cómo se genera
+### How they are generated
 
-`xmcl-runtime/launch/LaunchService.ts`, `#generateOptions()` (líneas 192 a 290) construye las opciones y `launch()` llama a `launch(op)` de `@xmcl/core`, que a su vez usa `generateArguments` (`packages/core/launch.ts:770`). Lo que pasa XMCL:
+`xmcl-runtime/launch/LaunchService.ts`, `#generateOptions()` (lines 192 to 290) builds the options and `launch()` calls `launch(op)` of `@xmcl/core`, which in turn uses `generateArguments` (`packages/core/launch.ts:770`). What XMCL passes:
 
-| Opción de `@xmcl/core` | Valor |
+| `@xmcl/core` option | Value |
 | --- | --- |
-| `gamePath` | carpeta de la instancia, `<raíz>/instances/<nombre>` (también es el `cwd`) |
-| `resourcePath` | la raíz de datos de XMCL (`getPath()`) |
-| `javaPath` | `javaw.exe` junto al Java elegido, si existe y se puede ejecutar; si no, `java.exe` |
-| `gameProfile` | `{ name, id }` de la cuenta |
-| `accessToken` | token de la cuenta (si no hay, un hexadecimal aleatorio) |
-| `userType`, `properties`, `features` | **no se pasan**: `userType` queda en `msa` pero la plantilla de 26.3 no lo usa; `features` queda vacío |
+| `gamePath` | the instance folder, `<root>/instances/<name>` (it is also the `cwd`) |
+| `resourcePath` | XMCL's data root (`getPath()`) |
+| `javaPath` | `javaw.exe` next to the chosen Java, if it exists and can be executed; otherwise `java.exe` |
+| `gameProfile` | the account's `{ name, id }` |
+| `accessToken` | the account's token (if there is none, a random hexadecimal) |
+| `userType`, `properties`, `features` | **not passed**: `userType` stays `msa` but the 26.3 template does not use it; `features` stays empty |
 | `launcherName`, `launcherBrand` | `XMCL (0.73.1)` |
-| `extraJVMArgs`, `extraMCArgs` | `vmOptions` y `mcOptions` de la instancia o los globales |
-| `server` | `{ ip, port }` si la instancia tiene `server` |
-| `quickPlayMultiplayer` | `host[:port]` si hay `server` |
-| `quickPlaySingleplayer` | `options.world` si se pide |
+| `extraJVMArgs`, `extraMCArgs` | the instance's or the global `vmOptions` and `mcOptions` |
+| `server` | `{ ip, port }` if the instance has `server` |
+| `quickPlayMultiplayer` | `host[:port]` if there is `server` |
+| `quickPlaySingleplayer` | `options.world` if requested |
 | `resolution` | `inst.resolution ?? globalResolution` |
 | `useHashAssetsIndex` | `true` |
-| `prependCommand` | la cadena, partida con `normalizeCommandLine` |
+| `prependCommand` | the string, split with `normalizeCommandLine` |
 | `extraExecOption` | `{ shell: prepend && prepend.length > 0, detached: true, cwd: gamePath, env }` |
-| `prechecks` | `[]` (el de `@xmcl/core` no se usa; las comprobaciones son middlewares de XMCL) |
+| `prechecks` | `[]` (`@xmcl/core`'s own is not used; the checks are XMCL middlewares) |
 
-### Cómo se ejecutó
+### How it was run
 
-`@xmcl/core` se empaquetó con esbuild (con un sustituto vacío de `@xmcl/unzip`, que solo se usa para extraer nativos) y se llamó a `generateArguments` y a `launch` con las mismas opciones. Para ver lo que recibe el puente de verdad se compiló un ejecutable de prueba (`zenith-bridge.exe` en `…\Jose Ñ\bridge dir\`, ruta con espacios y con Ñ) que vuelca `GetCommandLineW` y `std::env::args()` a un archivo. El JSON de versión fue una copia del 26.3 real (solo lectura) y las rutas apuntaban a carpetas temporales.
+`@xmcl/core` was bundled with esbuild (with an empty stand-in for `@xmcl/unzip`, which is only used to extract natives) and `generateArguments` and `launch` were called with the same options. To see what the bridge really receives, a test executable was compiled (`zenith-bridge.exe` in `…\Jose Ñ\bridge dir\`, a path with spaces and an Ñ) that dumps `GetCommandLineW` and `std::env::args()` to a file. The version JSON was a copy of the real 26.3 (read only) and the paths pointed to temporary folders.
 
-Comando principal:
-
-```
-node run.cjs        # generateArguments en 10 escenarios
-node real2.cjs      # core.launch() de verdad (spawn con shell: true, detached: true) contra el ejecutable de volcado
-```
-
-### Disposición de argv
-
-Con comando previo, `argv` del puente es: ruta del puente, `javaw.exe`, argumentos de la JVM, clase principal, argumentos del juego, extras. El comando previo va **primero y no sustituye a Java**: Java pasa a ser el primer argumento. `javaw.exe` sí se sustituye cuando existe (XMCL lo hace siempre en Windows si el archivo está). Por eso el plan acierta en que `argv[0]` (tras quitar el nombre del puente) es Java, pero es `javaw.exe`.
-
-El fixture es exactamente lo que recibe el puente, sin su propia ruta (43 argumentos, uno por línea). Orden:
+Main command:
 
 ```
- 1  <raíz>\jre\java-runtime-epsilon\bin\javaw.exe          (barras invertidas)
+node run.cjs        # generateArguments in 10 scenarios
+node real2.cjs      # the real core.launch() (spawn with shell: true, detached: true) against the dump executable
+```
+
+### argv layout
+
+With a prepend command, the bridge's `argv` is: the bridge's path, `javaw.exe`, the JVM arguments, the main class, the game arguments, extras. The prepend command goes **first and does not replace Java**: Java becomes the first argument. `javaw.exe` is substituted when it exists (XMCL always does it on Windows if the file is there). So the plan is right that `argv[0]` (after removing the bridge's name) is Java, but it is `javaw.exe`.
+
+The fixture is exactly what the bridge receives, without its own path (43 arguments, one per line). Order:
+
+```
+ 1  <root>\jre\java-runtime-epsilon\bin\javaw.exe          (backslashes)
  2  -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump
  3  -XX:StackShadowPages=32
  4  --enable-native-access=ALL-UNNAMED
  5  --add-exports
  6  java.base/jdk.internal.misc=ALL-UNNAMED
- 7  -Djava.library.path=<raíz>/versions/26.3/26.3-natives/java          (barras normales)
+ 7  -Djava.library.path=<root>/versions/26.3/26.3-natives/java          (forward slashes)
  8  -Djna.tmpdir=…/26.3-natives/jna
  9  -Dorg.lwjgl.system.SharedLibraryExtractPath=…/26.3-natives/lwjgl
 10  -Dio.netty.native.workdir=…/26.3-natives/netty
-11  -Dminecraft.launcher.brand=XMCL (0.73.1)            (un solo argumento, con espacio)
+11  -Dminecraft.launcher.brand=XMCL (0.73.1)            (a single argument, with a space)
 12  -Dminecraft.launcher.version=XMCL (0.73.1)
 13  -cp
-14  <82 jars separados por ';'>…;<raíz>/versions/26.3/26.3.jar
-15  -DlibraryDirectory=<raíz>/libraries
+14  <82 jars separated by ';'>…;<root>/versions/26.3/26.3.jar
+15  -DlibraryDirectory=<root>/libraries
 16-22 -Xmx2G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20
     -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M     (DEFAULT_EXTRA_JVM_ARGS)
 23  net.minecraft.client.main.Main
-24-25  --username <nombre>
+24-25  --username <name>
 26-27  --version 26.3
-28-29  --gameDir <raíz>/instances/<instancia>
-30-31  --assetsDir <raíz>/assets
-32-33  --assetIndex e787e8afd149a4cefa89d341b91f5aed8f5d93a0   (el sha1 del índice, no "34")
-34-35  --uuid <uuid sin guiones>
+28-29  --gameDir <root>/instances/<instance>
+30-31  --assetsDir <root>/assets
+32-33  --assetIndex e787e8afd149a4cefa89d341b91f5aed8f5d93a0   (the index's sha1, not "34")
+34-35  --uuid <uuid without dashes>
 36-37  --accessToken <token>
-38-39  --clientId ${clientid}                  <- texto literal
-40-41  --xuid ${auth_xuid}                     <- texto literal
+38-39  --clientId ${clientid}                  <- literal text
+40-41  --xuid ${auth_xuid}                     <- literal text
 42-43  --versionType release
 ```
 
-Detalles medidos, con el JSON de 26.3:
+Details measured with the 26.3 JSON:
 
-- **No hay `--userType`.** La plantilla `arguments.game` de 26.3 no lo contiene. La suposición de la tarea 6 ("rechaza si `--userType` no es `msa`") no se puede cumplir. Lo único que distingue una cuenta sin propiedad es el resultado de preguntar a los servicios de Minecraft. Para ely.by y LittleSkin XMCL añade `-javaagent:<jar>=<servidor>` y `-Dauthlibinjector.side=client` a los argumentos de JVM (código en `#generateOptions` y `generateArguments`), lo que sí permite rechazarlas antes de la red.
-- **`--clientId ${clientid}` y `--xuid ${auth_xuid}`** salen literales, porque XMCL no define esas variables y `format()` deja la clave si no hay valor. El puente debe tratar cualquier valor que empiece por `${` como ausente (xuid `None`).
-- **`--width` y `--height` no existen por defecto.** La plantilla los condiciona a la característica `has_custom_resolution`, que XMCL no activa, y XMCL solo los añade al final cuando hay `resolution`. No se ve ningún `-1`. Medido:
-  - sin resolución: no hay `--width` ni `--height`;
-  - `resolution: {}` (objeto vacío): tampoco;
-  - `{ width: 854, height: 480 }`: al final `--height 480 --width 854` (**primero la altura**);
-  - `{ fullscreen: true }`: al final `--fullscreen`.
-- **Servidor.** Con `server` en la instancia salen los dos juntos y en este orden, tras los demás: `--quickPlayMultiplayer host[:puerto]`, `--server host` y `--port N` (sin `--port` si no hay puerto). Un mundo da `--quickPlaySingleplayer <carpeta>` (con espacios en una sola pieza: `New World`). No se usa `--quickPlayPath`.
-- **Extras.** `mcOptions` van después de `--versionType release`, antes de quickPlay/server/resolución.
-- `--demo` solo si no hay cuenta.
-- **Rutas.** Mezcla de separadores: `javaw.exe` va con `\`; todo lo demás (`--gameDir`, `--assetsDir`, `-cp`, nativos) con `/`. El `cwd` del proceso es `--gameDir`.
+- **There is no `--userType`.** The 26.3 `arguments.game` template does not contain it. The task 6 assumption ("reject if `--userType` is not `msa`") cannot be met. The only thing that tells an account without ownership apart is the result of asking Minecraft's services. For ely.by and LittleSkin XMCL adds `-javaagent:<jar>=<server>` and `-Dauthlibinjector.side=client` to the JVM arguments (code in `#generateOptions` and `generateArguments`), which does allow rejecting them before the network.
+- **`--clientId ${clientid}` and `--xuid ${auth_xuid}`** come out literal, because XMCL does not define those variables and `format()` leaves the key when there is no value. The bridge must treat any value that starts with `${` as absent (xuid `None`).
+- **`--width` and `--height` do not exist by default.** The template conditions them on the `has_custom_resolution` feature, which XMCL does not enable, and XMCL only adds them at the end when there is a `resolution`. No `-1` is seen. Measured:
+  - without a resolution: no `--width` or `--height`;
+  - `resolution: {}` (empty object): neither;
+  - `{ width: 854, height: 480 }`: at the end `--height 480 --width 854` (**height first**);
+  - `{ fullscreen: true }`: at the end `--fullscreen`.
+- **Server.** With `server` on the instance the two come out together and in this order, after the others: `--quickPlayMultiplayer host[:port]`, `--server host` and `--port N` (no `--port` if there is no port). A world gives `--quickPlaySingleplayer <folder>` (with spaces in one piece: `New World`). `--quickPlayPath` is not used.
+- **Extras.** `mcOptions` go after `--versionType release`, before quickPlay/server/resolution.
+- `--demo` only if there is no account.
+- **Paths.** A mix of separators: `javaw.exe` comes with `\`; everything else (`--gameDir`, `--assetsDir`, `-cp`, natives) with `/`. The process `cwd` is `--gameDir`.
 
-### Raíz de Minecraft y disposición en disco
+### Minecraft root and layout on disk
 
-`--assetsDir` es siempre `<raíz>/assets`, así que **la raíz es el padre de `--assetsDir`**. Bajo esa raíz XMCL usa la disposición clásica de `MinecraftFolder`: `versions/26.3/26.3.json`, `versions/26.3/26.3.jar` (el último elemento de `-cp`), `libraries/…` (Maven) y `assets/indexes`, `assets/objects`. El juego vive en `<raíz>/instances/<nombre>` (`--gameDir`), no en la raíz. Es la misma disposición que usa el launcher de Horizon (`horizon-prepare --minecraft-dir` la acepta tal cual, y con ella se preparó más abajo).
+`--assetsDir` is always `<root>/assets`, so **the root is the parent of `--assetsDir`**. Under that root XMCL uses the classic `MinecraftFolder` layout: `versions/26.3/26.3.json`, `versions/26.3/26.3.jar` (the last element of `-cp`), `libraries/…` (Maven) and `assets/indexes`, `assets/objects`. The game lives in `<root>/instances/<name>` (`--gameDir`), not in the root. It is the same layout that Horizon's launcher uses (`horizon-prepare --minecraft-dir` accepts it as it is, and the preparation below was done with it).
 
-Dos matices de XMCL que afectan al puente:
+Two XMCL details that affect the bridge:
 
-- `--assetIndex` es el sha1 del índice. XMCL instala `assets/indexes/<sha1>.json` y crea un alias `assets/indexes/34.json` con una operación `link` (`packages/installer/assets.ts:104`). El alias no se pudo comprobar en disco sin instalar el juego: si no existiera, `--minecraft-dir` no encontraría el índice y habría que pasar `--assets-dir` con el índice por su nombre.
-- Cada instancia lleva uniones (`libraries/`, `versions/`) hacia la raíz, creadas por `pluginLaunchPrecheck.ts`. No cambian lo que recibe el puente.
+- `--assetIndex` is the index's sha1. XMCL installs `assets/indexes/<sha1>.json` and creates an alias `assets/indexes/34.json` with a `link` operation (`packages/installer/assets.ts:104`). The alias could not be checked on disk without installing the game: if it did not exist, `--minecraft-dir` would not find the index and `--assets-dir` would have to be passed with the index by its name.
+- Every instance carries junctions (`libraries/`, `versions/`) to the root, created by `pluginLaunchPrecheck.ts`. They do not change what the bridge receives.
 
-### Variantes medidas
+### Measured variants
 
-Con el mismo experimento, solo cambian los extremos. La última parte del argv en cada caso:
+With the same experiment, only the ends change. The last part of argv in each case:
 
 ```
-Servidor + puerto:   … --versionType release --quickPlayMultiplayer play.example.invalid:25566 --server play.example.invalid --port 25566
-Servidor sin puerto: … --versionType release --quickPlayMultiplayer play.example.invalid --server play.example.invalid
-Mundo:               … --versionType release --quickPlaySingleplayer New World
-Resolución:          … --versionType release --height 480 --width 854
-Pantalla completa:   … --versionType release --fullscreen
+Server + port:       … --versionType release --quickPlayMultiplayer play.example.invalid:25566 --server play.example.invalid --port 25566
+Server without port: … --versionType release --quickPlayMultiplayer play.example.invalid --server play.example.invalid
+World:               … --versionType release --quickPlaySingleplayer New World
+Resolution:          … --versionType release --height 480 --width 854
+Fullscreen:          … --versionType release --fullscreen
 Extras:              … --versionType release --foo "bar baz"
 ```
 
-## 2. Comando previo: citas, división y ejecución
+## 2. Prepend command: quoting, splitting and execution
 
-### División (`xmcl-runtime/launch/utils/cmd.ts`)
+### Splitting (`xmcl-runtime/launch/utils/cmd.ts`)
 
-`splitCommandLine` usa `/[^\s"']+|"([^"]*)"|'([^']*)'/g`. Reglas medidas:
+`splitCommandLine` uses `/[^\s"']+|"([^"]*)"|'([^']*)'/g`. Measured rules:
 
-| Valor del campo | Resultado |
+| Field value | Result |
 | --- | --- |
-| `"C:\ruta con espacios\zenith-bridge.exe"` (comillas dobles) | una sola pieza, sin comillas. Funciona. |
-| `'C:\ruta con espacios\zenith-bridge.exe'` (simples) | igual |
-| `C:\Users\Jose Ñ\bridge dir\zenith-bridge.exe` (sin comillas) | **se parte en 3 piezas** (`…\Jose`, `Ñ\bridge`, `dir\zenith-bridge.exe`) y falla: `""C:\…\Jose"" no se reconoce como un comando interno o externo`. |
-| comillas vacías `""` | no se tratan como cadena vacía (la rama `match[1]` es falsa y se añade el texto `""`) |
+| `"C:\path with spaces\zenith-bridge.exe"` (double quotes) | a single piece, without quotes. Works. |
+| `'C:\path with spaces\zenith-bridge.exe'` (single quotes) | the same |
+| `C:\Users\Jose Ñ\bridge dir\zenith-bridge.exe` (no quotes) | **split into 3 pieces** (`…\Jose`, `Ñ\bridge`, `dir\zenith-bridge.exe`) and fails: `""C:\…\Jose"" is not recognized as an internal or external command` |
+| empty quotes `""` | not treated as an empty string (the `match[1]` branch is false and the text `""` is added) |
 
-La Ñ y otros caracteres no ASCII pasan intactos en ambos sentidos (verificado con el volcado: el puente recibe `Jose Ñ` correctamente).
+The Ñ and other non-ASCII characters pass intact both ways (checked with the dump: the bridge receives `Jose Ñ` correctly).
 
-(Superseded: ver apartado 10) **Para `setup` (tarea 10): `prependCommand` debe llevar la ruta del puente entre comillas dobles.** Con argumentos propios del puente se pueden añadir detrás.
+(Superseded: see section 10) **For `setup` (task 10): `prependCommand` must carry the bridge's path in double quotes.** The bridge's own arguments can be added after it.
 
-### Ejecución (`@xmcl/core` `launch()`)
+### Execution (`@xmcl/core` `launch()`)
 
-Con `prependCommand` no vacío, `extraExecOption.shell` es `true`. `launch()` entonces envuelve **cada** argumento entre comillas dobles (`args.map(a => `"${a}"`)`) y llama a `spawn(args[0], args.slice(1), { shell: true, detached: true, cwd, env })`. En Windows Node lanza `cmd.exe /d /s /c "<todo junto>"`. Consecuencias medidas:
+With a non-empty `prependCommand`, `extraExecOption.shell` is `true`. `launch()` then wraps **each** argument in double quotes (`args.map(a => `"${a}"`)`) and calls `spawn(args[0], args.slice(1), { shell: true, detached: true, cwd, env })`. On Windows Node runs `cmd.exe /d /s /c "<everything together>"`. Measured consequences:
 
-- **Límite de 8191 caracteres de `cmd.exe`.** Esto es lo más grave. Se ejecutó `launch()` real con la orden de 26.3 variando solo la longitud de la raíz (ruta del puente de 70 caracteres):
+- **`cmd.exe`'s 8191-character limit.** This is the most serious. The real `launch()` was run with the 26.3 command, varying only the root's length (bridge path of 70 characters):
 
-  | Longitud de la raíz | Línea de comandos | Resultado |
+  | Root length | Command line | Result |
   | --- | --- | --- |
-  | 5 (`C:\zx`) | 6960 | el puente se ejecuta |
-  | 19 | 8122 | el puente se ejecuta |
-  | 20 | 8204 | **"La línea de comandos es demasiado larga."**, el puente no arranca, código 1 |
-  | 22 | 8370 | igual |
-  | 36 (una carpeta temporal normal) | ~11 000 | igual |
+  | 5 (`C:\zx`) | 6960 | the bridge runs |
+  | 19 | 8122 | the bridge runs |
+  | 20 | 8204 | **"The command line is too long."**, the bridge does not start, code 1 |
+  | 22 | 8370 | the same |
+  | 36 (a normal temporary folder) | ~11 000 | the same |
 
-  La línea crece 82 caracteres por cada carácter de la raíz (82 apariciones de la raíz en la ruta de las librerías y los nativos) y 1 por cada carácter de la ruta del puente. La raíz por defecto de XMCL (`%APPDATA%\xmcl`) mide unos 35 a 40 caracteres, así que **falla**. Sin comando previo no hay `shell` y no hay este límite (el límite de `CreateProcess` es 32 767). No se encontró en XMCL ninguna medida contra esto (`grep` de "too long", "8191", "E2BIG": nada).
-- Dentro de `cmd.exe`, **`%VAR%` se expande**: un argumento `100%ZXTEST%` llegó como `100EXPANDED`. Un `"` dentro de un argumento se pierde (`q"uote` llegó como `quote`). `&` entre comillas pasa bien. Un nombre de instancia o ruta con `%…%` o `"` se corrompe antes de llegar al puente.
-- **`process.pid` es el de `cmd.exe`, no el del puente.** `kill()` sin fuerza (`process.kill()`) solo termina `cmd.exe` y deja vivos al puente y al juego. `kill(…, force)` sí usa `taskkill /pid … /f /t` (árbol completo) (`LaunchService.ts:733`). El comportamiento del botón de la interfaz depende de cuál se use (sin verificar).
-- `detached: true` más `shell: true` hacen que `cmd.exe` se cree sin consola.
+  The line grows 82 characters for each root character (82 appearances of the root in the libraries and natives path) and 1 for each character of the bridge path. XMCL's default root (`%APPDATA%\xmcl`) is about 35 to 40 characters, so it **fails**. Without a prepend command there is no `shell` and no such limit (the `CreateProcess` limit is 32 767). No measure against this was found in XMCL (`grep` for "too long", "8191", "E2BIG": nothing).
+- Inside `cmd.exe`, **`%VAR%` is expanded**: an argument `100%ZXTEST%` arrived as `100EXPANDED`. A `"` inside an argument is lost (`q"uote` arrived as `quote`). `&` between quotes passes fine. An instance name or path with `%…%` or `"` is corrupted before it reaches the bridge.
+- **`process.pid` is `cmd.exe`'s, not the bridge's.** A non-forced `kill()` (`process.kill()`) only ends `cmd.exe` and leaves the bridge and the game alive. `kill(…, force)` does use `taskkill /pid … /f /t` (the whole tree) (`LaunchService.ts:733`). The behaviour of the interface button depends on which one is used (not verified).
+- `detached: true` plus `shell: true` make `cmd.exe` be created without a console.
 
-### La salida estándar del puente (necesita subsistema Windows)
+### The bridge's standard output (needs the Windows subsystem)
 
-Medido con `child_process.spawn` y las mismas opciones que XMCL (`shell: true`, `detached: true`):
+Measured with `child_process.spawn` and the same options as XMCL (`shell: true`, `detached: true`):
 
-| Ejecutable | stdout que ve el padre |
+| Executable | stdout the parent sees |
 | --- | --- |
-| consola, `shell` + `detached` (**el caso de XMCL**) | `""` (vacío, **se pierde**) |
-| subsistema `windows`, `shell` + `detached` | `LWJGL Version: zenith` |
-| consola, `shell` sin `detached` | `LWJGL Version: zenith` |
-| consola, sin `shell`, con `detached` | `LWJGL Version: zenith` |
+| console, `shell` + `detached` (**XMCL's case**) | `""` (empty, **lost**) |
+| `windows` subsystem, `shell` + `detached` | `LWJGL Version: zenith` |
+| console, `shell` without `detached` | `LWJGL Version: zenith` |
+| console, without `shell`, with `detached` | `LWJGL Version: zenith` |
 
-Es decir: con la combinación que usa XMCL, un puente de consola no puede hablarle a XMCL. La causa probable es que `cmd.exe` no tiene consola (`DETACHED_PROCESS`), un programa de consola hijo recibe una consola nueva y su salida va allí, no a la tubería (inferencia; la ventana no se observó). Con `#![windows_subsystem = "windows"]` la salida llega. **Decisión:** el puente va con `#![windows_subsystem = "windows"]`, lanza `horizon-client` con `CREATE_NO_WINDOW` y tuberías, y reenvía stdout y stderr. La preparación en consola propia (`CREATE_NEW_CONSOLE`, tarea 9) no tiene este problema porque es un proceso aparte con su propia consola.
+That is: with the combination XMCL uses, a console bridge cannot talk to XMCL. The probable cause is that `cmd.exe` has no console (`DETACHED_PROCESS`), a child console program gets a new console and its output goes there, not to the pipe (an inference; the window was not observed). With `#![windows_subsystem = "windows"]` the output arrives. **Decision:** the bridge uses `#![windows_subsystem = "windows"]`, launches `horizon-client` with `CREATE_NO_WINDOW` and pipes, and forwards stdout and stderr. The preparation in its own console (`CREATE_NEW_CONSOLE`, task 9) does not have this problem because it is a separate process with its own console.
 
-## 3. Instancia: dónde vive y qué necesita
+## 3. Instance: where it lives and what it needs
 
-- **Raíz de datos:** `%APPDATA%\xmcl\root` es un archivo de texto con la ruta (`xmcl-runtime/app/LauncherApp.ts:348`). Si no existe, es el primer arranque y la interfaz pide la ruta (`bootstrap`). Si falla la lectura, usa `%APPDATA%\xmcl`. `LAUNCHER_NAME` es `xmcl`.
-- **Instancias gestionadas:** `<raíz>/instances/<nombre>/instance.json`. Al arrancar, `InstanceService` lee la carpeta `instances/` entera (`readdirEnsured`) y además `%APPDATA%\xmcl\instances.json` (lista de instancias externas, grupos y selección). Una carpeta nueva con `instance.json` se detecta **solo al arrancar XMCL** (se cargan una vez al inicio); XMCL debe reiniciarse. Si el nombre del campo `name` no coincide con el nombre de la carpeta, XMCL **renombra la carpeta** a `filenamify(name)` (`InstanceService.ts`, función `loadInstance`).
-- **Esquema** (`packages/instance/instance.ts`, zod 4): todos los campos tienen valor por defecto o son opcionales. Se ejecutó `InstanceSchema.parse` y `createInstance` (empaquetados con esbuild) con el JSON mínimo `{ "name": "Zenith", "runtime": { "minecraft": "26.3" }, "prependCommand": "\"C:\\ruta\\zenith-bridge.exe\"" }` y se aceptó, completando `edition: "java"`, el resto de `runtime` vacío, `version: ""`, fechas a 0, etc. Si falta `runtime.minecraft`, XMCL pone la última versión. Lo cual cuadra con el plan: bastan `name`, `runtime.minecraft` y `prependCommand`.
-- **`prependCommand` por instancia:** campo `prependCommand` (cadena, opcional) de `instance.json`; se edita en el ajuste de Java de la instancia (`BaseSettingJava.vue:157`). Se usa `inst.prependCommand ?? globalPrependCommand` (`xmcl-runtime-api/src/util/launch.ts:140`); el global (`globalPrependCommand`, por defecto `''`) vale para todas las instancias que no definan el suyo.
-- **Java:** `java` es opcional en el esquema; si falta, la interfaz elige o instala el Java que pide el JSON de versión (`javaVersion: java-runtime-epsilon`, 25). Esto no se pudo comprobar.
-- **Lo que XMCL descarga y el puente necesita:** todo lo listado antes, bajo `<raíz>/versions`, `libraries`, `assets`, más `jre/<componente>/bin` para el Java gestionado.
+- **Data root:** `%APPDATA%\xmcl\root` is a text file with the path (`xmcl-runtime/app/LauncherApp.ts:348`). If it does not exist, it is the first start and the interface asks for the path (`bootstrap`). If reading fails, it uses `%APPDATA%\xmcl`. `LAUNCHER_NAME` is `xmcl`.
+- **Managed instances:** `<root>/instances/<name>/instance.json`. On start, `InstanceService` reads the whole `instances/` folder (`readdirEnsured`) and also `%APPDATA%\xmcl\instances.json` (list of external instances, groups and selection). A new folder with `instance.json` is detected **only when XMCL starts** (they are loaded once at startup); XMCL must be restarted. If the `name` field does not match the folder name, XMCL **renames the folder** to `filenamify(name)` (`InstanceService.ts`, function `loadInstance`).
+- **Schema** (`packages/instance/instance.ts`, zod 4): all fields have a default or are optional. `InstanceSchema.parse` and `createInstance` (bundled with esbuild) were run with the minimal JSON `{ "name": "Zenith", "runtime": { "minecraft": "26.3" }, "prependCommand": "\"C:\\path\\zenith-bridge.exe\"" }` and it was accepted, filling in `edition: "java"`, the rest of `runtime` empty, `version: ""`, dates at 0, etc. If `runtime.minecraft` is missing, XMCL puts the latest version. Which fits the plan: `name`, `runtime.minecraft` and `prependCommand` are enough.
+- **Per-instance `prependCommand`:** the `prependCommand` field (string, optional) of `instance.json`; it is edited in the instance's Java setting (`BaseSettingJava.vue:157`). `inst.prependCommand ?? globalPrependCommand` is used (`xmcl-runtime-api/src/util/launch.ts:140`); the global one (`globalPrependCommand`, default `''`) applies to every instance that does not define its own.
+- **Java:** `java` is optional in the schema; if missing, the interface chooses or installs the Java that the version JSON asks for (`javaVersion: java-runtime-epsilon`, 25). This could not be checked.
+- **What XMCL downloads and the bridge needs:** everything listed before, under `<root>/versions`, `libraries`, `assets`, plus `jre/<component>/bin` for the managed Java.
 
-## 4. Detección de "arrancó" y de fallos (`createMinecraftProcessWatcher`, `packages/core/launch.ts:524`)
+## 4. Detecting "started" and failures (`createMinecraftProcessWatcher`, `packages/core/launch.ts:524`)
 
-Solo se vigila **stdout** (stderr no interviene en la detección). Por cada fragmento de salida, en este orden de `else if`:
+Only **stdout** is watched (stderr takes no part in detection). For each chunk of output, in this `else if` order:
 
-1. Contiene `---- Minecraft Crash Report ----`: guarda el fragmento como informe.
-2. Contiene `Crash report saved to:`: la ruta es lo que sigue a `Crash report saved to: #@!@# ` (se saltan exactamente `len("Crash report saved to: #@!@# ")` caracteres desde el inicio de la marca). Después `LaunchService` corta en el último `.txt`.
-3. Contiene `Crash report saved to ` (sin dos puntos): la ruta es lo que sigue.
-4. Si aún no está listo y contiene cualquiera de `Missing metadata in pack`, `Registering resource reload listener`, `Reloading ResourceManager`, `LWJGL Version: `, `OpenAL initialized.`: emite `minecraft-window-ready` (una sola vez).
-5. Si aún no está listo y contiene ` Preparing level `: igual.
-6. Contiene `Failed to start the minecraft server`: guarda el fragmento como informe.
+1. Contains `---- Minecraft Crash Report ----`: saves the chunk as a report.
+2. Contains `Crash report saved to:`: the path is what follows `Crash report saved to: #@!@# ` (exactly `len("Crash report saved to: #@!@# ")` characters are skipped from the start of the marker). Then `LaunchService` cuts at the last `.txt`.
+3. Contains `Crash report saved to ` (no colon): the path is what follows.
+4. If not yet ready and it contains any of `Missing metadata in pack`, `Registering resource reload listener`, `Reloading ResourceManager`, `LWJGL Version: `, `OpenAL initialized.`: emits `minecraft-window-ready` (only once).
+5. If not yet ready and it contains ` Preparing level `: the same.
+6. Contains `Failed to start the minecraft server`: saves the chunk as a report.
 
-Salida: `exit` del proceso. Se marca como fallo si el código no es 0, o hay informe, o hay ruta de informe. Si hay informe y el código es 0, lo cambia a 1. **Las comprobaciones son por fragmento de salida y por subcadena**; lo normal es imprimir cada línea en una escritura aparte. El texto exacto del puente debe ser `Crash report saved to: #@!@# <ruta>` (la forma sin `#@!@#` también se acepta en la rama 3, pero la rama 2 gana si hay dos puntos).
+Exit: the process's `exit`. It is marked as a failure if the code is not 0, or there is a report, or there is a report path. If there is a report and the code is 0, it changes it to 1. **The checks are per output chunk and by substring**; the normal thing is to print each line in a separate write. The bridge's exact text must be `Crash report saved to: #@!@# <path>` (the form without `#@!@#` is also accepted in branch 3, but branch 2 wins if there is a colon).
 
-El stderr se acumula en `errorLogs` y se emite como `minecraft-stderr`; solo se muestra en el diálogo de fallo y en el registro. Nada de lo anterior se pudo comprobar en la interfaz (qué muestra con código 1, etc.).
+stderr accumulates in `errorLogs` and is emitted as `minecraft-stderr`; it is only shown in the failure dialog and in the log. None of the above could be checked in the interface (what it shows with code 1, etc.).
 
-Riesgos para un programa que no es Java:
+Risks for a program that is not Java:
 
-- **No hay comprobación de Java sobre el comando previo.** El middleware `java-validation` (`pluginLaunchPrecheck.ts`) valida el Java de la instancia (`input.java`), no el comando previo. Si el Java es válido, el puente no estorba. Se comprobó que `launch()` usa `prechecks: []`.
-- `process.unref()` es solo para que XMCL pueda salir sin esperar; no cambia nada para el puente.
-- Tras `spawn`, si `process.pid` no es un número, XMCL espera 1 s al evento `error`. Con `cmd.exe` siempre hay `pid`, así que un puente que no existe o falla **no produce un error de "Java inválido"**: aparece como una salida con código 1 y el mensaje de `cmd.exe` por stderr.
-- XMCL decodifica la salida adivinando la codificación (`guessEncodingByBuffer`): conviene que el puente escriba en UTF-8 y en líneas completas.
-- `stdin` queda abierta como tubería (XMCL nunca escribe ni cierra); el puente no debe leer de ahí.
-- Hay un middleware de idioma (`sync-language`) que puede escribir `options.txt`, solo si el usuario lo activa.
+- **There is no Java check on the prepend command.** The `java-validation` middleware (`pluginLaunchPrecheck.ts`) validates the instance's Java (`input.java`), not the prepend command. If the Java is valid, the bridge does not get in the way. It was checked that `launch()` uses `prechecks: []`.
+- `process.unref()` is only so XMCL can exit without waiting; it changes nothing for the bridge.
+- After `spawn`, if `process.pid` is not a number, XMCL waits 1 s for the `error` event. With `cmd.exe` there is always a `pid`, so a bridge that does not exist or fails **does not produce an "invalid Java" error**: it shows up as an exit with code 1 and `cmd.exe`'s message on stderr.
+- XMCL decodes the output by guessing the encoding (`guessEncodingByBuffer`): the bridge should write UTF-8 and complete lines.
+- `stdin` stays open as a pipe (XMCL never writes or closes it); the bridge must not read from it.
+- There is a language middleware (`sync-language`) that may write `options.txt`, only if the user turns it on.
 
-## 5. Launch API de la nightly
+## 5. The nightly's Launch API
 
-Descarga (`gh release download nightly -R gitzetazero/zenith`), comprobación de firma con la clave de `zenith/bridge/zenith-release-keys.txt`, y desempaquetado en carpeta propia:
+Download (`gh release download nightly -R gitzetazero/zenith`), signature check with the key in `zenith/bridge/zenith-release-keys.txt`, and unpacking into its own folder:
 
 ```
-$ cargo run -q -p horizon-release-sign -- verify --tag nightly --key "<clave>" <carpeta con SHA256SUMS, SHA256SUMS.sig, zip y tar.gz>
-nightly: 2 files match SHA256SUMS            (código de salida 0)
+$ cargo run -q -p horizon-release-sign -- verify --tag nightly --key "<key>" <folder with SHA256SUMS, SHA256SUMS.sig, zip and tar.gz>
+nightly: 2 files match SHA256SUMS            (exit code 0)
 ```
 
-(Hay que tener también el `.tar.gz` de Linux: `SHA256SUMS` lo lista y la verificación falla si falta, no es opcional.) El zip pesa 36,9 MB, desempaquetado 100 MB, y **trae una carpeta raíz `horizon-windows-x64/`** con `horizon-client.exe`, `horizon-prepare.exe`, `horizon-ctl.exe`, `research-lock.json`, `exporters/`, `mods/`, `tools/`, `crates/`, `LICENSE` y `PLAY.txt`.
+(The Linux `.tar.gz` must be there too: `SHA256SUMS` lists it and verification fails if it is missing; it is not optional.) The zip weighs 36.9 MB, 100 MB unpacked, and **it has a root folder `horizon-windows-x64/`** with `horizon-client.exe`, `horizon-prepare.exe`, `horizon-ctl.exe`, `research-lock.json`, `exporters/`, `mods/`, `tools/`, `crates/`, `LICENSE` and `PLAY.txt`.
 
-`horizon-client.exe --launch-api` (código 0):
+`horizon-client.exe --launch-api` (code 0):
 
 ```json
 { "crash_report_line": "Horizon: crash report saved to ", "exit_codes": [0,1,2,101],
@@ -225,7 +225,7 @@ nightly: 2 files match SHA256SUMS            (código de salida 0)
                "--quickPlayMultiplayer HOST[:PORT]", "--launch-api" ] }
 ```
 
-`horizon-prepare.exe --launch-api` (código 0):
+`horizon-prepare.exe --launch-api` (code 0):
 
 ```json
 { "launch_api": "0.1.0", "horizon": "nightly-2026-11-05", "minecraft": "26.3", "java_major": 25,
@@ -236,11 +236,11 @@ nightly: 2 files match SHA256SUMS            (código de salida 0)
   "exit_codes": [0,1,2] }
 ```
 
-Notas: los dos campos `horizon` tienen formato distinto (`Nightly 2026-11-05 · b933efa` frente a `nightly-2026-11-05`), así que no se pueden comparar entre sí. `--root PATH` existe en `horizon-prepare` y no está en la guía; ver el aviso sobre `.local` más abajo.
+Notes: the two `horizon` fields have a different format (`Nightly 2026-11-05 · b933efa` versus `nightly-2026-11-05`), so they cannot be compared with each other. `--root PATH` exists in `horizon-prepare` and is not in the guide; see the note about `.local` below.
 
-## 6. Preparación y prueba de humo
+## 6. Preparation and smoke test
 
-### Preparación (solo lectura sobre la carpeta de Minecraft del launcher de Horizon)
+### Preparation (read only on the Horizon launcher's Minecraft folder)
 
 ```
 horizon-prepare.exe --prepare --server-jar <…>\server-jars\26.3.jar \
@@ -248,207 +248,207 @@ horizon-prepare.exe --prepare --server-jar <…>\server-jars\26.3.jar \
     --output %TEMP%\zenith-spike\prepared --complete --progress json
 ```
 
-- Salida de código 0 en 31 s (el programa dice "Done in 26.6 s"). 72 líneas JSON por stdout, stderr vacío, sin errores. Terminó con `{"fraction": 1.000}`.
-- Mensajes relevantes: importó el cliente 26.3 desde la carpeta de Minecraft, "Checked the game files in 1.4 s", exportó estados de bloques, compiló los exportadores (cliente y servidor, unos 3 s cada uno), copió assets y sonidos (4962 archivos, 377,3 MB).
-- **No descargó nada**: la preparación solo pidió archivos locales (comprobado por la salida; no se midió la red con otra herramienta).
-- Tamaño de la carpeta preparada: **595,3 MB, 28 178 archivos**. Además:
-  - la primera arrancada del cliente añadió `horizon-data.bin` (120 MB) dentro de esa carpeta (ver abajo), así que la carpeta debe ser escribible y queda en unos 715 MB;
-  - la preparación escribió **398,7 MB (1947 archivos) en `<build>\.local\minecraft\26.3`**, dentro de la carpeta de la build desempaquetada, no en `--output`. Ya existe `--root PATH` para mover esto; no se probó. Si el puente guarda las builds en una carpeta que no debe modificarse, hay que pasar `--root`.
-- `horizon-prepare.exe --check --output …\prepared`: código 0, sin salida.
+- Exit code 0 in 31 s (the program says "Done in 26.6 s"). 72 JSON lines on stdout, stderr empty, no errors. It ended with `{"fraction": 1.000}`.
+- Relevant messages: it imported the 26.3 client from the Minecraft folder, "Checked the game files in 1.4 s", exported block states, compiled the exporters (client and server, about 3 s each), copied assets and sounds (4962 files, 377.3 MB).
+- **It downloaded nothing**: the preparation only asked for local files (checked from the output; the network was not measured with another tool).
+- Size of the prepared folder: **595.3 MB, 28 178 files**. Also:
+  - the client's first start added `horizon-data.bin` (120 MB) inside that folder (see below), so the folder must be writable and ends up at about 715 MB;
+  - the preparation wrote **398.7 MB (1947 files) in `<build>\.local\minecraft\26.3`**, inside the unpacked build's folder, not in `--output`. `--root PATH` already exists to move this; it was not tested. If the bridge keeps builds in a folder that must not be modified, `--root` has to be passed.
+- `horizon-prepare.exe --check --output …\prepared`: code 0, no output.
 
-### Arranque (humo)
+### Start (smoke)
 
-Variables `HORIZON_HOME`, `HORIZON_NO_AUDIO=1`, `HORIZON_NO_HEARTBEAT=1`, `HORIZON_TELEMETRY_URL=off`; argumentos `--resources <prepared> --game-dir <game> --home <home> --width 640 --height 360 --session-stdin` y la sesión falsa `{"name":"ZenithTest","uuid":"…","access_token":"FAKE","user_type":"msa"}` por entrada estándar.
+Variables `HORIZON_HOME`, `HORIZON_NO_AUDIO=1`, `HORIZON_NO_HEARTBEAT=1`, `HORIZON_TELEMETRY_URL=off`; arguments `--resources <prepared> --game-dir <game> --home <home> --width 640 --height 360 --session-stdin` and the fake session `{"name":"ZenithTest","uuid":"…","access_token":"FAKE","user_type":"msa"}` on standard input.
 
-- Seguía vivo a los 25 s. **stdout vacío**; todo sale por stderr, en texto, empezando por `Horizon Nightly 2026-11-05 · b933efa`.
-- `logs/latest.log` (en la carpeta `--home`): renderizador en Vulkan sobre la GPU discreta, `HDR output HDR10 (PQ)`, `core-ready after 876 ms`, `loading screen shown after 1739 ms`, `world renderer ready after 1935 ms`, `first frame after 83 ms`, `resources loaded in 4.9s; 35723 block states, 1658 items, 67 biomes`, `rest-ready after 4866 ms`. La única línea de error: `Failed to retrieve profile key pair: InvalidSession`, esperable con un token falso.
-- **No hay una línea que diga "pantalla de título"**: llegó a "loading screen shown", "world renderer ready" y "rest-ready", y el proceso siguió vivo. No se pudo ver la ventana (sin control de pantalla). Es consistente con haber llegado al título, no es una prueba.
-- A los 17 s escribió `horizon-data.bin` (120 MB) en la carpeta preparada (`wrote horizon-data.bin in 17451 ms`, hilo `Prepared data file`). Terminar el proceso antes de ese punto, o dejar la carpeta de solo lectura, tiene un efecto no probado.
-- Se terminó a la fuerza (`taskkill /T /F`); el código de salida que recogió el intérprete (143) no es el del cliente. El comportamiento al cerrarse la ventana no se probó.
-- Código de salida de opciones rechazadas: `--width abc` y `--bogus` dan código 2 y un mensaje (`Horizon: --width: invalid digit found in string`), como dice la guía.
-- Creó en `--game-dir`: `config/`, `options.txt` y `horizon-graphics.txt`.
+- Still alive at 25 s. **Empty stdout**; everything goes to stderr, as text, starting with `Horizon Nightly 2026-11-05 · b933efa`.
+- `logs/latest.log` (in the `--home` folder): Vulkan renderer on the discrete GPU, `HDR output HDR10 (PQ)`, `core-ready after 876 ms`, `loading screen shown after 1739 ms`, `world renderer ready after 1935 ms`, `first frame after 83 ms`, `resources loaded in 4.9s; 35723 block states, 1658 items, 67 biomes`, `rest-ready after 4866 ms`. The only error line: `Failed to retrieve profile key pair: InvalidSession`, expected with a fake token.
+- **There is no line that says "title screen"**: it reached "loading screen shown", "world renderer ready" and "rest-ready", and the process stayed alive. The window could not be seen (no screen control). It is consistent with having reached the title, not a proof.
+- At 17 s it wrote `horizon-data.bin` (120 MB) in the prepared folder (`wrote horizon-data.bin in 17451 ms`, thread `Prepared data file`). Ending the process before that point, or leaving the folder read-only, has an untested effect.
+- It was ended by force (`taskkill /T /F`); the exit code the interpreter collected (143) is not the client's. The behaviour when the window is closed was not tested.
+- Exit code for rejected options: `--width abc` and `--bogus` give code 2 and a message (`Horizon: --width: invalid digit found in string`), as the guide says.
+- It created in `--game-dir`: `config/`, `options.txt` and `horizon-graphics.txt`.
 
-## 7. Lo que NO se pudo verificar sin la interfaz de XMCL
+## 7. What could NOT be verified without XMCL's interface
 
-- Que la interfaz de XMCL acepte un `instance.json` escrito a mano. Solo se comprobó, con el esquema zod empaquetado, que el JSON mínimo se analiza sin error, y por el código que `InstanceService` carga todas las carpetas de `instances/` al arrancar. No se comprobó que aparezca en la lista, que el botón de jugar funcione ni que XMCL no lo reescriba de forma inesperada.
-- El botón de jugar y el camino completo desde la interfaz: `instanceLaunch.ts`, comprobaciones previas del lado de la interfaz, descarga de Java 25 y de 26.3, inicio de sesión. Solo se reprodujo lo que hace el servicio de lanzamiento una vez recibidas las opciones.
-- Que XMCL deje de marcar la instancia como "arrancando" al ver `LWJGL Version: zenith`, y que detecte `Crash report saved to: #@!@# <ruta>`: solo la lógica (apartado 4), no la reacción de la interfaz.
-- Qué muestra XMCL cuando el puente sale con 1 y escribe en stderr.
-- Que no se vea una ventana de consola con un ejecutable de consola, y que con subsistema Windows tampoco (solo se midió la salida estándar; una ventana no se observa sin pantalla).
-- Que la pestaña de shaders de XMCL funcione en una instancia vanilla y escriba en `shaderpacks/` (el código crea `shaderpacks/` en la instancia con `ensureDir`, `InstanceService.ts:~380`, pero no se probó el flujo).
-- Los índices de assets con alias (`34.json` junto a `<sha1>.json`): solo se leyó el código; no se instaló el juego con XMCL.
-- Si `horizon-prepare --minecraft-dir <raíz de XMCL>` funciona con una instalación real de XMCL: se probó con la disposición del launcher de Horizon, que es la misma por el código, pero no con archivos instalados por XMCL.
-- El comportamiento de "Detener" de la interfaz (`kill` frente a `forceKill` y los procesos hijos).
-- Cuentas offline, ely.by o LittleSkin: solo se leyó el código.
-- Cualquier medida de red (que `horizon-client` no abra conexiones inesperadas) y la prueba en un servidor online: es la tarea 10.
+- That XMCL's interface accepts a hand-written `instance.json`. It was only checked, with the bundled zod schema, that the minimal JSON parses without error, and from the code that `InstanceService` loads every folder in `instances/` at startup. It was not checked that it appears in the list, that the play button works or that XMCL does not rewrite it unexpectedly.
+- The play button and the whole path from the interface: `instanceLaunch.ts`, interface-side prechecks, the download of Java 25 and of 26.3, sign-in. Only what the launch service does once it has the options was reproduced.
+- That XMCL stops marking the instance as "starting" when it sees `LWJGL Version: zenith`, and that it detects `Crash report saved to: #@!@# <path>`: only the logic (section 4), not the interface's reaction.
+- What XMCL shows when the bridge exits with 1 and writes to stderr.
+- That no console window is seen with a console executable, and that none is seen with the Windows subsystem either (only standard output was measured; a window is not observed without a screen).
+- That XMCL's shaders tab works on a vanilla instance and writes to `shaderpacks/` (the code creates `shaderpacks/` in the instance with `ensureDir`, `InstanceService.ts:~380`, but the flow was not tested).
+- Asset indexes with aliases (`34.json` next to `<sha1>.json`): only the code was read; the game was not installed with XMCL.
+- Whether `horizon-prepare --minecraft-dir <XMCL root>` works with a real XMCL installation: it was tested with Horizon's launcher layout, which is the same according to the code, but not with files installed by XMCL.
+- The interface's "Stop" behaviour (`kill` versus `forceKill` and child processes).
+- Offline, ely.by or LittleSkin accounts: only the code was read.
+- Any network measurement (that `horizon-client` does not open unexpected connections) and the test on an online server: that is task 10.
 
-## 8. Suposiciones de las tareas 6 a 10 que la evidencia contradice
+## 8. Assumptions of tasks 6 to 10 that the evidence contradicts
 
-| Tarea | El plan supone | Lo medido | Corrección |
+| Task | The plan assumes | What was measured | Correction |
 | --- | --- | --- | --- |
-| 6 | `--width -1 --height -1` aparecen y significan "sin tamaño" (`minus_one_size_is_none`) | No aparecen nunca por defecto. Con resolución: `--height H --width W` (altura primero). Con pantalla completa: `--fullscreen`. | El test debe ser "sin `--width`/`--height` es `None`". Tolerar `-1` por si llega. Añadir `fullscreen: bool` a `LaunchArgs` y a `client_cmd` (`--fullscreen` está en la Launch API). |
-| 6 | El puente rechaza si `--userType` no es `msa` (spec, fase 2, punto 2) | `--userType` no existe en 26.3. | Quitar esa comprobación. Dejar solo el aviso de propiedad por red (token de cuentas offline: 32 hex aleatorios, los servicios responden 401, es `NotOwner`). Rechazar además si hay `-javaagent:` de authlib-injector en los argumentos de la JVM. `user_type` de la sesión es siempre `msa`. |
-| 6 | `--xuid` es opcional y viene o no viene | Siempre viene, como texto literal `${auth_xuid}` (y `--clientId ${clientid}`). | Tratar cualquier valor que empiece por `${` como ausente. `xuid` es `None`. |
-| 6 | `--server a.b --port 25566` y `quickPlayMultiplayer` son alternativas | Con servidor en la instancia XMCL pasa **ambos** a la vez, en el orden `--quickPlayMultiplayer`, `--server`, `--port`. | Dar prioridad a `--quickPlayMultiplayer`. Los otros dos solo si falta ese (por si una versión antigua de XMCL o de Minecraft los usa solos). |
-| 6 | `argv[0]` es Java | Sí, pero es `javaw.exe` y no `java.exe`, y con ruta mixta (`\` en Java, `/` en el resto). | `--java-home` = padre del padre de `bin` (vale para `javaw.exe`). Los tests de rutas con `\` y `/` mezclados. |
-| 6 | `minecraft_root()` es el padre de `assets_dir` | Correcto. | Sin cambios. Notar que `--assetIndex` es un sha1, no el nombre del índice. |
-| 6 | `parse` ignora lo desconocido | Cierto, y conviene: hay 40 argumentos de JVM y el classpath. | Sin cambios. |
-| 9 | `run_game` debe forzar o evitar consolas con `CREATE_NO_WINDOW` (la tarea 5 preguntaba si hacía falta `windows_subsystem`) | Hace falta `#![windows_subsystem = "windows"]` **en el puente**; con consola la salida estándar se pierde y XMCL nunca ve `LWJGL Version: zenith`. | `main.rs` con `#![windows_subsystem = "windows"]` en Windows. Los errores van a stderr y, con subsistema Windows, además a `bridge.log` (stderr no se verá en ninguna consola). |
-| 9 | `prepare_cmd` no usa `--root` | La preparación escribe unos 400 MB en `<build>\.local` si no se le da `--root`. | Pasar `--root <home>/prepared-root/<versión>` (o la carpeta que se decida) para no escribir dentro de la build instalada; comprobar qué hace exactamente antes. |
-| 9 | La carpeta preparada es de solo lectura tras prepararse | El cliente escribe `horizon-data.bin` (120 MB) en ella en la primera arrancada. | Debe ser escribible. Una primera arrancada tarda además unos 17 s en segundo plano. |
-| 8 | `install` extrae el zip en `builds/<v>` y `current()` es esa carpeta | El zip trae una carpeta raíz `horizon-windows-x64/`. | El ejecutable está en `builds/<v>/horizon-windows-x64/horizon-client.exe`; o se quita la carpeta raíz al extraer. Verificar también que `enclosed_name()` tolera esa estructura. |
-| 8 | `SHA256SUMS` lista lo que descarga el puente | `SHA256SUMS` lista también el `.tar.gz` de Linux; `verify` exige tener todos los archivos listados. | El puente verifica con `check` sobre el archivo concreto, no con el comando `verify` de la carpeta. |
-| 10 (Superseded: ver apartado 10) | `setup` escribe `instance.json` y funciona con cualquier raíz | **Con la raíz por defecto, `cmd.exe` rechaza la orden (apartado 2).** | Decisión pendiente antes de la tarea 10 (ver abajo). |
-| 10 | Una ruta con espacios necesita comillas (`quotes_path_with_spaces`) | Confirmado: comillas dobles. Sin ellas se parte en piezas. | Ya previsto. Escribir `"<ruta>"` en `prependCommand`. La prueba debe usar una ruta con Ñ. |
-| 10 | XMCL carga la instancia nada más escribirla | Se carga al arrancar XMCL; hay que reiniciarlo (ya está previsto en el README). | Sin cambios, pero `setup` debe avisar si XMCL está en marcha. |
+| 6 | `--width -1 --height -1` appear and mean "no size" (`minus_one_size_is_none`) | They never appear by default. With a resolution: `--height H --width W` (height first). With fullscreen: `--fullscreen`. | The test must be "without `--width`/`--height` it is `None`". Tolerate `-1` in case it arrives. Add `fullscreen: bool` to `LaunchArgs` and to `client_cmd` (`--fullscreen` is in the Launch API). |
+| 6 | The bridge rejects if `--userType` is not `msa` (spec, phase 2, point 2) | `--userType` does not exist in 26.3. | Remove that check. Keep only the network ownership check (offline accounts' token: 32 random hex, the services answer 401, it is `NotOwner`). Also reject if there is an authlib-injector `-javaagent:` in the JVM arguments. The session's `user_type` is always `msa`. |
+| 6 | `--xuid` is optional and either comes or does not | It always comes, as the literal text `${auth_xuid}` (and `--clientId ${clientid}`). | Treat any value that starts with `${` as absent. `xuid` is `None`. |
+| 6 | `--server a.b --port 25566` and `quickPlayMultiplayer` are alternatives | With a server on the instance XMCL passes **both** at once, in the order `--quickPlayMultiplayer`, `--server`, `--port`. | Give priority to `--quickPlayMultiplayer`. The other two only if it is missing (in case an old version of XMCL or Minecraft uses them alone). |
+| 6 | `argv[0]` is Java | Yes, but it is `javaw.exe`, not `java.exe`, and with a mixed path (`\` in Java, `/` in the rest). | `--java-home` = parent of the parent of `bin` (valid for `javaw.exe`). Path tests with mixed `\` and `/`. |
+| 6 | `minecraft_root()` is the parent of `assets_dir` | Correct. | No change. Note that `--assetIndex` is a sha1, not the index's name. |
+| 6 | `parse` ignores what it does not know | True, and convenient: there are 40 JVM arguments and the classpath. | No change. |
+| 9 | `run_game` must force or avoid consoles with `CREATE_NO_WINDOW` (task 5 asked whether `windows_subsystem` was needed) | `#![windows_subsystem = "windows"]` is needed **in the bridge**; with a console the standard output is lost and XMCL never sees `LWJGL Version: zenith`. | `main.rs` with `#![windows_subsystem = "windows"]` on Windows. Errors go to stderr and, with the Windows subsystem, also to `bridge.log` (stderr will not be seen in any console). |
+| 9 | `prepare_cmd` does not use `--root` | The preparation writes about 400 MB in `<build>\.local` if it is not given `--root`. | Pass `--root <home>/prepared-root/<version>` (or whatever folder is decided) so nothing is written inside the installed build; check exactly what it does first. |
+| 9 | The prepared folder is read-only after preparation | The client writes `horizon-data.bin` (120 MB) in it on the first start. | It must be writable. A first start also takes about 17 s in the background. |
+| 8 | `install` extracts the zip in `builds/<v>` and `current()` is that folder | The zip has a root folder `horizon-windows-x64/`. | The executable is in `builds/<v>/horizon-windows-x64/horizon-client.exe`; or the root folder is dropped when extracting. Also check that `enclosed_name()` tolerates that structure. |
+| 8 | `SHA256SUMS` lists what the bridge downloads | `SHA256SUMS` also lists the Linux `.tar.gz`; `verify` requires having every listed file. | The bridge verifies with `check` on the specific file, not with the folder `verify` command. |
+| 10 (Superseded: see section 10) | `setup` writes `instance.json` and works with any root | **With the default root, `cmd.exe` rejects the command (section 2).** | Decision pending before task 10 (see below). |
+| 10 | A path with spaces needs quotes (`quotes_path_with_spaces`) | Confirmed: double quotes. Without them it is split into pieces. | Already planned. Write `"<path>"` in `prependCommand`. The test must use a path with Ñ. |
+| 10 | XMCL loads the instance as soon as it is written | It is loaded when XMCL starts; it must be restarted (already planned in the README). | No change, but `setup` must warn if XMCL is running. |
 
-### Decisión pendiente por el hallazgo del límite de `cmd.exe`
+### Decision pending because of the `cmd.exe` limit finding
 
-(Superseded: ver apartado 10; se eligió el puente como «Java» de la instancia.)
+(Superseded: see section 10; the bridge as the instance's "Java" was chosen.)
 
-No se resuelve aquí. Opciones, de más barata a más cara, ninguna probada con XMCL real:
+It is not resolved here. Options, from cheapest to most expensive, none tested with a real XMCL:
 
-1. Exigir una raíz de datos corta (unos 19 caracteres o menos para 26.3; por ejemplo `C:\xmcl`), elegida en el primer arranque de XMCL, y que `zenith-bridge setup` lo compruebe leyendo `%APPDATA%\xmcl\root` y lo explique. El margen depende de la ruta del puente (cada carácter de más resta uno) y de la cantidad de librerías de la versión; `setup` debe generar la orden con las mismas reglas que XMCL y comprobar que no pasa de 8191 caracteres, en vez de fiarse de un número fijo.
-2. Una unión de directorio (`mklink /J`) corta que apunte a la raíz real y escribir esa ruta corta en `%APPDATA%\xmcl\root`. Habría que comprobar que XMCL lo respeta y que no resuelve el enlace.
-3. Pedir a XMCL que no use `shell: true` en Windows cuando el comando previo es un ejecutable (cambio en `@xmcl/core`/`LaunchService`). Contradice "no hay que modificar XMCL" del diseño.
-4. Abandonar `prependCommand` para esta fase y pasar a la fase 6 (launcher propio).
+1. Require a short data root (about 19 characters or less for 26.3; for example `C:\xmcl`), chosen at XMCL's first start, and have `zenith-bridge setup` check it by reading `%APPDATA%\xmcl\root` and explain it. The margin depends on the bridge's path (each extra character subtracts one) and on the number of libraries of the version; `setup` must generate the command with the same rules as XMCL and check that it does not exceed 8191 characters, instead of trusting a fixed number.
+2. A short directory junction (`mklink /J`) pointing at the real root, writing that short path in `%APPDATA%\xmcl\root`. It would have to be checked that XMCL respects it and does not resolve the link.
+3. Ask XMCL not to use `shell: true` on Windows when the prepend command is an executable (a change in `@xmcl/core`/`LaunchService`). It contradicts the design's "XMCL must not be modified".
+4. Drop `prependCommand` for this phase and move on to phase 6 (own launcher).
 
-Hasta que se decida, la tarea 10 no debería escribirse como está. Ver el apartado 10: una cuarta vía (el puente como `java` de la instancia, sin `cmd.exe`) medida después, y que además corrige el límite de 19 caracteres (se midió con un token de 10 caracteres).
+Until it is decided, task 10 should not be written as it stands. See section 10: a fourth way (the bridge as the instance's `java`, without `cmd.exe`) measured afterwards, which also corrects the 19-character limit (it was measured with a 10-character token).
 
-## 9. Efectos secundarios de esta prueba (para ser honestos)
+## 9. Side effects of this test (to be honest)
 
-- Se creó la carpeta `C:\zx` (tres subcarpetas y una copia del JSON de versión, ~45 KB) como raíz corta de pruebas, y no se pudo borrar desde esta sesión (el borrado fue bloqueado por una comprobación de seguridad). Hay que borrarla a mano: `rmdir /s /q C:\zx`.
-- Al probar opciones rechazadas (`--width abc`, `--bogus`) **sin** definir `HORIZON_HOME`, `horizon-client` escribió su registro en `%APPDATA%\horizon\logs` (el valor por defecto): rotó el `latest.log` anterior a `2026-11-04-4.log.gz`, creó `2026-11-05-1.log.gz` y reescribió `latest.log`. Eso va en contra de la regla de no tocar `%APPDATA%\horizon*` y **deja la lista de archivos de `%APPDATA%\horizon` distinta a la de antes de la prueba**; la comparación del paso 6 de la tarea 10 debe partir de un perfil que se anote de nuevo. No se modificó nada más allá de eso (el contenido del registro anterior se conservó comprimido; `%APPDATA%\horizon-launcher` no tuvo ningún cambio). No se intentó deshacerlo para no escribir más allí.
-- Todas las descargas, desempaquetados, la carpeta preparada, la de la build y el clon de XMCL están en `%TEMP%\zenith-spike`. No se borran para reutilizarlos en tareas posteriores.
+- The folder `C:\zx` was created (three subfolders and a copy of the version JSON, ~45 KB) as a short test root, and could not be deleted from this session (the deletion was blocked by a safety check). It has to be deleted by hand: `rmdir /s /q C:\zx`.
+- When testing rejected options (`--width abc`, `--bogus`) **without** defining `HORIZON_HOME`, `horizon-client` wrote its log in `%APPDATA%\horizon\logs` (the default): it rotated the previous `latest.log` to `2026-11-04-4.log.gz`, created `2026-11-05-1.log.gz` and rewrote `latest.log`. This goes against the rule of not touching `%APPDATA%\horizon*` and **leaves the file list of `%APPDATA%\horizon` different from before the test**; the comparison in step 6 of task 10 must start from a profile that is noted down again. Nothing else was modified (the previous log's content was kept compressed; `%APPDATA%\horizon-launcher` had no change). No attempt was made to undo it, so as not to write more there.
+- All downloads, unpackings, the prepared folder, the build folder and the XMCL clone are in `%TEMP%\zenith-spike`. They are not deleted so they can be reused in later tasks.
 
-## 10. Alternativa: el puente como "java" de la instancia (sin cmd.exe)
+## 10. Alternative: the bridge as the instance's "java" (without cmd.exe)
 
-Hallazgo que motiva esto: con `prependCommand` XMCL usa `shell: true` (cmd.exe, límite 8191) y pasa el token **real** de Minecraft, un JWT que puede medir más de mil caracteres. La idea: no usar `prependCommand` y poner en el campo `java` de `instance.json` una copia del puente que se hace pasar por Java. Entonces XMCL lanza `<java> -Xmx… -cp … net.minecraft.client.main.Main <args>` **sin shell** y manda el límite de `CreateProcess` (32 767).
+The finding that motivates this: with `prependCommand` XMCL uses `shell: true` (cmd.exe, limit 8191) and passes the **real** Minecraft token, a JWT that can be over a thousand characters. The idea: do not use `prependCommand` and put in the `java` field of `instance.json` a copy of the bridge that pretends to be Java. Then XMCL launches `<java> -Xmx… -cp … net.minecraft.client.main.Main <args>` **without a shell** and the `CreateProcess` limit (32 767) rules.
 
-Prueba estática, como la anterior: ningún clic en la interfaz. Se leyó el código del mismo clon de XMCL (`aeb5240`, solo lectura) y se ejecutaron sus funciones reales (empaquetadas con esbuild) contra un "java" falso. Entorno: Windows 11 (10.0.26300), Node v24.22.1. Todo en una carpeta temporal; no se tocó `%APPDATA%\horizon*`, `%APPDATA%\xmcl`, `C:\xmcl` ni `%APPDATA%\zenith`. Se reproduce con `zenith/bridge/tests/fixtures/java-shim-spike/` (ver "Cómo reproducirlo").
+Static test, like the previous one: no clicks in the interface. The code of the same XMCL clone (`aeb5240`, read only) was read and its real functions (bundled with esbuild) were run against a fake "java". Environment: Windows 11 (10.0.26300), Node v24.22.1. Everything in a temporary folder; `%APPDATA%\horizon*`, `%APPDATA%\xmcl`, `C:\xmcl` and `%APPDATA%\zenith` were not touched. It is reproduced with `zenith/bridge/tests/fixtures/java-shim-spike/` (see "How to reproduce it").
 
-### Veredicto
+### Verdict
 
-**Viable con salvedades.** El mecanismo de XMCL (resolución de Java, validación, cambio a `javaw.exe`, lanzamiento sin shell, lectura de stdout) funciona con un ejecutable que responde a `-version`, y la línea de comandos deja unos 21 000 caracteres de margen. Quedan abiertas cosas que necesitan la interfaz de XMCL (último apartado) y dos consecuencias de diseño que no tienen que ver con el límite: XMCL ya no descarga un Java 25 para el puente, y otras instancias podrían elegir el shim como Java. El diseño con `prependCommand` queda **en duda seria**: con `C:\xmcl` falla en cuanto el token pase de unos 1090 caracteres, y la longitud real no se pudo medir.
+**Viable with caveats.** XMCL's mechanism (Java resolution, validation, the switch to `javaw.exe`, launching without a shell, reading stdout) works with an executable that answers `-version`, and the command line leaves about 21 000 characters of margin. Things that need XMCL's interface remain open (last section) and two design consequences that have nothing to do with the limit: XMCL no longer downloads a Java 25 for the bridge, and other instances could choose the shim as their Java. The design with `prependCommand` is **in serious doubt**: with `C:\xmcl` it fails as soon as the token exceeds about 1090 characters, and the real length could not be measured.
 
-### Cómo decide XMCL, con evidencia de código
+### How XMCL decides, with code evidence
 
-**Sin shell, salvo con comando previo.** `LaunchService.#generateOptions` (`xmcl-runtime/launch/LaunchService.ts:228`): `shell: prepend && prepend.length > 0`. `launch()` de `@xmcl/core` (`packages/core/launch.ts:688-698`) solo cita los argumentos si `extraExecOption.shell` es verdadero, y después hace `spawn(args[0], args.slice(1), { cwd, detached: true, env })`. `inst.prependCommand ?? globalPrependCommand` (`xmcl-runtime-api/src/util/launch.ts:140`) usa el global solo si el de la instancia es `undefined`, y `normalizeCommandLine('')` devuelve `''` (falso), así que **un `"prependCommand": ""` explícito en la instancia anula también un comando previo global**; el esquema acepta la cadena vacía (`packages/instance/instance.ts:273`). Medido más abajo: sin shell.
+**No shell, except with a prepend command.** `LaunchService.#generateOptions` (`xmcl-runtime/launch/LaunchService.ts:228`): `shell: prepend && prepend.length > 0`. `@xmcl/core`'s `launch()` (`packages/core/launch.ts:688-698`) only quotes the arguments if `extraExecOption.shell` is true, and then does `spawn(args[0], args.slice(1), { cwd, detached: true, env })`. `inst.prependCommand ?? globalPrependCommand` (`xmcl-runtime-api/src/util/launch.ts:140`) uses the global only if the instance's is `undefined`, and `normalizeCommandLine('')` returns `''` (false), so **an explicit `"prependCommand": ""` on the instance also overrides a global prepend command**; the schema accepts the empty string (`packages/instance/instance.ts:273`). Measured below: no shell.
 
-**Qué ejecuta XMCL para saber qué es "Java"** (`packages/installer/java.ts`, `resolveJavaWithDiagnostic`): comprueba que el archivo existe y ejecuta `execFile(<ruta>, ['-version'], { windowsHide: true })`. Lee la versión de **stderr y, si no, de stdout** (`parseJavaVersionOutput`), **sin mirar el código de salida** (solo lo guarda para diagnóstico). `parseJavaVersion` exige que el texto contenga `openjdk`, `java version` o `java_version` como palabra, y un número. No lee `<home>/release` salvo para rellenar un registro inválido después de fallar (`JavaService.ts:170`). No usa `-XshowSettings:properties` (grep sin resultados) y no mira el nombre del archivo, ni el vendor, ni que esté en `bin/` bajo un home. Medido con `parseJavaVersion`:
+**What XMCL runs to find out what "Java" is** (`packages/installer/java.ts`, `resolveJavaWithDiagnostic`): it checks that the file exists and runs `execFile(<path>, ['-version'], { windowsHide: true })`. It reads the version from **stderr and, failing that, from stdout** (`parseJavaVersionOutput`), **without looking at the exit code** (it only keeps it for diagnostics). `parseJavaVersion` requires the text to contain `openjdk`, `java version` or `java_version` as a word, and a number. It does not read `<home>/release` except to fill in an invalid record after failing (`JavaService.ts:170`). It does not use `-XshowSettings:properties` (grep with no results) and does not look at the file name, nor the vendor, nor whether it is in `bin/` under a home. Measured with `parseJavaVersion`:
 
-| Salida | Resultado |
+| Output | Result |
 | --- | --- |
 | `openjdk version "25"` | `{version:"25", majorVersion:25}` |
-| `java version "25"` | igual |
-| 3 líneas de Temurin con `"25.0.5"` | `{version:"25.0.5", majorVersion:25}` |
-| `25.0.5`, `version "25.0.5"`, un banner propio o nada | `undefined` (no es Java) |
+| `java version "25"` | the same |
+| 3 Temurin lines with `"25.0.5"` | `{version:"25.0.5", majorVersion:25}` |
+| `25.0.5`, `version "25.0.5"`, a banner of our own or nothing | `undefined` (not Java) |
 
-`resolveJava` sobre un ejecutable que solo responde a `-version` (`fakejava.rs`) da `25.0.5 (major 25)` **tanto de consola como de subsistema Windows** (con stdout y stderr en tuberías, el de subsistema Windows también escribe). Un binario ajeno (`whoami.exe`) da `undefined`: XMCL **rechaza lo desconocido**; solo acepta lo que hable "java". Un archivo inexistente da `ENOENT`.
+`resolveJava` on an executable that only answers `-version` (`fakejava.rs`) gives `25.0.5 (major 25)` **both from a console and from a Windows-subsystem build** (with stdout and stderr on pipes, the Windows-subsystem one also writes). A foreign binary (`whoami.exe`) gives `undefined`: XMCL **rejects the unknown**; it only accepts what speaks "java". A non-existent file gives `ENOENT`.
 
-**Extra opcional.** `JavaService.resolveJava` llama a `getJavaArch` (`detectJVMArch.ts`): `execFile(<java>, ['JavaProxy','-jvm_info'], { cwd: <datos de XMCL> })` y espera JSON con `java_arch` (`"64"` pasa a `x64`). Si falla solo avisa y deja la arquitectura sin definir (cosmético: se ve en la lista de Java). El shim contesta `{"java_arch":"64"}`.
+**Optional extra.** `JavaService.resolveJava` calls `getJavaArch` (`detectJVMArch.ts`): `execFile(<java>, ['JavaProxy','-jvm_info'], { cwd: <XMCL data> })` and expects JSON with `java_arch` (`"64"` becomes `x64`). If it fails it only warns and leaves the architecture undefined (cosmetic: it shows in the Java list). The shim answers `{"java_arch":"64"}`.
 
-**Cuánta versión exige XMCL.** El middleware `java-validation` (`pluginLaunchPrecheck.ts:99-149`) **no compara versiones**: solo exige que `resolveJava` devuelva algo. La comparación está en la interfaz: `getAutoOrManuallJava` (`xmcl-runtime-api/src/util/java.ts`) la hace contra el requisito del JSON de versión (`javaVersion.majorVersion`; para 26.3: `java-runtime-epsilon`, **25**, regla `>=25`) y `getInstanceJavaIssue` (`instanceJavaDiagnose.ts`) abre el diálogo "incompatible" si no se cumple. Se ejecutaron las funciones reales de selección (`validate.cjs`; el último punto reproduce a mano `getInstanceJavaIssue`):
-
-```
-shim 25 (java.exe)         resolveJava: 25.0.5 (major 25) | arch: 64 | calidad: 0 (Matched)  problema: null
-shim 25 (javaw.exe)        resolveJava: 25.0.5 (major 25) | arch: 64 | calidad: 0 (Matched)  problema: null
-shim que dice 21           resolveJava: 21.0.5 (major 21) | arch: 64 | calidad: 2            problema: incompatible
-binario ajeno (whoami.exe) resolveJava: undefined                                           problema: invalid
-ruta inexistente           X_OK: ENOENT, resolveJava: undefined                              problema: invalid
-```
-
-Con la lista de Java de XMCL vacía (`all` vacío) el resultado es `invalid` **incluso con un Java real**, porque `getAutoOrManuallJava` devuelve `noJava` sin mirar el campo. Es transitorio: `resolveJava` añade el Java a la lista y la interfaz recalcula (`watch` en `instanceJava.ts`). Ese refresco no se pudo ver sin la interfaz.
-
-### El cambio a `javaw.exe` y los nombres del shim
-
-`#generateOptions` (líneas 205-206) calcula `join(dirname(javaPath), 'javaw.exe')` y, si existe y `access(X_OK)` (en Windows: que exista), lanza **ese** en lugar del campo, sea cual sea el nombre del campo. En cambio `java-validation` y la interfaz sondean `options.java`, el del campo. Por tanto:
-
-- **`java.exe`** debe existir: es lo que se sondea con `-version` y lo que va en el campo `java`.
-- **`javaw.exe`** debe estar **en la misma carpeta**: es lo que recibe los argumentos del juego. Puede ser el mismo binario: se probó con `java.exe` de consola + `javaw.exe` de subsistema Windows (A1), solo `java.exe` de consola (A2) y ambos de subsistema Windows (A3). En los tres se lanza y XMCL ve la salida. Sin `javaw.exe` se lanza `java.exe`.
-
-### Lo que recibe el shim y cómo se trata su salida
-
-Se ejecutó el `core.launch()` real de `@xmcl/core` con las mismas opciones que XMCL (`shell: false`, `detached: true`, `cwd`, `env`), un token falso de 1200 caracteres y el `createMinecraftProcessWatcher` real (el que usa `LaunchService`), contra el shim (`e2e.cjs`, resumido):
+**How much version XMCL requires.** The `java-validation` middleware (`pluginLaunchPrecheck.ts:99-149`) **does not compare versions**: it only requires `resolveJava` to return something. The comparison is in the interface: `getAutoOrManuallJava` (`xmcl-runtime-api/src/util/java.ts`) does it against the version JSON's requirement (`javaVersion.majorVersion`; for 26.3: `java-runtime-epsilon`, **25**, rule `>=25`) and `getInstanceJavaIssue` (`instanceJavaDiagnose.ts`) opens the "incompatible" dialog if it is not met. The real selection functions were run (`validate.cjs`; the last point reproduces `getInstanceJavaIssue` by hand):
 
 ```
-A1 java.exe consola + javaw.exe winsub  lanzado=jre\bin\javaw.exe   ready=true code=0 stdout="LWJGL Version: zenith" stderr="stderr line from shim" argc=43 cwdOk=true pidIgualAlDeNode=true
-A2 solo java.exe (consola)              lanzado=jre2\bin\java.exe   ready=true code=0 stdout="LWJGL Version: zenith" …
-A3 java.exe y javaw.exe winsub          lanzado=jre3\bin\javaw.exe  ready=true code=0 stdout="LWJGL Version: zenith" …
+shim 25 (java.exe)         resolveJava: 25.0.5 (major 25) | arch: 64 | quality: 0 (Matched)  issue: null
+shim 25 (javaw.exe)        resolveJava: 25.0.5 (major 25) | arch: 64 | quality: 0 (Matched)  issue: null
+shim that says 21          resolveJava: 21.0.5 (major 21) | arch: 64 | quality: 2            issue: incompatible
+foreign binary (whoami.exe) resolveJava: undefined                                           issue: invalid
+non-existent path          X_OK: ENOENT, resolveJava: undefined                              issue: invalid
 ```
 
-- **La salida estándar llega en los tres casos**, también con el ejecutable de consola, a diferencia del caso `shell: true` del apartado 2. `minecraft-window-ready` se dispara con `LWJGL Version: `; stderr llega aparte.
-- **`argv` del shim:** `argv[0]` es la ruta de `javaw.exe` que pasa XMCL y a continuación van los 42 argumentos del fixture `xmcl-args.txt` (que lleva `javaw.exe` como primera línea, 43 en total). Tras normalizar la raíz son idénticos, salvo el uuid y el token, que en el fixture eran de relleno (`#34`, `#36`). Respecto a `prependCommand` **no hay una ruta del puente antes**: `argv[1]` ya es `-XX:HeapDumpPath=…`.
-- **`process.pid` es el del shim** (el `PID` que vuelca el shim coincide con el `pid` de Node). No hay `cmd.exe` en medio, así que Detener de XMCL (`process.kill()`) ya alcanza al puente; que el árbol del juego muera con él depende del objeto de trabajo del puente (`d628dd28a`).
-- **Sin shell no hay expansión ni pérdida de caracteres.** Con la ruta `…/Jose Ñ/java dir/bin/javaw.exe` y argumentos extra `100%ZXTEST%`, `a&b`, `q"uote` y uno con tabulador, el shim recibió exactamente `["--x","100%ZXTEST%","--y","a&b","--z","q\"uote","--w","tab\there"]` y la ruta con Ñ y espacios intacta. (Con `cmd.exe`, apartado 2, `%…%` se expandía y las comillas se perdían.)
-- Un `-version` tarda unos 12,6 ms (media de 20, subsistema Windows).
+With XMCL's Java list empty (`all` empty) the result is `invalid` **even with a real Java**, because `getAutoOrManuallJava` returns `noJava` without looking at the field. It is transient: `resolveJava` adds the Java to the list and the interface recomputes (`watch` in `instanceJava.ts`). That refresh could not be seen without the interface.
 
-### Longitud de línea medida (la razón de este apartado)
+### The switch to `javaw.exe` and the shim's names
 
-Misma orden de 26.3 (82 jars) con `core.generateArguments`, token falso de longitud variable (no se pudo obtener un JWT real), raíz de datos `C:\Users\Some Long User Name\AppData\Roaming\xmcl` (49 caracteres) y Java en `C:\Users\Some Long User Name\AppData\Roaming\zenith\java\bin\javaw.exe`. "Sin shell" es el `GetCommandLineW` del shim real, corregido a la ruta de Java larga (+2 por las comillas que libuv pone a una ruta con espacios; incertidumbre de unos 3 caracteres). "Con prepend + shell" es la longitud del comando que recibe `cmd.exe` (ruta del puente de unos 70 caracteres, como en la prueba anterior):
+`#generateOptions` (lines 205-206) computes `join(dirname(javaPath), 'javaw.exe')` and, if it exists and `access(X_OK)` (on Windows: that it exists), launches **that** instead of the field, whatever the field's name. In contrast `java-validation` and the interface probe `options.java`, the field's. Therefore:
 
-| Token | Sin shell (CreateProcess, límite 32 767) | Margen | Con prepend + shell (cmd.exe, límite 8191) |
+- **`java.exe`** must exist: it is what is probed with `-version` and what goes in the `java` field.
+- **`javaw.exe`** must be **in the same folder**: it is what receives the game's arguments. It can be the same binary: it was tested with a console `java.exe` + a Windows-subsystem `javaw.exe` (A1), only a console `java.exe` (A2) and both Windows-subsystem (A3). In all three it launches and XMCL sees the output. Without `javaw.exe`, `java.exe` is launched.
+
+### What the shim receives and how its output is treated
+
+The real `core.launch()` of `@xmcl/core` was run with the same options as XMCL (`shell: false`, `detached: true`, `cwd`, `env`), a fake token of 1200 characters and the real `createMinecraftProcessWatcher` (the one `LaunchService` uses), against the shim (`e2e.cjs`, summarised):
+
+```
+A1 java.exe console + javaw.exe winsub  launched=jre\bin\javaw.exe   ready=true code=0 stdout="LWJGL Version: zenith" stderr="stderr line from shim" argc=43 cwdOk=true pidEqualsNodes=true
+A2 only java.exe (console)              launched=jre2\bin\java.exe   ready=true code=0 stdout="LWJGL Version: zenith" …
+A3 java.exe and javaw.exe winsub        launched=jre3\bin\javaw.exe  ready=true code=0 stdout="LWJGL Version: zenith" …
+```
+
+- **Standard output arrives in all three cases**, also with the console executable, unlike the `shell: true` case in section 2. `minecraft-window-ready` fires with `LWJGL Version: `; stderr arrives separately.
+- **The shim's `argv`:** `argv[0]` is the path of `javaw.exe` that XMCL passes and then come the 42 arguments of the `xmcl-args.txt` fixture (which has `javaw.exe` as its first line, 43 in total). After normalising the root they are identical, except the uuid and the token, which in the fixture were filler (`#34`, `#36`). Compared with `prependCommand` **there is no bridge path before**: `argv[1]` is already `-XX:HeapDumpPath=…`.
+- **`process.pid` is the shim's** (the `PID` that the shim dumps matches Node's `pid`). There is no `cmd.exe` in between, so XMCL's Stop (`process.kill()`) already reaches the bridge; whether the game's tree dies with it depends on the bridge's job object (`d628dd28a`).
+- **Without a shell there is no expansion or loss of characters.** With the path `…/Jose Ñ/java dir/bin/javaw.exe` and extra arguments `100%ZXTEST%`, `a&b`, `q"uote` and one with a tab, the shim received exactly `["--x","100%ZXTEST%","--y","a&b","--z","q\"uote","--w","tab\there"]` and the path with Ñ and spaces intact. (With `cmd.exe`, section 2, `%…%` was expanded and the quotes were lost.)
+- A `-version` takes about 12.6 ms (average of 20, Windows subsystem).
+
+### Measured line length (the reason for this section)
+
+The same 26.3 command (82 jars) with `core.generateArguments`, a fake token of variable length (a real JWT could not be obtained), data root `C:\Users\Some Long User Name\AppData\Roaming\xmcl` (49 characters) and Java at `C:\Users\Some Long User Name\AppData\Roaming\zenith\java\bin\javaw.exe`. "Without shell" is the real shim's `GetCommandLineW`, corrected to the long Java path (+2 for the quotes libuv puts on a path with spaces; an uncertainty of about 3 characters). "With prepend + shell" is the length of the command `cmd.exe` receives (bridge path of about 70 characters, as in the previous test):
+
+| Token | Without shell (CreateProcess, limit 32 767) | Margin | With prepend + shell (cmd.exe, limit 8191) |
 | --- | --- | --- | --- |
 | 10 | 10 444 | 22 323 | 10 531 |
 | 700 | 11 134 | 21 633 | 11 221 |
 | **1200** | **11 634** | **21 133** | **11 721** |
 | 1500 | 11 934 | 20 833 | 12 021 |
 
-- `cmd.exe` real, raíz larga, token 1200, con prepend: **código 1, "La línea de comandos es demasiado larga.", el programa no se ejecutó.**
-- Sin shell cabe con holgura. La línea crece 82 caracteres por carácter de raíz, así que haría falta una raíz de unos 300 caracteres para llegar a 32 767 (antes pesaría `MAX_PATH` en otros sitios).
-- **Corrige el apartado 2.** El límite de "unos 19 caracteres" se midió con un token de 10 caracteres. Con la raíz corta recomendada y el diseño actual:
+- Real `cmd.exe`, long root, token 1200, with prepend: **code 1, "The command line is too long.", the program did not run.**
+- Without a shell it fits with room to spare. The line grows 82 characters per root character, so a root of about 300 characters would be needed to reach 32 767 (before that `MAX_PATH` would weigh in elsewhere).
+- **It corrects section 2.** The "about 19 characters" limit was measured with a 10-character token. With the recommended short root and the current design:
 
   ```
-  prepend+shell, raíz C:\xmcl (7), token 10:   comando=7108, código 0, shim ejecutado: true
-  prepend+shell, raíz C:\xmcl (7), token 1200: comando=8298, código 1, shim ejecutado: false
+  prepend+shell, root C:\xmcl (7), token 10:   command=7108, code 0, shim ran: true
+  prepend+shell, root C:\xmcl (7), token 1200: command=8298, code 1, shim ran: false
   ```
 
-  El token cuenta carácter a carácter: con `C:\xmcl` el diseño con `prependCommand` solo funciona con tokens de hasta unos 1090 caracteres (8191 − 7108 + 10). La longitud del token real es desconocida aquí.
+  The token counts character by character: with `C:\xmcl` the `prependCommand` design only works with tokens of up to about 1090 characters (8191 − 7108 + 10). The real token's length is unknown here.
 
-### Qué pasa con la interfaz y los ajustes de XMCL (leído, no ejecutado)
+### What happens with XMCL's interface and settings (read, not run)
 
-- **XMCL no reemplaza nuestro campo `java` por su cuenta.** La interfaz lo usa tal cual si está asignado (`getAutoOrManuallJava`: "User assigned java path, revalidate it"; `instanceVersionInstall.ts:44-47`: con `inst.java` definido no se instala ni se busca otro; `InstallCoordinator.ts:150-166`: "A pinned instance Java wins when it resolves"). El único reemplazo automático está en el middleware y **solo si la ruta cuelga de `<raíz>/jre/<componente>`** (`getManagedJavaComponent`): si `resolveJava` falla, XMCL quita ese Java y **reinstala el de Mojang**. **El shim no debe estar bajo `<raíz de XMCL>/jre`.** Fuera de ahí, si falla, el error es `launchNoProperJava`: visible y sin reemplazo.
-- **El Java global** (`globalJava`) solo desempata la **elección automática** cuando `instance.java` está vacío (`selectJavaByPreference`, parámetro `preferredPath`); no pisa un campo asignado. No hay ajuste de XMCL que cambiar.
-- **Reemplazos manuales** del campo (los hace el usuario): el botón de usar el Java recomendado en el diálogo de problema de Java (`HomeLaunchStatusDialog.vue:192-196`), la página de Java de la instancia y las herramientas del agente (`tools.ts:1450-1456`). Si el shim contestara mal a `-version`, ese diálogo ofrecería justo sustituirlo.
-- **Lista de Java.** El shim aparecerá en la lista de Java de XMCL (caché en `%APPDATA%\xmcl\java.json`, revalidada en cada arranque con `-version`: `refreshLocalJava`), como 25.0.5 `x64`. XMCL solo busca en rutas conocidas (Mojang, Oracle, OpenJDK, Adoptium, Zulu, `JAVA_HOME`, registro, `where java`, `<raíz>/jre/*`); una carpeta propia como `%APPDATA%\zenith\java` no se descubre sola, entra por la instancia.
-- **Riesgo medido con la función de selección:** una instancia **sin Java propio** de otra versión (por ejemplo 1.21.4, que pide `>=21`) puede elegir el shim por ser "Java 25" si está antes en la lista:
+- **XMCL does not replace our `java` field by itself.** The interface uses it as it is if assigned (`getAutoOrManuallJava`: "User assigned java path, revalidate it"; `instanceVersionInstall.ts:44-47`: with `inst.java` defined it neither installs nor looks for another; `InstallCoordinator.ts:150-166`: "A pinned instance Java wins when it resolves"). The only automatic replacement is in the middleware and **only if the path hangs from `<root>/jre/<component>`** (`getManagedJavaComponent`): if `resolveJava` fails, XMCL removes that Java and **reinstalls Mojang's**. **The shim must not be under `<XMCL root>/jre`.** Outside it, if it fails, the error is `launchNoProperJava`: visible and with no replacement.
+- **The global Java** (`globalJava`) only breaks ties in the **automatic choice** when `instance.java` is empty (`selectJavaByPreference`, parameter `preferredPath`); it does not override an assigned field. There is no XMCL setting to change.
+- **Manual replacements** of the field (done by the user): the button to use the recommended Java in the Java problem dialog (`HomeLaunchStatusDialog.vue:192-196`), the instance's Java page and the agent tools (`tools.ts:1450-1456`). If the shim answered `-version` wrongly, that dialog would offer exactly to replace it.
+- **Java list.** The shim will appear in XMCL's Java list (cache in `%APPDATA%\xmcl\java.json`, revalidated on every start with `-version`: `refreshLocalJava`), as 25.0.5 `x64`. XMCL only searches known paths (Mojang, Oracle, OpenJDK, Adoptium, Zulu, `JAVA_HOME`, registry, `where java`, `<root>/jre/*`); a folder of our own such as `%APPDATA%\zenith\java` is not discovered by itself, it gets in through the instance.
+- **Risk measured with the selection function:** an instance **without its own Java** of another version (for example 1.21.4, which asks for `>=21`) may choose the shim for being "Java 25" if it is earlier in the list:
 
   ```
-  lista [shim25, real21] -> elige S/bin/java.exe     lista [real21, shim25] -> elige R/bin/java.exe
+  list [shim25, real21] -> chooses S/bin/java.exe     list [real21, shim25] -> chooses R/bin/java.exe
   ```
 
-  Se evita haciendo que el modo juego del shim **rechace** lo que no sea su versión de Minecraft (salida ≠ 0 con un mensaje claro) o delegue en un Java real. No probado en la interfaz.
-- **Descarga de Java.** Con el campo asignado y resoluble, XMCL **no descarga** `java-runtime-epsilon` (ver arriba). Consecuencia: el puente ya no recibe un Java 25 en `argv` para `horizon-prepare --java-home`; tendría que aportar o localizar el suyo. No es un fallo del shim sino del diseño.
+  It is avoided by making the shim's game mode **refuse** anything that is not its Minecraft version (exit ≠ 0 with a clear message) or delegate to a real Java. Not tested in the interface.
+- **Java download.** With the field assigned and resolvable, XMCL **does not download** `java-runtime-epsilon` (see above). Consequence: the bridge no longer receives a Java 25 in `argv` for `horizon-prepare --java-home`; it would have to provide or locate its own. This is not a flaw of the shim but of the design.
 
-### Condiciones exactas de la alternativa
+### Exact conditions of the alternative
 
-1. Carpeta propia **fuera de `<raíz de XMCL>/jre`**, por ejemplo `%APPDATA%\zenith\java\bin\`, con `java.exe` y `javaw.exe` (dos copias independientes; no enlaces duros, por el `ino` que usa `refreshLocalJava` para no duplicar). Opcional: `..\release` con `JAVA_VERSION="25.0.5"` (solo se lee tras un fallo).
-2. `instance.json`: `java` con la ruta absoluta de `…\bin\java.exe` (en JSON las barras invertidas van duplicadas) y `"prependCommand": ""` (anula también el global; `shell` queda en falso).
-3. Un solo ejecutable de subsistema Windows vale para los dos nombres (medido). El modo se decide por el nombre del archivo (`java`/`javaw`) o por `argv[1]` (`-version`, `JavaProxy`).
-4. Respuestas a los sondeos: rápidas, código 0, sin red ni escrituras.
-   - `-version` (único argumento): por stderr (o stdout) `openjdk version "25.0.5" <fecha> LTS` y las dos líneas de runtime; el major debe ser **mayor o igual que `javaVersion.majorVersion` del JSON** (25 para 26.3).
-   - `JavaProxy -jvm_info`: `{"java_arch":"64"}` por stdout (opcional).
-   - Cualquier otra invocación es un lanzamiento de juego.
-5. Modo juego: leer `argv` (fixture), arrancar Zenith, escribir por **stdout** `LWJGL Version: …` al estar listo y `Crash report saved to: #@!@# <ruta>` si falla; stderr se acumula para el diálogo de error; salir con el código del juego.
-6. Windows bloquea un `javaw.exe` en ejecución: la copia solo se puede reemplazar con el juego cerrado. Hay que decidir quién la repone tras una actualización del puente (`setup`, o el propio modo `-version` si no hay juego en marcha).
+1. A folder of our own **outside `<XMCL root>/jre`**, for example `%APPDATA%\zenith\java\bin\`, with `java.exe` and `javaw.exe` (two independent copies; no hard links, because of the `ino` that `refreshLocalJava` uses to avoid duplicates). Optional: `..\release` with `JAVA_VERSION="25.0.5"` (only read after a failure).
+2. `instance.json`: `java` with the absolute path of `…\bin\java.exe` (in JSON the backslashes are doubled) and `"prependCommand": ""` (it also overrides the global one; `shell` stays false).
+3. A single Windows-subsystem executable is valid for both names (measured). The mode is decided by the file name (`java`/`javaw`) or by `argv[1]` (`-version`, `JavaProxy`).
+4. Answers to the probes: fast, code 0, no network or writes.
+   - `-version` (only argument): on stderr (or stdout) `openjdk version "25.0.5" <date> LTS` and the two runtime lines; the major must be **greater than or equal to the JSON's `javaVersion.majorVersion`** (25 for 26.3).
+   - `JavaProxy -jvm_info`: `{"java_arch":"64"}` on stdout (optional).
+   - Any other invocation is a game launch.
+5. Game mode: read `argv` (fixture), start Zenith, write on **stdout** `LWJGL Version: …` when ready and `Crash report saved to: #@!@# <path>` if it fails; stderr accumulates for the error dialog; exit with the game's code.
+6. Windows locks a running `javaw.exe`: the copy can only be replaced with the game closed. It has to be decided who restores it after a bridge update (`setup`, or the `-version` mode itself if no game is running).
 
-### Lo que NO se pudo verificar sin la interfaz
+### What could NOT be verified without the interface
 
-- Que XMCL cargue una instancia escrita a mano con `java` y `prependCommand: ""` y que no los reescriba (por ejemplo al abrir la página de Java de la instancia y guardar).
-- Cómo se ven la página de Java, la lista de Java global y el botón Jugar con el shim (versión, arquitectura, ausencia de avisos), y el refresco tras el estado transitorio de lista vacía.
-- Que no haya ventana de consola ni parpadeo con el shim (consola o subsistema Windows); solo se midió la salida estándar.
-- Qué muestra XMCL cuando el shim sale con código ≠ 0, y su reacción a `Crash report saved to:`.
-- El token real de Minecraft: su longitud no se obtuvo (nadie puede iniciar sesión aquí); los 1200 caracteres son una suposición. La conclusión sobre `cmd.exe` depende de ella; la del shim no (21 000 caracteres de margen).
-- El botón Detener (`kill` normal y forzado) y el árbol de procesos.
-- Que otra instancia no elija el shim en la práctica y que ningún camino normal ofrezca sustituirlo.
-- Que una versión de XMCL distinta de `aeb5240` (0.73.1) valide Java igual.
-- Antivirus o SmartScreen ante un `java.exe` que no es de un proveedor conocido.
+- That XMCL loads a hand-written instance with `java` and `prependCommand: ""` and does not rewrite them (for example when opening the instance's Java page and saving).
+- How the Java page, the global Java list and the Play button look with the shim (version, architecture, absence of warnings), and the refresh after the transient state of an empty list.
+- That there is no console window or flicker with the shim (console or Windows subsystem); only standard output was measured.
+- What XMCL shows when the shim exits with a code ≠ 0, and its reaction to `Crash report saved to:`.
+- The real Minecraft token: its length was not obtained (nobody can sign in here); the 1200 characters are an assumption. The conclusion about `cmd.exe` depends on it; the shim's does not (21 000 characters of margin).
+- The Stop button (normal and forced `kill`) and the process tree.
+- That another instance does not choose the shim in practice and that no normal path offers to replace it.
+- That a version of XMCL other than `aeb5240` (0.73.1) validates Java the same way.
+- Antivirus or SmartScreen facing a `java.exe` that is not from a known vendor.
 
-### Cómo reproducirlo
+### How to reproduce it
 
 ```
-sh zenith/bridge/tests/fixtures/java-shim-spike/build.sh <clon de XMCL, solo lectura> <carpeta de trabajo> <26.3.json>
-# necesita rustc, node 24 y esbuild (ESBUILD_DIR=<ruta a node_modules/esbuild> si no está instalado)
+sh zenith/bridge/tests/fixtures/java-shim-spike/build.sh <XMCL clone, read only> <work folder> <26.3.json>
+# needs rustc, node 24 and esbuild (ESBUILD_DIR=<path to node_modules/esbuild> if it is not installed)
 ```
 
-Compila `fakejava.rs` (consola, subsistema Windows y la variante "dice Java 21"), empaqueta con esbuild `@xmcl/core`, `packages/installer/java.ts` y `xmcl-runtime-api/src/util/java.ts` del clon y ejecuta `e2e.cjs` (lanzamiento, largos, `cmd.exe`), `validate.cjs` (resolución, calidad, selección en otras instancias) y `probe.cjs`. Solo escribe en la carpeta de trabajo.
+It compiles `fakejava.rs` (console, Windows subsystem and the "says Java 21" variant), bundles with esbuild `@xmcl/core`, `packages/installer/java.ts` and `xmcl-runtime-api/src/util/java.ts` from the clone and runs `e2e.cjs` (launch, lengths, `cmd.exe`), `validate.cjs` (resolution, quality, selection in other instances) and `probe.cjs`. It only writes in the work folder.

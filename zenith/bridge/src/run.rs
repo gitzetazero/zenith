@@ -53,7 +53,7 @@ pub fn run(argv: &[String], d: &Deps) -> i32 {
 
 fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
     if !argv.iter().any(|a| a == MAIN_CLASS) {
-        return Err("Esta instancia no es un Minecraft de Zenith: solo se puede jugar la instancia «Zenith» de XMCL (este «Java» no sirve para otras instancias).".into());
+        return Err("This instance is not a Zenith Minecraft: only XMCL's \"Zenith\" instance can be played (this \"Java\" does not work for other instances).".into());
     }
     let a = LaunchArgs::parse(argv)?;
     let now = std::time::SystemTime::now()
@@ -70,7 +70,7 @@ fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
     let pinned = pinned_minecraft(&build)?;
     if pinned != a.version {
         return Err(format!(
-            "Esta instancia debe ser Minecraft {pinned} (la de XMCL es {}). Vuelve a ejecutar «zenith-bridge-windows-x64.exe setup» (descárgalo de la página de Releases; si hay un exe más nuevo, usa ese) para actualizar la instancia y las copias de Java.",
+            "This instance must be Minecraft {pinned} (XMCL's is {}). Run \"zenith-bridge-windows-x64.exe setup\" again (download it from the Releases page; if there is a newer exe, use that one) to update the instance and the Java copies.",
             a.version
         ));
     }
@@ -86,7 +86,7 @@ fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
     if !ready {
         (d.emit)(
             Stream::Out,
-            "Zenith: preparando los recursos de Horizon (la primera vez tarda unos minutos).",
+            "Zenith: preparing Horizon's resources (the first time takes a few minutes).",
         );
         let mc = a.minecraft_root();
         let version_json = mc
@@ -122,5 +122,5 @@ fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
         &a.session_json(),
         &mut |s, l| (d.emit)(s, l),
     )
-    .map_err(|e| format!("no se pudo iniciar horizon-client: {e}"))
+    .map_err(|e| format!("could not start horizon-client: {e}"))
 }

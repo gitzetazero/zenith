@@ -19,13 +19,13 @@ README.md  ZENITH.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  SECURITY
 Cargo.toml  Cargo.lock  .gitattributes  native-hooks.json  research-lock.json
 crates/        Horizon's engine and client crates (+ a few Zenith files marked `zenith:` or named zenith_*)
 xtask/         Horizon's build tasks (one marked edit: the TOOLS list)
-tests/ tools/ mods/ third_party/ docs/ roadmap/ packaging/   Horizon's, kept as they are
+tests/ tools/ mods/ third_party/ docs/ packaging/   Horizon's, kept because the client, `horizon-prepare` (exporters in mods/, tools/native-hook-fragments) and `xtask package`/`icons` build from them; `third_party/` carries the patched wgpu-hal, naga and mimalloc
 .github/       zenith-sync.yml, zenith-release.yml, issue and PR templates (ours); CODEOWNERS and friends (Horizon's)
 zenith/
   README.md          player guide (install, update, uninstall)
   SERVERS.md         server versions and how the translator picks one
   bridge/            the bridge (own workspace): ownership check, signed installs, launch
-  launcher/          the interim installer (bundles unmodified XMCL; superseded by the zenith-launcher fork)
+  launcher-interim/  the interim installer (bundles unmodified XMCL); zenith/launcher/ is reserved for the real Zenith Launcher
   branding/          logo, palette, banners, icons and the tools that regenerate them
   ci/                sync, prune, intact check, link check, release publisher and their tests
 ```
@@ -35,8 +35,8 @@ zenith/
 | **Ours** (Horizon does not have them, no conflict possible) | `ZENITH.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `zenith/**`, `docs/superpowers/**`, `.github/ISSUE_TEMPLATE/**`, `.github/PULL_REQUEST_TEMPLATE/**`, `.github/workflows/zenith-*.yml`, `crates/horizon-client/src/zenith_versions.rs`, `crates/horizon-client-core/src/zenith_brand.rs`, `crates/horizon-client/assets/zenith/**`, the translator files under `crates/horizon-protocol/src/adapter/` |
 | **Ours, but Horizon has the file too** (`merge=ours` in `.gitattributes`) | `README.md`, `CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE/config.yml` |
 | **Horizon's, with a small Zenith edit** (`// zenith:` markers) | a dozen files under `crates/` and `xtask/src/main.rs` (the list is in `zenith/ci/zenith-manifest.json`) |
-| **Inherited and kept as they are** | everything else: `crates/**`, `tests/`, `tools/`, `docs/` (except pruned files), `ROADMAP.md`, `AGENTS.md`, `CLAUDE.md`, `THIRD_PARTY_NOTICES.md`... They describe Horizon's project |
-| **Pruned** (Zenith never uses them; deleted and kept deleted by the sync) | the dedicated server and bots, Horizon's Rust launcher, the telemetry server, the mod registry service, historical `benchmarks/`, Horizon's CI workflows. The list is `zenith/ci/prune-paths.txt` |
+| **Inherited and kept as they are** | everything else: `crates/**`, `tests/`, `tools/`, `docs/` (except pruned files), `AGENTS.md`, `CLAUDE.md`, `THIRD_PARTY_NOTICES.md`... They describe Horizon's project |
+| **Pruned** (Zenith never uses them; deleted and kept deleted by the sync) | the dedicated server and bots, Horizon's Rust launcher, the telemetry server, the mod registry service, historical `benchmarks/`, Horizon's planning board (`roadmap/`, `ROADMAP.md`), the screenshots in `docs/media/` (except `docs/media/brand/`) and Horizon's CI workflows. The list is `zenith/ci/prune-paths.txt` |
 
 Zenith is client-only: the integrated single-player server lives inside `horizon-client`, so `horizon-server` and `horizon-bots` are not needed to build or test the client. A crate that a client crate depends on is never pruned (`horizon-server-files`, `horizon-mcp`, `horizon-bench`... stay).
 
@@ -73,7 +73,7 @@ Edit `zenith/ci/prune-paths.txt` (directory prefixes end in `/`, `!` keeps). Run
 
 - On-screen name "Zenith" and none of Horizon's servers.
 - Server version translator, on by default, with a per-server selector (`crates/horizon-client/src/zenith_versions.rs`). It comes from Horizon PR #8718, which is still a draft. See [`zenith/SERVERS.md`](zenith/SERVERS.md).
-- Bridge and launcher (`zenith/bridge`, `zenith/launcher`): checks the account owns the game, installs the signed builds and starts the client.
+- Bridge and launcher (`zenith/bridge`, `zenith/launcher-interim`): checks the account owns the game, installs the signed builds and starts the client.
 - Client only: see "Repository layout". The one edit in Horizon's files for this is the `TOOLS` list in `xtask/src/main.rs` (marked `// zenith:`).
 
 ### Version translator (PR #8718)
@@ -98,7 +98,7 @@ python -m unittest discover zenith/ci                # sync, prune, intact and l
 python zenith/ci/check_links.py                      # relative links in our markdown
 ```
 
-Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` and the moving `nightly` release (`zenith/ci/zenith_publish.sh`). The installer is built with `zenith/launcher/build.sh` (see the script header).
+Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` and the moving `nightly` release (`zenith/ci/zenith_publish.sh`). The installer is built with `zenith/launcher-interim/build.sh` (see the script header).
 
 Binary and variable names are still Horizon's: `horizon-client`, `horizon-prepare`, `HORIZON_HOME`, `HORIZON_OLDER_SERVERS`, etc.
 
@@ -115,14 +115,14 @@ Not verified: real Play from the launcher, the real owner API response, server a
 
 ## Launcher
 
-Zenith Launcher is our own fork of XMCL (Voxelum, MIT, Electron + Vue), renamed and re-branded, with the Zenith bridge built in: <https://github.com/gitzetazero/zenith-launcher> (releases: <https://github.com/gitzetazero/zenith-launcher/releases>). It replaces the earlier plan of porting XMCL to Rust (archived as `gitzetazero/zenith-launcher-rust-port`) and the interim installer that bundled unmodified XMCL (`zenith/launcher/`).
+Zenith Launcher is our own fork of XMCL (Voxelum, MIT, Electron + Vue), renamed and re-branded, with the Zenith bridge built in: <https://github.com/gitzetazero/zenith-launcher> (releases: <https://github.com/gitzetazero/zenith-launcher/releases>). It replaces the earlier plan of porting XMCL to Rust (archived as `gitzetazero/zenith-launcher-rust-port`) and the interim installer that bundled unmodified XMCL (`zenith/launcher-interim/`).
 
 - Base: XMCL v0.73.1, kept mergeable with upstream (`git fetch upstream && git merge <tag>`); our changes are marked `// zenith:` or live in new files. Details, and the table of third-party IDs and endpoints XMCL embedded and what we did about each, are in the fork's `docs/ZENITH-LAUNCHER.md`.
 - No telemetry, no XMCL-hosted services. XMCL's Microsoft application ID is **not** used.
 - On first start the launcher creates the `Zenith` instance, whose Java is a copy of the bundled bridge.
 - The release workflow downloads the bridge from this repository's `nightly` release and verifies the Ed25519 signature of `SHA256SUMS` and the exe's SHA-256 before bundling it.
 - **Open problem:** Microsoft sign-in needs an Azure app of our own, approved by Mojang (`ZENITH_MSA_CLIENT_ID`). Until then it shows a clear message instead of signing in. The first releases are unsigned (SmartScreen warns) and not verified on third-party PCs.
-- `zenith/launcher/` (the interim installer built by `build.sh`) stays only while its release assets are still published; the fork's releases are the primary route.
+- `zenith/launcher-interim/` (the interim installer built by `build.sh`) stays only while its release assets are still published; the fork's releases are the primary route.
 
 ## Legal notice
 

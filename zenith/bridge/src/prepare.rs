@@ -229,8 +229,8 @@ pub fn run_prepare(mut cmd: Command, emit: &mut dyn FnMut(Stream, &str)) -> Resu
         Ok(())
     } else {
         Err(format!(
-            "No se pudieron preparar los recursos de Horizon: {} (código {code}).",
-            failure.as_deref().unwrap_or("mira el registro")
+            "Could not prepare Horizon's resources: {} (code {code}).",
+            failure.as_deref().unwrap_or("see the log")
         ))
     }
 }

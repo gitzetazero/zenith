@@ -64,5 +64,5 @@ fn game_launch_of_another_main_class_is_refused() {
     );
     assert_eq!(out.status.code(), Some(1));
     let err = String::from_utf8_lossy(&out.stderr);
-    assert!(err.contains("no es un Minecraft de Zenith"), "{err}");
+    assert!(err.contains("is not a Zenith Minecraft"), "{err}");
 }

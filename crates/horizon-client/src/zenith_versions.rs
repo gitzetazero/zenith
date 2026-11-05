@@ -163,13 +163,13 @@ fn name_label(name: &str) -> String {
     }
 }
 
-/// The Edit-server button's label: "Versión: Automática" or "Versión: 26.2".
+/// The Edit-server button's label: "Version: Automatic" or "Version: 26.2".
 pub fn version_label(v: Option<ServerVersion>) -> String {
     let value = match v {
         Some(v) => name_label(v.name()),
-        None => crate::lang::get_or("zenith.multiplayer.version.auto", "Automática"),
+        None => crate::lang::get_or("zenith.multiplayer.version.auto", "Automatic"),
     };
-    crate::lang::get_or("zenith.multiplayer.version", "Versión: %s").replacen("%s", &value, 1)
+    crate::lang::get_or("zenith.multiplayer.version", "Version: %s").replacen("%s", &value, 1)
 }
 
 /// The overrides are process-wide: tests that touch them take turns.
@@ -346,7 +346,7 @@ mod tests {
     fn label_marks_below_1_21_8_experimental() {
         assert_eq!(name_label("1.21.4"), "1.21.4 (experimental)");
         assert_eq!(name_label("1.21.8"), "1.21.8");
-        assert_eq!(version_label(None), "Versión: Automática");
+        assert_eq!(version_label(None), "Version: Automatic");
     }
     #[test]
     fn with_version_appends_name() {

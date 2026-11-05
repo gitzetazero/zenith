@@ -431,12 +431,12 @@ fn offline_fails_after_one_try_saying_so() {
     let f = |_: &str| -> Result<Option<Vec<u8>>, String> {
         n.set(n.get() + 1);
         Err(format!(
-            "{} o GitHub no responde (dns)",
+            "{} or GitHub is not answering (dns)",
             zenith_bridge::builds::OFFLINE
         ))
     };
     let e = update(&s, &key(), &f).unwrap_err();
-    assert!(e.starts_with("sin conexión"), "{e}");
+    assert!(e.starts_with("no internet connection"), "{e}");
     assert_eq!(n.get(), 1);
 }
 
