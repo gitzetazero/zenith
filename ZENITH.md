@@ -62,7 +62,7 @@ Sin verificar: Play real desde XMCL, respuesta real de la API de propietario, el
 
 Estado: **empezando**. La fase 6 traduce XMCL v0.73.1 (MIT, TypeScript/Vue/Electron) a Rust, como programa propio de Zenith. Hay un esqueleto que abre una ventana, un inventario de lo que hay que traducir y una primera pieza portada con sus tests (el esquema de `instance.json`). No sirve todavía para jugar y no tiene inicio de sesión.
 
-Dónde está: repositorio local, pendiente de que el usuario autorice publicarlo. No tiene remoto; no hay repositorio en GitHub.
+Dónde está: https://github.com/gitzetazero/zenith-launcher (publicado el 2026-11-05 por indicacion del usuario). No tiene remoto; no hay repositorio en GitHub.
 
 Plan por etapas (detalle en `docs/xmcl-parity.md` del repositorio del launcher, que es el contrato):
 
