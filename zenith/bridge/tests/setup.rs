@@ -1,5 +1,5 @@
 use std::path::{Path, PathBuf};
-use zenith_bridge::setup::{Env, command_fits, quote_prepend, setup, write_instance};
+use zenith_bridge::setup::{Env, setup, use_version, write_instance};
 
 fn tmp(tag: &str) -> PathBuf {
     static N: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
@@ -10,11 +10,10 @@ fn tmp(tag: &str) -> PathBuf {
     d
 }
 
-fn env(base: &Path, fits: fn(usize, usize) -> bool) -> Env {
+fn env(base: &Path) -> Env {
     Env {
         appdata: base.join("appdata"),
-        default_root: base.join("xmcl"),
-        fits,
+        home: base.join("zenith home Ñ"),
         xmcl_running: || false,
     }
 }
@@ -33,87 +32,153 @@ fn root_file(e: &Env) -> PathBuf {
     e.appdata.join("xmcl").join("root")
 }
 
-#[test]
-fn command_fits_matches_the_measured_limit() {
-    // bridge = <root>\zenith-bridge.exe
-    assert!(command_fits(7, 7 + 18)); // C:\xmcl
-    assert!(command_fits(19, 19 + 18)); // the last length measured to run
-    assert!(!command_fits(20, 20 + 18)); // measured to fail
-    assert!(!command_fits(36, 36 + 18));
+/// A good XMCL root (with a space in it) recorded in `root`.
+fn good_root(base: &Path, e: &Env) -> PathBuf {
+    let root = base.join("mi xmcl");
+    std::fs::create_dir_all(&root).unwrap();
+    std::fs::create_dir_all(root_file(e).parent().unwrap()).unwrap();
+    std::fs::write(root_file(e), format!("{}\r\n", root.display())).unwrap();
+    root
+}
+
+fn instance(root: &Path) -> serde_json::Value {
+    serde_json::from_slice(&std::fs::read(root.join("instances/Zenith/instance.json")).unwrap())
+        .unwrap()
+}
+
+fn nothing_written(base: &Path, e: &Env) {
+    assert!(!e.home.exists(), "home created");
+    assert!(!base.join("xmcl").exists());
 }
 
 #[test]
-fn absent_root_is_created_with_instance() {
+fn absent_root_is_refused_and_nothing_is_created() {
     let base = tmp("absent");
-    let e = env(&base, |_, _| true);
-    let exe = fake_exe(&base);
-    let out = setup(&e, &exe, mc).unwrap();
-    let root = std::fs::read_to_string(root_file(&e)).unwrap();
-    assert_eq!(root, e.default_root.to_string_lossy());
-    assert!(e.default_root.join("zenith-bridge.exe").is_file());
-    let v: serde_json::Value = serde_json::from_slice(
-        &std::fs::read(e.default_root.join("instances/Zenith/instance.json")).unwrap(),
-    )
-    .unwrap();
+    let e = env(&base);
+    let err = setup(&e, &fake_exe(&base), || panic!("no network")).unwrap_err();
+    assert!(err.contains("Abre XMCL una vez"), "{err}");
+    assert!(!e.appdata.exists());
+    nothing_written(&base, &e);
+}
+
+#[test]
+fn odd_roots_are_refused_and_untouched() {
+    let cases: [(&str, Vec<u8>); 4] = [
+        ("empty", b"  \r\n".to_vec()),
+        ("utf8", vec![0xff, 0xfe, 0x41]),
+        ("missing", b"Z:\\no\\existe\\xmcl".to_vec()),
+        ("dirnotfile", b"".to_vec()),
+    ];
+    for (tag, content) in cases {
+        let base = tmp(tag);
+        let e = env(&base);
+        std::fs::create_dir_all(root_file(&e).parent().unwrap()).unwrap();
+        if tag == "dirnotfile" {
+            std::fs::create_dir(root_file(&e)).unwrap(); // reading it fails with something other than NotFound
+        } else {
+            std::fs::write(root_file(&e), &content).unwrap();
+        }
+        let err = setup(&e, &fake_exe(&base), || panic!("no network")).unwrap_err();
+        assert!(err.contains("No he cambiado nada"), "{tag}: {err}");
+        if tag != "dirnotfile" {
+            assert_eq!(std::fs::read(root_file(&e)).unwrap(), content);
+        }
+        nothing_written(&base, &e);
+    }
+}
+
+#[test]
+fn good_root_installs_shim_and_instance() {
+    let base = tmp("good");
+    let e = env(&base);
+    let root = good_root(&base, &e);
+    let out = setup(&e, &fake_exe(&base), mc).unwrap();
+    assert_eq!(std::fs::read(e.java_exe()).unwrap(), b"bridge bytes");
+    assert_eq!(
+        std::fs::read(e.java_exe().with_file_name("javaw.exe")).unwrap(),
+        b"bridge bytes"
+    );
+    let v = instance(&root);
     assert_eq!(v["name"], "Zenith");
     assert_eq!(v["runtime"]["minecraft"], "26.3");
-    assert!(v.get("java").is_none());
+    assert_eq!(v["prependCommand"], "");
+    // the Ñ and the space survive JSON
+    assert_eq!(v["java"], e.java_exe().to_string_lossy().as_ref());
     assert!(out.join("\n").contains("Microsoft"));
+    // nothing under XMCL's own folders but the instance
+    assert!(!root.join("jre").exists());
 }
 
 #[test]
-fn existing_root_is_reused_even_with_trailing_newline() {
-    let base = tmp("reuse");
-    let e = env(&base, |_, _| true);
-    let mine = base.join("mi xmcl");
-    std::fs::create_dir_all(root_file(&e).parent().unwrap()).unwrap();
-    std::fs::write(root_file(&e), format!("{}\r\n", mine.display())).unwrap();
-    setup(&e, &fake_exe(&base), mc).unwrap();
-    assert!(mine.join("instances/Zenith/instance.json").is_file());
-    assert!(!e.default_root.exists());
+fn identical_rerun_changes_nothing() {
+    let base = tmp("again");
+    let e = env(&base);
+    good_root(&base, &e);
+    let exe = fake_exe(&base);
+    setup(&e, &exe, mc).unwrap();
+    let out = setup(&e, &exe, mc).unwrap().join("\n");
+    assert!(out.contains("ya estaba al día"), "{out}");
+    assert!(out.contains("ya estaba instalado"), "{out}");
 }
 
 #[test]
-fn too_long_root_is_refused_and_untouched() {
-    let base = tmp("long");
-    let e = env(&base, command_fits);
-    let long = base.join("a".repeat(60));
-    std::fs::create_dir_all(root_file(&e).parent().unwrap()).unwrap();
-    std::fs::write(root_file(&e), long.to_string_lossy().as_bytes()).unwrap();
-    let err = setup(&e, &fake_exe(&base), || {
-        panic!("no network before refusing")
+fn offline_note_is_shown() {
+    let base = tmp("note");
+    let e = env(&base);
+    good_root(&base, &e);
+    let out = setup(&e, &fake_exe(&base), || {
+        ("26.3".into(), Some("sin conexión".into()))
     })
-    .unwrap_err();
-    assert!(err.contains("8191"), "{err}");
-    assert_eq!(
-        std::fs::read_to_string(root_file(&e)).unwrap(),
-        long.to_string_lossy()
-    );
-    assert!(!long.exists());
+    .unwrap();
+    assert!(out.contains(&"sin conexión".to_string()));
 }
 
 #[test]
-fn quotes_path_with_spaces_and_enie() {
-    let p = Path::new(r"C:\Users\Jose Ñ\bridge dir\zenith-bridge.exe");
-    assert_eq!(quote_prepend(p), format!("\"{}\"", p.display()));
-    let base = tmp("quote");
-    let (file, _) = write_instance(&base, p, "26.3").unwrap();
-    let v: serde_json::Value = serde_json::from_slice(&std::fs::read(file).unwrap()).unwrap();
-    assert_eq!(
-        v["prependCommand"],
-        "\"C:\\Users\\Jose Ñ\\bridge dir\\zenith-bridge.exe\""
-    );
+fn running_xmcl_is_reported_with_restart() {
+    let base = tmp("running");
+    let mut e = env(&base);
+    e.xmcl_running = || true;
+    good_root(&base, &e);
+    let out = setup(&e, &fake_exe(&base), mc).unwrap().join("\n");
+    assert!(out.contains("ábrelo de nuevo"), "{out}");
+}
+
+#[cfg(windows)]
+#[test]
+fn locked_shim_is_reported_and_old_copy_kept() {
+    use std::os::windows::fs::OpenOptionsExt;
+    let base = tmp("locked");
+    let e = env(&base);
+    good_root(&base, &e);
+    let exe = fake_exe(&base);
+    setup(&e, &exe, mc).unwrap();
+    std::fs::write(&exe, b"newer bridge").unwrap();
+    // like a running exe: open without sharing delete/write
+    let _lock = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(1)
+        .open(e.java_exe().with_file_name("javaw.exe"))
+        .unwrap();
+    let _lock2 = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(1)
+        .open(e.java_exe())
+        .unwrap();
+    let err = setup(&e, &exe, mc).unwrap_err();
+    assert!(err.contains("cierra el juego"), "{err}");
+    assert_eq!(std::fs::read(e.java_exe()).unwrap(), b"bridge bytes");
+    assert!(!e.java_exe().with_extension("exe.new").exists());
 }
 
 #[test]
-fn existing_instance_is_kept_with_bak_and_user_fields() {
+fn existing_instance_keeps_unknown_fields_and_first_bak() {
     let base = tmp("keep");
-    let exe = Path::new("zenith-bridge.exe");
+    let java = Path::new(r"C:\Users\José Ñ\zenith\java\bin\java.exe");
     let dir = base.join("instances/Zenith");
     std::fs::create_dir_all(&dir).unwrap();
-    let old = r#"{"name":"Zenith","runtime":{"minecraft":"1.0"},"maxMemory":4096}"#;
+    let old = r#"{"name":"Zenith","runtime":{"minecraft":"1.0","forge":"x"},"maxMemory":4096,"prependCommand":"foo"}"#;
     std::fs::write(dir.join("instance.json"), old).unwrap();
-    let (file, changed) = write_instance(&base, exe, "26.3").unwrap();
+    let (file, changed) = write_instance(&base, java, "26.3").unwrap();
     assert!(changed);
     assert_eq!(
         std::fs::read_to_string(dir.join("instance.json.bak")).unwrap(),
@@ -121,9 +186,23 @@ fn existing_instance_is_kept_with_bak_and_user_fields() {
     );
     let v: serde_json::Value = serde_json::from_slice(&std::fs::read(&file).unwrap()).unwrap();
     assert_eq!(v["maxMemory"], 4096);
+    assert_eq!(v["runtime"]["forge"], "x");
     assert_eq!(v["runtime"]["minecraft"], "26.3");
-    // again: nothing changes
-    let (_, changed) = write_instance(&base, exe, "26.3").unwrap();
+    assert_eq!(v["prependCommand"], "");
+    assert_eq!(v["java"], java.to_string_lossy().as_ref());
+    // the raw file has the backslashes escaped
+    assert!(
+        std::fs::read_to_string(&file)
+            .unwrap()
+            .contains(r"C:\\Users\\José Ñ")
+    );
+    // a later change must not overwrite the first .bak
+    write_instance(&base, java, "26.4").unwrap();
+    assert_eq!(
+        std::fs::read_to_string(dir.join("instance.json.bak")).unwrap(),
+        old
+    );
+    let (_, changed) = write_instance(&base, java, "26.4").unwrap();
     assert!(!changed);
 }
 
@@ -133,7 +212,7 @@ fn unreadable_instance_is_backed_up_not_lost() {
     let dir = base.join("instances/Zenith");
     std::fs::create_dir_all(&dir).unwrap();
     std::fs::write(dir.join("instance.json"), "{not json").unwrap();
-    write_instance(&base, Path::new("b.exe"), "26.3").unwrap();
+    write_instance(&base, Path::new("j.exe"), "26.3").unwrap();
     assert_eq!(
         std::fs::read_to_string(dir.join("instance.json.bak")).unwrap(),
         "{not json"
@@ -141,30 +220,16 @@ fn unreadable_instance_is_backed_up_not_lost() {
 }
 
 #[test]
-fn bridge_copy_is_replaced_when_different() {
-    let base = tmp("copy");
-    let e = env(&base, |_, _| true);
-    let exe = fake_exe(&base);
-    setup(&e, &exe, mc).unwrap();
-    std::fs::write(&exe, b"newer bridge").unwrap();
-    setup(&e, &exe, mc).unwrap();
-    assert_eq!(
-        std::fs::read(e.default_root.join("zenith-bridge.exe")).unwrap(),
-        b"newer bridge"
-    );
-}
-
-#[test]
 fn use_pins_installed_builds_only() {
     let home = tmp("use");
     std::fs::create_dir_all(home.join("builds/v1")).unwrap();
-    let err = zenith_bridge::setup::use_version(&home, "v2").unwrap_err();
+    let err = use_version(&home, "v2").unwrap_err();
     assert!(err.contains("v1"), "{err}");
-    zenith_bridge::setup::use_version(&home, "v1").unwrap();
+    use_version(&home, "v1").unwrap();
     assert_eq!(
         std::fs::read_to_string(home.join("pinned.txt")).unwrap(),
         "v1"
     );
-    zenith_bridge::setup::use_version(&home, "latest").unwrap();
+    use_version(&home, "latest").unwrap();
     assert!(!home.join("pinned.txt").exists());
 }

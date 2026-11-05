@@ -45,21 +45,53 @@ fn message_box(text: &str, kind: u32) {
 /// Prints to the parent console if there is one (or to a redirected stdout); otherwise a dialog.
 #[cfg(windows)]
 fn show_text(text: &str, ok: bool) {
+    use std::os::windows::io::AsRawHandle;
     #[link(name = "kernel32")]
     unsafe extern "system" {
         fn AttachConsole(pid: u32) -> i32;
         fn GetStdHandle(which: u32) -> isize;
+        fn GetConsoleMode(h: isize, mode: *mut u32) -> i32;
+        fn WriteConsoleW(
+            h: isize,
+            buf: *const u16,
+            len: u32,
+            written: *mut u32,
+            reserved: *const std::ffi::c_void,
+        ) -> i32;
     }
     // ATTACH_PARENT_PROCESS = -1; STD_OUTPUT_HANDLE = -11; a GUI exe has a null/invalid handle unless redirected
     let attached = unsafe { AttachConsole(u32::MAX) } != 0;
-    let h = unsafe { GetStdHandle(-11i32 as u32) };
-    if h != 0 && h != -1 {
-        let _ = writeln!(std::io::stdout(), "{text}");
-    } else if attached && let Ok(mut con) = std::fs::OpenOptions::new().write(true).open("CONOUT$")
-    {
-        let _ = writeln!(con, "{text}");
+    let mut h = unsafe { GetStdHandle(-11i32 as u32) };
+    let con = if (h == 0 || h == -1) && attached {
+        std::fs::OpenOptions::new().write(true).open("CONOUT$").ok()
     } else {
+        None
+    };
+    if let Some(f) = &con {
+        h = f.as_raw_handle() as isize;
+    }
+    if h == 0 || h == -1 {
         message_box(text, if ok { 0x40 } else { 0x10 }); // MB_ICONINFORMATION / MB_ICONERROR
+        return;
+    }
+    let mut mode = 0u32;
+    if unsafe { GetConsoleMode(h, &mut mode) } != 0 {
+        // a console: UTF-16, so accents show whatever its code page is
+        let wide: Vec<u16> = format!("{}\r\n", text.replace('\n', "\r\n"))
+            .encode_utf16()
+            .collect();
+        let mut written = 0u32;
+        unsafe {
+            WriteConsoleW(
+                h,
+                wide.as_ptr(),
+                wide.len() as u32,
+                &mut written,
+                std::ptr::null(),
+            )
+        };
+    } else {
+        let _ = writeln!(std::io::stdout(), "{text}"); // a pipe or file: UTF-8
     }
 }
 
@@ -70,11 +102,18 @@ fn show_text(text: &str, _: bool) {
 
 /// `setup`, `status`, `use`, `help`. None for anything else (that is XMCL calling).
 fn cli(argv: &[String], store: &Store) -> Option<i32> {
-    let env = setup::Env::from_env();
+    let env = setup::Env::from_env(&store.root);
     let result: Result<String, String> = match argv.first().map(String::as_str)? {
         "help" => Ok(setup::HELP.into()),
-        "status" => Ok(setup::status(&env, &store.root).join("
-")),
+        "status" => {
+            let java = zenith_bridge::java::find_installed(
+                &store.root,
+                "java-runtime-epsilon",
+                &zenith_bridge::java::system_candidates(),
+                &zenith_bridge::java::probe_major,
+            );
+            Ok(setup::status(&env, java).join("\n"))
+        }
         "use" => match argv.get(1) {
             Some(v) => setup::use_version(&store.root, v),
             None => Err("Uso: zenith-bridge use <versión|latest>".into()),
@@ -100,8 +139,7 @@ fn cli(argv: &[String], store: &Store) -> Option<i32> {
                         }
                     }
                 })
-                .map(|l| l.join("
-"))
+                .map(|l| l.join("\n"))
             }),
         _ => return None,
     };

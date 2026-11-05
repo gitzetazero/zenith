@@ -1,56 +1,31 @@
-//! `zenith-bridge setup`: puts the bridge and a "Zenith" instance where XMCL will find them.
+//! `zenith-bridge setup`: installs the bridge as the "Java" of an XMCL instance called Zenith.
+//! The instance's `java` points at `<home>\java\bin\java.exe` (SPIKE.md section 10): no cmd.exe, no length limit.
 
 use crate::builds::Store;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 
-const LIMIT: usize = 8191; // cmd.exe's command line limit (SPIKE.md section 2)
-// Measured with Minecraft 26.3: 8122 chars at root 19 / bridge 70 => 6494 + 82 per root char + 1 per bridge char.
-const BASE: usize = 6494;
-const MARGIN: usize = 100; // other versions have more libraries; this errs on refusing
-const BRIDGE_NAME: &str = "zenith-bridge.exe";
 pub const FALLBACK_MINECRAFT: &str = "26.3";
-
-/// Whether XMCL's launch line (run through cmd.exe because of the prepend command) fits.
-pub fn command_fits(root_len: usize, bridge_path_len: usize) -> bool {
-    BASE + 82 * root_len + bridge_path_len + MARGIN <= LIMIT
-}
-
-/// `<root>\zenith-bridge.exe` for a root of `n` characters.
-fn root_fits(fits: fn(usize, usize) -> bool, root: &Path) -> bool {
-    let n = root.to_string_lossy().chars().count();
-    fits(n, n + 1 + BRIDGE_NAME.len())
-}
-
-fn max_root_len(fits: fn(usize, usize) -> bool) -> usize {
-    (1..100)
-        .take_while(|&r| fits(r, r + 1 + BRIDGE_NAME.len()))
-        .last()
-        .unwrap_or(0)
-}
-
-/// XMCL splits this field on spaces unless the path is in double quotes (SPIKE.md section 2).
-pub fn quote_prepend(exe: &Path) -> String {
-    format!("\"{}\"", exe.display())
-}
 
 pub struct Env {
     /// `%APPDATA%`: XMCL keeps `xmcl\root` here.
     pub appdata: PathBuf,
-    /// Where the data root goes when XMCL never ran (`C:\xmcl`).
-    pub default_root: PathBuf,
-    pub fits: fn(usize, usize) -> bool,
+    /// Zenith's home (`%APPDATA%\zenith` or `ZENITH_HOME`).
+    pub home: PathBuf,
     pub xmcl_running: fn() -> bool,
 }
 
 impl Env {
-    pub fn from_env() -> Env {
+    pub fn from_env(home: &Path) -> Env {
         Env {
             appdata: std::env::var_os("APPDATA").unwrap_or_default().into(),
-            default_root: PathBuf::from(r"C:\xmcl"),
-            fits: command_fits,
+            home: home.to_path_buf(),
             xmcl_running,
         }
+    }
+
+    pub fn java_exe(&self) -> PathBuf {
+        self.home.join("java").join("bin").join("java.exe")
     }
 }
 
@@ -63,16 +38,54 @@ fn xmcl_running() -> bool {
     })
 }
 
-/// XMCL's data root as stored in `%APPDATA%\xmcl\root` (trimmed, like XMCL does).
+/// XMCL's data root as stored in `%APPDATA%\xmcl\root` (trimmed, like XMCL does), for display.
 pub fn xmcl_root(appdata: &Path) -> Option<PathBuf> {
     let text = std::fs::read_to_string(appdata.join("xmcl").join("root")).ok()?;
     let text = text.trim();
     (!text.is_empty()).then(|| PathBuf::from(text))
 }
 
-/// Writes (or updates) `<root>/instances/Zenith/instance.json`; true if it changed.
-/// An existing file keeps its other settings; its previous content is saved as `instance.json.bak`.
-pub fn write_instance(root: &Path, exe: &Path, minecraft: &str) -> Result<(PathBuf, bool), String> {
+/// The root for `setup`. Only a missing file means "XMCL never ran"; anything odd is refused untouched.
+fn strict_root(appdata: &Path) -> Result<PathBuf, String> {
+    let file = appdata.join("xmcl").join("root");
+    let bytes = match std::fs::read(&file) {
+        Ok(b) => b,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+            return Err("XMCL aún no está inicializado. Abre XMCL una vez, elige la carpeta de datos y vuelve a ejecutar «zenith-bridge setup». No he creado nada.".into());
+        }
+        Err(e) => {
+            return Err(format!(
+                "No puedo leer {} ({e}). No he cambiado nada.",
+                file.display()
+            ));
+        }
+    };
+    let text = String::from_utf8(bytes)
+        .map_err(|_| format!("{} no es texto UTF-8. No he cambiado nada.", file.display()))?;
+    let text = text.trim();
+    if text.is_empty() {
+        return Err(format!(
+            "{} está vacío. Abre XMCL, elige la carpeta de datos y vuelve a ejecutar «setup». No he cambiado nada.",
+            file.display()
+        ));
+    }
+    let root = PathBuf::from(text);
+    if !root.is_dir() {
+        return Err(format!(
+            "La carpeta de datos de XMCL ({}) no existe. Ábrela en XMCL o corrígela y vuelve a ejecutar «setup». No he cambiado nada.",
+            root.display()
+        ));
+    }
+    Ok(root)
+}
+
+/// Writes (or updates) `<root>/instances/Zenith/instance.json`; true if it changed. An existing
+/// file keeps its other settings. `instance.json.bak` is written only if there is none yet.
+pub fn write_instance(
+    root: &Path,
+    java_exe: &Path,
+    minecraft: &str,
+) -> Result<(PathBuf, bool), String> {
     let dir = root.join("instances").join("Zenith");
     let file = dir.join("instance.json");
     let old = std::fs::read_to_string(&file).ok();
@@ -86,34 +99,35 @@ pub fn write_instance(root: &Path, exe: &Path, minecraft: &str) -> Result<(PathB
         v["runtime"] = json!({});
     }
     v["runtime"]["minecraft"] = minecraft.into();
-    v["prependCommand"] = quote_prepend(exe).into();
+    v["java"] = java_exe.to_string_lossy().as_ref().into();
+    v["prependCommand"] = "".into(); // an explicit empty string also overrides XMCL's global one
     if parsed.as_ref() == Some(&v) {
         return Ok((file, false));
     }
     let new = serde_json::to_string_pretty(&v).map_err(|e| e.to_string())?;
     std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-    if old.is_some() {
-        std::fs::copy(&file, dir.join("instance.json.bak")).map_err(|e| e.to_string())?;
+    let bak = dir.join("instance.json.bak");
+    if old.is_some() && !bak.exists() {
+        std::fs::copy(&file, &bak).map_err(|e| e.to_string())?;
     }
     std::fs::write(&file, new).map_err(|e| format!("{}: {e}", file.display()))?;
     Ok((file, true))
 }
 
-/// Copies the running bridge to `dst` unless it is already identical; true if it copied.
-fn install_bridge(src: &Path, dst: &Path) -> Result<bool, String> {
-    let bytes = std::fs::read(src).map_err(|e| format!("{}: {e}", src.display()))?;
-    if std::fs::read(dst).is_ok_and(|d| d == bytes) {
+/// Copies `src` to `dst` unless identical (atomically: temp file + rename); true if it copied.
+fn install_copy(src: &[u8], dst: &Path) -> Result<bool, String> {
+    if std::fs::read(dst).is_ok_and(|d| d == src) {
         return Ok(false);
     }
     if let Some(dir) = dst.parent() {
         std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     }
     let tmp = dst.with_extension("exe.new");
-    std::fs::write(&tmp, &bytes).map_err(|e| format!("{}: {e}", tmp.display()))?;
+    std::fs::write(&tmp, src).map_err(|e| format!("{}: {e}", tmp.display()))?;
     std::fs::rename(&tmp, dst).map_err(|e| {
         let _ = std::fs::remove_file(&tmp);
         format!(
-            "no se pudo reemplazar {} (¿hay una partida abierta?): {e}",
+            "No puedo reemplazar {} ({e}): cierra el juego y vuelve a ejecutar setup. La copia anterior sigue en su sitio.",
             dst.display()
         )
     })?;
@@ -127,77 +141,47 @@ pub fn setup(
     exe: &Path,
     minecraft: impl FnOnce() -> (String, Option<String>),
 ) -> Result<Vec<String>, String> {
-    let mut out = Vec::new();
-    let (root, created) = match xmcl_root(&env.appdata) {
-        Some(root) => {
-            if !root_fits(env.fits, &root) {
-                return Err(format!(
-                    "La carpeta de datos de XMCL ({}) es demasiado larga. Con un comando previo, XMCL lanza el juego a través de cmd.exe, que rechaza líneas de más de {LIMIT} caracteres, y Minecraft 26.3 necesita una carpeta de datos de como máximo {} caracteres (por ejemplo C:\\xmcl).\n\
-                     No he cambiado nada. Qué hacer: en XMCL, Ajustes, cambia la carpeta de datos a una ruta corta y vuelve a ejecutar «zenith-bridge setup». Si no tienes datos de XMCL que conservar, borra el archivo %APPDATA%\\xmcl\\root y vuelve a ejecutar «setup».",
-                    root.display(),
-                    max_root_len(env.fits)
-                ));
-            }
-            (root, false)
-        }
-        None => {
-            let root = env.default_root.clone();
-            if !root_fits(env.fits, &root) {
-                return Err(format!("{} es demasiado larga para XMCL.", root.display()));
-            }
-            let conf = env.appdata.join("xmcl");
-            std::fs::create_dir_all(&conf)
-                .and_then(|_| std::fs::create_dir_all(&root))
-                .and_then(|_| std::fs::write(conf.join("root"), root.to_string_lossy().as_bytes()))
-                .map_err(|e| format!("no se pudo preparar la carpeta de datos de XMCL: {e}"))?;
-            (root, true)
-        }
-    };
-    out.push(if created {
-        format!(
-            "XMCL aún no se había abierto: he fijado su carpeta de datos en {}.",
-            root.display()
-        )
-    } else {
-        format!("Carpeta de datos de XMCL: {}", root.display())
-    });
+    let root = strict_root(&env.appdata)?;
+    let mut out = vec![format!("Carpeta de datos de XMCL: {}", root.display())];
 
-    let dst = root.join(BRIDGE_NAME);
-    out.push(if install_bridge(exe, &dst)? {
-        format!("Puente instalado en {}.", dst.display())
+    let bytes = std::fs::read(exe).map_err(|e| format!("{}: {e}", exe.display()))?;
+    let java = env.java_exe();
+    let javaw = java.with_file_name("javaw.exe");
+    // two independent copies, not links: XMCL tells files apart by inode
+    let a = install_copy(&bytes, &java)?;
+    let b = install_copy(&bytes, &javaw)?;
+    out.push(if a || b {
+        format!("«Java» de Zenith instalado en {}.", java.display())
     } else {
-        "El puente ya estaba instalado.".into()
+        "El «Java» de Zenith ya estaba instalado.".into()
     });
 
     let (version, note) = minecraft();
     out.extend(note);
-    let (file, changed) = write_instance(&root, &dst, &version)?;
+    let (file, changed) = write_instance(&root, &java, &version)?;
     out.push(if changed {
         format!(
-            "Instancia «Zenith» (Minecraft {version}) escrita en {}. Si ya existía, la anterior quedó como instance.json.bak.",
+            "Instancia «Zenith» (Minecraft {version}) escrita en {}. Si ya existía, la primera versión quedó como instance.json.bak.",
             file.display()
         )
     } else {
         "La instancia «Zenith» ya estaba al día: no he cambiado nada.".into()
     });
     if (env.xmcl_running)() {
-        out.push(
-            "XMCL está abierto: ciérralo del todo y ábrelo de nuevo para que cargue la instancia."
-                .into(),
-        );
+        out.push("XMCL está abierto: cierra XMCL del todo y ábrelo de nuevo; la instancia se aplica al reiniciarlo.".into());
     }
     out.push(String::new());
     out.push("Siguientes pasos:".into());
     out.push("1. Abre XMCL e inicia sesión con tu cuenta de Microsoft (debe tener Minecraft: Java Edition).".into());
     out.push("2. Elige la instancia «Zenith» y pulsa Jugar.".into());
-    out.push(format!("3. La primera vez XMCL descarga Minecraft {version} y Java (es normal) y Zenith prepara sus recursos (de unos 30 segundos a unos minutos)."));
+    out.push(format!("3. La primera vez XMCL descarga Minecraft {version} (es normal; el Java que verá en la lista es el de Zenith) y Zenith prepara sus recursos y, si no hay un Java 25 instalado, descarga el de Mojang (de unos 30 segundos a unos minutos)."));
     Ok(out)
 }
 
-/// Lines for `zenith-bridge status`.
-pub fn status(env: &Env, home: &Path) -> Vec<String> {
+/// Lines for `zenith-bridge status`. `java` is an already-installed Java 25 for the preparer, if any.
+pub fn status(env: &Env, java: Option<PathBuf>) -> Vec<String> {
     let store = Store {
-        root: home.to_path_buf(),
+        root: env.home.clone(),
     };
     let root = xmcl_root(&env.appdata);
     let yes = |b: bool| if b { "sí" } else { "no" };
@@ -216,6 +200,17 @@ pub fn status(env: &Env, home: &Path) -> Vec<String> {
                 .is_some_and(|r| r.join("instances/Zenith/instance.json").is_file()))
         ),
         format!(
+            "«Java» de Zenith instalado: {}",
+            yes(env.java_exe().is_file() && env.java_exe().with_file_name("javaw.exe").is_file())
+        ),
+        format!(
+            "Java 25 para preparar recursos: {}",
+            java.map_or(
+                "ninguno (se descargará el de Mojang al jugar)".into(),
+                |j| j.display().to_string()
+            )
+        ),
+        format!(
             "Build instalada: {}",
             store
                 .current()
@@ -230,11 +225,11 @@ pub fn status(env: &Env, home: &Path) -> Vec<String> {
         ),
         format!(
             "Caché de cuenta (owners.json): {}",
-            yes(home.join("owners.json").is_file())
+            yes(env.home.join("owners.json").is_file())
         ),
         "Últimas líneas de bridge.log:".into(),
     ];
-    let log = std::fs::read_to_string(home.join("logs").join("bridge.log")).unwrap_or_default();
+    let log = std::fs::read_to_string(env.home.join("logs").join("bridge.log")).unwrap_or_default();
     let lines: Vec<&str> = log.lines().collect();
     for l in &lines[lines.len().saturating_sub(10)..] {
         let low = l.to_lowercase();
@@ -279,4 +274,4 @@ pub fn use_version(home: &Path, version: &str) -> Result<String, String> {
     ))
 }
 
-pub const HELP: &str = "zenith-bridge: Zenith (Horizon) para XMCL\n\n  setup            instala el puente y crea la instancia «Zenith» en XMCL\n  status           muestra el estado\n  use <versión>    fija una build instalada (para volver atrás)\n  use latest       vuelve a actualizar sola\n  help             esta ayuda\n\nXMCL lo ejecuta solo al pulsar Jugar.";
+pub const HELP: &str = "zenith-bridge: Zenith (Horizon) para XMCL\n\n  setup            instala el «Java» de Zenith y crea la instancia «Zenith» en XMCL\n  status           muestra el estado\n  use <versión>    fija una build instalada (para volver atrás)\n  use latest       vuelve a actualizar sola\n  help             esta ayuda\n\nXMCL lo ejecuta solo al pulsar Jugar.";

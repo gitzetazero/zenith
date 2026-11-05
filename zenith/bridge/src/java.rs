@@ -77,9 +77,29 @@ fn lower(p: &Path) -> String {
     p.to_string_lossy().replace('/', "\\").to_lowercase()
 }
 
-/// A usable Java 25+ home. `shim_dir` (`<home>\java`) is never probed: that is the bridge itself.
-/// Order: Zenith's own runtime, `candidates`, then Mojang's runtime downloaded into
-/// `<home>/java-runtime/<component>`. Call it only for an owner.
+fn usable(home: &Path, p: &Path, probe: &dyn Fn(&Path) -> Option<u32>) -> bool {
+    // `<home>\java` holds the bridge itself: never run it as a probe
+    let shim = lower(&home.join("java"));
+    let l = lower(p);
+    !(l == shim || l.starts_with(&format!("{shim}\\")))
+        && p.join("bin").join("java.exe").is_file()
+        && probe(p).is_some_and(|m| m >= MIN_MAJOR)
+}
+
+/// A usable Java 25+ home that is already on this machine: Zenith's own runtime, then `candidates`.
+pub fn find_installed(
+    home: &Path,
+    component: &str,
+    candidates: &[PathBuf],
+    probe: &dyn Fn(&Path) -> Option<u32>,
+) -> Option<PathBuf> {
+    std::iter::once(home.join("java-runtime").join(component))
+        .chain(candidates.iter().cloned())
+        .find(|c| usable(home, c, probe))
+}
+
+/// [`find_installed`], else Mojang's runtime downloaded into `<home>/java-runtime/<component>`.
+/// Call it only for an owner.
 pub fn find_or_install(
     home: &Path,
     component: &str,
@@ -87,22 +107,12 @@ pub fn find_or_install(
     fetch: Fetch,
     probe: &dyn Fn(&Path) -> Option<u32>,
 ) -> Result<PathBuf, String> {
-    let shim = lower(&home.join("java"));
-    let ok = |p: &Path| {
-        let l = lower(p);
-        !(l == shim || l.starts_with(&format!("{shim}\\")))
-            && p.join("bin").join("java.exe").is_file()
-            && probe(p).is_some_and(|m| m >= MIN_MAJOR)
-    };
+    if let Some(j) = find_installed(home, component, candidates, probe) {
+        return Ok(j);
+    }
     let own = home.join("java-runtime").join(component);
-    if ok(&own) {
-        return Ok(own);
-    }
-    if let Some(c) = candidates.iter().find(|c| ok(c)) {
-        return Ok(c.clone());
-    }
     install(&own, component, fetch)?;
-    if ok(&own) {
+    if usable(home, &own, probe) {
         Ok(own)
     } else {
         Err(format!(
