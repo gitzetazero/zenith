@@ -38,7 +38,8 @@ const ARCHIVED: [&str; 5] = [
 /// play the game, horizon-prepare, which prepares the resources from the player's own
 /// Minecraft, and horizon-server, which hosts a server with the client as its engine
 /// (docs/server.md).
-const TOOLS: [&str; 3] = ["horizon-ctl", "horizon-prepare", "horizon-server"];
+// zenith: client-only, the dedicated server is not built or shipped (ZENITH.md, "Solo cliente")
+const TOOLS: [&str; 2] = ["horizon-ctl", "horizon-prepare"];
 
 /// The programs beside the engine in a server folder.
 const SERVER_TOOLS: [&str; 2] = ["horizon-prepare", "horizon-server"];

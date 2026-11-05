@@ -101,8 +101,8 @@ jobs:
           stray=$(find exporters -type f ! -path exporters/manifest.json \
             ! \( -name '*.class' \( -path 'exporters/server/dev/horizonlab/parity/*' -o -path 'exporters/client/dev/horizonlab/parity/*' \) \))
           [ -z "$stray" ] || { echo "::error::not one of our classes: $stray"; exit 1; }
-      - name: Build the client, horizon-ctl, horizon-prepare and horizon-server
-        run: cargo build --release --locked -p horizon-client -p horizon-client-lib --bin horizon-client --bin horizon-ctl -p horizon-prepare --bin horizon-prepare -p horizon-server --bin horizon-server
+      - name: Build the client, horizon-ctl and horizon-prepare (no dedicated server)
+        run: cargo build --release --locked -p horizon-client -p horizon-client-lib --bin horizon-client --bin horizon-ctl -p horizon-prepare --bin horizon-prepare
       - name: Package
         run: |
           set -euo pipefail

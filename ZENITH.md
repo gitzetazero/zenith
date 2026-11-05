@@ -47,3 +47,7 @@ Cuando Horizon fusione el PR, la sincronización con upstream puede dar conflict
 `crates/horizon-protocol/src/adapter*`, `item.rs` y `tools/generate_registry_id_adapter.py`: resolverlos
 quedándose con la versión de upstream. Al fusionar se añadieron a mano `..BEFORE_26_1` en 1.21.8 y
 `dropped_components: &[]` en `v1_21_8_ids.rs`, y `item.rs` solo guarda el parche de componentes sin adaptador activo.
+
+## Solo cliente
+
+Zenith es solo el cliente: el servidor dedicado (`horizon-server`, los archivos `horizon-server-*`, `package-server`, `docs/hosting`) no se compila, empaqueta ni publica. Su código sigue en el repo sin tocar para evitar conflictos al sincronizar; la única edición es la lista `TOOLS` de `xtask/src/main.rs` (marcada `// zenith:`), que ya no exige `horizon-server`. El servidor integrado de un jugador va dentro del cliente.
