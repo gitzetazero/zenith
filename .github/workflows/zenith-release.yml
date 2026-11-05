@@ -4,6 +4,15 @@ run-name: zenith-release ${{ inputs.date }}
 # nightly-<date> plus the moving `nightly` Release. Modelled on Horizon's nightly-build.yml / game-build.yml.
 # The exporters (our own classes only, no Mojang code) are taken from a Horizon Release instead of compiled here.
 # Not affiliated with Mojang or Microsoft. Set the repository variable ZENITH_AUTOPUBLISH to `off` to stop it.
+#
+# Publish ordering (the old `nightly` is never deleted, so launchers always find a release):
+#   1. a DRAFT nightly-<date> gets all four files; its file list is checked (a leftover draft or an unfinished
+#      dated release from an earlier attempt is removed first);
+#   2. `nightly` is updated in place: the archives, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
+#      window a launcher finds sums that do not match the signature or the archives and fails closed; then its
+#      tag moves to this commit and its title changes; its assets are downloaded and verified again;
+#   3. only then is nightly-<date> published. Its existence means "done", so the gate lets a retry through while
+#      it is missing or `nightly` is older than the date.
 on:
   workflow_dispatch:
     inputs:
@@ -12,9 +21,13 @@ on:
         type: string
         default: nightly
       date:
-        description: Date of the build (UTC, yyyy-mm-dd)
+        description: Today's date (UTC, yyyy-mm-dd)
         type: string
         required: true
+      force:
+        description: Publish again although nightly-<date> is done (main only)
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -33,23 +46,74 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           DATE: ${{ inputs.date }}
           RELEASE: ${{ inputs.release }}
+          FORCE: ${{ inputs.force }}
           AUTOPUBLISH: ${{ vars.ZENITH_AUTOPUBLISH }}
           SHA: ${{ github.sha }}
+          REF: ${{ github.ref }}
         run: |
           set -euo pipefail
-          [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "::error::date must be yyyy-mm-dd"; exit 1; }
-          [[ "$RELEASE" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "::error::bad release name"; exit 1; }
+          [[ "$REF" == refs/heads/main ]] || { echo "::error::only main may build, sign and publish (this is $REF)"; exit 1; }
+          [[ "$DATE" == "$(date -u +%F)" ]] || { echo "::error::date must be today's UTC date ($(date -u +%F))"; exit 1; }
+          [[ "$RELEASE" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || { echo "::error::bad release name"; exit 1; }
           echo "short=${SHA:0:7}" >> "$GITHUB_OUTPUT"
           if [[ "$AUTOPUBLISH" == off ]]; then
             echo "ZENITH_AUTOPUBLISH is off: nothing built."; echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
+          # Done = the dated release is published (it goes out last) AND `nightly` is at least as new as the date.
+          # A lookup that fails counts as "not done": the worst case is one more build.
+          done_date=no
           if gh release view "nightly-$DATE" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            echo "nightly-$DATE already exists: at most one a day."; echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
+            title=$(gh release view nightly -R "$GITHUB_REPOSITORY" --json name --jq .name 2>/dev/null || true)
+            current=$(grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' <<< "$title" | head -1 || true)
+            if [[ -n "$current" && ! "$current" < "$DATE" ]]; then done_date=yes; fi
+          fi
+          if [[ "$done_date" == yes && "$FORCE" != true ]]; then
+            echo "nightly-$DATE is already published and nightly is current: at most one a day."
+            echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
           echo "go=true" >> "$GITHUB_OUTPUT"
 
-  build:
+  exporters:
     needs: gate
+    if: needs.gate.outputs.go == 'true'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Exporters from the Horizon Release, signature checked (our own classes only)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE: ${{ inputs.release }}
+        run: |
+          set -euo pipefail
+          dl="$RUNNER_TEMP/horizon-dl"
+          mkdir -p "$dl"
+          # Every file Horizon's SHA256SUMS lists, plus SHA256SUMS and its signature. The key file in this repo is
+          # Horizon's (release-keys.txt); the signed message names the release's own tag, as launchers check it.
+          gh release download "$RELEASE" -R horizon-rust/horizon -D "$dl"
+          cargo run --locked --quiet -p horizon-release-sign -- verify --tag "$RELEASE" \
+            --key "$(cat crates/horizon-release-sign/release-keys.txt)" "$dl"
+          awk '{ sub(/^\*/, "", $2); print $2 }' "$dl/SHA256SUMS" | grep -qx 'horizon-linux-x86_64.tar.gz' \
+            || { echo "::error::the signed sums do not list horizon-linux-x86_64.tar.gz"; exit 1; }
+          gzip -dc < "$dl/horizon-linux-x86_64.tar.gz" | tar x --strip-components=1 horizon-linux-x86_64/exporters
+          test -f exporters/manifest.json
+          odd=$(find exporters ! -type d ! -type f)
+          [ -z "$odd" ] || { echo "::error::not a plain file (symlink?): $odd"; exit 1; }
+          stray=$(find exporters ! -type d ! -path exporters/manifest.json \
+            ! \( -name '*.class' \( -path 'exporters/server/dev/horizonlab/parity/*' -o -path 'exporters/client/dev/horizonlab/parity/*' \) \))
+          [ -z "$stray" ] || { echo "::error::not one of our classes: $stray"; exit 1; }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: exporters
+          path: exporters/
+          if-no-files-found: error
+          retention-days: 3
+
+  build:
+    needs: [gate, exporters]
     if: needs.gate.outputs.go == 'true'
     name: build ${{ matrix.name }}
     strategy:
@@ -87,20 +151,10 @@ jobs:
       - name: ALSA and udev headers
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libasound2-dev libudev-dev
-      - name: Exporters from the Horizon Release (our own classes only)
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE: ${{ inputs.release }}
-        run: |
-          set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/horizon-dl"
-          gh release download "$RELEASE" -R horizon-rust/horizon -p 'horizon-linux-x86_64.tar.gz' -D "$RUNNER_TEMP/horizon-dl"
-          # stdin: GNU tar reads "D:\..." as host:file
-          gzip -dc < "$RUNNER_TEMP/horizon-dl/horizon-linux-x86_64.tar.gz" | tar x --strip-components=1 horizon-linux-x86_64/exporters
-          test -f exporters/manifest.json
-          stray=$(find exporters -type f ! -path exporters/manifest.json \
-            ! \( -name '*.class' \( -path 'exporters/server/dev/horizonlab/parity/*' -o -path 'exporters/client/dev/horizonlab/parity/*' \) \))
-          [ -z "$stray" ] || { echo "::error::not one of our classes: $stray"; exit 1; }
+      - uses: actions/download-artifact@v8
+        with:
+          name: exporters
+          path: exporters
       - name: Build the client, horizon-ctl and horizon-prepare (no dedicated server)
         run: cargo build --release --locked -p horizon-client -p horizon-client-lib --bin horizon-client --bin horizon-ctl -p horizon-prepare --bin horizon-prepare
       - name: Package
@@ -123,6 +177,7 @@ jobs:
 
   sign:
     needs: [gate, build]
+    if: needs.gate.outputs.go == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -150,7 +205,7 @@ jobs:
 
   publish:
     needs: [gate, build, sign]
-    if: needs.gate.outputs.go == 'true' && vars.ZENITH_AUTOPUBLISH != 'off'
+    if: needs.gate.outputs.go == 'true' && github.ref == 'refs/heads/main' && vars.ZENITH_AUTOPUBLISH != 'off'
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     permissions:
@@ -163,17 +218,21 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           path: dist
+          pattern: '{horizon-*,signature}'
           merge-multiple: true
       - name: The signature, checked as the bridge checks it
         run: cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" dist
-      - name: Publish nightly-<date> and move `nightly`
+      - name: Publish (ordering in the header)
         env:
           GH_TOKEN: ${{ github.token }}
           DATE: ${{ inputs.date }}
           SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
+          repo=$GITHUB_REPOSITORY
+          dated="nightly-$DATE"
           title="Nightly $DATE · ${SHA:0:7}"
+          want="SHA256SUMS SHA256SUMS.sig horizon-linux-x86_64.tar.gz horizon-windows-x64.zip"
           {
             echo "Zenith build of commit ${SHA:0:7}, signed for the nightly channel (SHA256SUMS, SHA256SUMS.sig)."
             echo
@@ -181,7 +240,39 @@ jobs:
             echo
             echo "Built on [Horizon](https://github.com/horizon-rust/horizon)."
           } > notes.md
-          files=(dist/horizon-windows-x64.zip dist/horizon-linux-x86_64.tar.gz dist/SHA256SUMS dist/SHA256SUMS.sig)
-          gh release create "nightly-$DATE" --prerelease --latest=false --target "$SHA" --title "$title" --notes-file notes.md "${files[@]}"
-          gh release delete nightly --cleanup-tag --yes 2>/dev/null || true
-          gh release create nightly --prerelease --latest=false --target "$SHA" --title "$title" --notes-file notes.md "${files[@]}"
+          archives=(dist/horizon-windows-x64.zip dist/horizon-linux-x86_64.tar.gz)
+          # The id of the release (draft or not) with this tag, empty if none.
+          release_id() { gh api --paginate "repos/$repo/releases" --jq ".[] | select(.tag_name == \"$1\") | .id" | sed -n 1p; }
+          assets_of() { gh api "repos/$repo/releases/$1" --jq '[.assets[].name] | sort | join(" ")'; }
+
+          # 1. The dated release as a draft: an earlier attempt's leftover (draft or published) goes first.
+          old=$(release_id "$dated")
+          if [[ -n "$old" ]]; then
+            gh api -X DELETE "repos/$repo/releases/$old"
+            if gh api "repos/$repo/git/ref/tags/$dated" > /dev/null 2>&1; then
+              gh api -X DELETE "repos/$repo/git/refs/tags/$dated"
+            fi
+          fi
+          gh release create "$dated" --draft --prerelease --target "$SHA" --title "$title" --notes-file notes.md \
+            "${archives[@]}" dist/SHA256SUMS dist/SHA256SUMS.sig
+          id=$(release_id "$dated")
+          [[ "$(assets_of "$id")" == "$want" ]] || { echo "::error::the draft's files are not the expected four"; exit 1; }
+
+          # 2. `nightly` updated in place: archives, SHA256SUMS, then SHA256SUMS.sig last.
+          if [[ -n "$(release_id nightly)" ]]; then
+            gh release upload nightly --clobber -R "$repo" "${archives[@]}"
+            gh release upload nightly --clobber -R "$repo" dist/SHA256SUMS
+            gh release upload nightly --clobber -R "$repo" dist/SHA256SUMS.sig
+            gh api -X PATCH "repos/$repo/git/refs/tags/nightly" -f sha="$SHA" -F force=true > /dev/null
+            gh release edit nightly -R "$repo" --title "$title" --notes-file notes.md --prerelease --latest=false
+          else
+            gh release create nightly --prerelease --latest=false --target "$SHA" --title "$title" --notes-file notes.md \
+              "${archives[@]}" dist/SHA256SUMS dist/SHA256SUMS.sig
+          fi
+          [[ "$(assets_of "$(release_id nightly)")" == "$want" ]] || { echo "::error::nightly does not hold exactly the expected four files"; exit 1; }
+          rm -rf check && mkdir check
+          gh release download nightly -R "$repo" -D check
+          cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" check
+
+          # 3. Last: the dated release goes public. Its existence means everything above finished.
+          gh api -X PATCH "repos/$repo/releases/$id" -F draft=false -f make_latest=false > /dev/null
