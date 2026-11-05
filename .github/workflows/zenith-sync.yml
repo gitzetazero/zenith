@@ -88,6 +88,7 @@ jobs:
           [ -n "$step" ] || cargo fmt --all --check || step="cargo fmt"
           [ -n "$step" ] || cargo clippy --workspace --all-targets --locked -- -D warnings || step="cargo clippy"
           [ -n "$step" ] || cargo test --workspace --locked || step="cargo test"
+          [ -n "$step" ] || cargo test --manifest-path zenith/bridge/Cargo.toml --locked || step="bridge cargo test"
           if [ -n "$step" ]; then
             git push -f origin "HEAD:refs/heads/$BRANCH"
             gh pr create --base main --head "$BRANCH" --title "sync: $TAG (failed: $step)" \
