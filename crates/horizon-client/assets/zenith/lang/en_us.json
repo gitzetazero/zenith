@@ -2,5 +2,7 @@
   "zenith.multiplayer.version": "Version: %s",
   "zenith.multiplayer.version.auto": "Automatic",
   "zenith.multiplayer.version.experimental": "%s (experimental)",
-  "zenith.multiplayer.joining_as": "Joining as %s"
+  "zenith.multiplayer.joining_as": "Joining as %s",
+  "zenith.settings.brand": "Zenith",
+  "Vanilla Preset": "Vanilla Preset"
 }

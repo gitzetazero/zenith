@@ -1198,6 +1198,11 @@ impl Item {
                 "Full Detail Distance",
                 lang::tr("%s chunks", &[&s.render_distance]),
             ),
+            // zenith: two rows read "Preset" side by side; this one is vanilla's.
+            Item::Vanilla(Opt::Preset) => labelled(
+                "Vanilla Preset",
+                format!("options.graphics.{}", s.graphics_preset),
+            ),
             Item::Vanilla(o) => o.label(s),
             Item::Horizon(h) => h.label(s),
             Item::Extra(e) => Text::option_name_value(
