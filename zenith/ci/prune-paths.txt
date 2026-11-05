@@ -30,3 +30,13 @@ benchmarks/
 # Horizon's CI: Zenith runs only its own zenith-* workflows
 .github/workflows/*
 !.github/workflows/zenith-*.yml
+
+# Horizon's planning board and its tooling (nothing in the client, the bridge or the builds reads them)
+roadmap/
+ROADMAP.md
+tools/roadmap.py
+tests/test_roadmap.py
+
+# Screenshots attached to Horizon's pull requests; the brand folder is the source of `xtask icons`, so it stays
+docs/media/*
+!docs/media/brand/*

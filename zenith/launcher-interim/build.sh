@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds Zenith Launcher: the installer and the portable zip, from the official XMCL zip (checked against
 # xmcl-pin.txt, fail closed), the bridge exe built in the same run and the licences. XMCL is bundled as-is.
-#   zenith/launcher/build.sh <xmcl.zip> <zenith-bridge.exe> <outdir> <label> [--no-installer]
+#   zenith/launcher-interim/build.sh <xmcl.zip> <zenith-bridge.exe> <outdir> <label> [--no-installer]
 # Needs bash, 7z (or unzip), sha256sum and, unless --no-installer, makensis (NSIS 3) on PATH.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
@@ -17,14 +17,14 @@ got=$(sha256sum < "$zip" | cut -d" " -f1)
 win() { if command -v cygpath > /dev/null; then cygpath -w "$1"; else echo "$1"; fi; } # native tools want C:\ paths
 mkdir -p "$out"; out=$(cd "$out" && pwd)
 work=$(mktemp -d); trap 'rm -rf "$work"' EXIT
-stage="$work/stage"; mkdir -p "$stage/licencias"
+stage="$work/stage"; mkdir -p "$stage/licenses"
 if command -v 7z > /dev/null; then 7z x -y "-o$(win "$stage")" "$(win "$zip")" > /dev/null; else unzip -q "$zip" -d "$stage"; fi
 [[ -f "$stage/XMCL.exe" && -f "$stage/resources/app.asar" ]] || { echo "::error::XMCL.exe or resources/app.asar missing in the zip"; exit 1; }
 cp "$bridge" "$stage/zenith-bridge.exe"
-cp "$here/LICENSE.xmcl" "$stage/licencias/XMCL-LICENSE.txt"
-cp "$repo/LICENSE" "$stage/licencias/ZENITH-LICENSE.txt"
-cp "$repo/THIRD_PARTY_NOTICES.md" "$stage/licencias/THIRD_PARTY_NOTICES.md"
-{ printf '\xEF\xBB\xBF'; cat "$here/AVISO.txt"; } > "$stage/licencias/AVISO.txt" # BOM: NSIS and Notepad read it as UTF-8
+cp "$here/LICENSE.xmcl" "$stage/licenses/XMCL-LICENSE.txt"
+cp "$repo/LICENSE" "$stage/licenses/ZENITH-LICENSE.txt"
+cp "$repo/THIRD_PARTY_NOTICES.md" "$stage/licenses/THIRD_PARTY_NOTICES.md"
+{ printf '\xEF\xBB\xBF'; cat "$here/NOTICE.txt"; } > "$stage/licenses/NOTICE.txt" # BOM: NSIS and Notepad read it as UTF-8
 
 # Portable: one root folder, entry point `zenith-bridge.exe start`.
 p="$work/portable/Zenith-Launcher-Portable"; mkdir -p "$p"

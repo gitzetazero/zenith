@@ -1,0 +1,23 @@
+Zenith Launcher (powered by XMCL)
+
+This package brings together two independent programs:
+
+  1. X Minecraft Launcher (XMCL), Voxelum's official launcher, unmodified
+     (MIT licence, in licenses\XMCL-LICENSE.txt; the project is at
+     https://github.com/Voxelum/x-minecraft-launcher and https://xmcl.app).
+  2. The Zenith bridge (zenith-bridge.exe), which creates an instance called
+     "Zenith" in XMCL to play the Zenith build (a fork of Horizon).
+     MIT licence in licenses\ZENITH-LICENSE.txt; third-party notices in
+     licenses\THIRD_PARTY_NOTICES.md.
+
+Zenith Launcher is an independent project. It is NOT affiliated with,
+endorsed by or sponsored by the XMCL team (Voxelum), Mojang or Microsoft.
+Minecraft is a trademark of Mojang Synergies AB. No Minecraft code or assets
+are included: you need your own account with Minecraft: Java Edition.
+
+Errors in this package are Zenith's, not XMCL's: do not ask the XMCL project
+for Zenith support.
+
+The installer is not code-signed for Windows: SmartScreen may warn you.
+Uninstalling only deletes what was installed here; never your XMCL data, your
+worlds or Zenith's data folder (%APPDATA%\zenith).

@@ -1,4 +1,4 @@
-# The official X Minecraft Launcher bundled, unmodified, by Zenith Launcher. Read by zenith/launcher/build.sh and
+# The official X Minecraft Launcher bundled, unmodified, by Zenith Launcher. Read by zenith/launcher-interim/build.sh and
 # by the `launcher` job of .github/workflows/zenith-release.yml. Never "latest": to bump it, change all four
 # lines together with the SHA-256 published next to the asset (the .sha256 file of the release) and re-check
 # that XMCL.exe is still the program's name (the bridge starts it).

@@ -210,7 +210,7 @@ jobs:
           retention-days: 3
 
   # Zenith Launcher: the installer and the portable zip bundle the UNMODIFIED official XMCL (pinned version and
-  # SHA-256 in zenith/launcher/xmcl-pin.txt, checked again by build.sh, fail closed) with the bridge built above.
+  # SHA-256 in zenith/launcher-interim/xmcl-pin.txt, checked again by build.sh, fail closed) with the bridge built above.
   launcher:
     needs: [gate, bridge]
     if: needs.gate.outputs.go == 'true'
@@ -230,7 +230,7 @@ jobs:
       - name: The pinned official XMCL release asset (never "latest")
         run: |
           set -euo pipefail
-          pin() { sed -n "s/^$1=//p" zenith/launcher/xmcl-pin.txt | tr -d '\015'; }
+          pin() { sed -n "s/^$1=//p" zenith/launcher-interim/xmcl-pin.txt | tr -d '\015'; }
           mkdir -p "$RUNNER_TEMP/xmcl"
           curl --fail --location --silent --show-error --retry 3 -o "$RUNNER_TEMP/xmcl/$(pin asset)" "$(pin url)"
           ls -l "$RUNNER_TEMP/xmcl"
@@ -248,9 +248,9 @@ jobs:
           set -euo pipefail
           export PATH="$PATH:/c/Program Files (x86)/NSIS"
           makensis -VERSION
-          asset=$(sed -n 's/^asset=//p' zenith/launcher/xmcl-pin.txt | tr -d '\015')
+          asset=$(sed -n 's/^asset=//p' zenith/launcher-interim/xmcl-pin.txt | tr -d '\015')
           mkdir -p out
-          bash zenith/launcher/build.sh "$RUNNER_TEMP/xmcl/$asset" dist/zenith-bridge-windows-x64.exe out "nightly-$DATE-$SHORT"
+          bash zenith/launcher-interim/build.sh "$RUNNER_TEMP/xmcl/$asset" dist/zenith-bridge-windows-x64.exe out "nightly-$DATE-$SHORT"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: Zenith-Launcher-Setup-x64.exe

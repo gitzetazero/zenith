@@ -10,7 +10,8 @@
 #   2. `nightly` is updated in place: the six signed files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
 #      window a launcher finds sums that do not match the signature or the archives and fails closed; then its tag
 #      moves to this commit and its title changes; its assets are downloaded and verified again;
-#   3. only then is nightly-<date> published. Its existence means "done", so the gate lets a retry through while
+#   3. only then is nightly-<date> published, as a normal release (prerelease=false) and the repository's one "latest"
+#      (`nightly` is a normal release too but never "latest"). Its existence means "done", so the gate lets a retry through while
 #      it is missing or `nightly` is older than the date.
 set -euo pipefail
 repo=$GITHUB_REPOSITORY
@@ -27,7 +28,7 @@ key="$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)"
   echo
   echo '`zenith-bridge-windows-x64.exe` alone is kept for the in-game updater and for advanced users (`setup` on an XMCL you already have). The other files (game builds, `zenith-build.txt`) are fetched and verified by the bridge itself.'
   echo
-  echo "Zenith is an independent project. It is not affiliated with, endorsed by or sponsored by Mojang, Microsoft or the XMCL team (Voxelum); Minecraft is Mojang's trademark. XMCL ($(sed -n 's/^version=//p' zenith/launcher/xmcl-pin.txt | tr -d '\015')), MIT) is bundled unmodified, with its licence. No Minecraft code or assets are included: the game files come from your own copy."
+  echo "Zenith is an independent project. It is not affiliated with, endorsed by or sponsored by Mojang, Microsoft or the XMCL team (Voxelum); Minecraft is Mojang's trademark. XMCL ($(sed -n 's/^version=//p' zenith/launcher-interim/xmcl-pin.txt | tr -d '\015')), MIT) is bundled unmodified, with its licence. No Minecraft code or assets are included: the game files come from your own copy."
   echo
   echo "Built on [Horizon](https://github.com/horizon-rust/horizon)."
 } > notes.md
@@ -45,7 +46,7 @@ if [[ -n "$old" ]]; then
   gh api -X DELETE "repos/$repo/releases/$old"
 fi
 id=$(gh api -X POST "repos/$repo/releases" -f tag_name="$dated" -f target_commitish="$SHA" -f name="$title" \
-  -F body=@notes.md -F draft=true -F prerelease=true --jq .id)
+  -F body=@notes.md -F draft=true -F prerelease=false --jq .id)
 for file in "${archives[@]}" dist/SHA256SUMS dist/SHA256SUMS.sig; do
   gh api -X POST "https://uploads.github.com/repos/$repo/releases/$id/assets?name=$(basename "$file")" \
     -H "Content-Type: application/octet-stream" --input "$file" > /dev/null
@@ -64,9 +65,9 @@ if [[ -n "$nightly" ]]; then
   gh release upload nightly --clobber -R "$repo" dist/SHA256SUMS
   gh release upload nightly --clobber -R "$repo" dist/SHA256SUMS.sig
   gh api -X PATCH "repos/$repo/git/refs/tags/nightly" -f sha="$SHA" -F force=true > /dev/null
-  gh api -X PATCH "repos/$repo/releases/$nightly" -f name="$title" -F body=@notes.md -F prerelease=true -f make_latest=false > /dev/null
+  gh api -X PATCH "repos/$repo/releases/$nightly" -f name="$title" -F body=@notes.md -F prerelease=false -f make_latest=false > /dev/null
 else
-  gh release create nightly --prerelease --latest=false --target "$SHA" --title "$title" --notes-file notes.md \
+  gh release create nightly --latest=false --target "$SHA" --title "$title" --notes-file notes.md \
     "${archives[@]}" dist/SHA256SUMS dist/SHA256SUMS.sig
 fi
 [[ "$(assets_of "$(release_id nightly)")" == "$want" ]] || { echo "::error::nightly does not hold exactly the expected eight files"; exit 1; }
@@ -75,6 +76,6 @@ gh release download nightly -R "$repo" -D check
 cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$key" check
 
 step "3. publish $dated"
-gh api -X PATCH "repos/$repo/releases/$id" -F draft=false -f make_latest=false > /dev/null
+gh api -X PATCH "repos/$repo/releases/$id" -F draft=false -F prerelease=false -f make_latest=true > /dev/null
 echo "::endgroup::"
 echo "published $dated and updated nightly"
