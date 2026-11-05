@@ -209,8 +209,35 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+  # A release cannot be signed with a failing bridge: fmt, clippy and tests of zenith/bridge gate `sign`.
+  bridge-tests:
+    needs: gate
+    if: needs.gate.outputs.go == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+        with:
+          workspaces: zenith/bridge
+          shared-key: zenith-bridge-tests
+      - name: fmt, clippy and tests of the bridge
+        run: |
+          set -euo pipefail
+          cargo fmt --manifest-path zenith/bridge/Cargo.toml --check
+          cargo clippy --manifest-path zenith/bridge/Cargo.toml --all-targets --locked -- -D warnings
+          cargo test --manifest-path zenith/bridge/Cargo.toml --locked
+
   sign:
-    needs: [gate, build, bridge]
+    needs: [gate, build, bridge, bridge-tests]
     if: needs.gate.outputs.go == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
