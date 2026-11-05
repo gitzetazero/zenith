@@ -69,6 +69,26 @@ fn sha1_hex(bytes: &[u8]) -> String {
         .collect()
 }
 
+const MOJANG_HOSTS: [&str; 3] = [
+    "launcher.mojang.com",
+    "piston-data.mojang.com",
+    "piston-meta.mojang.com",
+];
+
+/// `https://` and exactly one of Mojang's download hosts: the URL comes from a file on disk.
+/// Anything that could shift the host (userinfo, port, backslash, spaces) is refused outright.
+fn allowed_download_url(url: &str) -> Result<(), String> {
+    let host = url
+        .strip_prefix("https://")
+        .map(|r| r.split(['/', '?', '#']).next().unwrap_or(""));
+    match host {
+        Some(h) if MOJANG_HOSTS.contains(&h) => Ok(()),
+        _ => Err(format!(
+            "refusing to download from {url:?}: not a Mojang https URL"
+        )),
+    }
+}
+
 /// The server jar from the version JSON's `downloads.server`, checked against its sha1. Call it only
 /// for an owner. A jar already at `dest` with the right hash is reused.
 pub fn ensure_server_jar(
@@ -83,6 +103,7 @@ pub fn ensure_server_jar(
     let (Some(url), Some(want)) = (server["url"].as_str(), server["sha1"].as_str()) else {
         return Err("the version JSON has no server download".into());
     };
+    allowed_download_url(url)?;
     let want = want.to_lowercase();
     if std::fs::read(dest).is_ok_and(|b| sha1_hex(&b) == want) {
         return Ok(());
@@ -105,24 +126,35 @@ pub fn ensure_server_jar(
 
 /// XMCL passes the asset index by its sha1 and may not leave `indexes/<id>.json` (`34.json`) that
 /// the preparer looks for: copy it. Best effort; the preparer says what is missing.
-pub fn ensure_index_alias(version_json: &Path, assets: &Path) {
+pub fn ensure_index_alias(version_json: &Path, assets: &Path) -> Result<(), String> {
     let Ok(text) = std::fs::read(version_json) else {
-        return;
+        return Ok(());
     };
     let Ok(v) = serde_json::from_slice::<Value>(&text) else {
-        return;
+        return Ok(());
     };
     let (Some(id), Some(sha1)) = (
         v["assetIndex"]["id"].as_str(),
         v["assetIndex"]["sha1"].as_str(),
     ) else {
-        return;
+        return Ok(());
     };
+    // both become file names under assets/indexes
+    let id_ok = !id.is_empty()
+        && !id.contains("..")
+        && id
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-'));
+    let sha_ok = sha1.len() == 40 && sha1.chars().all(|c| c.is_ascii_hexdigit());
+    if !id_ok || !sha_ok {
+        return Err("the version JSON has an unsafe asset index".into());
+    }
     let dir = assets.join("indexes");
     let alias = dir.join(format!("{id}.json"));
     if !alias.exists() {
         let _ = std::fs::copy(dir.join(format!("{sha1}.json")), alias);
     }
+    Ok(())
 }
 
 /// A Horizon folder for the preparer to work in: the build without its programs and `.local`

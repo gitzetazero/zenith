@@ -5,7 +5,7 @@ use std::rc::Rc;
 use zenith_bridge::args::LaunchArgs;
 use zenith_bridge::owner::OwnerCheck;
 use zenith_bridge::play::{Stream, client_cmd};
-use zenith_bridge::prepare::{ensure_server_jar, prepare_cmd};
+use zenith_bridge::prepare::{ensure_index_alias, ensure_server_jar, prepare_cmd};
 use zenith_bridge::run::{Deps, run};
 
 const TOKEN: &str = "SECRET-TOKEN-123";
@@ -162,8 +162,8 @@ fn version_json(dir: &Path, sha1: &str) -> PathBuf {
     let p = dir.join("26.3.json");
     std::fs::create_dir_all(dir).unwrap();
     let j = serde_json::json!({
-        "assetIndex": { "id": "34", "sha1": "idx" },
-        "downloads": { "server": { "url": "https://x.invalid/server.jar", "sha1": sha1 } }
+        "assetIndex": { "id": "34", "sha1": "0123456789abcdef0123456789abcdef01234567" },
+        "downloads": { "server": { "url": "https://piston-data.mojang.com/server.jar", "sha1": sha1 } }
     });
     std::fs::write(&p, j.to_string()).unwrap();
     p
@@ -184,7 +184,7 @@ fn server_jar_downloaded_and_verified() {
     let vj = version_json(&d.join("v"), &sha1_hex(JAR));
     let dest = d.join("server-jars/26.3.jar");
     ensure_server_jar(&vj, &dest, |u| {
-        assert_eq!(u, "https://x.invalid/server.jar");
+        assert_eq!(u, "https://piston-data.mojang.com/server.jar");
         Ok(Some(JAR.to_vec()))
     })
     .unwrap();
@@ -439,4 +439,130 @@ fn failed_preparation_does_not_start_the_game() {
     assert_eq!(f.run(owner), 1);
     assert!(f.errors.borrow()[0].contains("boom"), "{:?}", f.errors);
     assert!(!f.records().iter().any(|r| r["tool"] == "horizon-client"));
+}
+
+#[test]
+fn server_jar_url_must_be_a_mojang_https_url() {
+    let d = tmp("url");
+    let dest = d.join("server-jars/26.3.jar");
+    let write = |name: &str, url: &str| {
+        let vj = d.join(name);
+        let j =
+            serde_json::json!({ "downloads": { "server": { "url": url, "sha1": sha1_hex(JAR) } } });
+        std::fs::write(&vj, j.to_string()).unwrap();
+        vj
+    };
+    for url in [
+        "http://piston-data.mojang.com/server.jar",
+        "https://evil.invalid/server.jar",
+        "https://piston-data.mojang.com@evil.invalid/server.jar",
+        "https://piston-data.mojang.com:444/server.jar",
+        "https://piston-data.mojang.com.evil.invalid/server.jar",
+        "https://piston-data.mojang.com\\@evil.invalid/server.jar",
+        "ftp://launcher.mojang.com/server.jar",
+    ] {
+        let vj = write("bad.json", url);
+        let err = ensure_server_jar(&vj, &dest, |_| panic!("fetched {url}")).unwrap_err();
+        assert!(err.contains("not a Mojang https URL"), "{url}: {err}");
+    }
+    for host in [
+        "launcher.mojang.com",
+        "piston-data.mojang.com",
+        "piston-meta.mojang.com",
+    ] {
+        let vj = write(
+            "ok.json",
+            &format!("https://{host}/v1/objects/x/server.jar"),
+        );
+        ensure_server_jar(&vj, &dest, |_| Ok(Some(JAR.to_vec()))).unwrap();
+        let _ = std::fs::remove_file(&dest);
+    }
+}
+
+#[test]
+fn index_alias_rejects_unsafe_names() {
+    let d = tmp("alias");
+    let sha = "a".repeat(40);
+    let idx = d.join("assets/indexes");
+    std::fs::create_dir_all(&idx).unwrap();
+    std::fs::write(idx.join(format!("{sha}.json")), "{}").unwrap();
+    let go = |id: &str, sha1: &str| {
+        let vj = d.join("v.json");
+        let j = serde_json::json!({ "assetIndex": { "id": id, "sha1": sha1 } });
+        std::fs::write(&vj, j.to_string()).unwrap();
+        ensure_index_alias(&vj, &d.join("assets"))
+    };
+    for id in ["../../x", "C:\\x", "/etc/x", "a\\b", "a/b", "..", ""] {
+        assert!(go(id, &sha).is_err(), "{id:?}");
+    }
+    assert!(go("34", "../../../../x").is_err());
+    assert!(go("34", "abc").is_err());
+    go("34", &sha).unwrap();
+    assert!(idx.join("34.json").is_file());
+}
+
+#[test]
+fn session_json_escapes_quotes_and_backslashes() {
+    let a = LaunchArgs::parse(&s(&[
+        "C:\\jdk\\bin\\javaw.exe",
+        "--username",
+        "A\"b\\c",
+        "--version",
+        "26.3",
+        "--gameDir",
+        "G",
+        "--assetsDir",
+        "C:/x/assets",
+        "--uuid",
+        "abc",
+        "--accessToken",
+        TOKEN,
+    ]))
+    .unwrap();
+    let v: Value = serde_json::from_str(&a.session_json()).unwrap();
+    assert_eq!(v["name"], "A\"b\\c");
+}
+
+#[test]
+fn run_without_a_java_folder_fails_clearly() {
+    let mut f = fx("nojava", serde_json::json!({ "minecraft": "26.3" }), &[]);
+    f.argv[0] = "javaw.exe".into();
+    assert_eq!(f.run(owner), 1);
+    assert!(f.errors.borrow()[0].contains("Java"), "{:?}", f.errors);
+    assert!(!f.records().iter().any(|r| has_flag(r, "--prepare")));
+}
+
+#[test]
+fn unreachable_owner_check_without_cache_refuses() {
+    let f = fx("unreach", serde_json::json!({ "minecraft": "26.3" }), &[]);
+    assert_eq!(f.run(|| OwnerCheck::Unreachable("offline".into())), 1);
+    assert!(f.errors.borrow()[0].contains("No se pudo comprobar"));
+    assert!(f.records().is_empty());
+}
+
+#[test]
+fn unreachable_owner_check_with_recent_cache_proceeds() {
+    let f = fx(
+        "unreach-cache",
+        serde_json::json!({ "minecraft": "26.3" }),
+        &[],
+    );
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    std::fs::write(f.home.join("owners.json"), format!("{{\"abc\":{now}}}")).unwrap();
+    assert_eq!(f.run(|| OwnerCheck::Unreachable("offline".into())), 0);
+    assert!(f.records().iter().any(|r| r["tool"] == "horizon-client"));
+}
+
+#[cfg(windows)]
+#[test]
+fn job_object_accepts_a_spawned_child() {
+    let mut c = std::process::Command::new(fake_exe())
+        .stdin(std::process::Stdio::null())
+        .spawn()
+        .unwrap();
+    assert!(zenith_bridge::play::kill_with_bridge(&c));
+    let _ = c.wait();
 }

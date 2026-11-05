@@ -304,6 +304,7 @@ fn update(
 /// `GITHUB_TOKEN`, if set, goes only to the API host and is never logged.
 pub fn http_fetch(url: &str) -> Result<Option<Vec<u8>>, String> {
     let agent = ureq::AgentBuilder::new()
+        .https_only(true) // a redirect to plain http fails too
         .timeout_connect(Duration::from_secs(15))
         .timeout_read(Duration::from_secs(120))
         .user_agent(concat!("zenith-bridge/", env!("CARGO_PKG_VERSION")))

@@ -93,6 +93,66 @@ pub(crate) fn pump(
     Ok(child.wait()?.code().unwrap_or(1))
 }
 
+/// Puts `child` in a job that kills it when the bridge dies, so XMCL's Stop (which may kill only
+/// the bridge) cannot leave the game running. Best effort: false if Windows refuses.
+/// The job handle is deliberately never closed: it lives as long as the bridge.
+#[cfg(windows)]
+pub fn kill_with_bridge(child: &Child) -> bool {
+    use std::ffi::c_void;
+    use std::os::windows::io::AsRawHandle;
+    #[repr(C)]
+    #[derive(Default)]
+    struct ExtendedLimits {
+        per_process_time: i64,
+        per_job_time: i64,
+        limit_flags: u32,
+        min_working_set: usize,
+        max_working_set: usize,
+        active_process_limit: u32,
+        affinity: usize,
+        priority_class: u32,
+        scheduling_class: u32,
+        io_counters: [u64; 6],
+        process_memory_limit: usize,
+        job_memory_limit: usize,
+        peak_process_memory: usize,
+        peak_job_memory: usize,
+    }
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn CreateJobObjectW(attrs: *mut c_void, name: *const u16) -> *mut c_void;
+        fn SetInformationJobObject(
+            job: *mut c_void,
+            class: i32,
+            info: *mut c_void,
+            len: u32,
+        ) -> i32;
+        fn AssignProcessToJobObject(job: *mut c_void, process: *mut c_void) -> i32;
+    }
+    const EXTENDED_LIMIT_INFORMATION: i32 = 9;
+    const KILL_ON_JOB_CLOSE: u32 = 0x2000;
+    let mut limits = ExtendedLimits {
+        limit_flags: KILL_ON_JOB_CLOSE,
+        ..Default::default()
+    };
+    unsafe {
+        let job = CreateJobObjectW(std::ptr::null_mut(), std::ptr::null());
+        !job.is_null()
+            && SetInformationJobObject(
+                job,
+                EXTENDED_LIMIT_INFORMATION,
+                (&raw mut limits).cast(),
+                std::mem::size_of::<ExtendedLimits>() as u32,
+            ) != 0
+            && AssignProcessToJobObject(job, child.as_raw_handle().cast()) != 0
+    }
+}
+
+#[cfg(not(windows))]
+pub fn kill_with_bridge(_: &Child) -> bool {
+    false
+}
+
 /// Runs the game: prints the ready line, gives it the session on stdin, relays its output (the crash
 /// line translated to what XMCL looks for) and returns its exit code.
 pub fn run_game(
@@ -106,6 +166,7 @@ pub fn run_game(
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()?;
+    kill_with_bridge(&child);
     emit(Stream::Out, READY_LINE);
     if let Some(mut stdin) = child.stdin.take() {
         // a game that already exited just closes the pipe

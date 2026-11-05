@@ -85,12 +85,17 @@ fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
             .join(format!("{pinned}.json"));
         let jar = d.home.join("server-jars").join(format!("{pinned}.jar"));
         ensure_server_jar(&version_json, &jar, |u| (d.fetch)(u))?;
-        ensure_index_alias(&version_json, &a.assets_dir);
+        ensure_index_alias(&version_json, &a.assets_dir)?;
+        if a.java_home().is_empty() {
+            return Err("XMCL passed a Java path without a folder; cannot prepare Horizon.".into());
+        }
         let work = d
             .home
             .join("work")
             .join(build.file_name().unwrap_or_default());
-        make_work(&build, &work)?;
+        make_work(&build, &work).inspect_err(|_| {
+            let _ = std::fs::remove_dir_all(&work);
+        })?;
         let done = run_prepare(
             prepare_cmd(&build, &a, &prepared, &jar, &work),
             &mut |s, l| (d.emit)(s, l),
