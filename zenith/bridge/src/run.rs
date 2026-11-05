@@ -122,5 +122,5 @@ fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
         &a.session_json(),
         &mut |s, l| (d.emit)(s, l),
     )
-    .map_err(|e| format!("could not start horizon-client: {e}"))
+    .map_err(|e| format!("could not start zenith: {e}"))
 }

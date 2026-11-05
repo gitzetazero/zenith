@@ -223,7 +223,9 @@ fn icons() -> Result<(), String> {
 
 fn package(binary: &Path, out: &Path) -> Result<(), String> {
     let repo = new_folder(out)?;
-    copy_into(binary, out)?;
+    // zenith: the game ships as `zenith[.exe]` (the process name players see); the cargo bin keeps
+    // Horizon's name so upstream merges stay clean.
+    copy(binary, &out.join(program_name(binary, "zenith")))?;
     copy_beside(binary, &TOOLS, out)?;
     copy_exporters(&repo.join("exporters"), &out.join("exporters"))?;
     let play = repo.join("packaging/PLAY.txt");

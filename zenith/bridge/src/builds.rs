@@ -169,8 +169,8 @@ impl Store {
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(&tmp).map_err(|e| e.to_string())?;
         let done = extract_zip(archive, &tmp).and_then(|()| {
-            if !tmp.join("horizon-client.exe").is_file() {
-                return Err("the archive has no horizon-client.exe".to_string());
+            if !tmp.join("zenith.exe").is_file() && !tmp.join("horizon-client.exe").is_file() {
+                return Err("the archive has no zenith.exe".to_string());
             }
             std::fs::write(tmp.join(STAMP), stamp.text()).map_err(|e| e.to_string())?;
             let _ = std::fs::remove_dir_all(&dest);

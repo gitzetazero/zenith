@@ -1,4 +1,4 @@
-//! Embeds Horizon's icon (`packaging/icons/horizon.ico`) in the Windows executables, as icon
+//! Embeds Zenith's icon (`packaging/icons/horizon.ico`, Horizon's file name kept for clean upstream merges) in the Windows executables, as icon
 //! resource 1: Explorer and the task bar show it, and the window takes it as its icon.
 //! The optional Segment Heap manifest is embedded in the same resource compilation.
 fn main() {
@@ -23,6 +23,12 @@ fn main() {
     if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("windows") {
         let mut resource = winresource::WindowsResource::new();
         resource.set_icon(&ico);
+        // zenith: what Explorer and Task Manager show for the exe.
+        resource.set("ProductName", "Zenith");
+        resource.set("FileDescription", "Zenith");
+        resource.set("OriginalFilename", "zenith.exe");
+        resource.set("InternalName", "zenith");
+        resource.set("CompanyName", "Zenith");
         if std::env::var_os("CARGO_FEATURE_WINDOWS_SEGMENT_HEAP").is_some() {
             let manifest = format!("{dir}/windows-segment-heap.manifest");
             println!("cargo:rerun-if-changed={manifest}");
@@ -36,7 +42,7 @@ fn main() {
                 panic!("embedding Windows resources: {e}");
             }
             println!(
-                "cargo:warning=building without Horizon's icon: embedding Windows resources failed: {e}"
+                "cargo:warning=building without Zenith's icon: embedding Windows resources failed: {e}"
             );
         }
     }

@@ -176,7 +176,7 @@ pub fn make_work(build: &Path, work: &Path) -> Result<(), String> {
     }
     let _ = std::fs::remove_dir_all(work);
     std::fs::create_dir_all(work).map_err(|e| e.to_string())?;
-    let skip: Vec<PathBuf> = ["horizon-client", "horizon-prepare", "horizon-ctl"]
+    let skip: Vec<PathBuf> = ["zenith", "horizon-client", "horizon-prepare", "horizon-ctl"]
         .iter()
         .map(|n| tool(Path::new(""), n))
         .collect();

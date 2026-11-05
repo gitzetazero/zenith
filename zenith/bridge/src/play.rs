@@ -20,6 +20,12 @@ pub fn tool(build: &Path, name: &str) -> PathBuf {
     build.join(format!("{name}{}", std::env::consts::EXE_SUFFIX))
 }
 
+/// The game executable: `zenith` in current builds, `horizon-client` in older ones.
+pub fn client(build: &Path) -> PathBuf {
+    let z = tool(build, "zenith");
+    if z.is_file() { z } else { tool(build, "horizon-client") }
+}
+
 /// A GUI-subsystem bridge has no console: without this a console child would open its own window.
 pub fn hide_console(cmd: &mut Command) -> &mut Command {
     #[cfg(windows)]
@@ -32,7 +38,7 @@ pub fn hide_console(cmd: &mut Command) -> &mut Command {
 
 /// The session goes on stdin (`--session-stdin`), never here.
 pub fn client_cmd(build: &Path, a: &LaunchArgs, prepared: &Path) -> Command {
-    let mut c = Command::new(tool(build, "horizon-client"));
+    let mut c = Command::new(client(build));
     c.arg("--resources")
         .arg(prepared)
         .arg("--game-dir")
