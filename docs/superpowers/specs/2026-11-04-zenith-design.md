@@ -4,7 +4,7 @@
 
 Zenith es un fork de [horizon-rust/horizon](https://github.com/horizon-rust/horizon), Minecraft: Java Edition 26.3 reescrito en Rust (licencia MIT). Nace por un problema real: el usuario no pudo entrar a `<servidor de prueba>` ("¡Cliente no compatible! Por favor, usa 1.7.2-26.2"). Horizon ya trae un traductor de versiones, pero está apagado por defecto (`older_servers_enabled()`, `crates/horizon-client/src/net.rs:564`).
 
-Objetivo: un cliente que entre a más servidores, que se use desde [XMCL](https://xmcl.app/en/) y después desde una traducción completa de XMCL a Rust, con más FPS y shaders que funcionen, recibiendo siempre los parches de Horizon.
+Objetivo: un cliente con más compatibilidad (entre otras cosas, servidores de versiones más antiguas), que se use desde [XMCL](https://xmcl.app/en/) y después desde una traducción completa de XMCL a Rust, con más FPS y shaders que funcionen, recibiendo siempre los parches de Horizon.
 
 ### Qué responde hoy ese servidor (medido con pings de estado, sin login)
 

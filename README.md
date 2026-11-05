@@ -1,8 +1,8 @@
-<img src="branding/png/banner.png" alt="Zenith: Minecraft Java en Rust, entra a más servidores. Fork de Horizon." width="100%">
+<img src="branding/png/banner.png" alt="Zenith: Minecraft Java en su punto más alto. Fork de Horizon." width="100%">
 
 # Zenith
 
-Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon), Minecraft: Java Edition 26.3 reescrito en Rust, que se mantiene al día con los arreglos de Horizon y busca entrar a más servidores.
+Zenith es un fork de [Horizon](https://github.com/horizon-rust/horizon), Minecraft: Java Edition 26.3 reescrito en Rust, que se mantiene al día con los arreglos de Horizon y busca más compatibilidad (entre otras cosas, entrar a servidores de versiones más antiguas) y tener su propio launcher.
 
 > **Estado: temprano, privado primero.** El repositorio y la Release `nightly` (con el exe del puente) son públicos, pero no hay anuncio y todo es experimental y sin verificar con la interfaz real de XMCL. Lo que sigue describe lo que existe hoy, no una promesa.
 

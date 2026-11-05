@@ -16,6 +16,13 @@ simples, así que se lee bien a 16 px.
 El logotipo de texto (`ZENITH`, `LAUNCHER`) está dibujado a mano con trazos geométricos y
 esquinas vivas. Es propio y no es una fuente.
 
+## Lema
+
+Principal: **Minecraft Java en su punto más alto.** (zenith es el punto más alto). Alternativas:
+
+- Minecraft, sin techo.
+- Lleva Minecraft más arriba.
+
 ## Archivos
 
 | Archivo | Uso |
