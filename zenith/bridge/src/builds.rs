@@ -101,7 +101,12 @@ impl Store {
     /// The stamp saved in the installed build's folder, if there is a valid one.
     pub fn installed_stamp(&self) -> Option<Stamp> {
         let text = std::fs::read_to_string(self.current()?.join(STAMP)).ok()?;
-        Stamp::parse(&text).ok()
+        Stamp::parse_at(&text, u64::MAX).ok()
+    }
+
+    /// Saves a newer stamp of the same commit in the installed build's folder (best effort).
+    fn refresh_stamp(&self, dir: &Path, stamp: &Stamp) {
+        let _ = write_atomic(&dir.join(STAMP), &stamp.text());
     }
 
     /// Verifies `archive` and the build `stamp` against the nightly-signed `sums` (the stamp before it
@@ -179,6 +184,63 @@ impl Store {
     }
 }
 
+/// The first stamped release: nothing older is installed, not even on a fresh machine.
+/// Bump it when a release is known to be vulnerable.
+pub const MIN_BUILT: &str = "2026-11-05T02:56:39Z";
+
+fn now_secs() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_secs())
+}
+
+/// Seconds since 1970 of a well-formed `yyyy-mm-ddTHH:MM:SSZ`, None if any field is out of range.
+fn epoch_secs(t: &str) -> Option<u64> {
+    let n = |r: std::ops::Range<usize>| t[r].parse::<u64>().ok();
+    let (y, mo, d, h, mi, s) = (
+        n(0..4)?,
+        n(5..7)?,
+        n(8..10)?,
+        n(11..13)?,
+        n(14..16)?,
+        n(17..19)?,
+    );
+    let leap = y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+    let month_days = [
+        31,
+        if leap { 29 } else { 28 },
+        31,
+        30,
+        31,
+        30,
+        31,
+        31,
+        30,
+        31,
+        30,
+        31,
+    ];
+    if !(2026..=2100).contains(&y) || !(1..=12).contains(&mo) || h >= 24 || mi >= 60 || s >= 60 {
+        return None;
+    }
+    if !(1..=month_days[mo as usize - 1]).contains(&d) {
+        return None;
+    }
+    let days = (1970..y)
+        .map(|y| {
+            if y % 4 == 0 && (y % 100 != 0 || y % 400 == 0) {
+                366
+            } else {
+                365
+            }
+        })
+        .sum::<u64>()
+        + month_days[..mo as usize - 1].iter().sum::<u64>()
+        + d
+        - 1;
+    Some(days * 86_400 + h * 3600 + mi * 60 + s)
+}
+
 /// What the signed `zenith-build.txt` says: the commit built and when (UTC, `yyyy-mm-ddTHH:MM:SSZ`).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Stamp {
@@ -189,6 +251,12 @@ pub struct Stamp {
 impl Stamp {
     /// Exactly two LF-terminated lines, `commit=<40 lowercase hex>` then `built=<UTC time>`.
     pub fn parse(text: &str) -> Result<Stamp, String> {
+        Stamp::parse_at(text, now_secs())
+    }
+
+    /// [`Stamp::parse`] against a given clock (seconds since 1970): the time must be a real one
+    /// between [`MIN_BUILT`] and one day after `now` (clock skew tolerance).
+    pub fn parse_at(text: &str, now: u64) -> Result<Stamp, String> {
         let bad = || format!("{STAMP} is malformed");
         let mut lines = text.strip_suffix('\n').ok_or_else(bad)?.split('\n');
         let commit = lines
@@ -217,6 +285,13 @@ impl Stamp {
                 });
         if lines.next().is_some() || !commit_ok || !time_ok {
             return Err(bad());
+        }
+        let secs = epoch_secs(built).ok_or_else(bad)?;
+        if secs > now.saturating_add(86_400) {
+            return Err(format!("{STAMP} is dated in the future"));
+        }
+        if built < MIN_BUILT {
+            return Err(format!("{STAMP} is older than the first stamped release"));
         }
         Ok(Stamp {
             commit: commit.into(),
@@ -406,11 +481,17 @@ fn update(
             // The identity comes from the signed stamp, never from the release title.
             let new = verified_stamp(&stamp, &sums, &sig, keys)?;
             if let (Some(have), Some(current)) = (store.installed_stamp(), store.current()) {
-                if new.built < have.built {
-                    store.log(&downgrade(&new, &have));
+                // The same commit rebuilt later is the same game: nothing to download.
+                if new.commit == have.commit {
+                    if new.built > have.built {
+                        store.refresh_stamp(&current, &new);
+                    }
                     return Ok(current);
                 }
-                if new == have {
+                if new.built <= have.built {
+                    if new.built < have.built {
+                        store.log(&downgrade(&new, &have));
+                    }
                     return Ok(current);
                 }
             }
@@ -426,24 +507,15 @@ fn update(
 }
 
 /// The production fetch: a GET with the timeouts and User-Agent the bridge uses. 404 is `None`.
-/// `GITHUB_TOKEN`, if set, goes only to the API host and is never logged.
 pub fn http_fetch(url: &str) -> Result<Option<Vec<u8>>, String> {
     let agent = ureq::AgentBuilder::new()
         .https_only(true) // a redirect to plain http fails too
         .timeout_connect(Duration::from_secs(15))
         .timeout_read(Duration::from_secs(120))
-        .timeout(Duration::from_secs(300)) // overall, so a trickling download cannot hang the launch
+        .timeout(Duration::from_secs(900)) // overall, so a trickling download cannot hang the launch
         .user_agent(concat!("zenith-bridge/", env!("CARGO_PKG_VERSION")))
         .build();
-    let mut req = agent.get(url);
-    if url.starts_with("https://api.github.com/") {
-        req = req.set("Accept", "application/vnd.github+json");
-        if let Ok(token) = std::env::var("GITHUB_TOKEN") {
-            if !token.is_empty() {
-                req = req.set("Authorization", &format!("Bearer {token}"));
-            }
-        }
-    }
+    let req = agent.get(url);
     match req.call() {
         Ok(resp) => {
             let mut body = Vec::new();

@@ -15,7 +15,7 @@ No se distribuye ningún archivo de Mojang: XMCL descarga Minecraft y el puente 
 ## Instalación
 
 1. Instala XMCL, ábrelo una vez, elige la carpeta de datos y ciérralo.
-2. En la pestaña Releases de este repositorio, en la pre-release `nightly`, descarga `zenith-bridge-windows-x64.exe` y comprueba que su SHA-256 coincide con su línea de `SHA256SUMS` (`certutil -hashfile zenith-bridge-windows-x64.exe SHA256`). Puedes dejarlo en cualquier carpeta.
+2. En la pestaña Releases de este repositorio, en la pre-release `nightly`, descarga `zenith-bridge-windows-x64.exe` y comprueba que su SHA-256 coincide con su línea de `SHA256SUMS` (`certutil -hashfile zenith-bridge-windows-x64.exe SHA256`). Puedes dejarlo en cualquier carpeta. Ojo: comparar el hash con el `SHA256SUMS` de la misma release solo detecta una descarga corrupta, no una release sustituida; las builds del juego que el puente descarga después sí se verifican con una firma Ed25519. El exe no está firmado para Windows, así que SmartScreen puede avisar.
 3. Desde una consola, ejecuta `zenith-bridge-windows-x64.exe setup`. Copia el puente a `%APPDATA%\zenith\java\bin` (como `java.exe` y `javaw.exe`) y crea la instancia **Zenith** en la carpeta de datos de XMCL. Si XMCL estaba abierto, ciérralo del todo y ábrelo otra vez: la instancia se aplica al reiniciarlo.
 4. En XMCL inicia sesión con tu cuenta de Microsoft, elige la instancia Zenith y pulsa Jugar.
 
@@ -51,7 +51,7 @@ Automáticas: al pulsar Jugar el puente busca la última build y la instala tras
 ## Privacidad
 
 - Telemetría y cosméticos de Zenith están desactivados. La telemetría de XMCL es cosa de XMCL: puedes desactivarla en Ajustes, General, «desactivar telemetría» (`disableTelemetry`).
-- El puente contacta solo con: `api.minecraftservices.com` (comprobar que tu cuenta tiene el juego); `api.github.com` y `github.com` y su CDN de descargas (builds y actualizaciones); `launchermeta.mojang.com`, `piston-meta.mojang.com` y `piston-data.mojang.com` (el jar del servidor y, si no hay un Java 25, el runtime de Java de Mojang). Todo por https y comprobando hashes o firmas.
+- El puente contacta solo con: `api.minecraftservices.com` (comprobar que tu cuenta tiene el juego); `github.com` y su CDN de descargas (builds y actualizaciones); `launchermeta.mojang.com`, `piston-meta.mojang.com` y `piston-data.mojang.com` (el jar del servidor y, si no hay un Java 25, el runtime de Java de Mojang). Todo por https y comprobando hashes o firmas.
 - Guarda en `%APPDATA%\zenith` un registro y una caché de qué cuenta posee el juego; no guarda tu token.
 
 ## Límites conocidos

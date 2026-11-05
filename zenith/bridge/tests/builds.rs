@@ -6,7 +6,7 @@ use std::cell::{Cell, RefCell};
 use std::io::Write;
 use std::path::PathBuf;
 use std::time::Duration;
-use zenith_bridge::builds::{STAMP, Store, asset_name, ensure_latest_after};
+use zenith_bridge::builds::{MIN_BUILT, STAMP, Stamp, Store, asset_name, ensure_latest_after};
 
 type Fetch<'a> = dyn Fn(&str) -> Result<Option<Vec<u8>>, String> + 'a;
 
@@ -38,7 +38,7 @@ fn good(tag: &str) -> Vec<u8> {
 /// Build number `n`: built `n` seconds past midnight of 2026-11-05, with the commit `n` repeated.
 fn stamp_of(n: u32) -> String {
     format!(
-        "commit={}\nbuilt=2026-11-05T00:{:02}:{:02}Z\n",
+        "commit={}\nbuilt=2026-11-05T03:{:02}:{:02}Z\n",
         format!("{n:02x}").repeat(20),
         n / 60,
         n % 60
@@ -505,4 +505,75 @@ fn live_release_install() {
         "the second call downloaded the archive again"
     );
     let _ = std::fs::remove_dir_all(&s.root);
+}
+
+fn rebuilt(commit_n: u32, built: &str) -> String {
+    format!(
+        "commit={}\nbuilt={built}\n",
+        format!("{commit_n:02x}").repeat(20)
+    )
+}
+
+#[test]
+fn same_commit_rebuilt_later_downloads_nothing_and_refreshes_the_stamp() {
+    let (s, k) = (store(), key());
+    let first = install(&s, &k, 1, "one");
+    let later = rebuilt(1, "2026-11-05T09:00:00Z");
+    let r = release_with(&k, "nightly", good("rebuild"), &later, Some(&later));
+    for _ in 0..2 {
+        let calls = RefCell::default();
+        assert_eq!(update(&s, &k, &*serve(&r, &calls)), Ok(first.clone()));
+        assert!(!calls.borrow().iter().any(|u| u.ends_with(asset_name())));
+    }
+    assert_eq!(std::fs::read_to_string(first.join(STAMP)).unwrap(), later);
+    assert_eq!(exe(&first), "one");
+    assert_eq!(builds(&s), [ver(1)]);
+}
+
+#[test]
+fn stamp_times_are_validated() {
+    let now = 1_793_864_000; // 2026-11-05T07:33:20Z
+    let c = "ab".repeat(20);
+    let at = |built: &str| Stamp::parse_at(&format!("commit={c}\nbuilt={built}\n"), now);
+    for bad in [
+        "9999-99-99T99:99:99Z",
+        "2026-13-05T03:00:00Z",
+        "2026-02-30T03:00:00Z",
+        "2027-02-29T03:00:00Z",
+        "2026-11-05T24:00:00Z",
+        "2026-11-05T03:60:00Z",
+        "2026-11-05T03:00:60Z",
+        "2101-01-01T00:00:00Z",
+        "2026-11-07T03:00:00Z", // +2 days
+        "2026-11-05T02:56:38Z", // before MIN_BUILT
+        "2026-01-01T00:00:00Z",
+    ] {
+        assert!(at(bad).is_err(), "{bad}");
+    }
+    for ok in [
+        "2026-11-05T08:33:20Z", // +1 hour
+        MIN_BUILT,
+        "2028-02-29T03:00:00Z", // leap day, but in the future of this clock only if > 1 day
+    ] {
+        // the leap-day case is judged against a later clock
+        let clock = if ok.starts_with("2028") {
+            1_900_000_000
+        } else {
+            now
+        };
+        assert!(
+            Stamp::parse_at(&format!("commit={c}\nbuilt={ok}\n"), clock).is_ok(),
+            "{ok}"
+        );
+    }
+}
+
+#[test]
+fn a_stamp_older_than_the_first_stamped_release_is_refused_on_a_fresh_install() {
+    let (s, k) = (store(), key());
+    let old = rebuilt(1, "2026-11-05T02:56:38Z");
+    let r = release_with(&k, "nightly", good("old"), &old, Some(&old));
+    assert!(update(&s, &k, &*serve(&r, &RefCell::default())).is_err());
+    assert!(install_r(&s, &k, &r).is_err());
+    assert!(s.current().is_none() && builds(&s).is_empty());
 }
