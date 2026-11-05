@@ -311,10 +311,142 @@ No se resuelve aquí. Opciones, de más barata a más cara, ninguna probada con 
 3. Pedir a XMCL que no use `shell: true` en Windows cuando el comando previo es un ejecutable (cambio en `@xmcl/core`/`LaunchService`). Contradice "no hay que modificar XMCL" del diseño.
 4. Abandonar `prependCommand` para esta fase y pasar a la fase 6 (launcher propio).
 
-Hasta que se decida, la tarea 10 no debería escribirse como está.
+Hasta que se decida, la tarea 10 no debería escribirse como está. Ver el apartado 10: una cuarta vía (el puente como `java` de la instancia, sin `cmd.exe`) medida después, y que además corrige el límite de 19 caracteres (se midió con un token de 10 caracteres).
 
 ## 9. Efectos secundarios de esta prueba (para ser honestos)
 
 - Se creó la carpeta `C:\zx` (tres subcarpetas y una copia del JSON de versión, ~45 KB) como raíz corta de pruebas, y no se pudo borrar desde esta sesión (el borrado fue bloqueado por una comprobación de seguridad). Hay que borrarla a mano: `rmdir /s /q C:\zx`.
 - Al probar opciones rechazadas (`--width abc`, `--bogus`) **sin** definir `HORIZON_HOME`, `horizon-client` escribió su registro en `%APPDATA%\horizon\logs` (el valor por defecto): rotó el `latest.log` anterior a `2026-11-04-4.log.gz`, creó `2026-11-05-1.log.gz` y reescribió `latest.log`. Eso va en contra de la regla de no tocar `%APPDATA%\horizon*` y **deja la lista de archivos de `%APPDATA%\horizon` distinta a la de antes de la prueba**; la comparación del paso 6 de la tarea 10 debe partir de un perfil que se anote de nuevo. No se modificó nada más allá de eso (el contenido del registro anterior se conservó comprimido; `%APPDATA%\horizon-launcher` no tuvo ningún cambio). No se intentó deshacerlo para no escribir más allí.
 - Todas las descargas, desempaquetados, la carpeta preparada, la de la build y el clon de XMCL están en `%TEMP%\zenith-spike`. No se borran para reutilizarlos en tareas posteriores.
+
+## 10. Alternativa: el puente como "java" de la instancia (sin cmd.exe)
+
+Hallazgo que motiva esto: con `prependCommand` XMCL usa `shell: true` (cmd.exe, límite 8191) y pasa el token **real** de Minecraft, un JWT que puede medir más de mil caracteres. La idea: no usar `prependCommand` y poner en el campo `java` de `instance.json` una copia del puente que se hace pasar por Java. Entonces XMCL lanza `<java> -Xmx… -cp … net.minecraft.client.main.Main <args>` **sin shell** y manda el límite de `CreateProcess` (32 767).
+
+Prueba estática, como la anterior: ningún clic en la interfaz. Se leyó el código del mismo clon de XMCL (`aeb5240`, solo lectura) y se ejecutaron sus funciones reales (empaquetadas con esbuild) contra un "java" falso. Entorno: Windows 11 (10.0.26300), Node v24.22.1. Todo en una carpeta temporal; no se tocó `%APPDATA%\horizon*`, `%APPDATA%\xmcl`, `C:\xmcl` ni `%APPDATA%\zenith`. Se reproduce con `zenith/bridge/tests/fixtures/java-shim-spike/` (ver "Cómo reproducirlo").
+
+### Veredicto
+
+**Viable con salvedades.** El mecanismo de XMCL (resolución de Java, validación, cambio a `javaw.exe`, lanzamiento sin shell, lectura de stdout) funciona con un ejecutable que responde a `-version`, y la línea de comandos deja unos 21 000 caracteres de margen. Quedan abiertas cosas que necesitan la interfaz de XMCL (último apartado) y dos consecuencias de diseño que no tienen que ver con el límite: XMCL ya no descarga un Java 25 para el puente, y otras instancias podrían elegir el shim como Java. El diseño con `prependCommand` queda **en duda seria**: con `C:\xmcl` falla en cuanto el token pase de unos 1090 caracteres, y la longitud real no se pudo medir.
+
+### Cómo decide XMCL, con evidencia de código
+
+**Sin shell, salvo con comando previo.** `LaunchService.#generateOptions` (`xmcl-runtime/launch/LaunchService.ts:228`): `shell: prepend && prepend.length > 0`. `launch()` de `@xmcl/core` (`packages/core/launch.ts:688-698`) solo cita los argumentos si `extraExecOption.shell` es verdadero, y después hace `spawn(args[0], args.slice(1), { cwd, detached: true, env })`. `inst.prependCommand ?? globalPrependCommand` (`xmcl-runtime-api/src/util/launch.ts:140`) usa el global solo si el de la instancia es `undefined`, y `normalizeCommandLine('')` devuelve `''` (falso), así que **un `"prependCommand": ""` explícito en la instancia anula también un comando previo global**; el esquema acepta la cadena vacía (`packages/instance/instance.ts:273`). Medido más abajo: sin shell.
+
+**Qué ejecuta XMCL para saber qué es "Java"** (`packages/installer/java.ts`, `resolveJavaWithDiagnostic`): comprueba que el archivo existe y ejecuta `execFile(<ruta>, ['-version'], { windowsHide: true })`. Lee la versión de **stderr y, si no, de stdout** (`parseJavaVersionOutput`), **sin mirar el código de salida** (solo lo guarda para diagnóstico). `parseJavaVersion` exige que el texto contenga `openjdk`, `java version` o `java_version` como palabra, y un número. No lee `<home>/release` salvo para rellenar un registro inválido después de fallar (`JavaService.ts:170`). No usa `-XshowSettings:properties` (grep sin resultados) y no mira el nombre del archivo, ni el vendor, ni que esté en `bin/` bajo un home. Medido con `parseJavaVersion`:
+
+| Salida | Resultado |
+| --- | --- |
+| `openjdk version "25"` | `{version:"25", majorVersion:25}` |
+| `java version "25"` | igual |
+| 3 líneas de Temurin con `"25.0.5"` | `{version:"25.0.5", majorVersion:25}` |
+| `25.0.5`, `version "25.0.5"`, un banner propio o nada | `undefined` (no es Java) |
+
+`resolveJava` sobre un ejecutable que solo responde a `-version` (`fakejava.rs`) da `25.0.5 (major 25)` **tanto de consola como de subsistema Windows** (con stdout y stderr en tuberías, el de subsistema Windows también escribe). Un binario ajeno (`whoami.exe`) da `undefined`: XMCL **rechaza lo desconocido**; solo acepta lo que hable "java". Un archivo inexistente da `ENOENT`.
+
+**Extra opcional.** `JavaService.resolveJava` llama a `getJavaArch` (`detectJVMArch.ts`): `execFile(<java>, ['JavaProxy','-jvm_info'], { cwd: <datos de XMCL> })` y espera JSON con `java_arch` (`"64"` pasa a `x64`). Si falla solo avisa y deja la arquitectura sin definir (cosmético: se ve en la lista de Java). El shim contesta `{"java_arch":"64"}`.
+
+**Cuánta versión exige XMCL.** El middleware `java-validation` (`pluginLaunchPrecheck.ts:99-149`) **no compara versiones**: solo exige que `resolveJava` devuelva algo. La comparación está en la interfaz: `getAutoOrManuallJava` (`xmcl-runtime-api/src/util/java.ts`) la hace contra el requisito del JSON de versión (`javaVersion.majorVersion`; para 26.3: `java-runtime-epsilon`, **25**, regla `>=25`) y `getInstanceJavaIssue` (`instanceJavaDiagnose.ts`) abre el diálogo "incompatible" si no se cumple. Se ejecutaron las funciones reales de selección (`validate.cjs`; el último punto reproduce a mano `getInstanceJavaIssue`):
+
+```
+shim 25 (java.exe)         resolveJava: 25.0.5 (major 25) | arch: 64 | calidad: 0 (Matched)  problema: null
+shim 25 (javaw.exe)        resolveJava: 25.0.5 (major 25) | arch: 64 | calidad: 0 (Matched)  problema: null
+shim que dice 21           resolveJava: 21.0.5 (major 21) | arch: 64 | calidad: 2            problema: incompatible
+binario ajeno (whoami.exe) resolveJava: undefined                                           problema: invalid
+ruta inexistente           X_OK: ENOENT, resolveJava: undefined                              problema: invalid
+```
+
+Con la lista de Java de XMCL vacía (`all` vacío) el resultado es `invalid` **incluso con un Java real**, porque `getAutoOrManuallJava` devuelve `noJava` sin mirar el campo. Es transitorio: `resolveJava` añade el Java a la lista y la interfaz recalcula (`watch` en `instanceJava.ts`). Ese refresco no se pudo ver sin la interfaz.
+
+### El cambio a `javaw.exe` y los nombres del shim
+
+`#generateOptions` (líneas 205-206) calcula `join(dirname(javaPath), 'javaw.exe')` y, si existe y `access(X_OK)` (en Windows: que exista), lanza **ese** en lugar del campo, sea cual sea el nombre del campo. En cambio `java-validation` y la interfaz sondean `options.java`, el del campo. Por tanto:
+
+- **`java.exe`** debe existir: es lo que se sondea con `-version` y lo que va en el campo `java`.
+- **`javaw.exe`** debe estar **en la misma carpeta**: es lo que recibe los argumentos del juego. Puede ser el mismo binario: se probó con `java.exe` de consola + `javaw.exe` de subsistema Windows (A1), solo `java.exe` de consola (A2) y ambos de subsistema Windows (A3). En los tres se lanza y XMCL ve la salida. Sin `javaw.exe` se lanza `java.exe`.
+
+### Lo que recibe el shim y cómo se trata su salida
+
+Se ejecutó el `core.launch()` real de `@xmcl/core` con las mismas opciones que XMCL (`shell: false`, `detached: true`, `cwd`, `env`), un token falso de 1200 caracteres y el `createMinecraftProcessWatcher` real (el que usa `LaunchService`), contra el shim (`e2e.cjs`, resumido):
+
+```
+A1 java.exe consola + javaw.exe winsub  lanzado=jre\bin\javaw.exe   ready=true code=0 stdout="LWJGL Version: zenith" stderr="stderr line from shim" argc=43 cwdOk=true pidIgualAlDeNode=true
+A2 solo java.exe (consola)              lanzado=jre2\bin\java.exe   ready=true code=0 stdout="LWJGL Version: zenith" …
+A3 java.exe y javaw.exe winsub          lanzado=jre3\bin\javaw.exe  ready=true code=0 stdout="LWJGL Version: zenith" …
+```
+
+- **La salida estándar llega en los tres casos**, también con el ejecutable de consola, a diferencia del caso `shell: true` del apartado 2. `minecraft-window-ready` se dispara con `LWJGL Version: `; stderr llega aparte.
+- **`argv` del shim:** `argv[0]` es la ruta de `javaw.exe` que pasa XMCL y a continuación van los 42 argumentos del fixture `xmcl-args.txt` (que lleva `javaw.exe` como primera línea, 43 en total). Tras normalizar la raíz son idénticos, salvo el uuid y el token, que en el fixture eran de relleno (`#34`, `#36`). Respecto a `prependCommand` **no hay una ruta del puente antes**: `argv[1]` ya es `-XX:HeapDumpPath=…`.
+- **`process.pid` es el del shim** (el `PID` que vuelca el shim coincide con el `pid` de Node). No hay `cmd.exe` en medio, así que Detener de XMCL (`process.kill()`) ya alcanza al puente; que el árbol del juego muera con él depende del objeto de trabajo del puente (`d628dd28a`).
+- **Sin shell no hay expansión ni pérdida de caracteres.** Con la ruta `…/Jose Ñ/java dir/bin/javaw.exe` y argumentos extra `100%ZXTEST%`, `a&b`, `q"uote` y uno con tabulador, el shim recibió exactamente `["--x","100%ZXTEST%","--y","a&b","--z","q\"uote","--w","tab\there"]` y la ruta con Ñ y espacios intacta. (Con `cmd.exe`, apartado 2, `%…%` se expandía y las comillas se perdían.)
+- Un `-version` tarda unos 12,6 ms (media de 20, subsistema Windows).
+
+### Longitud de línea medida (la razón de este apartado)
+
+Misma orden de 26.3 (82 jars) con `core.generateArguments`, token falso de longitud variable (no se pudo obtener un JWT real), raíz de datos `C:\Users\Some Long User Name\AppData\Roaming\xmcl` (49 caracteres) y Java en `C:\Users\Some Long User Name\AppData\Roaming\zenith\java\bin\javaw.exe`. "Sin shell" es el `GetCommandLineW` del shim real, corregido a la ruta de Java larga (+2 por las comillas que libuv pone a una ruta con espacios; incertidumbre de unos 3 caracteres). "Con prepend + shell" es la longitud del comando que recibe `cmd.exe` (ruta del puente de unos 70 caracteres, como en la prueba anterior):
+
+| Token | Sin shell (CreateProcess, límite 32 767) | Margen | Con prepend + shell (cmd.exe, límite 8191) |
+| --- | --- | --- | --- |
+| 10 | 10 444 | 22 323 | 10 531 |
+| 700 | 11 134 | 21 633 | 11 221 |
+| **1200** | **11 634** | **21 133** | **11 721** |
+| 1500 | 11 934 | 20 833 | 12 021 |
+
+- `cmd.exe` real, raíz larga, token 1200, con prepend: **código 1, "La línea de comandos es demasiado larga.", el programa no se ejecutó.**
+- Sin shell cabe con holgura. La línea crece 82 caracteres por carácter de raíz, así que haría falta una raíz de unos 300 caracteres para llegar a 32 767 (antes pesaría `MAX_PATH` en otros sitios).
+- **Corrige el apartado 2.** El límite de "unos 19 caracteres" se midió con un token de 10 caracteres. Con la raíz corta recomendada y el diseño actual:
+
+  ```
+  prepend+shell, raíz C:\xmcl (7), token 10:   comando=7108, código 0, shim ejecutado: true
+  prepend+shell, raíz C:\xmcl (7), token 1200: comando=8298, código 1, shim ejecutado: false
+  ```
+
+  El token cuenta carácter a carácter: con `C:\xmcl` el diseño con `prependCommand` solo funciona con tokens de hasta unos 1090 caracteres (8191 − 7108 + 10). La longitud del token real es desconocida aquí.
+
+### Qué pasa con la interfaz y los ajustes de XMCL (leído, no ejecutado)
+
+- **XMCL no reemplaza nuestro campo `java` por su cuenta.** La interfaz lo usa tal cual si está asignado (`getAutoOrManuallJava`: "User assigned java path, revalidate it"; `instanceVersionInstall.ts:44-47`: con `inst.java` definido no se instala ni se busca otro; `InstallCoordinator.ts:150-166`: "A pinned instance Java wins when it resolves"). El único reemplazo automático está en el middleware y **solo si la ruta cuelga de `<raíz>/jre/<componente>`** (`getManagedJavaComponent`): si `resolveJava` falla, XMCL quita ese Java y **reinstala el de Mojang**. **El shim no debe estar bajo `<raíz de XMCL>/jre`.** Fuera de ahí, si falla, el error es `launchNoProperJava`: visible y sin reemplazo.
+- **El Java global** (`globalJava`) solo desempata la **elección automática** cuando `instance.java` está vacío (`selectJavaByPreference`, parámetro `preferredPath`); no pisa un campo asignado. No hay ajuste de XMCL que cambiar.
+- **Reemplazos manuales** del campo (los hace el usuario): el botón de usar el Java recomendado en el diálogo de problema de Java (`HomeLaunchStatusDialog.vue:192-196`), la página de Java de la instancia y las herramientas del agente (`tools.ts:1450-1456`). Si el shim contestara mal a `-version`, ese diálogo ofrecería justo sustituirlo.
+- **Lista de Java.** El shim aparecerá en la lista de Java de XMCL (caché en `%APPDATA%\xmcl\java.json`, revalidada en cada arranque con `-version`: `refreshLocalJava`), como 25.0.5 `x64`. XMCL solo busca en rutas conocidas (Mojang, Oracle, OpenJDK, Adoptium, Zulu, `JAVA_HOME`, registro, `where java`, `<raíz>/jre/*`); una carpeta propia como `%APPDATA%\zenith\java` no se descubre sola, entra por la instancia.
+- **Riesgo medido con la función de selección:** una instancia **sin Java propio** de otra versión (por ejemplo 1.21.4, que pide `>=21`) puede elegir el shim por ser "Java 25" si está antes en la lista:
+
+  ```
+  lista [shim25, real21] -> elige S/bin/java.exe     lista [real21, shim25] -> elige R/bin/java.exe
+  ```
+
+  Se evita haciendo que el modo juego del shim **rechace** lo que no sea su versión de Minecraft (salida ≠ 0 con un mensaje claro) o delegue en un Java real. No probado en la interfaz.
+- **Descarga de Java.** Con el campo asignado y resoluble, XMCL **no descarga** `java-runtime-epsilon` (ver arriba). Consecuencia: el puente ya no recibe un Java 25 en `argv` para `horizon-prepare --java-home`; tendría que aportar o localizar el suyo. No es un fallo del shim sino del diseño.
+
+### Condiciones exactas de la alternativa
+
+1. Carpeta propia **fuera de `<raíz de XMCL>/jre`**, por ejemplo `%APPDATA%\zenith\java\bin\`, con `java.exe` y `javaw.exe` (dos copias independientes; no enlaces duros, por el `ino` que usa `refreshLocalJava` para no duplicar). Opcional: `..\release` con `JAVA_VERSION="25.0.5"` (solo se lee tras un fallo).
+2. `instance.json`: `java` con la ruta absoluta de `…\bin\java.exe` (en JSON las barras invertidas van duplicadas) y `"prependCommand": ""` (anula también el global; `shell` queda en falso).
+3. Un solo ejecutable de subsistema Windows vale para los dos nombres (medido). El modo se decide por el nombre del archivo (`java`/`javaw`) o por `argv[1]` (`-version`, `JavaProxy`).
+4. Respuestas a los sondeos: rápidas, código 0, sin red ni escrituras.
+   - `-version` (único argumento): por stderr (o stdout) `openjdk version "25.0.5" <fecha> LTS` y las dos líneas de runtime; el major debe ser **mayor o igual que `javaVersion.majorVersion` del JSON** (25 para 26.3).
+   - `JavaProxy -jvm_info`: `{"java_arch":"64"}` por stdout (opcional).
+   - Cualquier otra invocación es un lanzamiento de juego.
+5. Modo juego: leer `argv` (fixture), arrancar Zenith, escribir por **stdout** `LWJGL Version: …` al estar listo y `Crash report saved to: #@!@# <ruta>` si falla; stderr se acumula para el diálogo de error; salir con el código del juego.
+6. Windows bloquea un `javaw.exe` en ejecución: la copia solo se puede reemplazar con el juego cerrado. Hay que decidir quién la repone tras una actualización del puente (`setup`, o el propio modo `-version` si no hay juego en marcha).
+
+### Lo que NO se pudo verificar sin la interfaz
+
+- Que XMCL cargue una instancia escrita a mano con `java` y `prependCommand: ""` y que no los reescriba (por ejemplo al abrir la página de Java de la instancia y guardar).
+- Cómo se ven la página de Java, la lista de Java global y el botón Jugar con el shim (versión, arquitectura, ausencia de avisos), y el refresco tras el estado transitorio de lista vacía.
+- Que no haya ventana de consola ni parpadeo con el shim (consola o subsistema Windows); solo se midió la salida estándar.
+- Qué muestra XMCL cuando el shim sale con código ≠ 0, y su reacción a `Crash report saved to:`.
+- El token real de Minecraft: su longitud no se obtuvo (nadie puede iniciar sesión aquí); los 1200 caracteres son una suposición. La conclusión sobre `cmd.exe` depende de ella; la del shim no (21 000 caracteres de margen).
+- El botón Detener (`kill` normal y forzado) y el árbol de procesos.
+- Que otra instancia no elija el shim en la práctica y que ningún camino normal ofrezca sustituirlo.
+- Que una versión de XMCL distinta de `aeb5240` (0.73.1) valide Java igual.
+- Antivirus o SmartScreen ante un `java.exe` que no es de un proveedor conocido.
+
+### Cómo reproducirlo
+
+```
+sh zenith/bridge/tests/fixtures/java-shim-spike/build.sh <clon de XMCL, solo lectura> <carpeta de trabajo> <26.3.json>
+# necesita rustc, node 24 y esbuild (ESBUILD_DIR=<ruta a node_modules/esbuild> si no está instalado)
+```
+
+Compila `fakejava.rs` (consola, subsistema Windows y la variante "dice Java 21"), empaqueta con esbuild `@xmcl/core`, `packages/installer/java.ts` y `xmcl-runtime-api/src/util/java.ts` del clon y ejecuta `e2e.cjs` (lanzamiento, largos, `cmd.exe`), `validate.cjs` (resolución, calidad, selección en otras instancias) y `probe.cjs`. Solo escribe en la carpeta de trabajo.
