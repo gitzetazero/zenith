@@ -412,7 +412,7 @@ fn wrong_minecraft_version_is_refused() {
         "{:?}",
         f.errors
     );
-    assert!(f.errors.borrow()[0].contains("zenith-bridge-windows-x64.exe setup"));
+    assert!(f.errors.borrow()[0].contains("Update Zenith Launcher"));
     assert!(
         !f.records()
             .iter()

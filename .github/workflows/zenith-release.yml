@@ -340,8 +340,7 @@ jobs:
         env:
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
         run: >
-          bash tools/ci/sign_release.sh nightly dist/horizon-windows-x64.zip
-          dist/zenith-bridge-windows-x64.exe dist/zenith-build.txt
+          bash tools/ci/sign_release.sh nightly dist/horizon-windows-x64.zip dist/zenith-build.txt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: signature
@@ -371,7 +370,7 @@ jobs:
       - name: The signature, checked as the bridge checks it
         run: |
           # Only the game channel is signed; the launcher installer goes into the dated release on its own.
-          mkdir signed && cp dist/horizon-* dist/zenith-bridge-* dist/zenith-build.txt dist/SHA256SUMS* signed/
+          mkdir signed && cp dist/horizon-* dist/zenith-build.txt dist/SHA256SUMS* signed/
           cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" signed
       - name: Publish (zenith/ci/zenith_publish.sh, ordering in the header)
         env:
