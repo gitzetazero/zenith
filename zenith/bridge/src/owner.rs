@@ -11,6 +11,8 @@ const CACHE_SECS: u64 = 30 * 86_400;
 pub enum OwnerCheck {
     Owner,
     NotOwner,
+    /// Mojang does not accept the token at all (401/403): an offline profile, or an expired sign-in.
+    InvalidToken,
     Unreachable(String),
 }
 
@@ -43,7 +45,7 @@ pub fn check(base_url: &str, token: &str) -> OwnerCheck {
             Err(e) => OwnerCheck::Unreachable(format!("unreadable answer: {e}")),
         },
         Ok(resp) => OwnerCheck::Unreachable(format!("unexpected status {}", resp.status())),
-        Err(ureq::Error::Status(401 | 403, _)) => OwnerCheck::NotOwner,
+        Err(ureq::Error::Status(401 | 403, _)) => OwnerCheck::InvalidToken,
         Err(ureq::Error::Status(code, _)) => OwnerCheck::Unreachable(format!("status {code}")),
         Err(e) => OwnerCheck::Unreachable(e.to_string()),
     }
@@ -83,6 +85,20 @@ pub fn gate(result: OwnerCheck, uuid: &str, cache: &Path, now_secs: u64) -> Resu
                 "Sign in to XMCL with a Microsoft account that owns Minecraft: Java Edition."
                     .into(),
             )
+        }
+        // An offline profile (a name, no Microsoft sign-in) plays only on a PC where an account that owns
+        // Minecraft: Java Edition signed in within the grace period: ownership is still required, just not
+        // re-proven for every profile.
+        OwnerCheck::InvalidToken => {
+            let fresh = |v: &Value| {
+                v.as_u64()
+                    .is_some_and(|t| t <= now_secs && now_secs - t < CACHE_SECS)
+            };
+            if owners.values().any(fresh) {
+                Ok(())
+            } else {
+                Err("Offline profiles need Minecraft: Java Edition to be verified on this PC first: sign in once with the Microsoft account that owns it (in the last 30 days), then you can play with an offline profile.".into())
+            }
         }
         OwnerCheck::Unreachable(why) => {
             // a future-dated entry (clock moved back) is not trusted

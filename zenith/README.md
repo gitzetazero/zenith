@@ -7,7 +7,7 @@ It is an independent project and **not affiliated with XMCL (Voxelum), Mojang or
 ## Requirements
 
 - Windows 10 or 11 (Windows only for now).
-- A Microsoft account that owns **Minecraft: Java Edition**. The bridge checks it with Minecraft's services; unlicensed, offline, ely.by and LittleSkin accounts are refused.
+- A Microsoft account that owns **Minecraft: Java Edition**. The bridge checks it with Minecraft's services. Sign in with it once; after that you can also play with an **offline profile** (a name without signing in, for offline-mode servers and LAN) on that PC for 30 days after each sign-in. Without a recent verified owner on the PC, offline, ely.by and LittleSkin accounts are refused.
 - Zenith ships no Mojang files: the launcher downloads Minecraft and the bridge prepares Zenith's resources from that download.
 
 ## Install

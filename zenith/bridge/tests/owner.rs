@@ -30,6 +30,7 @@ fn is(r: OwnerCheck, want: &str) {
     let got = match r {
         OwnerCheck::Owner => "owner",
         OwnerCheck::NotOwner => "not_owner",
+        OwnerCheck::InvalidToken => "invalid_token",
         OwnerCheck::Unreachable(_) => "unreachable",
     };
     assert_eq!(got, want);
@@ -59,14 +60,14 @@ fn not_owner_on_empty_items() {
 }
 
 #[test]
-fn not_owner_on_401_and_403() {
+fn invalid_token_on_401_and_403() {
     is(
         check(&serve_once("401 Unauthorized", "{}"), "tok"),
-        "not_owner",
+        "invalid_token",
     );
     is(
         check(&serve_once("403 Forbidden", "{}"), "tok"),
-        "not_owner",
+        "invalid_token",
     );
 }
 
@@ -173,4 +174,41 @@ fn gate_not_owner_removes_the_positive_entry() {
     assert!(gate(OwnerCheck::NotOwner, "u", &c, 1001).is_err());
     assert!(gate(down(), "u", &c, 1002).is_err());
     gate(down(), "keep", &c, 1002).unwrap();
+}
+
+#[test]
+fn offline_profile_plays_where_an_owner_signed_in_recently() {
+    let c = cache("offline-ok");
+    gate(OwnerCheck::Owner, "real", &c, 1000).unwrap();
+    gate(
+        OwnerCheck::InvalidToken,
+        "offline-uuid",
+        &c,
+        1000 + 29 * DAY,
+    )
+    .unwrap();
+}
+
+#[test]
+fn offline_profile_is_refused_without_a_recent_owner() {
+    let c = cache("offline-none");
+    let e = gate(OwnerCheck::InvalidToken, "offline-uuid", &c, 1000).unwrap_err();
+    assert!(e.contains("Offline profiles"), "{e}");
+    gate(OwnerCheck::Owner, "real", &c, 1000).unwrap();
+    assert!(
+        gate(
+            OwnerCheck::InvalidToken,
+            "offline-uuid",
+            &c,
+            1000 + 31 * DAY
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn a_valid_account_that_does_not_own_the_game_is_still_refused() {
+    let c = cache("offline-notowner");
+    gate(OwnerCheck::Owner, "real", &c, 1000).unwrap();
+    assert!(gate(OwnerCheck::NotOwner, "someone-else", &c, 1001).is_err());
 }
