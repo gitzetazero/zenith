@@ -3,7 +3,7 @@ import { getPlatform } from '@xmcl/core'
 import type { InstallEvent } from '@xmcl/installer'
 import { InstalledAppManifest, Platform, createPromiseSignal } from '@xmcl/runtime-api'
 import { EventEmitter } from 'events'
-import { ensureDir, readFile, writeFile } from 'fs-extra'
+import { ensureDir, readFile } from 'fs-extra'
 import { Server, createServer } from 'http'
 import { join } from 'path'
 import { Readable } from 'stream'
@@ -13,7 +13,6 @@ import { Logger } from '~/infra'
 import { IS_DEV, LAUNCHER_NAME, LAUNCHER_PROTOCOL } from '../constant'
 import { setZenithConfigDirectory } from '../zenith/config'
 import { isSystemError } from '@xmcl/utils'
-import { handleMigrateRoot } from './migrate'
 import { listen } from '../util/server'
 import { createDummyLogger } from './DummyLogger'
 import { Host } from './Host'
@@ -344,27 +343,10 @@ export class LauncherApp extends EventEmitter {
 
     await ensureDir(this.appDataPath)
 
-    let gameDataPath: string
-    try {
-      gameDataPath = await readFile(join(this.appDataPath, 'root')).then((b) => b.toString().trim())
-      gameDataPath = await handleMigrateRoot(gameDataPath, this.logger, this)
-      this.#isBootstrapSignal.resolve(false)
-    } catch (e) {
-      if (isSystemError(e) && e.code === 'ENOENT') {
-        // first launch
-        this.#isBootstrapSignal.resolve(true)
-        const path = await new Promise<string>((resolve) => {
-          this.controller.handle('bootstrap', (_, path) => {
-            resolve(path)
-          }, true)
-        })
-        gameDataPath = (path)
-        await writeFile(join(this.appDataPath, 'root'), path)
-      } else {
-        this.#isBootstrapSignal.resolve(false)
-        gameDataPath = (this.appDataPath)
-      }
-    }
+    // zenith: one data folder, always `.minecraftz`. XMCL's `root` file (and its first-run folder picker) is
+    // ignored, so an old `root` pointing at `.minecraftx` or `.minecraft` can never move the game data.
+    let gameDataPath: string = this.minecraftDataPath
+    this.#isBootstrapSignal.resolve(false)
 
     try {
       await ensureDir(gameDataPath)
