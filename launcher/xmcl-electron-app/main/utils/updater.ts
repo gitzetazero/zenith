@@ -13,13 +13,14 @@ import {
 } from '@xmcl/runtime-api'
 import { DownloadUpdateOptions, LauncherAppUpdater } from '@xmcl/runtime/app'
 import { isNewBuild, pickLauncherRelease, versionOfTag, ZENITH_RELEASES_API, ZENITH_RELEASES_URL } from '@xmcl/runtime/zenith/release'
+import { INSTALLER_ASSET, assertInstallerHash, canSelfUpdate, installerSilentArgs, isAllowedInstallerUrl, isInstalledBuild, sha256FromNotes } from '@xmcl/runtime/zenith/updateVerify'
 import { AnyError, isSystemError } from '@xmcl/utils'
 import { spawn } from 'child_process'
 import { app, shell } from 'electron'
 import * as updater from 'electron-updater'
 import { AppUpdater, CancellationToken, UpdaterSignal } from 'electron-updater'
-import { createReadStream, createWriteStream } from 'fs'
-import { readFile, rename as renameAsync, unlink as unlinkAsync, writeFile } from 'fs-extra'
+import { createReadStream, createWriteStream, readdirSync } from 'fs'
+import { mkdirp, readFile, rename as renameAsync, unlink as unlinkAsync, writeFile } from 'fs-extra'
 import { closeSync, existsSync, open, rename, unlink } from 'original-fs'
 import { platform } from 'os'
 import { basename, dirname, join } from 'path'
@@ -304,6 +305,45 @@ async function downloadFullUpdate(
   await appUpdater.downloadUpdate(cancellationToken)
 }
 
+/** Where the verified installer waits for the restart; set by a successful download, in this session only. */
+let pendingInstaller: string | undefined
+/** After one failed automatic update this session, nothing is retried or applied until the launcher restarts. */
+let installerFailed = false
+
+async function downloadInstaller(
+  info: ReleaseInfo,
+  options?: { abortSignal?: AbortSignal; tracker?: Tracker<DownloadUpdateTrackerEvents> } & DownloadBaseOptions,
+): Promise<void> {
+  try {
+    const file = info.files.find((f) => f.name === INSTALLER_ASSET)
+    if (!file || !isAllowedInstallerUrl(file.url)) throw new AnyError('UpdateError', 'The release has no installer on the Zenith GitHub releases')
+    const expected = sha256FromNotes(info.body, INSTALLER_ASSET)
+    if (!expected) throw new AnyError('UpdateError', 'The release notes carry no SHA-256 for the installer')
+    const dir = join(app.getPath('temp'), 'zenith-launcher-update')
+    await mkdirp(dir)
+    const destination = join(dir, INSTALLER_ASSET)
+    pendingInstaller = undefined
+    await unlinkAsync(destination).catch(() => {})
+    await download({
+      url: file.url,
+      destination,
+      tracker: onDownloadSingle(options?.tracker, 'download-update.installer', { url: file.url }),
+      signal: options?.abortSignal,
+      ...getDownloadBaseOptions(options),
+    })
+    try {
+      assertInstallerHash(await checksum(destination, 'sha256'), expected)
+    } catch (e) {
+      await unlinkAsync(destination).catch(() => {})
+      throw e
+    }
+    pendingInstaller = destination
+  } catch (e) {
+    if (!(e instanceof Error && e.name === 'AbortError')) installerFailed = true
+    throw e
+  }
+}
+
 function isSameVersion(a: string, b: string) {
   if (a.startsWith('v')) {
     a = a.substring(1)
@@ -377,6 +417,18 @@ export class ElectronUpdater implements LauncherAppUpdater {
         hasAsar && this.app.env !== 'appimage'
           ? ElectronUpdateOperation.Asar
           : ElectronUpdateOperation.Manual
+    }
+
+    if (!installerFailed && canSelfUpdate({
+      os: this.app.platform.os,
+      env: this.app.env,
+      devServer: HAS_DEV_SERVER,
+      installed: isInstalledBuild(process.env.PORTABLE_EXECUTABLE_FILE, readdirSync(dirname(process.execPath))),
+      builtCommit: process.env.ZENITH_COMMIT_BUILD ?? '',
+      notes: result.body,
+      files,
+    })) {
+      updateInfo.operation = ElectronUpdateOperation.Installer
     }
 
     this.logger.log(`Got operation=${updateInfo.operation} update from selfhost`)
@@ -477,6 +529,23 @@ export class ElectronUpdater implements LauncherAppUpdater {
     }
   }
 
+  /** Re-checks the hash right before running the file, then hands over to the NSIS installer, which restarts the app. */
+  private async quitAndInstallNsis(info: ReleaseInfo) {
+    try {
+      const file = pendingInstaller
+      if (!file || !existsSync(file)) throw new AnyError('UpdateError', 'The installer is not downloaded; download the update again')
+      assertInstallerHash(await checksum(file, 'sha256'), sha256FromNotes(info.body, INSTALLER_ASSET))
+      const args = installerSilentArgs()
+      this.logger.log(`Run installer ${file} ${args.join(' ')}`)
+      spawn(file, args, { detached: true, stdio: 'ignore' }).unref()
+    } catch (e) {
+      installerFailed = true
+      pendingInstaller = undefined
+      throw e
+    }
+    this.app.quit()
+  }
+
   private async externallyUpdatedAppImage(): Promise<boolean> {
     if (this.app.env !== 'appimage') return false
     const settings = await this.app.registry.get(kSettings)
@@ -521,6 +590,8 @@ export class ElectronUpdater implements LauncherAppUpdater {
         tracker,
         abortSignal,
       })
+    } else if (updateInfo.operation === ElectronUpdateOperation.Installer) {
+      await downloadInstaller(updateInfo, { tracker, abortSignal })
     } else if (updateInfo.operation === ElectronUpdateOperation.Appx) {
       await downloadAppInstaller(this.app, { tracker, abortSignal })
     } else {
@@ -543,7 +614,9 @@ export class ElectronUpdater implements LauncherAppUpdater {
       this.logger.log('Currently is development environment. Skip to install update')
       return
     }
-    if (updateInfo.operation === ElectronUpdateOperation.Asar) {
+    if (updateInfo.operation === ElectronUpdateOperation.Installer) {
+      await this.quitAndInstallNsis(updateInfo)
+    } else if (updateInfo.operation === ElectronUpdateOperation.Asar) {
       await this.quitAndInstallAsar()
     } else {
       updater.autoUpdater.quitAndInstall()

@@ -651,6 +651,9 @@ launcherUpdate:
   manualCheckHint: No release check has been performed. Check GitHub Releases for a compatible package and install it manually.
   manualCheckRequired: This host cannot check or install updates automatically. Use the GitHub Releases button to check manually.
   alreadyLatest: Up To Date
+  autoDownload: Download updates automatically (the restart is always your choice)
+  gameRunning: A game is running. Close it, then press Restart to Install again.
+  manualZenith: This build does not update itself (portable or development build). Download the new Portable zip from the GitHub Releases page.
   installAndQuit: Restart to Install
   noUpdateAvailable: No Update Available
   updateToThisVersion: Download and Install

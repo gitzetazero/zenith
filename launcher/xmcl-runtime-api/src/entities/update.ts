@@ -31,6 +31,10 @@ export const enum ElectronUpdateOperation {
    * Use appx update
    */
   Appx = 'appx',
+  /**
+   * Download the NSIS installer from the release, check its SHA-256 and run it silently
+   */
+  Installer = 'installer',
 }
 
 export interface ReleaseInfo {

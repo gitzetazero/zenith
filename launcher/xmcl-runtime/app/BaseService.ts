@@ -41,6 +41,9 @@ import { getTracker } from '~/util/taskHelper'
 import { addSteamShortcutToVdf } from './steamShortcut'
 import { writeFile as writeAtomically } from 'atomically'
 
+/** The automatic download is attempted once per launcher session, so a failing update cannot loop. */
+let autoDownloadTried = false
+
 @ExposeServiceKey(BaseServiceKey)
 export class BaseService extends AbstractService implements IBaseService {
   constructor(
@@ -324,6 +327,11 @@ export class BaseService extends AbstractService implements IBaseService {
       const ready = settings.updateStatus === 'ready' && settings.updateInfo === info
       settings.updateInfoSet(info)
       settings.updateStatusSet(!info.newUpdate ? 'none' : ready ? 'ready' : 'pending')
+      // zenith: the self-installing build downloads (and hash-checks) the installer on its own; one try per session
+      if (info.newUpdate && !ready && info.operation === 'installer' && settings.autoDownload && !autoDownloadTried) {
+        autoDownloadTried = true
+        this.downloadUpdate().catch((e) => this.warn(e))
+      }
     } catch (e) {
       if (e instanceof Error && e.name === 'Error') {
         if (e.message === 'No update info found') {

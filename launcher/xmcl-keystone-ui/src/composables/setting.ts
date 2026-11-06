@@ -1,6 +1,6 @@
 import { useService } from '@/composables'
 import { injection } from '@/util/inject'
-import { BaseServiceKey, Environment, Settings } from '@xmcl/runtime-api'
+import { BaseServiceKey, Environment, LaunchServiceKey, Settings } from '@xmcl/runtime-api'
 import { InjectionKey, Ref } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import { kEnvironment } from './environment'
@@ -11,15 +11,20 @@ export const kUpdateSettings: InjectionKey<ReturnType<typeof useUpdateSettings>>
 
 export function useUpdateSettings() {
   const { checkUpdate, downloadUpdate, quitAndInstall } = useService(BaseServiceKey)
+  const { getGameProcesses } = useService(LaunchServiceKey)
   const env: Ref<Environment | undefined> = injection(kEnvironment)
   const { state } = injection(kSettingsState)
   const updateStatus = computed(() => state.value?.updateStatus)
   const updateInfo = computed(() => state.value?.updateInfo)
   const version = computed(() => env.value?.version ?? '0.0.0')
   const installing = ref(false)
+  /** The restart is refused while a game runs: the update waits until it exits. */
+  const installBlockedByGame = ref(false)
   async function install() {
     installing.value = true
     try {
+      installBlockedByGame.value = (await getGameProcesses()).length > 0
+      if (installBlockedByGame.value) return
       await quitAndInstall()
     } finally {
       installing.value = false
@@ -44,6 +49,7 @@ export function useUpdateSettings() {
     downloadUpdate: download,
     ...capability,
     installing,
+    installBlockedByGame,
     updateStatus,
     downloadingUpdate,
     updateInfo,

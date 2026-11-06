@@ -617,6 +617,9 @@ launchStatus:
   spawningProcess: Iniciando proceso
 launcherUpdate:
   alreadyLatest: Actualizado
+  autoDownload: Descargar las actualizaciones automáticamente (reiniciar siempre lo decides tú)
+  gameRunning: Hay un juego en ejecución. Ciérralo y pulsa de nuevo Reiniciar para instalar.
+  manualZenith: Esta versión no se actualiza sola (versión portable o de desarrollo). Descarga el nuevo zip Portable desde la página de Releases de GitHub.
   installAndQuit: Reiniciar para instalar
   noUpdateAvailable: No hay actualizaciones disponibles
   updateToThisVersion: Descargar e instalar

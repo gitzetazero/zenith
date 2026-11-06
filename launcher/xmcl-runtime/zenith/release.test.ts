@@ -25,9 +25,7 @@ test('tags with and without a prefix map to the same version', () => {
 })
 
 test('a dated release is a new build only when its commit differs from the running one', () => {
-  const notes = 'Zenith build of commit 07165e0.
-
-Players: download...'
+  const notes = 'Zenith build of commit 07165e0.\n\nPlayers: download...'
   expect(commitOfNotes(notes)).toBe('07165e0')
   expect(isNewBuild('07165e03f9a1', notes, false)).toBe(false)
   expect(isNewBuild('aaaaaaa1111', notes, true)).toBe(true)

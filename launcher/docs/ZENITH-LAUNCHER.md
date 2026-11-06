@@ -65,7 +65,7 @@ takedown list, and the author's **minisign** signature when the project has a ke
 | Modrinth OAuth app and its code exchange at `api.xmcl.app` | **Removed.** Modrinth sign-in is unavailable; the Market uses Modrinth anonymously. | A Modrinth OAuth app **and** a service holding its secret, if sign-in is ever wanted (not planned). |
 | LittleSkin OAuth app and its client secret | **Removed.** Optional `ZENITH_LITTLESKIN_CLIENT_ID`. | Optional. |
 | Discord application `1075044884400054363` | **Removed.** `ZENITH_DISCORD_CLIENT_ID` (environment, `zenith-config.json` `discordClientId`, or the build variable). Without it the presence is disabled silently. | Create a Discord application named **Zenith** (<https://discord.com/developers/applications>), upload the logo as a Rich Presence art asset named `zenith-logo` (`docs/branding`, `branding/png/logo-tile-512.png`), and set the application id. |
-| Updater (`api.xmcl.app/latest`, Voxelum releases) | **Replaced.** It reads `https://api.github.com/repos/gitzetazero/zenith/releases`, takes the newest published release that carries `Zenith-Launcher-Setup-x64.exe`, and links to `https://github.com/gitzetazero/zenith/releases` (no automatic download, no `.asar`). | Publish launcher releases in the Zenith repository. |
+| Updater (`api.xmcl.app/latest`, Voxelum releases) | **Replaced.** It reads `https://api.github.com/repos/gitzetazero/zenith/releases`, takes the newest published release that carries `Zenith-Launcher-Setup-x64.exe`, and links to `https://github.com/gitzetazero/zenith/releases` (no automatic download, no `.asar`). | Publish launcher releases in the Zenith repository. See "Launcher updates" below. |
 | Help links `xmcl.app/...` | Point to the Zenith repository. | Nothing. |
 
 Account flows not tied to an XMCL registration (Yggdrasil, ely.by, LittleSkin with password, offline) are untouched in the code, but the Zenith bridge only accepts licensed Microsoft accounts.
@@ -107,4 +107,13 @@ After merging: `pnpm install`, `pnpm run check`, `pnpm vitest run xmcl-runtime/z
 
 - Not verified on third-party PCs; builds and unit tests of the touched code run in CI and on a development PC. Native mods and `.hpack` modpacks cannot be installed from the Market yet.
 - Microsoft sign-in does not work until an approved Azure app exists and is configured.
-- Updates: notice and link to Releases only.
+- Updates: installed Windows builds self-update (see "Launcher updates"); portable, development and non-Windows builds link to Releases.
+
+### Launcher updates
+
+Releases are dated (`nightly-<date>`), so "is there an update" compares the build's own commit (`ZENITH_COMMIT_BUILD`) with the "Zenith build of commit <sha>" line of the release notes (`xmcl-runtime/zenith/release.ts`). The same commit never updates, and a build or release without a known commit never self-updates (no loops).
+
+- **Installed Windows build (NSIS):** the launcher downloads `Zenith-Launcher-Setup-x64.exe` from the release, to a temp folder, only from `https://github.com/gitzetazero/zenith/releases/download/...` (any other host is refused). It then checks the file's SHA-256 against the `<hash>  <filename>` line in the release notes. No hash, a mismatch or a wrong host means the installer is never run: the update shows an error and Releases stays one click away. "Download updates automatically" (Settings > Update, the existing `autoDownload` setting, on by default) does this in the background, once per launcher session; with it off, the download starts from the update dialog. The restart is always the user's click (`Restart to Install`): the hash is checked again, then the installer is started detached with `/S --updated --force-run` (silent, per user, relaunches the launcher) and the launcher quits. The restart is refused while a game process is running.
+- **Portable build** (`PORTABLE_EXECUTABLE_FILE` is set, or no `Uninstall *.exe` next to the program), development builds, AppX and non-Windows: the old behaviour. The dialog says the build does not update itself and opens the Releases page.
+- **Security model and limits:** HTTPS from GitHub releases of `gitzetazero/zenith` plus the SHA-256 from the notes of the same release. The hash catches a corrupt or truncated download, not a replaced release (whoever can edit the release can edit both). Installers are not code-signed for Windows, so SmartScreen may warn. The game itself is updated separately by the bridge, with its Ed25519 signature.
+- **Tested:** unit tests of the pure decisions (`xmcl-runtime/zenith/updateVerify.test.ts`) and typecheck. The download, hash check and silent install on a real installed build were not exercised.

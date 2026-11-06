@@ -5,6 +5,14 @@
     icon="rocket_launch"
   >
     <AppImageUpdateSettings />
+    <v-checkbox
+      v-if="state && updateInfo?.operation === 'installer'"
+      class="px-4"
+      hide-details
+      :model-value="state.autoDownload"
+      :label="t('launcherUpdate.autoDownload')"
+      @update:model-value="state.autoDownloadSet(!!$event)"
+    />
     <v-progress-linear v-if="!updateStateReady" indeterminate />
     <template v-else-if="updateUnavailable">
       <v-alert type="info" variant="tonal" class="ma-4" role="status">
@@ -84,7 +92,7 @@ import { useI18n } from 'vue-i18n'
 import { vSharedTooltip } from '@/directives/sharedTooltip'
 import { injection } from '@/util/inject'
 import { useDialog } from '../composables/dialog'
-import { kUpdateSettings } from '../composables/setting'
+import { kSettingsState, kUpdateSettings } from '../composables/setting'
 import SettingCard from '@/components/SettingCard.vue'
 import SettingItem from '@/components/SettingItem.vue'
 import AppImageUpdateSettings from './AppImageUpdateSettings.vue'
@@ -97,6 +105,7 @@ function openReleases() {
 const { updateInfo, installing, updateStatus, checkUpdate, checkingUpdate, version, updateStateReady, updateUnavailable, updateCapabilityReason, manualCheckRequested } = injection(kUpdateSettings)
 const hasNewUpdate = computed(() => updateStatus.value !== 'none' && !!updateInfo.value?.newUpdate)
 const { t } = useI18n()
+const { state } = injection(kSettingsState)
 
 </script>
 

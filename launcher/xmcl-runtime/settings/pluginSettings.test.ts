@@ -177,7 +177,7 @@ describe('pluginSettings', () => {
     expect(mockState.locale).toBe('en')
     expect(mockState.theme).toBe('dark')
     expect(mockState.developerMode).toBe(false)
-    expect(mockState.autoDownload).toBe(false)
+    expect(mockState.autoDownload).toBe(true)
     expect(mockState.httpProxy).toBe('')
     expect(mockState.httpProxyEnabled).toBe(false)
     expect(mockState.globalHideLauncher).toBe(true)
@@ -380,7 +380,7 @@ describe('pluginSettings', () => {
       {
         locale: 'en',
         appImageUpdateMode: 'external',
-        autoDownload: false,
+        autoDownload: true,
         autoInstallOnAppQuit: false,
         allowPrerelease: false,
         apiSetsPreference: '',
@@ -449,7 +449,7 @@ describe('pluginSettings', () => {
       {
         locale: 'en',
         appImageUpdateMode: 'external',
-        autoDownload: false,
+        autoDownload: true,
         autoInstallOnAppQuit: false,
         allowPrerelease: false,
         apiSetsPreference: '',

@@ -82,17 +82,19 @@ export interface DownloadUpdateTrackerEvents {
   'download-update.asar': WithDownload<{}>
   'download-update.full': WithDownload<{}>
   'download-update.appx': {}
+  'download-update.installer': WithDownload<{}>
   'download-update.manual': {}
 }
 
 export interface DownloadUpdateTask extends Task {
   type: 'downloaUpdate'
-  operation: 'autoupdater' | 'asar' | 'appx' | 'manual' | 'deskgap'
+  operation: 'autoupdater' | 'asar' | 'appx' | 'installer' | 'manual' | 'deskgap'
   version: string
   substate:
     | SubState<DownloadUpdateTrackerEvents, 'download-update.asar'>
     | SubState<DownloadUpdateTrackerEvents, 'download-update.full'>
     | SubState<DownloadUpdateTrackerEvents, 'download-update.appx'>
+    | SubState<DownloadUpdateTrackerEvents, 'download-update.installer'>
     | SubState<DownloadUpdateTrackerEvents, 'download-update.manual'>
 }
 

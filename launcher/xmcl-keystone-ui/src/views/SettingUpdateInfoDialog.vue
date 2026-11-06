@@ -28,11 +28,18 @@
         <div v-html="body" />
       </v-card-text>
       <v-alert
+        v-if="installBlockedByGame"
+        variant="tonal"
+        type="warning"
+      >
+        {{ t('launcherUpdate.gameRunning') }}
+      </v-alert>
+      <v-alert
         v-if="hintRedownload"
         variant="tonal"
         type="warning"
       >
-        {{ t(isAppImage ? (state?.appImageUpdateMode === 'self-managed' ? 'setting.appImageSelfUpdateHint' : 'setting.appImageExternalUpdateHint') : 'setting.maunalUpdateHint') }}
+        {{ t(isAppImage ? (state?.appImageUpdateMode === 'self-managed' ? 'setting.appImageSelfUpdateHint' : 'setting.appImageExternalUpdateHint') : 'launcherUpdate.manualZenith') }}
       </v-alert>
       <v-card-actions>
         <v-btn
@@ -122,7 +129,7 @@ const { t } = useI18n()
 const { render } = useMarkdown()
 const { state } = injection(kSettingsState)
 const {
-  installing, downloadingUpdate, checkingUpdate, updateInfo, updateStatus,
+  installing, installBlockedByGame, downloadingUpdate, checkingUpdate, updateInfo, updateStatus,
   downloadUpdate, quitAndInstall,
 } = injection(kUpdateSettings)
 

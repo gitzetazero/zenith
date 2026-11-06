@@ -53,7 +53,7 @@ export class Settings implements SettingSchema {
   updateStatus: 'ready' | 'none' | 'pending' = 'none'
   allowPrerelease = false
   autoInstallOnAppQuit = false
-  autoDownload = false
+  autoDownload = true // zenith: the self-installing Windows build downloads updates by default
   appImageUpdateMode: 'external' | 'self-managed' = 'external'
   enableDedicatedGPUOptimization = true
   apiSetsPreference: 'mojang' | 'bmcl' | '' = ''
@@ -90,7 +90,7 @@ export class Settings implements SettingSchema {
   config(config: SettingSchema) {
     this.locale = config.locale
     this.appImageUpdateMode = config.appImageUpdateMode === 'self-managed' ? 'self-managed' : 'external'
-    this.autoDownload = config.autoDownload || false
+    this.autoDownload = config.autoDownload ?? true
     this.autoInstallOnAppQuit = config.autoInstallOnAppQuit || false
     this.allowPrerelease = config.allowPrerelease || false
     this.apiSetsPreference = config.apiSetsPreference

@@ -29,7 +29,7 @@ export const SettingSchema = z.object({
   /** AppImages are externally managed unless the user explicitly takes ownership. */
   appImageUpdateMode: z.enum(['external', 'self-managed']).catch('external'),
   /** Should launcher auto download new update */
-  autoDownload: z.boolean().catch(false),
+  autoDownload: z.boolean().catch(true),
   /** Should launcher auto install new update after app quit */
   autoInstallOnAppQuit: z.boolean().catch(false),
   /** Should launcher show the pre-release */
