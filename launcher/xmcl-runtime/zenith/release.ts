@@ -24,3 +24,20 @@ export function pickLauncherRelease<T extends ReleaseLike>(releases: T[]): T | u
 export function versionOfTag(tag: string): string {
   return /(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)$/.exec(tag)?.[1] ?? tag.replace(/^v/, '')
 }
+
+/** The commit a release was built from: its notes start with "Zenith build of commit <sha>". */
+export function commitOfNotes(body: string | undefined | null): string | undefined {
+  return /Zenith build of commit ([0-9a-f]{7,40})/i.exec(body ?? '')?.[1]?.toLowerCase()
+}
+
+/**
+ * Whether `release` is a different build from the running one. Releases are tagged by date (`nightly-2026-11-06`),
+ * which says nothing about the app version, so the build's own commit is compared; without it (a dev build)
+ * the versions decide.
+ */
+export function isNewBuild(builtCommit: string, notes: string | undefined | null, sameVersion: boolean): boolean {
+  const released = commitOfNotes(notes)
+  const built = builtCommit.trim().toLowerCase()
+  if (!built || !released) return !sameVersion
+  return !(built.startsWith(released) || released.startsWith(built))
+}

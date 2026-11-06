@@ -246,6 +246,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
           ZENITH_MSA_CLIENT_ID: ${{ vars.ZENITH_MSA_CLIENT_ID }} # public client id, embedded by the esbuild config
           ZENITH_DISCORD_CLIENT_ID: ${{ vars.ZENITH_DISCORD_CLIENT_ID }}
+          ZENITH_COMMIT: ${{ github.sha }} # the updater compares it with the release notes
         run: |
           pnpm run --prefix xmcl-keystone-ui build
           pnpm run --prefix xmcl-electron-app build:all

@@ -12,7 +12,7 @@ import {
   ReleaseInfo,
 } from '@xmcl/runtime-api'
 import { DownloadUpdateOptions, LauncherAppUpdater } from '@xmcl/runtime/app'
-import { pickLauncherRelease, versionOfTag, ZENITH_RELEASES_API, ZENITH_RELEASES_URL } from '@xmcl/runtime/zenith/release'
+import { isNewBuild, pickLauncherRelease, versionOfTag, ZENITH_RELEASES_API, ZENITH_RELEASES_URL } from '@xmcl/runtime/zenith/release'
 import { AnyError, isSystemError } from '@xmcl/utils'
 import { spawn } from 'child_process'
 import { app, shell } from 'electron'
@@ -356,7 +356,8 @@ export class ElectronUpdater implements LauncherAppUpdater {
       body: result.body,
       date: result.published_at,
       files,
-      newUpdate: !isSameVersion(app.version, version),
+      // zenith: releases are dated, not versioned: the build's own commit tells whether this one is new
+      newUpdate: isNewBuild(process.env.ZENITH_COMMIT_BUILD ?? '', result.body, isSameVersion(app.version, version)),
       operation: ElectronUpdateOperation.Manual,
     }
 

@@ -30,6 +30,8 @@ const config = {
     // zenith: optional build-time values (empty by default; see xmcl-runtime/zenith/config.ts)
     'process.env.CURSEFORGE_API_KEY_BUILD': JSON.stringify(process.env.CURSEFORGE_API_KEY ?? ''),
     'process.env.ZENITH_MSA_CLIENT_ID_BUILD': JSON.stringify(process.env.ZENITH_MSA_CLIENT_ID ?? ''),
+    // zenith: the commit this launcher was built from; the updater compares it with the release notes
+    'process.env.ZENITH_COMMIT_BUILD': JSON.stringify(process.env.ZENITH_COMMIT ?? ''),
     'process.env.ZENITH_DISCORD_CLIENT_ID_BUILD': JSON.stringify(process.env.ZENITH_DISCORD_CLIENT_ID ?? ''),
   } as Record<string, string>,
   platform: 'node',
