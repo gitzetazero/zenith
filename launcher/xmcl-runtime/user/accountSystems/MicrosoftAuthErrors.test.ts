@@ -5,6 +5,7 @@ import { MICROSOFT_XBOX_LAUNCHER_SCOPES } from './MicrosoftOAuthClient'
 test('a client id Microsoft does not know is told apart from a network failure', () => {
   const error = Object.assign(new Error('unauthorized_client: The client does not exist or is not enabled for consumers.'), { error: 'unauthorized_client' })
   expect(classifyMicrosoftAppSetupProblem(error)).toBe('APP_NOT_FOUND')
+  expect(classifyMicrosoftAppSetupProblem(new Error('unauthorized_client'))).toBe('APP_NOT_FOUND')
   expect(classifyMicrosoftAppSetupProblem(new Error('AADSTS700016: Application with identifier was not found'))).toBe('APP_NOT_FOUND')
 })
 
