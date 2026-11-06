@@ -56,7 +56,7 @@ The fork's `.github/workflows/zenith-release.yml` has the exact steps:
 6. `pnpm run --prefix xmcl-keystone-ui build` then `pnpm run --prefix xmcl-electron-app build:all` (env: `NODE_ENV=production`, `NODE_OPTIONS=--max-old-space-size=8192`, optional repository variable
    `ZENITH_DISCORD_CLIENT_ID`; variables, never secrets. The Microsoft client id is built in).
 7. `node tools/zenith/verify-asar.mjs <win-unpacked/resources/app.asar>` (fails on `xmcl.app`, `1363d629`, `XMCL Agent`, `Together`, `signaling`, Application Insights; requires `.minecraftz`).
-8. Collect `Zenith-Launcher-Setup-x64.exe` and `Zenith-Launcher-Portable-x64.exe`, write `SHA256SUMS`.
+8. Collect `Zenith-Launcher-Setup-x64.exe` and zip `win-unpacked` as `Zenith-Launcher-Portable-x64.zip`, write `SHA256SUMS`.
 9. Publish with `gh release create <tag> --prerelease=false --latest ...` (a normal release, not a prerelease).
 
 Tag naming: the launcher looks for the newest published release that carries the asset `Zenith-Launcher-Setup-x64.exe` (`xmcl-runtime/zenith/release.ts`), so the tag may be

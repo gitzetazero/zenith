@@ -12,7 +12,7 @@ Zenith is Minecraft: Java Edition 26.3 rewritten in Rust. You install it, sign i
 
 Windows only for now. Download **Zenith Launcher** from the [Releases](https://github.com/gitzetazero/zenith/releases/latest) page (a fork of XMCL with Zenith built in; its source is in [`launcher`](launcher)):
 
-1. Get `Zenith-Launcher-Setup-x64.exe` (per-user installer, no administrator) or `Zenith-Launcher-Portable-x64.zip` (the portable exe in a zip), and check it against the SHA-256 in the release notes.
+1. Get `Zenith-Launcher-Setup-x64.exe` (per-user installer, no administrator) or `Zenith-Launcher-Portable-x64.zip` (the same app in a folder: unzip it and run `Zenith Launcher.exe`), and check it against the SHA-256 in the release notes.
 2. Run it. Windows will warn you ("Windows protected your PC") because the build is not code-signed: choose "More info", then "Run anyway".
 3. First-run steps, updates and limits are in [`docs/PLAYER-GUIDE.md`](docs/PLAYER-GUIDE.md). Note: Microsoft sign-in uses the public Minecraft client id `00000000402b5328`, built into the launcher; until Mojang approves that application, Microsoft sign-in may be refused for players.
 
@@ -71,7 +71,7 @@ Prepared files end up in `.local/`, which git ignores: do not commit or share th
 
 - Everything is experimental and has only been tested with automated tests, not with the installer on a real Windows machine.
 - Translated servers have not been tested against real servers.
-- The installer and the program that prepares the game are not code-signed for Windows: SmartScreen will warn you, and Defender sometimes quarantines the portable zip as `Trojan:Script/Wacatac.H!ml`, a false positive on the unsigned self-extracting exe (the installer scans clean).
+- The installer and the program that prepares the game are not code-signed for Windows: SmartScreen will warn you, and antivirus software can flag an unsigned download (Defender quarantined the older portable self-extracting exe as `Trojan:Script/Wacatac.H!ml`, a false positive; the portable download is now a folder zip).
 - Windows only. Java mods do not work: Zenith does not run Minecraft's JVM.
 - A Zenith instance only works for the game version it ships with (today 26.3).
 

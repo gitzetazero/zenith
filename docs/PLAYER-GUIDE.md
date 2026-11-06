@@ -12,9 +12,9 @@ It is an independent project and **not affiliated with XMCL (Voxelum), Mojang or
 
 ## Install
 
-1. From the Releases page, download `Zenith-Launcher-Setup-x64.exe` (or `Zenith-Launcher-Portable-x64.zip`) and compare its SHA-256 with the hashes in the release notes (`Get-FileHash <file> -Algorithm SHA256`). That only detects a corrupt download.
+1. From the Releases page, download `Zenith-Launcher-Setup-x64.exe` (or `Zenith-Launcher-Portable-x64.zip`, the same app in a folder: unzip it and run `Zenith Launcher.exe`) and compare its SHA-256 with the hashes in the release notes (`Get-FileHash <file> -Algorithm SHA256`). That only detects a corrupt download.
 2. Run it. **The build is not code-signed**, so SmartScreen will warn ("Windows protected your PC": More info, Run anyway). The installer is per-user, no administrator.
-   Windows Defender sometimes quarantines the **portable zip** as `Trojan:Script/Wacatac.H!ml`: a machine-learning false positive on the unsigned self-extracting exe inside it (the installer scans clean). The SHA-256 in the notes identifies the exact file; pick "Allow on device" in Protection history, or use the installer. False positives can be reported at <https://www.microsoft.com/en-us/wdsi/filesubmission>.
+   Defender can flag an unsigned download like this one (the older portable self-extracting exe was quarantined as `Trojan:Script/Wacatac.H!ml`, a false positive; the installer scans clean). The SHA-256 in the notes identifies the exact file; pick "Allow on device" in Protection history, or use the installer. False positives can be reported at <https://www.microsoft.com/en-us/wdsi/filesubmission>.
 3. Open "Zenith Launcher". The first time it asks for a data folder; once chosen, the **Zenith** instance is created (once; delete `zenith-instance.json` in the launcher data folder to recreate it).
 4. Sign in and press Play on the **Zenith** instance. Microsoft sign-in uses the public Minecraft client id `00000000402b5328`, built into the launcher. **Mojang must still approve that application**: until it does, Microsoft sign-in may be refused for players.
 

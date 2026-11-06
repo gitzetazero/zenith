@@ -6,7 +6,7 @@ export const ZENITH_RELEASES_URL = `${ZENITH_REPOSITORY_URL}/releases`
 export const ZENITH_RELEASES_API = `https://api.github.com/repos/${ZENITH_REPOSITORY}/releases?per_page=30`
 export const ZENITH_AUTHOR_URL = 'https://github.com/gitzetazero'
 /** The installer a launcher release carries; the Zenith repository also publishes the game, so releases are told apart by it. */
-export const LAUNCHER_ASSETS = ['Zenith-Launcher-Setup-x64.exe', 'Zenith-Launcher-Portable-x64.exe'] as const
+export const LAUNCHER_ASSETS = ['Zenith-Launcher-Setup-x64.exe', 'Zenith-Launcher-Portable-x64.zip'] as const
 export const LAUNCHER_USER_AGENT_CONTACT = 'github.com/gitzetazero/zenith'
 
 interface ReleaseLike {

@@ -13,7 +13,7 @@ NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR 
 Get the latest release from the [Zenith Releases page](https://github.com/gitzetazero/zenith/releases):
 
 - `Zenith-Launcher-Setup-x64.exe`: per-user installer (no administrator needed).
-- `Zenith-Launcher-Portable-x64.zip`: portable (the portable exe in a zip).
+- `Zenith-Launcher-Portable-x64.zip`: portable (the unpacked app in a folder: unzip it and run `Zenith Launcher.exe`; it never writes to a system folder).
 - `SHA256SUMS`: check your download with `Get-FileHash .\Zenith-Launcher-Setup-x64.exe -Algorithm SHA256`.
 
 On first start, choose the data folder (default `%APPDATA%\.minecraftz`, Zenith's own game data folder; the official `.minecraft` is never touched) and a **Zenith** instance is created for you; pick it and press Play.

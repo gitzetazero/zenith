@@ -204,9 +204,10 @@ jobs:
           retention-days: 3
 
   # Zenith Launcher (launcher, our fork of XMCL by Voxelum, MIT): typecheck, tests, build, app.asar check, with the
-  # bridge built above bundled as an extra resource. The portable exe is zipped so the public file name stays
-  # Zenith-Launcher-Portable-x64.zip. No secrets, and no repository variable for Microsoft: the public Minecraft client id
-  # (00000000402b5328) is built into the launcher. ZENITH_DISCORD_CLIENT_ID is an optional repository variable.
+  # bridge built above bundled as an extra resource. The unpacked app is zipped into Zenith-Launcher-Portable-x64.zip
+  # (a self-extracting portable exe trips Defender's heuristic). No secrets, and no repository variable for Microsoft:
+  # the public Minecraft client id (00000000402b5328) is built into the launcher. ZENITH_DISCORD_CLIENT_ID is an
+  # optional repository variable.
   launcher:
     needs: [gate, bridge]
     if: needs.gate.outputs.go == 'true'
@@ -258,16 +259,17 @@ jobs:
       - name: The bridge is inside the installed app
         run: |
           test -f "$(dirname "$(find xmcl-electron-app/build/output -name app.asar -path '*win-unpacked*' | head -n 1)")/zenith/zenith-bridge-windows-x64.exe"
-      - name: Collect the installer and the zipped portable exe
+      - name: Collect the installer and zip the portable folder
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force out | Out-Null
           $o = 'xmcl-electron-app/build/output'
-          foreach ($name in 'Zenith-Launcher-Setup-x64.exe', 'Zenith-Launcher-Portable-x64.exe') {
-            if (-not (Test-Path (Join-Path $o $name))) { throw "missing build output: $name" }
-          }
+          if (-not (Test-Path (Join-Path $o 'Zenith-Launcher-Setup-x64.exe'))) { throw "missing build output: Zenith-Launcher-Setup-x64.exe" }
+          if (-not (Test-Path (Join-Path $o 'win-unpacked/Zenith Launcher.exe'))) { throw "missing build output: win-unpacked" }
           Copy-Item (Join-Path $o 'Zenith-Launcher-Setup-x64.exe') out/
-          Compress-Archive -Path (Join-Path $o 'Zenith-Launcher-Portable-x64.exe') -DestinationPath out/Zenith-Launcher-Portable-x64.zip
+          # The portable download is the unpacked app in a folder, not a self-extracting exe: Defender's
+          # Wacatac heuristic quarantined the NSIS portable stub.
+          Compress-Archive -Path (Join-Path $o 'win-unpacked/*') -DestinationPath out/Zenith-Launcher-Portable-x64.zip
           Get-ChildItem out | Format-Table Name, Length
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:

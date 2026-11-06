@@ -32,7 +32,7 @@ portable_sum=$(sha256sum dist/Zenith-Launcher-Portable-x64.zip | cut -d' ' -f1)
 {
   echo "Zenith build of commit ${SHA:0:7}."
   echo
-  echo '**Players (Windows):** download `Zenith-Launcher-Setup-x64.exe`, run it and open "Zenith Launcher". It installs for your user only (no administrator). Prefer no installer? `Zenith-Launcher-Portable-x64.zip` is the same in a folder. Steps: docs/PLAYER-GUIDE.md.'
+  echo '**Players (Windows):** download `Zenith-Launcher-Setup-x64.exe`, run it and open "Zenith Launcher". It installs for your user only (no administrator). Prefer no installer? `Zenith-Launcher-Portable-x64.zip` is the same app in a folder: unzip it and run `Zenith Launcher.exe`. Steps: docs/PLAYER-GUIDE.md.'
   echo
   echo "SHA-256:"
   echo
@@ -43,7 +43,7 @@ portable_sum=$(sha256sum dist/Zenith-Launcher-Portable-x64.zip | cut -d' ' -f1)
   echo
   echo 'The files are **not code-signed for Windows**, so SmartScreen will warn ("Windows protected your PC": More info, Run anyway). Comparing the hash only catches a corrupt download; the game builds the launcher downloads later are checked with an Ed25519 signature.'
   echo
-  echo 'Windows Defender sometimes quarantines `Zenith-Launcher-Portable-x64.zip` as `Trojan:Script/Wacatac.H!ml`: a machine-learning false positive on the unsigned self-extracting exe inside it (the installer scans clean). The SHA-256 above identifies the exact file; allow it in Protection history, or use the installer. Report false positives at https://www.microsoft.com/en-us/wdsi/filesubmission.'
+  echo '**Antivirus:** the programs are unsigned, so SmartScreen and Defender can warn (the older self-extracting portable exe was quarantined as `Trojan:Script/Wacatac.H!ml`, a machine-learning false positive; the installer scans clean). The SHA-256 above identifies the exact file: allow it, or use the installer. Report false positives at https://www.microsoft.com/en-us/wdsi/filesubmission.'
   echo
   echo "Zenith is an independent project. It is not affiliated with, endorsed by or sponsored by Mojang or Microsoft; Minecraft is Mojang's trademark. No Minecraft code or assets are included: the game files come from your own copy."
   echo

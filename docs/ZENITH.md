@@ -112,7 +112,7 @@ python -m unittest discover -s ci             # port, sync, intact and link chec
 python ci/check_links.py                      # relative links in our markdown
 ```
 
-Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` (the launcher installer and portable zip only: what players download) and the moving `nightly` release (the signed game channel the launcher and game fetch from) (`ci/zenith_publish.sh`). The installer and portable are built by the `launcher` job from `launcher` (typecheck, tests, electron-builder, a check of `app.asar`), with the bridge built in the same run bundled inside; the portable exe is published zipped.
+Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` (the launcher installer and portable zip only: what players download) and the moving `nightly` release (the signed game channel the launcher and game fetch from) (`ci/zenith_publish.sh`). The installer and portable are built by the `launcher` job from `launcher` (typecheck, tests, electron-builder, a check of `app.asar`), with the bridge built in the same run bundled inside; the portable download is the unpacked app zipped, not a self-extracting exe.
 
 Names: the game is `zenith` (package `zenith-client`), the tools are `zenith-ctl` and `zenith-prepare`; most environment variables are still `HORIZON_*` (see "What keeps Horizon's name").
 

@@ -98,10 +98,11 @@ export const config = {
     },
     icon: 'icons/dark.ico',
     electronLanguages: ['en-US'],
-    // zenith: NSIS installer (per user, no admin) + portable exe, x64 only
+    // zenith: NSIS installer (per user, no admin), x64 only. The portable download is a zip of
+    // `win-unpacked`, made by the release workflow: a self-extracting portable exe trips Defender's
+    // Wacatac machine-learning heuristic, and this is a plain folder the player unzips.
     target: [
       { target: 'nsis', arch: ['x64'] },
-      { target: 'portable', arch: ['x64'] },
     ],
   },
   nsis: {
@@ -111,9 +112,6 @@ export const config = {
     allowToChangeInstallationDirectory: true,
     shortcutName: 'Zenith Launcher',
     artifactName: 'Zenith-Launcher-Setup-x64.${ext}',
-  },
-  portable: {
-    artifactName: 'Zenith-Launcher-Portable-x64.${ext}',
   },
   linux: {
     executableName: 'xmcl',
