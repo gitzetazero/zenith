@@ -15,10 +15,9 @@ jobs:
       - name: probe
         run: |
           set +e
-          echo "--- list releases"; gh api --paginate "repos/$REPO/releases" --jq '.[]|[.tag_name,.id]|@tsv'; echo "rc=$?"
-          echo "--- create draft"; id=$(gh api -X POST "repos/$REPO/releases" -f tag_name=zz-debug-probe -f target_commitish="$GITHUB_SHA" -f name=probe -f body=probe -F draft=true --jq .id); echo "rc=$? id=$id"
-          echo "--- upload 1KB"; head -c 1024 /dev/urandom > probe.bin; gh api -X POST "https://uploads.github.com/repos/$REPO/releases/$id/assets?name=probe.bin" -H "Content-Type: application/octet-stream" --input probe.bin --jq .name; echo "rc=$?"
-          echo "--- patch existing tag ref to its own sha"; sha=$(gh api "repos/$REPO/git/ref/tags/nightly-2026-11-06" --jq .object.sha); echo "sha=$sha"; gh api -X PATCH "repos/$REPO/git/refs/tags/nightly-2026-11-06" -f sha="$sha" -F force=true --jq .ref; echo "rc=$?"
-          echo "--- patch release (make draft false->none)"; gh api -X PATCH "repos/$REPO/releases/$id" -f name=probe2 --jq .name; echo "rc=$?"
-          echo "--- delete draft"; gh api -X DELETE "repos/$REPO/releases/$id"; echo "rc=$?"
-          echo "--- patch nightly release body unchanged"; nid=$(gh api "repos/$REPO/releases/tags/nightly" --jq .id); gh api -X PATCH "repos/$REPO/releases/$nid" -f make_latest=false --jq .name; echo "rc=$?"
+          # read-only apart from a no-op: each tag is "updated" to the sha it already has, without force
+          for t in nightly nightly-2026-11-05 nightly-2026-11-06; do
+            sha=$(gh api "repos/$REPO/git/ref/tags/$t" --jq .object.sha)
+            echo "--- $t at $sha"
+            gh api -X PATCH "repos/$REPO/git/refs/tags/$t" -f sha="$sha" -F force=false --jq .ref 2>&1 | head -2
+          done
