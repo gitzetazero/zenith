@@ -71,7 +71,7 @@ Prepared files end up in `.local/`, which git ignores: do not commit or share th
 
 - Everything is experimental and has only been tested with automated tests, not with the installer on a real Windows machine.
 - Translated servers have not been tested against real servers.
-- The installer and the program that prepares the game are not code-signed for Windows: SmartScreen and some antivirus programs will warn you.
+- The installer and the program that prepares the game are not code-signed for Windows: SmartScreen will warn you, and Defender sometimes quarantines the portable zip as `Trojan:Script/Wacatac.H!ml`, a false positive on the unsigned self-extracting exe (the installer scans clean).
 - Windows only. Java mods do not work: Zenith does not run Minecraft's JVM.
 - A Zenith instance only works for the game version it ships with (today 26.3).
 

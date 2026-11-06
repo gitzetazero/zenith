@@ -101,7 +101,7 @@ After merging: `pnpm install`, `pnpm run check`, `pnpm vitest run xmcl-runtime/z
   verifies `app.asar` (`tools/zenith/verify-asar.mjs`: no `xmcl.app`, `1363d629`, `XMCL Agent`, Together, signaling; `.minecraftz` and the product name present), writes `SHA256SUMS` and publishes a **normal release** (not a prerelease, marked latest).
 - The bridge is verified by `tools/zenith/fetch-bridge.mjs`: the Ed25519 signature of `SHA256SUMS` from the `nightly` release of `gitzetazero/zenith` against Zenith's release key, then the exe's SHA-256 against that signed list. Any mismatch fails the build.
 - XMCL's inherited workflows (`build.yml`, `deploy-*.yml`, `sign-release.yml`, `e2e.yml`, ...) stay in the tree but are **disabled** in this repository (they need secrets or publish XMCL things) and are not imported into the Zenith repository.
-- The exes are **not code-signed** (SmartScreen will warn).
+- The exes are **not code-signed** (SmartScreen will warn). Windows Defender also sometimes quarantines the portable zip as `Trojan:Script/Wacatac.H!ml`, a machine-learning false positive on the unsigned self-extracting exe inside; the installer scans clean and the release notes carry the SHA-256 of both files.
 
 ## Limits
 

@@ -43,6 +43,8 @@ portable_sum=$(sha256sum dist/Zenith-Launcher-Portable-x64.zip | cut -d' ' -f1)
   echo
   echo 'The files are **not code-signed for Windows**, so SmartScreen will warn ("Windows protected your PC": More info, Run anyway). Comparing the hash only catches a corrupt download; the game builds the launcher downloads later are checked with an Ed25519 signature.'
   echo
+  echo 'Windows Defender sometimes quarantines `Zenith-Launcher-Portable-x64.zip` as `Trojan:Script/Wacatac.H!ml`: a machine-learning false positive on the unsigned self-extracting exe inside it (the installer scans clean). The SHA-256 above identifies the exact file; allow it in Protection history, or use the installer. Report false positives at https://www.microsoft.com/en-us/wdsi/filesubmission.'
+  echo
   echo "Zenith is an independent project. It is not affiliated with, endorsed by or sponsored by Mojang or Microsoft; Minecraft is Mojang's trademark. No Minecraft code or assets are included: the game files come from your own copy."
   echo
   echo "Built on [Horizon](https://github.com/horizon-rust/horizon)."
