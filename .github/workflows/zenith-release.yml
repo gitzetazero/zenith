@@ -253,7 +253,7 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
           NODE_ENV: production
           NODE_OPTIONS: --max-old-space-size=8192
-          ZENITH_MSA_CLIENT_ID: ${{ vars.ZENITH_MSA_CLIENT_ID }}
+          ZENITH_MSA_CLIENT_ID: ${{ vars.ZENITH_MSA_CLIENT_ID }} # public client id, embedded by the esbuild config
           ZENITH_DISCORD_CLIENT_ID: ${{ vars.ZENITH_DISCORD_CLIENT_ID }}
         run: |
           pnpm run --prefix xmcl-keystone-ui build

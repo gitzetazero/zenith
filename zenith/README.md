@@ -15,7 +15,7 @@ It is an independent project and **not affiliated with XMCL (Voxelum), Mojang or
 1. From the Releases page, download `Zenith-Launcher-Setup-x64.exe` (or `Zenith-Launcher-Portable-x64.zip`) and compare its SHA-256 with the hashes in the release notes (`Get-FileHash <file> -Algorithm SHA256`). That only detects a corrupt download.
 2. Run it. **The build is not code-signed**, so SmartScreen will warn ("Windows protected your PC": More info, Run anyway). The installer is per-user, no administrator.
 3. Open "Zenith Launcher". The first time it asks for a data folder; once chosen, the **Zenith** instance is created (once; delete `zenith-instance.json` in the launcher data folder to recreate it).
-4. Sign in and press Play on the **Zenith** instance. **Microsoft sign-in needs an Azure app approved by Mojang, which does not exist yet**: until `ZENITH_MSA_CLIENT_ID` is configured the launcher shows a message instead of signing in.
+4. Sign in and press Play on the **Zenith** instance. Microsoft sign-in uses Zenith's own Azure app (public client id `ZENITH_MSA_CLIENT_ID`, set at build time). **Mojang must still approve that app registration**: until it does, Microsoft sign-in may be refused for players.
 
 The first Play downloads Minecraft 26.3 and prepares Zenith's resources (about 30 seconds to a few minutes). Without Java 25, the bridge downloads Mojang's.
 

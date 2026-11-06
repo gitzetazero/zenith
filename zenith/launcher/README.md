@@ -22,7 +22,7 @@ The launcher plays Zenith only: there are no Java settings, mod loaders or other
 ## Honest limits
 
 - The exes are **not code-signed**: Windows SmartScreen will warn you.
-- **Microsoft sign-in needs an Azure app registered and approved by Mojang**, which this project does not have yet. XMCL's own application ID is deliberately not used. Until one is configured (`ZENITH_MSA_CLIENT_ID`), Microsoft sign-in shows a clear message. Other account types work as in XMCL.
+- **Microsoft sign-in uses Zenith's own Azure app** (`ZENITH_MSA_CLIENT_ID`, a public client id set as a repository variable and embedded at build time); **Mojang must still approve the app registration** before sign-in works for players. XMCL's own application ID is deliberately not used. Without a configured id, sign-in shows a clear message. Other account types work as in XMCL.
 - No telemetry and no XMCL-hosted services. Updates are manual (the launcher links to the Zenith Releases).
 - Not verified on third-party PCs. Windows x64 only.
 

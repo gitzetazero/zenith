@@ -14,7 +14,7 @@ Windows only for now. Download **Zenith Launcher** from the [Releases](https://g
 
 1. Get `Zenith-Launcher-Setup-x64.exe` (per-user installer, no administrator) or `Zenith-Launcher-Portable-x64.zip` (the portable exe in a zip), and check it against the SHA-256 in the release notes.
 2. Run it. Windows will warn you ("Windows protected your PC") because the build is not code-signed: choose "More info", then "Run anyway".
-3. First-run steps, updates and limits are in [`zenith/README.md`](zenith/README.md). Note: Microsoft sign-in in Zenith Launcher needs an Azure app approved by Mojang that does not exist yet, so for now it shows a message instead of signing in.
+3. First-run steps, updates and limits are in [`zenith/README.md`](zenith/README.md). Note: Microsoft sign-in uses Zenith's own Azure app (the build embeds its public client id); until Mojang approves that app registration, Microsoft sign-in may be refused for players.
 
 ## Requirements
 
