@@ -53,8 +53,8 @@ The fork's `.github/workflows/zenith-release.yml` has the exact steps:
 3. Bridge: build it in the same run (or `node tools/zenith/fetch-bridge.mjs xmcl-electron-app/build/zenith`).
 4. `pnpm run check` (typecheck of `xmcl-runtime-api`, `xmcl-runtime`, `xmcl-electron-app`, `xmcl-keystone-ui`).
 5. Tests (see section 4).
-6. `pnpm run --prefix xmcl-keystone-ui build` then `pnpm run --prefix xmcl-electron-app build:all` (env: `NODE_ENV=production`, `NODE_OPTIONS=--max-old-space-size=8192`, optional repository variable
-   `ZENITH_DISCORD_CLIENT_ID`; variables, never secrets. The Microsoft client id is built in).
+6. `node tools/zenith/stamp-version.mjs xmcl-electron-app/package.json <run number>`, then `pnpm run --prefix xmcl-keystone-ui build` and `pnpm run --prefix xmcl-electron-app build:all` (env: `NODE_ENV=production`, `NODE_OPTIONS=--max-old-space-size=8192`, optional repository variable
+   `ZENITH_DISCORD_CLIENT_ID`; variables, never secrets. The Microsoft client id is built in). The stamp gives Settings > About the release's `<XMCL base>-zenith0.1.<run>` version.
 7. `node tools/zenith/verify-asar.mjs <win-unpacked/resources/app.asar>` (fails on `xmcl.app`, `1363d629`, `XMCL Agent`, `Together`, `signaling`, Application Insights; requires `.minecraftz`).
 8. Collect `Zenith-Launcher-Setup-x64.exe` and zip `win-unpacked` as `Zenith-Launcher-Portable-x64.zip`, write `SHA256SUMS`.
 9. Publish with `gh release create <tag> --prerelease=false --latest ...` (a normal release, not a prerelease).
