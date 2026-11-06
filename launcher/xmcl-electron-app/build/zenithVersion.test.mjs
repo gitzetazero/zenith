@@ -15,7 +15,11 @@ test('a release advances the version over the XMCL base', () => {
 test('stamping the app package keeps the base and writes the file', () => {
   const dir = mkdtempSync(join(tmpdir(), 'zenith-version-'))
   const file = join(dir, 'package.json')
-  writeFileSync(file, JSON.stringify({ name: 'zenith-launcher', version: '0.73.1-zenith.2' }, null, 2))
+  const original = JSON.stringify({ name: 'zenith-launcher', version: '0.73.1-zenith.2', build: { appId: 'dev.zenith.launcher' } }, null, 4)
+  writeFileSync(file, `${original}\n`)
   expect(stampPackageJson(file, 25)).toBe('0.73.1-zenith0.1.25')
-  expect(JSON.parse(readFileSync(file, 'utf-8')).version).toBe('0.73.1-zenith0.1.25')
+  const text = readFileSync(file, 'utf-8')
+  expect(JSON.parse(text).version).toBe('0.73.1-zenith0.1.25')
+  // the file keeps its own 4-space layout: the release's diff is the version line alone
+  expect(text).toBe(original.replace('0.73.1-zenith.2', '0.73.1-zenith0.1.25') + '\n')
 })

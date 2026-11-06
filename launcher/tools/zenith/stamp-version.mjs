@@ -15,10 +15,13 @@ export function stampedVersion(base, run) {
 
 /** Rewrites `file`'s `version`, keeping the numeric part it has now. Returns the new version. */
 export function stampPackageJson(file, run) {
-  const pkg = JSON.parse(readFileSync(file, 'utf-8'))
+  const raw = readFileSync(file, 'utf-8')
+  const pkg = JSON.parse(raw)
   const base = String(pkg.version).replace(/-.*$/, '')
   pkg.version = stampedVersion(base, run)
-  writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`)
+  // Keep the file's own indentation and trailing newline so the release's diff is the version line alone.
+  const indent = raw.match(/^([ \t]+)"/m)?.[1] ?? '  '
+  writeFileSync(file, `${JSON.stringify(pkg, null, indent)}${raw.endsWith('\n') ? '\n' : ''}`)
   return pkg.version
 }
 
