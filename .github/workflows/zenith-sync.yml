@@ -1,12 +1,13 @@
 name: zenith-sync
 
-# Keeps Zenith's main level with horizon-rust/horizon main: every hour it merges Horizon's tip into main with a real
+# Keeps Zenith's main level with horizon-rust/horizon main: every 6 hours (Horizon pushes dozens of commits a day, and each
+# merge costs a full build) it merges Horizon's tip into main with a real
 # merge commit (never a rebase, never a force push to main), so every commit of ours stays. All the logic is in
 # zenith/ci/sync.py (runnable locally: `python zenith/ci/sync.py merge --upstream-ref upstream/main`).
 #
 #   merge     prune.py removes what Zenith never uses, merge=ours keeps our README/CONTRIBUTING, Cargo.toml/Cargo.lock
 #             take Horizon's and are pruned/regenerated; any other conflict blocks the sync.
-#   checks    check_zenith_intact.py (nothing of ours was dropped), unit tests, links, public tree, fmt, clippy,
+#   checks    check_zenith_intact.py (nothing of ours was dropped), unit tests, links, public tree, fmt,
 #             protocol tests, bridge fmt/clippy/tests, client build, launch API.
 #   blocked   (conflict or failed check) main is NOT touched: the attempt goes to branch sync/<date>-<short>, a PR
 #             and ONE issue labelled `sync`; the run ends red. main then stays behind until someone resolves it.
@@ -20,7 +21,7 @@ name: zenith-sync
 # never see it, and checkout does not keep it in .git/config.
 on:
   schedule:
-    - cron: "7 * * * *"
+    - cron: "7 */6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -40,7 +41,7 @@ jobs:
   sync:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
-    timeout-minutes: 120
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -107,7 +108,7 @@ jobs:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
         run: |
           # A normal fast-forward push of the merge commit. If main moved meanwhile it is rejected and the next
-          # hourly run starts again from the new main (nothing is forced).
+          # scheduled run starts again from the new main (nothing is forced).
           if git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main; then
             echo "pushed=true" >> "$GITHUB_OUTPUT"
           else

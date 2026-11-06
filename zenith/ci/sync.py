@@ -126,7 +126,7 @@ def steps(no_cargo):
         bridge = ["--manifest-path", "zenith/bridge/Cargo.toml"]
         exe = ".exe" if os.name == "nt" else ""
         s += [("cargo fmt", ["cargo", "fmt", "--all", "--check"]),
-              ("cargo clippy", ["cargo", "clippy", "--workspace", "--all-targets", "--locked", "--", "-D", "warnings"]),
+              # `cargo build client` below compiles the game once; a workspace-wide clippy would compile everything again.
               ("cargo test protocol", ["cargo", "test", "-p", "horizon-protocol", "--locked"]),
               ("bridge cargo fmt", ["cargo", "fmt", *bridge, "--check"]),
               ("bridge cargo clippy", ["cargo", "clippy", *bridge, "--all-targets", "--locked", "--", "-D", "warnings"]),

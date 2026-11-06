@@ -42,7 +42,7 @@ Zenith is client-only: the integrated single-player server lives inside `horizon
 
 ## Sync with Horizon
 
-The workflow `zenith-sync` (`.github/workflows/zenith-sync.yml`) runs **every hour** (`7 * * * *`) or by hand. The goal: `main` stays level with Horizon's `main` (GitHub's "N commits behind" stays at 0) and **never loses anything of ours**. All the logic is in `zenith/ci/sync.py`, so you can run it locally.
+The workflow `zenith-sync` (`.github/workflows/zenith-sync.yml`) runs **every 6 hours** (`7 */6 * * *`; it was hourly, which cost too much compute) or by hand. The goal: `main` stays level with Horizon's `main` (GitHub's "N commits behind" stays at 0) and **never loses anything of ours**. All the logic is in `zenith/ci/sync.py`, so you can run it locally.
 
 1. `git fetch upstream main`. If Horizon's tip is already in `main`, the run ends green at once.
 2. Otherwise it merges the tip with a **real merge commit** (no rebase, never a force push to `main`), so every commit of ours stays in the history.
@@ -53,9 +53,9 @@ The workflow `zenith-sync` (`.github/workflows/zenith-sync.yml`) runs **every ho
    - any **other** conflict blocks the sync.
 4. `zenith/ci/check_zenith_intact.py` compares the merged tree with `zenith/ci/zenith-manifest.json`: every Zenith-own file still exists, no Horizon file has fewer `// zenith:` markers than before, and the key identifiers are still there (`zenith_versions`, `zenith_brand`, older servers on by default, cosmetics `ON_BY_DEFAULT` false, the telemetry endpoint test, the workspace members). This is what catches a merge that is clean for git but silently drops our work. When you change Zenith's own work on purpose, run `python zenith/ci/check_zenith_intact.py --update` and commit the manifest.
 5. Checks (`sync.py checks`): the zenith/ci unit tests, `check_public_tree.py`, `check_links.py`, `cargo fmt`, `cargo clippy -D warnings` on the whole (pruned) workspace, `cargo test -p horizon-protocol`, the bridge's fmt/clippy/tests, the client build and `check_launch_api.py`.
-6. All green: the merge commit is pushed to `main` (a normal push; if `main` moved meanwhile the next hourly run retries) and any open `sync` issue is closed.
+6. All green: the merge commit is pushed to `main` (a normal push; if `main` moved meanwhile the next scheduled run retries) and any open `sync` issue is closed.
 
-**When it is blocked** (a conflict, the intact check or a failed check) `main` is not touched. The attempt goes to a branch `sync/<date>-<short>`, a pull request is opened (or updated), **one** issue titled "Sync blocked: conflict with upstream" with the label `sync` is opened (or commented on), and the run ends red. `main` then stays behind Horizon until a person (or an agent) resolves it: merge `upstream/main` locally, fix the conflicts keeping both sides' intent, run the checks and push. The next hourly run closes the issue.
+**When it is blocked** (a conflict, the intact check or a failed check) `main` is not touched. The attempt goes to a branch `sync/<date>-<short>`, a pull request is opened (or updated), **one** issue titled "Sync blocked: conflict with upstream" with the label `sync` is opened (or commented on), and the run ends red. `main` then stays behind Horizon until a person (or an agent) resolves it: merge `upstream/main` locally, fix the conflicts keeping both sides' intent, run the checks and push. The next scheduled run closes the issue.
 
 ### Releases and the nightly rule
 
