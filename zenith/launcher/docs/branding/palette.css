@@ -1,0 +1,56 @@
+/* Zenith brand tokens. Same values as palette.json. Dark is the default; light follows the OS
+   unless :root[data-theme="dark"|"light"] forces one. */
+:root {
+  --zenith-brand-primary: #5B4BFF;
+  --zenith-brand-primary-deep: #231B8F;
+  --zenith-brand-accent: #FFB938;
+  --zenith-brand-accent-warm: #FF9A3C;
+  --zenith-brand-night: #0E1030;
+  --zenith-brand-ink: #14163A;
+  --zenith-brand-mist: #F4F1FF;
+}
+
+:root,
+:root[data-theme="dark"] {
+  --zenith-surface: #0E1030;
+  --zenith-surface-variant: #1A1D45;
+  --zenith-primary: #8B7FFF;
+  --zenith-on-primary: #0E1030;
+  --zenith-accent: #FFB938;
+  --zenith-success: #3DD68C;
+  --zenith-warning: #FFB938;
+  --zenith-error: #FF6B6B;
+  --zenith-outline: #3A3E78;
+  --zenith-text-primary: #F2F1FF;
+  --zenith-text-secondary: #A9A9D6;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --zenith-surface: #FAF9FF;
+    --zenith-surface-variant: #ECEAFB;
+    --zenith-primary: #4A3AE0;
+    --zenith-on-primary: #FFFFFF;
+    --zenith-accent: #B86E00;
+    --zenith-success: #12805C;
+    --zenith-warning: #9A5B00;
+    --zenith-error: #C62F3E;
+    --zenith-outline: #C4C1E6;
+    --zenith-text-primary: #14163A;
+    --zenith-text-secondary: #55577F;
+  }
+}
+
+:root[data-theme="light"] {
+  --zenith-surface: #FAF9FF;
+  --zenith-surface-variant: #ECEAFB;
+  --zenith-primary: #4A3AE0;
+  --zenith-on-primary: #FFFFFF;
+  --zenith-accent: #B86E00;
+  --zenith-success: #12805C;
+  --zenith-warning: #9A5B00;
+  --zenith-error: #C62F3E;
+  --zenith-outline: #C4C1E6;
+  --zenith-text-primary: #14163A;
+  --zenith-text-secondary: #55577F;
+}

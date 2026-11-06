@@ -209,58 +209,84 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-  # Zenith Launcher: the installer and the portable zip bundle the UNMODIFIED official XMCL (pinned version and
-  # SHA-256 in zenith/launcher-interim/xmcl-pin.txt, checked again by build.sh, fail closed) with the bridge built above.
+  # Zenith Launcher (zenith/launcher, our fork of XMCL by Voxelum, MIT): typecheck, tests, build, app.asar check, with the
+  # bridge built above bundled as an extra resource. The portable exe is zipped so the public file name stays
+  # Zenith-Launcher-Portable-x64.zip. No secrets; ZENITH_MSA_CLIENT_ID / ZENITH_DISCORD_CLIENT_ID are optional repository variables.
   launcher:
     needs: [gate, bridge]
     if: needs.gate.outputs.go == 'true'
     runs-on: windows-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
+        working-directory: zenith/launcher
+    env:
+      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
+        with:
+          package_json_file: zenith/launcher/package.json
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: zenith/launcher/pnpm-lock.yaml
+      - name: Python build helpers for node-gyp
+        run: python -m pip install --user packaging setuptools
+      - name: Install
+        run: pnpm install --frozen-lockfile
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: zenith-bridge-windows-x64.exe
-          path: dist
-      - name: The pinned official XMCL release asset (never "latest")
-        run: |
-          set -euo pipefail
-          pin() { sed -n "s/^$1=//p" zenith/launcher-interim/xmcl-pin.txt | tr -d '\015'; }
-          mkdir -p "$RUNNER_TEMP/xmcl"
-          curl --fail --location --silent --show-error --retry 3 -o "$RUNNER_TEMP/xmcl/$(pin asset)" "$(pin url)"
-          ls -l "$RUNNER_TEMP/xmcl"
-      - name: NSIS
-        run: |
-          set -euo pipefail
-          if ! command -v makensis > /dev/null && [ ! -x "/c/Program Files (x86)/NSIS/makensis.exe" ]; then
-            choco install nsis --version=3.11 --no-progress -y
-          fi
-      - name: Installer and portable zip
+          path: zenith/launcher/xmcl-electron-app/build/zenith
+      - name: Typecheck (runtime API, runtime, Electron app, UI)
+        run: pnpm run check
+      - name: Unit tests of the Zenith changes
+        run: pnpm vitest run xmcl-runtime/zenith xmcl-runtime/app xmcl-runtime/infra/plugins xmcl-runtime/moddb xmcl-runtime/instance/InstanceService.icon.test.ts xmcl-runtime/settings xmcl-electron-app/build xmcl-keystone-ui/src/telemetry.test.ts xmcl-keystone-ui/src/i18n.integration.test.ts
+      - name: Build
         env:
-          DATE: ${{ inputs.date }}
-          SHORT: ${{ needs.gate.outputs.short }}
+          BUILD_NUMBER: ${{ github.run_number }}
+          NODE_ENV: production
+          NODE_OPTIONS: --max-old-space-size=8192
+          ZENITH_MSA_CLIENT_ID: ${{ vars.ZENITH_MSA_CLIENT_ID }}
+          ZENITH_DISCORD_CLIENT_ID: ${{ vars.ZENITH_DISCORD_CLIENT_ID }}
         run: |
-          set -euo pipefail
-          export PATH="$PATH:/c/Program Files (x86)/NSIS"
-          makensis -VERSION
-          asset=$(sed -n 's/^asset=//p' zenith/launcher-interim/xmcl-pin.txt | tr -d '\015')
-          mkdir -p out
-          bash zenith/launcher-interim/build.sh "$RUNNER_TEMP/xmcl/$asset" dist/zenith-bridge-windows-x64.exe out "nightly-$DATE-$SHORT"
+          pnpm run --prefix xmcl-keystone-ui build
+          pnpm run --prefix xmcl-electron-app build:all
+      - name: Verify app.asar (no XMCL services or removed features, Zenith data folder and name present)
+        run: |
+          ASAR="$(find xmcl-electron-app/build/output -name app.asar -path '*win-unpacked*' | head -n 1)"
+          test -n "$ASAR" || { echo "::error::app.asar not found"; exit 1; }
+          node tools/zenith/verify-asar.mjs "$ASAR"
+      - name: The bridge is inside the installed app
+        run: |
+          test -f "$(dirname "$(find xmcl-electron-app/build/output -name app.asar -path '*win-unpacked*' | head -n 1)")/zenith/zenith-bridge-windows-x64.exe"
+      - name: Collect the installer and the zipped portable exe
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force out | Out-Null
+          $o = 'xmcl-electron-app/build/output'
+          foreach ($name in 'Zenith-Launcher-Setup-x64.exe', 'Zenith-Launcher-Portable-x64.exe') {
+            if (-not (Test-Path (Join-Path $o $name))) { throw "missing build output: $name" }
+          }
+          Copy-Item (Join-Path $o 'Zenith-Launcher-Setup-x64.exe') out/
+          Compress-Archive -Path (Join-Path $o 'Zenith-Launcher-Portable-x64.exe') -DestinationPath out/Zenith-Launcher-Portable-x64.zip
+          Get-ChildItem out | Format-Table Name, Length
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: Zenith-Launcher-Setup-x64.exe
-          path: out/Zenith-Launcher-Setup-x64.exe
+          path: zenith/launcher/out/Zenith-Launcher-Setup-x64.exe
           if-no-files-found: error
           retention-days: 3
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: Zenith-Launcher-Portable-x64.zip
-          path: out/Zenith-Launcher-Portable-x64.zip
+          path: zenith/launcher/out/Zenith-Launcher-Portable-x64.zip
           if-no-files-found: error
           retention-days: 3
 

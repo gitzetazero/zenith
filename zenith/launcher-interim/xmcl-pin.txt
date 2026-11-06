@@ -1,8 +1,0 @@
-# The official X Minecraft Launcher bundled, unmodified, by Zenith Launcher. Read by zenith/launcher-interim/build.sh and
-# by the `launcher` job of .github/workflows/zenith-release.yml. Never "latest": to bump it, change all four
-# lines together with the SHA-256 published next to the asset (the .sha256 file of the release) and re-check
-# that XMCL.exe is still the program's name (the bridge starts it).
-version=0.73.1
-asset=xmcl-0.73.1-win32-x64.zip
-url=https://github.com/Voxelum/x-minecraft-launcher/releases/download/v0.73.1/xmcl-0.73.1-win32-x64.zip
-sha256=ce547f6ea45da7cf5dfb1e658bc1ec7931ef589a6a4e3de04176d4b8615f9d55

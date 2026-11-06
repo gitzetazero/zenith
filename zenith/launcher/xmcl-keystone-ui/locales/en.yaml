@@ -1,0 +1,2137 @@
+BaseSettingGeneral:
+  title: General
+HomeLaunchMultiInstanceDialog:
+  confirm: Yes, Launch
+  description: You are launching multiple instances of Minecraft. Are you sure?
+  title: Multiple Instances
+SettingMigrationDialog:
+  selectRootDirectory: Select Root Directory
+ago:
+  day: '{duration} day ago | {duration} days ago'
+  hour: '{duration} hour ago | {duration} hours ago'
+  minute: '{duration} minute ago | {duration} minutes ago'
+  second: '{duration} second ago | {duration} seconds ago'
+authProfileAddedNotification: Auth Profile {name} Added
+backup:
+  title: Backup & Restore
+  description: Back up and restore your settings, collections, themes, and game instances
+  launcherData: Launcher Data
+  includeSettingsTitle: Launcher Settings
+  includeSettingsHint: General preferences, language, developer mode, and appearance settings
+  includeCollectionsTitle: Saved Collections
+  includeCollectionsHint: Launcher-managed mod and resource collections
+  includeThemesTitle: Custom Themes & Media
+  includeThemesHint: Theme colors, custom CSS styles, and background media
+  instances: Instances
+  selectAll: Select All
+  deselectAll: Deselect All
+  instanceDataOptions: Instance Data Options
+  includeConfigs: Configs & Options
+  includeSaves: Saves (Worlds)
+  includeResourcePacks: Resource Packs
+  includeShaderPacks: Shader Packs
+  modsMode: Mods
+  modsFull: Full files (.jar)
+  modsListOnly: Mod list only (lightweight)
+  modsNone: Exclude mods
+  noInstancesFound: No instances found in launcher.
+  excludeLibrariesNotice: Core library files, Minecraft assets, and temporary caches are excluded automatically to keep the archive compact. They will be downloaded automatically when launched.
+  create: Create Backup
+  createTitle: Create XMCL Backup Archive
+  saveDialogTitle: Save XMCL Backup Archive
+  fileFilterName: XMCL Backup Archive (*.xmclbackup, *.zip)
+  createError: Failed to create backup
+  loadManifestError: Failed to read backup archive
+  restore: Restore
+  restoreTitle: Restore from Backup
+  preparing: Preparing...
+  workingTitle: Creating Backup Archive...
+  restoringTitle: Restoring from Backup...
+  elapsedTime: Elapsed
+  remainingTime: Estimated remaining
+  calculatingRemaining: Calculating...
+  lessThanMinute: '< 1 min'
+  itemsProgress: '{current}/{total}'
+  savesCategory: Saves
+  modsCategory: Mods
+  resourcePacksCategory: Resource Packs
+  shaderPacksCategory: Shader Packs
+  configsCategory: Configs
+  activityLog: Activity Log
+  copyLog: Copy Log
+  copiedLog: Log copied to clipboard
+  openFolder: Show in Folder
+  done: Done
+  backupDone: Backup Complete!
+  backupDoneHint: Your backup archive has been created and verified.
+  restoreDone: Restore Complete!
+  restoreDoneHint: All selected data and instances have been restored successfully.
+  timeTaken: 'Time taken: {time}'
+  destinationFile: 'Saved to: {path}'
+  stagePreparing: Preparing
+  stageSettings: Launcher Settings
+  stageCollections: Saved Collections
+  stageThemes: Themes & Media
+  stageInstances: Game Instances
+  stageCompressing: Compressing Archive
+  stageComplete: Complete
+  stageLabel: 'Stage: {stage}'
+  searchInstancesPlaceholder: Search instances by name or version...
+  selectBackupFilePrompt: Select a backup archive to restore
+  selectBackupFileDescription: Choose a .xmclbackup or .zip file containing your saved XMCL data and instances.
+  selectFile: Choose File
+  selectBackupFileTitle: Open XMCL Backup Archive
+  createdOn: 'Created on {date}'
+  changeFile: Change File
+  dataToRestore: Data to Restore
+  restoreSettings: Restore Settings
+  restoreSettingsHint: Overwrite current launcher preferences with the backup copy
+  restoreCollections: Restore Collections
+  restoreCollectionsHint: Import and merge saved collections into the launcher
+  restoreThemes: Restore Themes & Media
+  restoreThemesHint: Reinstall themes, custom CSS, and background media
+  noLauncherDataInBackup: No launcher settings or themes found in this backup archive.
+  conflictStrategyTitle: Instance Name Conflict Handling
+  conflictRename: Keep existing and rename restored instance (e.g. name-restored)
+  conflictOverwrite: Overwrite existing instance files
+  conflictSkip: Skip instances that already exist on disk
+  restoreError: Failed to restore backup
+  restorePartialTitle: Restore Completed with Warnings
+  restorePartialHint: Some components or instances could not be restored. Check the activity log for details.
+  restoreFailedCategory: Failed to restore {category}
+  instancesSkipped: Skipped {count} already existing instance(s)
+  instancesFailed: Failed to restore {count} instance(s)
+  createBackupTitle: Create Backup
+  createBackupDescription: Save your launcher settings, collections, custom themes, and instances to a single portable archive file.
+  restoreBackupTitle: Restore Backup
+  restoreBackupDescription: Restore settings, themes, collections, or game instances from a previously saved backup archive.
+  portableArchiveNoticeTitle: Portable Single-File Backups
+  portableArchiveNoticeDescription: Backups are saved as single .xmclbackup archives. You can easily keep them safe, copy them to a USB drive, or sync them with cloud services like Google Drive or OneDrive.
+  autoBackupTitle: Background Auto-Backup
+  autoBackupDescription: Automatically back up one or more selected instances in the background on a schedule
+  autoBackupStatusRunning: Backing up...
+  autoBackupStatusEnabled: Active
+  autoBackupStatusDisabled: Disabled
+  autoBackupRunNow: Run Now
+  autoBackupLastRun: Last auto-backup
+  autoBackupNeverRun: Never
+  selectedCount: '{selected} / {total} selected'
+  autoBackupSelectInstances: Instances to Auto-Backup (Select one or more)
+  searchInstances: Search instances...
+  autoBackupInterval: Backup Frequency
+  autoBackupRetention: Backup Retention
+  autoBackupDestination: Auto-Backup Folder
+  browse: Browse
+  autoBackupContentLabel: Content to Include in Background Backups
+  instanceSaves: Worlds & Saves
+  instanceConfigs: Configs & Options
+  instanceMods: Mods
+  instanceResourcePacks: Resource Packs
+  instanceShaderPacks: Shader Packs
+  launcherSettings: Launcher Settings
+  autoBackupHistoryTitle: Recent Auto-Backups
+  autoBackupError: Auto-backup failed
+  interval30m: Every 30 minutes
+  interval1h: Every 1 hour
+  interval2h: Every 2 hours
+  interval4h: Every 4 hours
+  interval6h: Every 6 hours
+  interval12h: Every 12 hours
+  interval24h: Every 24 hours
+  keepCount: Keep last {count} backups
+baseSetting:
+  info:
+    address: Address
+    changes: Changes
+    custom: Custom
+    disabled: Disabled
+    enabled: Enabled
+    exportFormats: Export formats
+    inherited: Inherited
+    modLoader: Mod loader
+    notConfigured: Not configured
+    notSet: Not set
+    offline: Offline archive
+    projectId: Project ID
+    running: Running
+    saved: Saved
+    status: Status
+    stopped: Stopped
+    vanilla: Vanilla
+  title: Instance Settings
+browseApp:
+  createShortcut: Create Shortcut
+  default: DEFAULT
+  delete: Delete
+  launch: Launch and set as Default
+browseApps: Viewing the launcher user interface
+color: Color
+confirm: Start
+copyClipboard:
+  success: Copy to clipboard
+create: Create
+curseforge:
+  category: Category
+  createdDate: Created Date
+  lastUpdate: Last Update Date
+  releasedDate: Released Date
+curseforgeCategory:
+  API and Library: APIs and libraries
+  Addons: Supplements
+  Adventure: Adventure
+  Adventure and RPG: Adventure and RPG
+  Animated: Animation
+  Armor, Tools, and Weapons: Armor, tools and weapons
+  Combat / PvP: Competitions/PVP
+  Cosmetic: Appearance/decoration
+  Creation: Creative mode
+  Data Packs: Data packet
+  Education: Education
+  Exploration: Reconnaissance
+  Extra Large: Large size
+  FTB Official Pack: The official FTB package
+  Fabric: Fabric
+  FancyMenu: FancyMenu
+  Font Packs: Fonts
+  Food: Food
+  Game Map: Game Cards
+  Hardcore: Hardcore
+  MCreator: MCreator
+  Magic: Magic
+  Map Based: Based on the map
+  Map and Information: Maps and information
+  Medieval: Middle Ages
+  Mini Game: Mini-games
+  Miscellaneous: Miscellaneous
+  Mod Support: Mod support
+  Modded World: A mod for worlds
+  Modern: Modern
+  Multiplayer: Multiplayer
+  Parkour: Parkour
+  Photo Realistic: Realistic photography
+  Puzzle: Puzzles
+  QoL: QoL
+  Quests: Quests
+  Redstone: Redstone
+  Sci-Fi: Sci-Fi
+  Server Utility: Server tool
+  Skyblock: SkyBlock
+  Small / Light: A little bit
+  Steampunk: Steampunk
+  Storage: Storage
+  Survival: Survival
+  Tech: Technology
+  Technology: Technology
+  Traditional: Traditional
+  Twitch Integration: Twitch integration
+  Utility & QoL: Utility and Qol
+  Vanilla+: Vanilla+
+  World Gen: Peace Generator
+dataMigration:
+  apply: Apply Setting
+  placeholder: Please click here to select directory
+  setRootCause: You will lose your data (Maps, Resource Packs, Mods) if you close the Launcher at this process!
+  setRootDescription: This will change the root data folder of this launcher and minecraft.
+  setRootTitle: Set to a new storage location
+  unknownError: Unknown Error! Please retry or contact the developer!
+  waitReload: Migrating data. Please don't close the Launcher or you will lose your data.
+delete:
+  name: Delete {name}
+  'no': 'No'
+  'yes': Delete
+dependencies:
+  dependents: Mods depending on this mod
+  embedded: Embedded
+  incompatible: Incompatible
+  name: Dependencies
+  optional: Optional
+  required: Required
+diagnosis:
+  badInstall:
+    message: Click to try to reinstall this version.
+    name: Bad Installation on {version}
+  corruptedAssets:
+    message: Launcher will install assets for you
+    name: 'Corrupted asset: {name} | Corrupted asset {name} | {count} assets corrupted'
+  corruptedAssetsIndex:
+    message: Launcher will download assets index for you
+    name: Corrupted assets index file of {version}.
+  corruptedLibraries:
+    message: Launcher will install libraries for you
+    name: 'Corrupted library: {name} | Corrupted library: {name} | {count} libraries corrupted'
+  corruptedVersionJar:
+    message: Click to install this version
+    name: Corrupted version jar for Minecraft %{version}.
+  instanceFiles:
+    description: The instance installation includes {counts} files.
+    title: Incompleted instance installation
+  missingJava:
+    message: Click to resolve this problem
+    name: Cannot find the Zenith bridge to launch the game!
+  missingLibraries:
+    message: Launcher will install libraries for you
+    name: Missing {name} Library | Missing {name} Library | Missing {count} Libraries | Missing {count} Libraries
+  missingVersion:
+    message: Click to install this version
+    name: The version {version} is not installed!
+  unresolvedFiles:
+    description: '{count} file could not be resolved during installation | {count} files could not be resolved during installation'
+    title: Unresolved files
+  unzipFileNotFound:
+    description: Cannot find {file}
+    title: Modpack file not found
+difficulty:
+  easy: Easy
+  hard: Hard
+  normal: Normal
+  peaceful: Peaceful
+disk:
+  available: Available
+  used: Used
+downloadCount: '{count} downloads'
+downloadModMetadataDb:
+  name: Download Mod Metadata Database
+downloadUpdate:
+  name: Download Update {version}
+duplicateInstance:
+  name: Duplicate Instance
+duration:
+  day: '{duration} day | {duration} days'
+  hour: '{duration} hour | {duration} hours'
+  minute: '{duration} minute | {duration} minutes'
+  second: '{duration} second | {duration} seconds'
+errors:
+  bedrockUnsupportedPlatform: Minecraft Bedrock Edition is only supported on the Windows build.
+  bedrockNotInstalled: Minecraft Bedrock Edition is not installed.
+  bedrockLaunchFailed: Failed to launch Minecraft Bedrock Edition.
+  bedrockInstallFailed: Failed to install Minecraft Bedrock Edition.
+  bedrockDownloadUrlUnavailable: This Bedrock version is not available for the current Microsoft account. Beta and Preview versions require an account enrolled in the Minecraft beta programme.
+  bedrockDeveloperModeRequired: Windows Developer Mode is required to register this Bedrock version.
+  bedrockRegisterFailed: Failed to register this Bedrock version with Windows.
+  bedrockVersionNotFound: This Bedrock version is not installed locally.
+  BadForgeInstallerJarError: Cannot parse forge installer jar file. Maybe the forge has new installer file format? Contact developers if this issue persists.
+  BadInstanceType: 'Not a valid instance: {type}'
+  BodyTimeoutError: HTTP Body timeout
+  ChecksumNotMatchError: Checksum not matched! Expected {expect}. Actual {actual}.
+  ConnectTimeoutError: Connection timeout to server.
+  CorruptedResourceMetadata: Detected and cleared corrupted metadata on {count} resource(s). The files still work, but their Modrinth/CurseForge attribution was lost and will be re-detected automatically.
+  DNSNotFoundError: DNS lookup error
+  DatabaseNotOpened: Database is not opened! The launcher won't work properly! Please select a data directory the launcher can access. You can try to reset the data root in setting page.
+  DiskIsFull: Your disk is full! Cannot write anything to disk! All features might not be functional!
+  DownloadAggregateError: Failed to download file.
+  DownloadFileSystemError: Error during accessing the download file path. Please ensure the launcher has permission to write on it.
+  HeadersTimeoutError: HTTP Header timeout
+  InstallBackendUnresponsive:
+    body: The launcher's background process stopped responding, so the install could not finish. Please fully close and relaunch the launcher, then try again.
+    title: Launcher is not responding
+  InstallInstructionFailed:
+    body: '{name}: {message}'
+    title: Failed to install Minecraft files
+  InstallNetworkError:
+    body: A network problem interrupted the install. Check your internet connection or proxy and try again.
+    title: Cannot download Minecraft files
+  InstallPermissionDenied:
+    body: An anti-virus tool or restricted folder permissions blocked the install. Add the launcher to your AV exclusion list, or pick a different data root in the launcher settings.
+    title: Cannot write to the launcher folder
+  NotFoundError: 404 Not Found
+  SocketError: Server socket error
+exception:
+  http: HTTP request to {url} failed. Status code {statusCode}. {code}. Please retry or check your network. If this error persists, please send a report to developer team.
+exportModpack:
+  name: Export Modpack
+extensions:
+  mrpack: Modrinth Modpack
+  zip: Zip File
+fabricVersion:
+  disable: Disable Fabric
+  empty: No Fabric Version for Minecraft {version}
+  showSnapshot: Show Snapshot
+  stable: Stable
+  unstable: Unstable
+command:
+  instance:
+    launch:
+      title: Launch Instance
+      description: Launch a Minecraft instance
+    create:
+      title: Create Instance
+      description: Create a new instance
+    delete:
+      title: Delete Instance
+      description: Delete an existing instance
+  user:
+    login:
+      title: Login User
+      description: Log in to your account
+    refresh:
+      title: Refresh User
+      description: Refresh user session
+commandPalette:
+  placeholder: Search commands, instances, mods…
+  commands: Commands
+  instances: Instances
+  modrinth: Modrinth
+  recent: Recent
+  open: Quick Action
+  openHint: Open command palette ({shortcut})
+  empty: Type to search.
+  noResults: No matching results.
+  searching: Searching…
+  hintNavigate: navigate
+  hintInvoke: invoke
+  hintEnter: enter
+  hintBack: back
+  hintClose: close
+  hintAskAgent: ask Agent
+feedback:
+  channel: Channels
+  description: I found a Bug or I want to make a suggestion
+  discord: Discord
+  discordDescription: Join Discord Channel
+  discordJoin: Join
+  generateReport: Generate Report
+  generateSaveAs: Save the report to
+  github: Github Issue
+  githubDescription: Open an Github Issue to tell your thought
+  githubOpenIssue: Github
+  hint: Click the button to create the report and contact the developer team. The report will contain your device info including operating system type, version, user name (in your os), etc.
+  kook: Kook
+  kookDescription: Kook is an alternate app for discord for Chinese Mainland users
+  name: Feedback
+  qq: QQ Group
+  qqDescription: 'Enter the feedback QQ group and direct talk with authors. Group Number: {number}'
+  qqEnterGroup: Join
+  reddit: Reddit
+  redditDescription: Join the r/XMCL subreddit community
+fileDetail:
+  fileSize: File Size
+  filesize: File size
+  hash: Hash
+filterLocalOnly: Only show installed
+forgeVersion:
+  disable: Disable Forge
+  empty: Forge doesn't have any release for Minecraft {version}
+  latest: Latest
+  recommended: Recommended
+gameType:
+  adventure: Adventure Mode
+  creative: Creative Mode
+  spectator: Spectator Mode
+  survival: Survival Mode
+help: Help
+home: Home
+installAssets:
+  asset: Check {count} assets and install missing files
+  assetIndex: Check Assets Index File
+  name: Check Asset Files
+installAuthlibInjector: Install authlib-injector
+installCurseforgeFile: Install Curseforge File
+installFabric:
+  name: Install Fabric
+installForge:
+  downloadInstaller: Download Installer
+  name: Install Forge
+  postProcessing: Post Processing
+installInstance:
+  file: Update Instance File {file}
+  link: Copy or Link {count} Files
+  name: Update Instance
+  resolve: Resolve Instance Config
+  unzip: Unzip {count} Files
+installJre:
+  decompress: Decompress JRE files to folder
+  download: Download compressed JRE file
+  name: Install the Zenith runtime
+installLabyMod:
+  name: Install LabyMod
+installLibraries:
+  library: Install Library
+  name: Install Libraries
+installModrinthFile:
+  name: Install Modrinth
+installOptifine:
+  download: Download Optifine Universal
+  name: Install Optifine
+installProfile:
+  name: Install Profile {version}
+installQuilt:
+  name: Install Quilt {version}
+installVersion:
+  jar: Install Version Jar
+  json: Install Version Json
+  name: Install Minecraft Client {version}
+instance:
+  changeIcon: Change Icon
+  contents: Content
+  current: Current Instance
+  delete: Delete Game
+  deleteFailed: Fail to delete instance
+  deleteFailedPermission: Other program occupied the file
+  deleteFile: Delete Instance Files
+  deleteHint: The instance data will be removed from the disk forever. Are you sure?
+  deleteHintBedrock: Minecraft Bedrock Edition and all its data will be completely deleted from your computer. Are you sure?
+  duplicate: Duplicate Game
+  duplicatedName: Duplicated Name
+  envVarKey: Key
+  envVarKeyPlaceholder: MY_VAR
+  envVarValue: Value
+  envVarValuePlaceholder: value
+  fileApi: The synchronize file server API url
+  fileApiHint: The url to synchronize instance files from a remote config server.
+  fileApiPlaceholder: Please enter the remote sync url here if you want to keep the resource sync
+  fullscreen: Fullscreen
+  height: Height
+  monitor: Fullscreen Monitor
+  monitorDefault: Default (primary monitor)
+  monitorNumber: Monitor {number}
+  monitorPrimary: Primary
+  hideCard: Hide this card
+  moveToTop: Move to top
+  icon: Profile Icon
+  iconHint: The icon could be a file or internet url link.
+  iconUrl: Icon Url
+  installModpack: Update instance from modpack
+  lastPlayed: Last Played
+  launchServer: Launch server
+  linkFileDesc: This will overwrite instance local {file} with the global {file}. Are you sure to link it?
+  linkFileTitle: Are you sure to link {file}?
+  name: Profile Name
+  nameHint: The name of the modpack
+  nameInvalidChars: 'The name cannot contain these characters: < > : " / \\ | ? *'
+  nameNoCyrillic: The name cannot contain Cyrillic characters
+  namePathTraversal: The name cannot contain path traversal ("..")
+  nameReservedName: This name is reserved by the system and cannot be used
+  nameTrailingDotOrSpace: The name cannot end with a dot or space
+  nameWhitespaceOnly: The name cannot be only whitespace or dots
+  neverPlayed: Never Played
+  openCrashReportFolder: Open Crash Report Folder
+  openLogFolder: Open Log Folder
+  playtime: Playtime
+  requireName: The name is required
+  resolution: Resolution
+  resolutionPreset: Resolution Preset
+  showHiddenCards: Show hidden cards
+  showInstance: Show game folder
+  updates: Updates
+  useSharedOptions: Use shared game settings
+  useSharedOptionsDesc: This will link the options.txt to a shared file across instance
+  useSharedServersList: Use shared servers list
+  useSharedServersListDesc: This will link the servers.dat to a shared file across instance
+  width: Width
+instanceAge:
+  older: Older
+  threeDay: In Three Days
+  today: Today
+instanceDiscover:
+  gameFolder: Discover {count} game folders
+  instanceFolder: Found {count} instances
+instanceFileOperation:
+  add: Add
+  backup-add: Replace (Backup)
+  backup-remove: Remove (Backup)
+  keep: Keep
+  remove: Remove
+instanceInstallSkip:
+  ignore: Ignore
+  skip: Skip
+  title: Potential corrupted file source
+  warning: Some files are downloaded multiple times with checksum unmatching. This may be due to the fact that the original checksum is incorrect. Please check. If you confirm the current files are valid, you can skip the validation check.
+instanceLauncher:
+  search: Search instances...
+  showAll: Show All Instances
+  title: All Instances
+instanceSetting:
+  disableAuthlibInjector: Disable authlib injector
+  disableAuthlibInjectorDescription: If you are using third-party skin system. The authlib injector can help you to display skin in game.
+  disableElyByAuthlib: Disable ely.by's authlib replacement
+  disableElyByAuthlibDescription: Ely.by has a unique authlib replacement to display skin universally in any server.
+  fastLaunch: Turbo Launch
+  fastLaunchHint: Ignore the user status and existing unfixed problems
+  hideLauncher: Hide the launcher after launch
+  icon: Pick an image
+  showLog: Show Minecraft Log
+  showLogHint: This will popup a window to stream Minecraft log after game started
+  syncGameLanguage: Synchronize Game Language
+  syncGameLanguageDescription: Automatically synchronize Minecraft's language with the launcher language on launch
+instanceUpdate:
+  basic: Setting Update
+  files: File Updates
+  loaderChanged: The modloader of this instance has been changed. The old modloader is {modloader}, and the new modloader is {newModloader}.
+  noFiles: No file changes
+  summary: Add {add} files. Remove {remove} files. Keep {keep} files.
+  title: Update Instance
+  update: Start Update
+instances:
+  add: Create Game
+  instanceCount: '{count} instances'
+  addCurseForgeDescription: Import from curseforge data folder. You need to select curseforge's root data folder
+  addDescription: Create a new instance from scratch
+  addMMCDescription: Import existing MultiMC instance. You need to select the data folder from MultiMC.
+  addModrinthDescription: Import existing Modrinth instance. You need to select the Modrinth root data folder.
+  addPrismDescription: Import existing PrismLauncher instance.
+  addVanilla: Create from vanilla-like Minecraft
+  addVanillaDescription: Import from common .minecraft folder. This will duplciate the original game profile to Zenith Launcher.
+  fix: Repair
+  folder: Folder
+  folderSetting: Folder Settings
+items:
+  count: '{count} items'
+  total: '{total} total'
+java:
+  memoryAuto: Auto
+labyMod:
+  disable: Disable LabyMod
+  empty: LabyMod does not support current Minecraft
+launch:
+  cancel: Cancel
+  createShortcut: Create shortcut
+  forceKill: Force Kill
+  kill: Stop
+  killServer: Stop Server
+  launch: Launch
+  launchAnyway: Launch Anyway
+  launchAs: Launch as
+  launchTo: Launch to
+launchBlocked:
+  launchBadVersion:
+    description: The version {version} json is breaking. Maybe re-install this version?
+    title: Bad Version JSON
+  launchGeneralException:
+    description: Some errors cause the launch failed.
+    title: Launch Failed
+  launchInvalidJavaPath:
+    description: Zenith Launcher cannot find the Zenith bridge it needs to start the game (<span class="highlight"> {javaPath} </span>). Restart Zenith Launcher to restore it, or reinstall it.
+    title: Zenith bridge missing
+  launchJavaNoPermission:
+    description: The launcher doesn't have permission to execute the Zenith bridge <span class="highlight"> {javaPath} </span>. Raise the permission of the launcher or reinstall it.
+    title: No permission to launch
+  launchLinuxDisplayUnavailable:
+    environmentMissing: Zenith Launcher could not recover the X11 display information from your desktop session. Restart Zenith Launcher from a terminal in the current desktop session, or sign out and sign in again.
+    noGraphicalSession: Zenith Launcher is not running in a graphical desktop session. Start Zenith Launcher from your desktop session before launching Minecraft.
+    sandboxDenied: The application sandbox cannot access X11. Grant Zenith Launcher access to the X11 socket in your Flatpak permissions, then restart Zenith Launcher.
+    title: X11 display unavailable
+    xwaylandMissing: Minecraft needs XWayland in this Wayland session. Install the XWayland package provided by your Linux distribution, then sign out and sign in again.
+    xwaylandNotRunning: XWayland is installed but no X11 display is running. Enable XWayland in your compositor configuration, then sign out and sign in again.
+  launchNoProperJava:
+    description: Zenith Launcher cannot find the Zenith bridge ({javaPath}). Restart Zenith Launcher to restore it, or reinstall it.
+    title: Zenith bridge missing
+  launchNoVersionInstalled:
+    description: Cannot resolve version <span class="highlight">{version}</span> to launch.
+    title: No version selected
+  launchSpawnProcessFailed:
+    description: Zenith could not be started. Give more permissions to the launcher and retry; if this still does not work, please report it in the Zenith repository.
+    title: Fail to start game process
+  unexpectedText: This is unexpected. You can restart the launcher to mitigate the issue. Please contact author if this issue happens again.
+launchFailed:
+  crash: Game Crashed!!
+  description: There is no crash report. This this the error log and latest log.
+  elyByAuthlib:
+    description: The Ely.by authlib replacement was used for Minecraft version {version}, but this version may not be fully compatible.
+    suggestion: You can disable Ely.by's authlib replacement in the instance settings to avoid this issue.
+    title: Ely.by Authlib Compatibility Issue
+  failedToLaunch: Launch failed to launch
+  latestLog: Latest Log
+  title: Game Exited with Abnormal Code
+launchPreExecuteCommandFailed:
+  description: 'The pre-execute command failed with an error: {error}. Please check the command and try again.'
+  title: Pre-Execute Command Failed
+launchStatus:
+  assigningMemory: Assigning memory
+  elyByWarning: Ely.by authlib replacement is enabled. Some Minecraft versions may not be compatible and could crash. You can disable it in instance settings if issues occur.
+  exit: Exit Game?
+  injectingAuthLib: Setting up Third-party AuthLib
+  launching: Launching...
+  launchingSlow: Still launching... Starting graphics engine can be slow...
+  refreshingUser: Refreshing User Token
+  spawningProcess: Spawning Process
+launcherUpdate:
+  automaticUnavailable: Automatic updates unavailable
+  automaticNotImplemented: Automatic updating is not implemented for this launcher host.
+  automaticNotConfigured: Automatic updating is not configured for this launcher host.
+  manualCheckHint: No release check has been performed. Check GitHub Releases for a compatible package and install it manually.
+  manualCheckRequired: This host cannot check or install updates automatically. Use the GitHub Releases button to check manually.
+  alreadyLatest: Up To Date
+  installAndQuit: Restart to Install
+  noUpdateAvailable: No Update Available
+  updateToThisVersion: Download and Install
+localVersion:
+  auto: Auto Computed
+  empty: No Version Installed
+  hint: Launch a specific local version directly
+  title: Local Version | Local Versions
+logLevel:
+  error: Error
+  info: Info
+  success: Success
+  warning: Warning
+logView:
+  searchPlaceholder: Search logs...
+login:
+  dropHint: Drop the link with authcode here to manually login
+  forgetPassword: Forget Password?
+  login: Login
+  manualLoginUrl: If the browser doesn't show up, please click this link to auth!
+  signup: Sign up
+  signupDescription: New to us?
+  userRelogin: User access token is expired. Please re-login!
+loginError:
+  acquireMicrosoftTokenFailed: Fail to acquire Microsoft token. This might be a network issue. Please retry.
+  loginCanceled: Microsoft sign-in was canceled.
+  badNetworkOrServer: Please check your network connectivity! Or maybe the authentication server is down!
+  checkOwnershipFailed: Fail to check game ownership. Please try again.
+  connectionReset: Fail to login since connection is reset by server
+  cyrillicNotAllowed: Cyrillic characters are not allowed
+  fetchMinecraftProfileFailed: 'Fail to fetch Minecraft profile: {reason}'
+  illegalEmail: E-mail must be valid
+  illegalOfflineUsername: Username must be 3-16 characters long and contain only English letters, numbers, and underscores
+  invalidCredentials: Invalid credentials. Invalid username or password.
+  loginMinecraftByXboxFailed: Fail to exchange Minecraft token by Xbox token. Please make sure you have Minecraft in Xbox, or retry.
+  loginMinecraftByXboxRateLimited: Microsoft's Minecraft authentication service is currently rate-limiting requests (HTTP 429). Please wait a moment and try again.
+  loginMinecraftByXboxRateLimitedWithRetry: Microsoft's Minecraft authentication service is currently rate-limiting requests (HTTP 429). Please wait about {seconds} second(s) and try again.
+  loginMinecraftByXboxServerError: Microsoft's Minecraft authentication service returned a server error (HTTP {status}). This is on their side. Please try again in a few minutes.
+  loginMinecraftByXboxStatus: Fail to exchange Minecraft token by Xbox token (HTTP {status}). Please make sure you have Minecraft in Xbox, or retry.
+  loginXboxAdultVerification: Your Microsoft account requires adult verification (commonly required in some regions) before it can sign in to Xbox. Open {url} in your browser to complete verification, then try again.
+  loginXboxAgeRestricted: Fail to login Xbox due the the age issue. Please make sure the age is set for your Microsoft account and the age is above 18.
+  loginXboxBadXsts: Microsoft returned an XSTS response without the expected user claims. This is usually temporary -- please try again in a few minutes.
+  loginXboxBanned: This Microsoft / Xbox account has been suspended or banned by Microsoft and cannot sign in to Minecraft. Please contact Microsoft / Xbox support.
+  loginXboxChildAccount: Your Microsoft account is a child account and needs to be added to a Microsoft Family before it can sign in to Xbox / Minecraft. Open {url} in your browser to fix it, then try again.
+  loginXboxFailed: Fail to login Xbox by Microsoft token. Please make sure you have an independent Xbox account to your Microsoft account. Please try again.
+  loginXboxFailedWithCode: Fail to login Xbox by Microsoft token (XErr {code}). Please search the code for help, or try again later.
+  loginXboxNoXboxProfile: This Microsoft account does not have an Xbox profile yet. Open {url} in your browser to create one, then try again.
+  loginXboxRegionLocked: Xbox Live is not available in your account's region. Please change your Microsoft account's country/region in Microsoft account settings and try again.
+  noProfileForNewUser: No game profile found! If you are a new Minecraft user, please login at least one time in Minecraft official launcher.
+  requestFailed: Login failed, we do not know the exact reason. Please retry.
+  xboxErrorGuideHint: Having trouble signing in? Learn how to fix Microsoft & Xbox login issues.
+  openLoginGuide: How to fix this issue
+  openDiscordSupport: Still need help? Join our Discord
+  requireEmail: E-mail is required
+  requirePassword: Password is required
+  requireUsername: Username is required
+  timeout: Login timeout. Please retry or check your network.
+logsCrashes:
+  crashes: Crash Reports
+  failures: Launch Failures
+  logs: Logs
+  placeholder: No Files Found
+  serverLogs: Server Logs
+  showFile: Show in Folder
+  title: Logs or Crash Reports
+me:
+  groupByDate: Group by date
+  groupByFolder: Group by folder
+  instanceViewMode: Instance view mode
+  listView: List view
+  news: News
+  recentPlay: Recent Play
+migrateMinecraft:
+  name: Migrate Minecraft Files
+migrationWindow:
+  title: Data Migration
+  preparing: Preparing migration…
+  scanning: Calculating…
+  migrating: Moving your data
+  done: Migration complete
+  files: files
+  warning: Keep the launcher open until this finishes, or your data may be lost.
+  error: Migration failed
+minecraftVersion:
+  name: Minecraft Version
+  all: All Versions
+  release: Release
+  showAlpha: Show Snapshot
+  snapshot: Snapshot
+mod:
+  acceptVersion: Accept {version}
+  applyGroupRules: Apply saved grouping rules
+  autoCategorize: Auto-sort into folders
+  autoCategorizeHint: Automatically group mods into category folders (Optimization, Libraries, World, Gameplay, etc.)
+  compatible: Compatible Mod.
+  createGroup: Create Group
+  currentVersion: Current {current}
+  denseView: Dense View
+  collapseAll: Collapse All Folders
+  expandAll: Expand All Folders
+  folderSetting: Folder Settings
+  folderColor: Folder Color
+  folderIcon: Folder Icon
+  pinGroup: Pin to Top
+  pinToTop: Pin to Top
+  pinToTopHint: Folder will appear at the top of the list
+  pinned: Pinned
+  unpinGroup: Unpin Folder
+  customColor: Custom Color
+  preview: Preview
+  disableAll: Disable All
+  duplicatedDetected: '{count} duplicated mods'
+  duplicatedDetectedDescription: Found mods with same mod id but different files. This might cause Minecraft crash. Please select the file you want to keep.
+  enableAll: Enable All
+  enabled: '{count} Mods enabled'
+  filter: Filter Mods
+  group: Group up
+  groupName: Group Name
+  groupNameRequired: Group name is required
+  hasUpdate: Mod has a new version!
+  incompatible: Incompatible Mod.
+  incompatibleHint: Show Incompatible
+  incompatibleHintDescription: Some mods dependencies might be missing. Or some dependencies versions do not matched.
+  maybeCompatible: Maybe Compatible.
+  mods: '{count} Mods'
+  name: Mod | Mods
+  newFolder: New Folder
+  noGroupsFound: No groups found
+  noGroupsYet: No groups yet. Create one!
+  openLink: Open the mod url {url}
+  searchGroups: Search groups...
+  searchOnMcWiki: Look up {name} in the MC encyclopedia.
+  selectOrCreateGroup: Select or Create Group
+  showFile: Show the mod path {file}
+  syncGroupRules: Save grouping rules
+  ungroup: Ungroup
+  ungroupAll: Ungroup all
+  organization: Folder Organization
+modCategory:
+  optimization: Optimization & Performance
+  libraries: Libraries & APIs
+  utilities: UI & Utilities
+  world: World & Biomes
+  visual: Visual & Audio
+  gameplay: Gameplay & Content
+  miscellaneous: Miscellaneous
+modFilter:
+  clear: Clear Filter
+  dependenciesInstallOnly: Only show missed dependencies mods
+  disabledOnly: Only show disabled mods
+  hasUpdateOnly: Only show mods with updates
+  incompatibleOnly: Only show incompatible or missing dependencies missing mods
+  unusedOnly: Only show unused libraries mods
+modInstall:
+  archived: '{name} has been archived. {name} will not receive any further updates unless the author decides to unarchive the project.'
+  autoUpgrade:
+    description: You have changed the Minecraft version. Would you like to automatically update compatible mods to versions that match Minecraft {version}?
+    'no': Skip
+    title: Update Mods?
+    'yes': Update Mods
+  checkDependencies: Check Dependencies
+  checkedDependencies: Checked Dependencies
+  currentVersion: Selected Version
+  dependencyHint: Installed another version {version}
+  releaseOnly: Ignore alpha and beta versions when updating
+  installDependencies: Install Missing Dependencies
+  installHint: Will install {file} file with {dependencies} dependencies
+  noVersionSupported: Mod only supports Minecraft {supported}.
+  recommendation: Explore the {first} mods in {modrinth} and {curseforge}!
+  removeUnusedLibraries: Remove Unused
+  scanUnusedLibraries: Scan Unused Libraries
+  search: Search Mods...
+  skipVersion: Skip the Mods with different Minecraft version
+  source: Mod Source
+  switch: Switch Version
+modSearch:
+  noLocalModsFound: No local mods found matching your search.
+  noModsFound: No mods found
+  noModsInstalled: You don't have any mods installed.
+  searchInMarket: Search {keyword} in Market
+modUpgradePolicy:
+  curseforge: CurseForge
+  curseforgeOnly: CurseForge Only
+  modrinth: Modrinth
+  modrinthOnly: Modrinth Only
+  name: Upgrade Policy
+modified:
+  reset: Reset
+  save: Save
+  unsaved: Your modification is unsaved!
+modpack:
+  dropHint: Drop modpack zip to here to import
+  export: Export as Modpack
+  modpackVersion: Modpack Version
+  name: Modpack | Modpacks
+  publishProfile: MRPack profile
+modpackImportConfirm:
+  description: Detect you drop a file into the launcher. Are you trying to import a modpack?
+  title: Are you trying to import a modpack?
+modpackUpdateOrCreate:
+  createNew: Create new
+  description: An instance "{name}" for this modpack already exists. Do you want to update it or create a new one?
+  title: Instance already exists
+  update: Update existing
+modrinth:
+  browseUrl: Open In Browser {url}
+  categories:
+    128x: 128x
+    16x: 16x
+    256x: 256x
+    32x: 32x
+    48x: 48x
+    512x+: 512x+
+    64x: 64x
+    8x-: 8x-
+    adventure: Adventure
+    atmosphere: Atmosphere
+    audio: Audio
+    blocks: Blocks
+    bloom: Bloom
+    bukkit: Bukkit
+    bungeecord: Bungeecord
+    canvas: Canvas
+    cartoon: Cartoon
+    categories: Categories
+    challenging: Challenging
+    colored-lighting: Colored Lighting
+    combat: Combat
+    core-shaders: Core Shaders
+    cursed: Cursed
+    datapack: Data Pack
+    decoration: Decoration
+    economy: Economy
+    entities: Entities
+    environment: Environment
+    equipment: Equipment
+    fabric: Fabric
+    fantasy: Fantasy
+    features: Features
+    folia: Folia
+    foliage: Foliage
+    fonts: Fonts
+    food: Food
+    forge: Forge
+    game-mechanics: Game Mechanics
+    gui: Gui
+    high: High
+    iris: Iris
+    items: Items
+    kitchen-sink: Kitchen Sink
+    library: Library
+    lightweight: Lightweight
+    liteloader: LiteLoader
+    locale: Locale
+    low: Low
+    magic: Magic
+    management: Management
+    medium: Medium
+    minecraft: Minecraft
+    minigame: Mini Games
+    misc: Misc
+    mobs: Mobs
+    modded: Modded
+    models: Models
+    modloader: Mod Loader
+    multiplayer: Multiplayer
+    name: Categories
+    neoforge: NeoForge
+    optifine: Optifine
+    optimization: Optimizations
+    paper: Paper
+    path-tracing: Path Tracing
+    pbr: PBR
+    performance impact: Performance Impact
+    potato: Potato
+    purpur: Purpur
+    quests: Quests
+    quilt: Quilt
+    realistic: Realistic
+    reflections: Reflections
+    resolutions: Resolutions
+    rift: Rift
+    screenshot: Screenshot
+    semi-realistic: Semi Realistic
+    shadows: Shadows
+    simplistic: Simplistic
+    social: Social
+    spigot: Spigot
+    sponge: Sponge
+    storage: Storage
+    technology: Technology
+    themed: Themed
+    transportation: Transportation
+    tweaks: Tweaks
+    utility: Utility
+    vanilla: Vanilla
+    vanilla-like: Vanilla-like
+    velocity: Velocity
+    waterfall: Waterfall
+    worldgen: World Gen
+  clientSide: Client Side
+  copyTitle: Copy Text {title} to clipboard
+  createAt: Created
+  createCollection: Create Collection
+  description: Description
+  downloads: Downloads
+  environments:
+    all: All
+    default: Default
+    name: Environment
+    optional: Optional
+    required: Required
+    unsupported: Unsupported
+  externalResources: External Resources
+  featuredVersions: Featured Versions
+  followedProjects: Followed Projects
+  followers: Followers
+  gallery: Gallery
+  gameVersions:
+    name: Game Versions
+  headers:
+    status: Stats
+    support: Supports
+    version: Version
+  issueUrl: Issue
+  license: License
+  licenses:
+    name: Licenses
+  loginHint: The operation requires modrinth to perform. The launcher will open a browser window to login modrinth.
+  loginTitle: Login to Modrinth
+  modLoaders:
+    name: Mod Loaders
+  modpackSource:
+    source: Source
+  projectId: Project Id
+  projectMembers: Project Members
+  projectType:
+    datapack: Datapack
+    mod: Mod
+    modpack: Modpack
+    plugin: Plugin
+    resourcepack: Resource Pack
+    shader: Shader
+  projects: '{count} projects'
+  serverSide: Server Side
+  sort:
+    downloads: Download counts
+    follows: Follow count
+    newest: Recently created
+    relevance: Relevance
+    title: Sort By
+    updated: Recently updated
+  sourceUrl: Source
+  technicalInformation: Technical Information
+  updateAt: Updated
+  versions: Versions
+  wikiUrl: Wiki
+modrinthCard:
+  currentVersion: Current Version
+myStuff: My Stuff
+neoForgedVersion:
+  disable: Disable NeoForged
+  empty: NeoForged does not support {version}
+news:
+  name: News
+  readMore: Read More
+optifineVersion:
+  disable: Disable Optifine
+  empty: Optifine does not support Minecraft {version}
+optional: Optional
+presence:
+  away: Away
+  instance: Idle in Instance {instance}
+  instanceSetting: 'Edit Instance Setting: {instance}'
+  mod: Viewing Mods in {instance}
+  modrinthProject: Viewing {name} in Modrinth
+  offline: Offline
+  online: Online
+  playing: Playing {game}
+  playingGeneric: Playing
+  resourcePack: Viewing Resource Packs in {instance}
+  save: Viewing Saves in {instance}
+  setting: Viewing Setting Page
+  shaderPack: Viewing Shader Packs in {instance}
+proxy:
+  host: Host
+  port: Port
+quiltVersion:
+  disable: Disable Quilt
+  empty: Quilt does not support Minecraft {version}
+reinstall:
+  name: Reinstall {version}
+relative:
+  daysAgo: '{count} day ago | {count} days ago'
+  hoursAgo: '{count} hour ago | {count} hours ago'
+  justNow: just now
+  minutesAgo: '{count} minute ago | {count} minutes ago'
+  secondsAgo: '{count} second ago | {count} seconds ago'
+resourceError:
+  body: '"{path}" could not be parsed ({code}). The file may be corrupted, locked, or incomplete. Try re-downloading or removing it.'
+  title: Cannot read {file}
+blueprint:
+  name: Blueprint | Blueprints
+  empty: No blueprints found. Import a .litematic / .schem / .nbt file or browse the market.
+  selectHint: Select a blueprint to preview it.
+  install: Install
+resourcepack:
+  compatible: Compatible format {format} with {version}
+  defaultDescription: The default look and feel of Minecraft
+  delete:
+    content: This will remove the resource pack file from disk, and we cannot undo it. Are you sure you want to do this?
+    title: Delete the resource pack
+  dropHint: Drop Resource Pack's folder/zip here to import.
+  enable: '{count} resource packs enabled'
+  incompatible: Incompatible Resource Pack format({format}). Fitin {accept}. Current {actual}.
+  name: Resource Pack | Resource Packs
+  linkShared: Share resource packs across instances
+  linkSharedHint: Link this instance's resourcepacks folder to the global shared folder so all instances see the same resource packs. Existing packs are merged into the shared folder.
+  noLocalPacksFound: No local resource packs found matching your search.
+  noPacks: No resource packs found
+  noPacksInstalled: You don't have any resource packs installed.
+  search: Search Resource Packs...
+  searchHint: Search resource packs
+  selected: Selected Resource Packs
+  showDirectory: Show resource pack directory
+  showFile: Show resource pack in folder {file}
+  unselected: Unselected Resource Packs
+save:
+  allowCheats: Allow Cheats
+  copy:
+    name: Copy Save
+  createNew: Create New World
+  createdWorlds: You have {count} worlds
+  deleteHint: This operation cannot be reverted. You will lose the save data forever. Are you sure you want to delete this save?
+  deleteTitle: Delete the Save
+  difficulty: Difficulty
+  dropHint: Drag save zip here to Import
+  datapack:
+    name: Data Pack | Data Packs
+    noSaveHint: Create or select a world first to install this data pack
+    packFormat: 'Pack format: {format}'
+    imported: Data pack imported into {save}
+  duplicate: Duplicate Save
+  export: Export Save
+  exportMessage: Export the Save as zip
+  exportTitle: Export the Save
+  gameMode: game mode
+  independent: Instance use independent saves folder
+  linkShared: Share saves across instances
+  linkSharedHint: Link this instance's saves folder to the global shared folder so all instances share the same worlds. Existing saves are merged into the shared folder.
+  levelName: Level Name
+  loadMap: Load Map
+  map:
+    tabTitle: World Map
+  progress:
+    zoomIn: Zoom in
+    zoomOut: Zoom out
+    loading: Loading progress...
+    noData: No Progress Found
+    noDataHint: Play in this world to generate advancements, statistics, and quest progress.
+    quests: Quests
+    advancements: Advancements
+    done: Done
+    inProgress: In Progress
+    all: All
+    treeView: Tree View
+    filterPlaceholder: Filter by name...
+    root: Root
+    exitFullscreen: Exit Fullscreen
+    locked: Locked
+  mapError: Map Error
+  mapInfo: 'Interactive 3D world preview:'
+  mapLoaded: Map Loaded
+  mapPreview: Map Preview
+  chunkSelectMode: Select Chunks
+  panMode: Pan
+  chunkSelected: '{count} chunks selected'
+  mapHintPan: Drag to pan
+  mapHintSelect: Select
+  mapHintDeselect: Deselect
+  toggleGrid: Toggle region grid
+  heightTop: Top
+  resetView: Reset View
+  clearSelection: Clear Selection
+  copyChunks: Copy Chunks
+  pasteChunks: Paste {count} Chunks
+  pasteChunksPlaceHint: Move the mouse to position {count} chunk(s), then click to paste. Existing chunks at the target are overwritten. Press Esc to cancel.
+  pasteChunksCancel: Cancel
+  deleteChunks: Delete Chunks
+  deleteChunksTitle: Delete Selected Chunks
+  deleteChunksHint: Delete {count} selected chunk(s)? This cannot be undone. The chunks will be regenerated the next time the area is loaded in game.
+  mapLoading: Loading map…
+  noRegions: This world has no generated regions to preview.
+  dimOverworld: Overworld
+  dimNether: The Nether
+  dimEnd: The End
+  name: Save | Saves
+  noLocalSavesFound: No local saves found matching your search.
+  noSavesFound: No saves found
+  noSavesInstalled: You don't have any saves.
+  openFolder: Open Saves Folder
+  properties: World Properties
+  search: Search Maps...
+  searchHint: Search for worlds on CurseForge
+  searchSaves: Search Saves
+  seed: Seed
+  selected: Local Saves
+  shared: Instance use shared saves folder
+  showDirectory: Show saves directory
+  unselected: Shared Saves
+  useCurrent: Use current world
+  useMouseRotate: Use mouse to rotate view
+  useScrollZoom: Use scroll wheel to zoom
+  world: World
+  empty: No worlds found
+screenshots:
+  title: Screenshots & Photos
+  gallery: Screenshot Gallery
+  manage: Screenshot Manager
+  empty: You don't have any screenshots
+  emptyTitle: No screenshots yet
+  emptyDescription: Press F2 in game to capture screenshots, or import your photos manually.
+  hint: Take screenshots in game by pressing F2
+  dropHint: Drop photos or screenshots here to add to gallery
+  openFolder: Open Screenshots Folder
+  playRandom: Shuffle
+  playSequence: Play in order
+  backToHome: Back to Home
+  import: Add Photos
+  images: Images
+  importSuccess: Successfully imported {count} photos
+  copy: Copy Image
+  copied: Copied to clipboard!
+  setWallpaper: Set as Background
+  setWallpaperSuccess: Set as instance background image!
+  setIcon: Set as Icon
+  setIconSuccess: Set as instance icon!
+  export: Save File
+  exportSuccess: Screenshot saved successfully!
+  exportSelected: Export Selected
+  exportSelectedTitle: Select Export Folder
+  exportSelectedSuccess: Successfully exported {count} screenshots
+  deleteConfirmTitle: Delete screenshots?
+  deleteConfirmMessage: Are you sure you want to delete {count} screenshots? This cannot be undone.
+  deleteSuccess: Screenshots deleted successfully
+  selectedCount: "Selected: {count}"
+  selectAll: Select all
+  clearSelection: Deselect all
+  countLabel: "{count} screenshots"
+  searchPlaceholder: Search by name...
+  noSearchResults: No matching screenshots
+  noSearchResultsHint: Try adjusting your search query
+  sort: Sort
+  sortDateDesc: Newest first
+  sortDateAsc: Oldest first
+  sortSizeDesc: Largest first
+  sortSizeAsc: Smallest first
+  sortNameAsc: Name (A-Z)
+  sortNameDesc: Name (Z-A)
+  viewGrid: Large grid
+  viewGridCompact: Compact grid
+  viewList: List view
+  edit: Edit
+  editorTitle: Edit Screenshot
+  layer: Layer
+  dragToMove: Drag to move
+  transformHint: Drag selection to move • Drag handles to resize • Enter to commit
+  customColor: Custom color
+  fill: Fill
+  brushPreview: Brush Size Preview
+  fontPreview: Font Size Preview
+  textBgNone: None
+  textBgShadow: Shadow
+  textBgBox: Box
+  cropHint: Drag bounding box to select crop area.
+  textPlacementHint: Enter to place • Esc to cancel
+  layerMoveUp: Move Up
+  layerMoveDown: Move Down
+  layerCopy: '{name} Copy'
+  pixels: px
+  saveCopy: Save Copy
+  saveOverwrite: Overwrite
+  saveSuccess: Screenshot saved!
+  saveCopySuccess: Saved as new screenshot!
+  toolSelect: Select / Pan
+  toolMove: Move & Transform (Ctrl+T / V)
+  toolPan: Pan (Space+Drag)
+  layers: Layers
+  layerAdd: Add Layer
+  layerDuplicate: Duplicate Layer
+  layerDelete: Delete Layer
+  layerOpacity: Opacity
+  transformLayer: Free Transform
+  applyTransform: Apply Transform (Enter)
+  cancelTransform: Cancel (Esc)
+  layerBackground: Background
+  layerPaint: Drawing
+  layerText: Text
+  layerBlur: Blur
+  toolPen: Pen
+  toolArrow: Arrow
+  toolRect: Rectangle
+  toolCircle: Circle
+  toolLine: Line
+  toolText: Text
+  toolHighlighter: Highlighter
+  toolBlur: Pixelate / Blur
+  toolCrop: Crop
+  applyCrop: Apply Crop
+  cancelCrop: Cancel Crop
+  strokeWidth: Stroke width
+  fontSize: Font size
+  color: Color
+  undo: Undo
+  redo: Redo
+  clear: Clear all
+  textPlaceholder: Click to type text...
+  fontFamily: Font
+  fontBold: Bold
+  fontItalic: Italic
+  textApply: Place Text
+  textBg: Background
+  zoomIn: Zoom in
+  zoomOut: Zoom out
+  resetZoom: Reset zoom
+search:
+  favorate: Collection
+  local: Installed
+  market: Market
+  emptyInstalled: Nothing installed yet
+  browseMarket: Browse Market
+  noResults: No results found
+  pageSize: Results per page
+localCollection:
+  title: Launcher collections
+  newCollection: New collection
+  namePlaceholder: Collection name
+  addToCollection: Add to collection
+  empty: No launcher collections yet
+  corrupted: Your saved collections could not be read and have been reset. A backup was kept next to the data file.
+  modrinthSection: Modrinth account
+  installAll: Install all
+  incompatibleAlert: '1 project is not compatible with the current instance and was skipped: | {count} projects are not compatible with the current instance and were skipped:'
+  projects: No projects | {count} project | {count} projects
+  saveCurrentMods: Save installed mods as collection
+  saveCurrentModsSuccess: Saved {count} mods to collection "{name}"
+  viewMods: View mods
+  editCollection: Edit collection
+  collectionDescription: Collection description
+  noModsInCollection: No mods in this collection yet
+  exportCollection: Export collection
+  importCollection: Import collection
+  removeEntryConfirm: Remove from collection
+  addMods: Add mods
+  addModsTo: Add mods to "{name}"
+  addModsHint: Add installed mods from your instance or click the bookmark button in the Market to add mods.
+  addModsDialogDesc: Select which installed mods from this instance to include in this collection.
+  addAllCurrent: Add all current mods
+  addedModsSuccess: Added {count} mods to collection
+  searchMods: Search mods...
+  selectAll: Select all
+  deselectAll: Deselect all
+  selected: selected
+  alreadyInCollection: Added
+  noMatchingMods: No mods match your search
+  addSelectedMods: Add {count} mods
+server:
+  launch: Launch server
+  stop: Stop server
+  addServer: Add Server
+  address: Server Address
+  addressHint: e.g. mc.hypixel.net
+  bindUpstream: Bind as upstream
+  boundUpstreamHint: This instance follows the bound server's Minecraft version.
+  editServer: Edit Server
+  emptyHint: No servers in this instance's servers.dat yet. Add one to get started.
+  entryCount: '{count} server | {count} servers'
+  launchClient: Launch client instead
+  launchPinned: Pinned
+  launchTargetHint: This instance launches straight into the pinned server. Switch back to the client?
+  maxPlayers: Max Players
+  nameHint: Display name shown in the Multiplayer list
+  pin: Pin server
+  pinAfterSave: Pin as default launch target after save
+  pinnedHeader: 'pinned: {name}'
+  port: Port
+  serverName: Server name
+  serversListTitle: Server List
+  unbindUpstream: Unbind
+  unknown: Unknown Server
+  unknownDescription: Unknown Server. Please Refresh
+  unpin: Unpin
+  upload: Upload Server
+  upstreamUpToDate: Your instance matches the server ({version}).
+  upstreamUpToDateHint: No upgrade needed. Click to re-ping the server.
+  upstreamUpdateAvailable: Server now runs Minecraft {version}. Click to apply.
+  upstreamUpdateHint: Applies the suggested Minecraft version to this instance.
+  useAsUpstreamHint: The instance will follow the server's reported Minecraft version.
+serverStatus:
+  nohost: §4Cannot find host!
+  ping: Ping...
+  refuse: §4Server refused!
+  timeout: §4Connect server timeout!
+setting:
+  appImageUpdateMode: AppImage update ownership
+  appImageExternalMode: External manager / manual replacement (default)
+  appImageSelfMode: Zenith Launcher self-managed (I own this AppImage)
+  appImageAutoDownload: Automatically download updates
+  appImageAutoInstall: Install downloaded updates when quitting
+  appImageExternalUpdateHint: If installed through Shelly or another manager, update there and keep external mode. Otherwise replace the AppImage yourself at its existing path. Zenith Launcher does not download or install updates in external mode, and does not change manager records or desktop entries.
+  appImageSelfUpdateHint: Only choose self-managed for an AppImage you manage yourself, not one owned by Shelly or another manager. Built-in updates require an absolute AppImage path with no version number in the filename (for example xmcl.AppImage). If the name contains a version such as 0.73.0, quit Zenith Launcher, rename the file yourself, update your own desktop entry to that stable path, then launch it again. Until then updates remain manual. Zenith Launcher will not rename files for you. After changing modes, check for updates again.
+  about: About
+  aboutBmclDescription: BMCL API provides convenient downloads for users in Chinese Mainland
+  aboutContributors: 🧑‍💻 Contributors 🧑‍💻
+  aboutDenoDescription: XMCL leverages Deno Deploy's hassle-free platform for serverless JavaScript applications
+  aboutLicense: MIT LICENSE
+  aboutLicenseInfo: Free code signing on Windows provided by SignPath.io, certificate by SignPath Foundation
+  aboutSponsors: 😇 Sponsors 😇
+  advancedSettings: Advanced Settings
+  advancedSettingsHint: Danger zone - reset or manage launcher data
+  apiSets:
+    auto: Auto (Determine by network)
+    official: Official (Mojang)
+  appearance: Appearance
+  appearanceDescription: Customize the launcher appearance
+  appxUpdateHint: The launcher will download and execute installer. If popup installer failed, please run it manually.
+  authenticationSettings: Authentication
+  backdropBlur: Backdrop Blur
+  backgroundColorAbove: Show background color as overlay
+  backgroundColorAboveDescription: This will make background color display above the background image or video.
+  backgroundImage: Background image
+  backgroundImageClear: clear
+  backgroundImageDescription: Select an image as background or clear
+  useDesktopBackground: Use current desktop wallpaper
+  backgroundImageFit:
+    contain: Contain
+    cover: Cover
+    name: Image Fit
+  backgroundImageUrl: Image URL
+  backgroundImageUrlPlaceholder: Enter HTTP/HTTPS URL for image
+  backgroundMusic: Theme Background Music
+  backgroundMusicUrl: Music URL
+  backgroundMusicUrlPlaceholder: Enter HTTP/HTTPS URL for music
+  backgroundType: Background Type
+  backgroundTypeDescription: Show special effect on background (This may impact performance)
+  backgroundTypes:
+    halo: Halo
+    image: Image
+    none: None
+    particle: Particle
+    video: Video
+  backgroundVideo: Background Video
+  backgroundVideoDescription: Select or clear video
+  backgroundVideoUrl: Video URL
+  backgroundVideoUrlPlaceholder: Enter HTTP/HTTPS URL for video
+  backgroundVideoVolume: volume
+  backgroundVideoVolumeDescription: drag to adjust volume
+  browseRoot: Browse
+  checkUpdate: Check Update
+  colorTheme:
+    appBarColor: App Bar
+    backgroundColor: Background Color
+    cardColor: Card Color
+    description: Change the colors in the theme
+    errorColor: Error Color
+    name: Theme Color and Blur
+    primaryColor: Primary Color
+    sideBarColor: Side Bar
+    warningColor: Warning Color
+  customCss:
+    advancedDescription: Override the launcher's current styling with your own CSS.
+    assistantHint: Describe the look you want and I'll write the CSS for you.
+    assistantSuggestion1: Make the sidebar translucent
+    assistantSuggestion2: Add a subtle gradient background to cards
+    assistantTitle: CSS Assistant
+    dropHint: Drop a .css file to load it
+    editorPlaceholder: /* Write your custom CSS here */
+    globalToggle: Toggle Custom CSS
+    openInDialog: Open in the agent dialog
+    title: Custom CSS
+    warning: Custom CSS allows you to customize any aspect of the launcher. Be careful when pasting CSS from untrusted sources, as it can modify the UI layout.
+  darkTheme: Theme
+  darkThemeDescription: Choose between dark or light theme
+  devModeLabel: DEV
+  developerMode: Developer Mode
+  developerModeDescription: Developer Mode is for testing your own mods
+  enableDedicatedGPUOptimization: Assign Dedicated GPU
+  enableDedicatedGPUOptimizationDescription: This option will assign dedicated GPU to Minecraft process.
+  enableDiscord: Enable Discord Presence
+  enableDiscordDescription: This will update Discord status to the launcher
+  enterUrl: Enter URL
+  exportSettings: Export Settings
+  exportSettingsHint: Save your current settings to a file
+  general: General
+  githubRelease: Github Release
+  globalSetting: Global Instance Setting
+  globalSettingHint: Instance will use these settings by default.
+  importSettings: Import Settings
+  importSettingsHint: Load settings from a previously exported file
+  instanceTheme:
+    activeDescription: This instance is using a custom theme. You can delete it to use the global theme.
+    description: Enable a custom theme for this instance. This will create a copy of the current global theme.
+    name: Instance Theme
+  language: Language
+  languageDescription: The display language
+  latestVersion: Latest Version
+  layout:
+    default: Default Layout
+    focus: Focus Layout
+  layoutDescription: Choose your preferred interface style
+  layoutTitle: Interface Layout
+  linuxEnableDedicatedGPUOptimization: Assignment of a dedicated graphics processor
+  linuxEnableDedicatedGPUOptimizationDescription: This option assigns a dedicated GPU to the Minecraft process.
+  linuxTitlebar: Native title bar
+  linuxTitlebarDescription: Use native linux title bar for launcher
+  livePreview: Live Preview
+  location: Store Location
+  manualUpdateHint: The version cannot be updated automatically. Please download the launcher again from the official website!
+  maunalUpdateHint: The version cannot be auto-updated. Please redownload the launcher from the website!
+  maxSockets: Per Host
+  maxSocketsDescription: Limit the maximum number of sockets to allow per host or for all hosts in total. 0 means no limit.
+  maxSocketsTitle: Max HTTP sockets
+  migrateFromOther: Import from other launcher
+  minecraftOptions: Minecraft Options
+  name: Global Setting | Global Settings
+  network: Network Settings
+  newsPosition: Move News Section
+  officialWebsite: Official Website
+  particleMode:
+    bubble: Bubble
+    name: Particle Mode
+    push: Push
+    remove: Remove
+    repulse: Repulse
+  particleModeDescription: Select the particle click behavior
+  quickLaunchSettings: Quick Launch
+  resetAllSettings: Reset All Settings
+  resetAllSettingsConfirmMessage: This will permanently delete all settings, accounts, instances, groups, and cached data. This action cannot be undone. Are you sure?
+  resetAllSettingsConfirmTitle: Reset All Settings?
+  resetAllSettingsHint: Reset launcher to factory defaults (deletes everything)
+  resetAllSettingsSuccess: All settings have been reset. The launcher will restart.
+  resetSettingsError: 'Error resetting settings: {error}'
+  resetToDefault: Reset to Default
+  select: Select
+  setAsBackground:
+    failed: Failed to set background image
+    global: Set as launcher background
+    instance: Set as instance background
+    successGlobal: Background image updated.
+    successInstance: Instance background image updated.
+  settingsExported: Settings exported successfully
+  settingsImportError: Failed to import settings. Please check the file format.
+  settingsImported: Settings imported successfully
+  settingsReloadHint: The launcher will restart to apply all settings.
+  showNewsHeader: Unhide News showcase
+  showRoot: Show
+  sidebarAlign: Sidebar Alignment
+  sidebarAutoHide: Auto-hide Sidebar
+  sidebarAutoHideHint: Hide sidebar automatically and show on hover
+  sidebarClassic: Classic
+  sidebarNotch: Notch
+  sidebarPosition: Sidebar Position
+  sidebarScale: Sidebar Scale
+  sidebarShowOnlyPinned: Show Only Pinned Instances
+  sidebarShowOnlyPinnedHint: Only display pinned instances in the sidebar
+  sidebarStyle: Sidebar Style
+  sidebarStyleHint: Choose between classic and modern notch design
+  streamerMode: Streaming Mode
+  streamerModeDescription: This will hide your private information like email in launcher.
+  theme:
+    dark: Dark Theme
+    light: Light Theme
+    system: Use System Theme
+  themeExport: Export Theme
+  themeBorderRadius: Rounded Corners
+  themeBorderRadiusDescription: Enable or disable rounded corners for cards, dialogs, menus, and panels.
+  themeFont: Font
+  themeFontDescription: Change the font of the launcher.
+  themeFontUrl: Font URL
+  themeFontUrlPlaceholder: Enter HTTP/HTTPS URL for font
+  themeImport: Import Theme
+  themeResetFont: Reset Font
+  themeSelectFont: Select Font
+  themeSettings: Theme Settings
+  themeShare: Share Theme
+  themeShareDescription: You can share the theme with your friend.
+  themeStore:
+    description: Save and manage global themes
+    loadConfirmMessage: Loading a stored theme will replace your current theme. Please back up if needed.
+    loadConfirmTitle: Replace Current Theme?
+    loadTheme: Load Theme
+    name: Theme Store
+    noSavedThemes: No saved themes yet
+    saveDialogTitle: Save Theme
+    saveToStore: Save to Store
+    savedThemes: Saved Themes
+    themeName: Theme Name
+    themeNameHint: Name used to store this theme
+  update: Update
+  useBmclAPI: Use BMCL API
+  useBmclAPIDescription: Use BMCLAPI to download Minecraft when you are in Chinese Mainland. (This won't affect you if you're not in Chinese Mainland)
+  useProxy: HTTP Proxy
+  useProxyDescription: The proxy server address for the http request
+  viewBackgroundMusic: View Musics
+settingLabel:
+  global: Global
+  globalHint: This setting will follow the global setting
+  local: Local
+  localHint: This setting is modified by current instance
+setup:
+  account:
+    description: Login your game account. If you don't have one, you can skip it for now.
+    name: Add Game Account
+    skip: Skip for now
+  appearance:
+    name: '@:setting.appearance'
+  dataRoot:
+    description: The data root is not a common .minecraft directory. Since Zenith Launcher data directory structure is different from vanilla, we do not recommend to use the common .minecraft directory as a data root.
+    drives: Recommend Locations
+    name: Set Data Directory
+  defaultLayoutDescription: The default layout is trying to enhance the game "instance" concept. It looks like apps like Discord. It's also inspired by other game launcher apps like Steam, etc.
+  defaultPath: Default Path
+  error:
+    badDataRoot: Invalid directory for launcher data! Please try another directory!
+    exists: Selected directory is not empty. It's okay but please make sure you backup your data.
+    invalidChar: Path contains invalid characters! It could cause Minecraft fail to start! Plaese only use English characters and symbol!
+    noPermission: Launcher does not have permission to access selected directory! Please try another one.
+    nonDictionary: Selected path is a file! Please select a directory!
+  focusLayoutDescription: The focus layout is the legacy layout of the Minecraft Launcher. It is designed to be used with a single instance or few instances.
+  game:
+    name: Import Existing Game
+  locale:
+    description: Select your preferred language if we have it! If you don't see your native language and you want to help, you can visit our Github to submit pull requests to translate!
+    language: Language
+    name: Set Language
+  path: Current Path
+shaderPack:
+  disabled: Disabled Shader Packs
+  dropHint: Import Shader Pack
+  empty: No shader pack allocated
+  enable: Using {name}
+  enabled: Enabled Shader Packs
+  manage: Manage Shader Packs
+  market: Shader Market
+  name: Shader Pack
+  linkShared: Share shader packs across instances
+  linkSharedHint: Link this instance's shaderpacks folder to the global shared folder so all instances see the same shader packs. Existing packs are merged into the shared folder.
+  noLocalPacksFound: No local shader packs found matching your search.
+  noPacks: No shader packs installed
+  noPacksInstalled: You don't have any shader packs installed.
+  noShaderMod: No Shader Mod Installed
+  noShaderModHint: You cannot use shader without a shader mod
+  noShaderModInstallHint: You need to install one of the following mod to load shader pack.
+  search: Search Shader Packs...
+  searchHint: Search for shader packs on Modrinth and CurseForge
+  selectSearchHint: Search and select Shader Pack
+  showDirectory: Show shader pack directory
+  showFile: Show this shader pack in folder
+  'off': 'Off'
+shared:
+  openFolder: Open Folder
+  reset: Reset
+  missing: missing
+  healthy: OK
+  unused: unused
+  pressKeyCombination: Press key combination...
+  add: Add
+  author: Author
+  back: Back
+  browse: Browse
+  cancel: Cancel
+  checkUpgrade: Check for Updates
+  client: Client
+  copied: Copied
+  copy: Copy
+  close: Close
+  copyFailed: Copy failed
+  copyFailedHint: Could not copy to clipboard
+  description: Description
+  disable: Disable
+  download: Download
+  edit: Edit
+  enable: Enable
+  failed: Failed
+  filter: Filter
+  install: Install
+  installed: Installed
+  keepSelected: Keep Selected
+  manage: Manage
+  name: Name
+  next: Next
+  'no': 'No'
+  ok: OK
+  previous: Previous
+  refresh: Refresh
+  remove: Remove
+  save: Save
+  search: Search
+  server: Server
+  skipForNow: Skip for now
+  upgrade: Upgrade
+  'yes': 'Yes'
+  delete: Delete
+  view: View
+sidebar:
+  pin: Pin
+  unpin: Unpin
+sortBy:
+  alphabetAsc: Sort by alphabet (ascending)
+  alphabetDesc: Sort by alphabet (descending)
+  name: Sort By
+  timeAsc: Sort by modification time (ascending)
+  timeDesc: Sort by modification time (descending)
+store:
+  discover: Discover
+  empty: No Modpacks Found
+  emptyHint: Try adjusting your filters or search query.
+  latestMinecraft: Latest Minecraft Version
+  name: Modpack Market
+  popularity: Popularity / follows
+  searchHint: Search mods, modpacks, resource packs...
+  searchResult: Search Result
+  trending: Trending
+tag:
+  create: Create Tag
+  createSelected: Create Tag for Selected
+task:
+  cancelled: Cancelled
+  clear: Clear Finished Tasks
+  connection:
+    connected: Connected
+    free: Free
+    pending: Pending
+    queued: Queued
+    running: Running connection
+    size: total count
+  connections: Network Connections
+  empty: No Running Tasks
+  failed: Failed
+  manager: Task Manager
+  nTaskRunning: '{count} tasks are running'
+  name: Task | Tasks
+  pause: Pause
+  running: Running...
+  succeed: Completed
+  eta: ~{time} left
+  remaining: '{size} left'
+  totalRemaining: '{size} remaining'
+  op:
+    update: Update
+    export: Export
+    duplicate: Duplicate
+theme:
+  selectImage: Select Image
+  selectMusic: Select Music
+  selectVideo: Select Video
+  title: Zenith Launcher
+title: Zenith Launcher
+tutorial:
+  blueprint:
+    detailDescription: Inspect blueprint contents, included mods, and create new instances from it.
+    detailTitle: Blueprint Details
+    listDescription: View and manage all your saved instance blueprints and templates.
+    listTitle: Blueprint List
+    searchDescription: Search local and community blueprints by name or tag.
+    searchTitle: Search Blueprints
+  done: Got it!
+  helpDescription: Interactive guide for the launcher and current page.
+  me:
+    instancesDescription: View all your installed instances, group them by folder or date, filter, and launch.
+    instancesTitle: Instance Management
+    profileDescription: Switch between your accounts and manage login credentials.
+    profileTitle: Account & Profile
+    skinDescription: Preview your character in 3D, change skins, and equip capes.
+    skinTitle: Skin & Cape Customizer
+  resourcepack:
+    detailDescription: View screenshots, description, compatible Minecraft versions, and file details.
+    detailTitle: Resource Pack Details
+    listDescription: Browse installed resource packs, enable or disable them, and reorder priority.
+    listTitle: Resource Pack List
+    searchDescription: Search resource packs from Modrinth, CurseForge, or local files.
+    searchTitle: Search Resource Packs
+  save:
+    detailDescription: Backup, export, inspect level.dat, or manage world settings.
+    detailTitle: World Details & Actions
+    listDescription: View all saved worlds with game mode, last played date, and file size.
+    listTitle: World List
+    searchDescription: Filter and search worlds in the current instance by name.
+    searchTitle: Search Saves & Worlds
+  settings:
+    appearanceDescription: Customize theme, background wallpapers, accent colors, and layout style.
+    generalDescription: Configure launcher language, data directory, update channels, and startup options.
+    globalDescription: Set the default window size, fullscreen and quick launch options for Zenith instances.
+    navDescription: Switch between General, Appearance, Global Game Settings, and Network.
+    networkDescription: Configure download mirrors, proxy settings, and concurrent task limits.
+  shaderpack:
+    detailDescription: Shader author details, resolution requirements, profile presets, and shader options.
+    detailTitle: Shader Pack Details
+    listDescription: Browse installed shaders and switch between them quickly.
+    listTitle: Shader Pack List
+    searchDescription: Search shader packs from Modrinth, CurseForge, or local cache.
+    searchTitle: Search Shader Packs
+  tooltip: Help & Walkthrough
+  feedbackDescription: If you encounter any problems, please click this button to send feedback!
+  hideNewsHeaderDescription: You can see the News showcase on the left. Clicking this button can hide this showcase.
+  instance:
+    appearanceThemeDescription: Customize the background, colors, and visual styling for this specific instance.
+    appearanceThemeTitle: Instance Appearance
+    iconDescription: Click to change icon.
+    iconTitle: Instance icon
+    modpackExportDescription: Build and package your configured instance into a ready-to-share modpack.
+    modpackExportTitle: Export Modpack
+    modpackFilesDescription: Select which configuration files, mods, and resources to include in the exported modpack for client and server.
+    modpackFilesTitle: Included Files
+    modpackMetaDescription: Specify the modpack version, author, description, and website information.
+    modpackMetaTitle: Modpack Details
+    modpackOptionsDescription: Choose the target export folder and formats (such as Modrinth or CurseForge modpack).
+    modpackOptionsTitle: Export Options
+    serverLaunchDescription: Launch or stop the dedicated server for this instance directly from the header.
+    serverLaunchTitle: Launch / Stop Server
+    serverPropertiesDescription: Configure server properties such as port, difficulty, MOTD, player limits, and game rules.
+    serverPropertiesTitle: Server Configuration
+    serverServiceDescription: Manage the server as a background OS service (systemd or Windows Service) for persistent automatic uptime.
+    serverServiceTitle: System Service
+    serverTargetDescription: Choose between running the server locally on your machine or managing a remote Linux server via SSH.
+    serverTargetTitle: Server Target
+    versionDescription: Select Minecraft version, Forge, Fabric, Quilt, or NeoForge loaders.
+    versionTitle: Minecraft & Loader Version
+  instanceAddDescription: Click this button to import existing Minecraft instance or create a new one from scratch or modpack.
+  instanceSelectDescription: Clicking this button will navigate to the page to select game and read news.
+  launchDescription: Click this button to install or launch the game.
+  mod:
+    defaultSourceDescription: You can choose the source of mods details here. There are the mods published to both Modrinth and Curseforge. If you want to switch between these two content providers, you can change the value here.
+    defaultSourceTitle: Select Mod Content Source
+    detailDescription: When you select an item on the left. You will see the details of the mod. The content can come from Modrinth, Curseforge or parsed mod's content.
+    detailTitle: Mod Detail
+    listDescription: We will display installed mods when you don't have any input. You will see the searched mods once your input has a keyword or category selected.
+    listTitle: Installed or Search Mod
+    searchDescription: You could search mods from Modrinth, Curseforge or your local cache with this search box.
+    searchTitle: Search Mods
+  recentPlayDescription: The created games will be listed here. You can switch the views here to also see the installed versions and downloaded modpacks.
+  storePoupularModpackDescription: You will see the most popular modpacks in Curseforge and Modrinth in this section.
+  storeSearchCategoryDescription: You can also toggle the categories or filters here.
+  storeSearchDescription: You can search Modpacks by inputting in this text box. Press Enter to search.
+  storeSearchResultDescription: You will see all search results listed here.
+  userAccountDescription: Click this icon to add or manage your Minecraft account.
+unauthenticatedWarning:
+  cancel: Cancel
+  description: You are not logged into any account. The game will launch in demo mode. To access full features, please sign in.
+  login: Sign In
+  playAnyway: Play Anyway
+  title: Not Logged In
+universalDrop:
+  unknownResource: Unknown
+unresolvedFiles:
+  description: These files could not be downloaded during installation. Search for a matching source, install the matches, or ignore files to launch anyway.
+  empty: All files are resolved.
+  ignoreSelected: Ignore {count}
+  install: Install {count} matched
+  matched: Matched
+  noMatch: Not found
+  search: Search sources
+  source:
+    curseforge-name: CurseForge
+    dependency: Dependency
+    modrinth-hash: Modrinth hash
+    modrinth-name: Modrinth
+  title: Unresolved files
+  via: via {source}
+user:
+  accessToken: Access Token
+  authMode: Auth Service
+  authService: Authorize Service
+  email: Email Address
+  id: User Id
+  name: Username
+  nameHint: The name display in game
+  profile: Profile
+  tokenExpired: Expired
+  tokenValidUntil: Token Valid Until
+userAccount:
+  add: Add Account
+  removeDescription: This will remove all info for this account. Are you sure?
+  removeTitle: Remove Account
+userCape:
+  changeTitle: Change your cape
+  description: 'Capes are special rewards players can unlock through different events, campaigns, and other happy happenings. Here you can choose between the capes you currently own:'
+  noCape: No Cape
+userService:
+  add: Add More Services
+  authlibInjectorMetadata: Authlib-Injector metadata
+  baseUrlHint: The base URL of your custom service
+  homepage: Homepage
+  implementation: Implementation
+  manageServices: Manage Auth Services
+  register: Register
+  server: Server
+  skinDomains: Skin Domains
+  title: Third-party User Services
+  version: Version
+userServices:
+  microsoft:
+    account: Microsoft Account
+    deviceCode: Device Code
+    deviceCodeHint: Device code will be generated after you click login
+    name: Microsoft
+    password: Enter Password in Browser
+    useDeviceCode: Login by Device Code
+  mojang:
+    account: Email Address
+    name: Mojang
+    password: Password
+  offline:
+    account: Username
+    name: Offline
+    password: No Password
+    uuid: User UUID (Optional)
+userSkin:
+  classic: Classic
+  import: Import Skin
+  importFile: Open from File
+  importLink: Open from Link
+  invalidImage: Choose a valid Minecraft skin image.
+  invalidImageTitle: Invalid Skin Image
+  placeUrlHere: Place Skin URL here to import
+  reset: Reset
+  save: Save
+  saveTitle: Save Skin To Disk
+  saveSuccess: Skin saved to disk!
+  saveFailed: Failed to save skin to disk
+  skinType: Skin Type
+  slim: Slim
+  upload: Upload Skin
+  uploadFailed: Skin Upload Failed
+  uploadRejected: Minecraft rejected this skin upload. Please try again later.
+  urlNotEmpty: Skin URL cannot be empty
+  urlNotValid: Skin URL is Invalid
+  useSlim: Use Slim Model
+  libraryTitle: Local Closet
+  librarySubtitle: Choose, manage and save your skins locally
+  manage: Manage
+  all: All
+  currentSkin: Current Skin
+  savedCount: saved skins
+  newSkin: New Skin
+  addNewSkin: Add New Skin
+  editSkin: Edit Skin
+  skinName: Skin Name
+  skinNamePlaceholder: e.g. My Favorite Skin
+  localFile: Local File
+  urlOrPlayer: URL / Player Name
+  urlOrPlayerPlaceholder: Enter Skin image URL or Minecraft username
+  urlOrPlayerHint: Enter a direct .png image URL or player username to fetch skin from Mojang
+  dropFileHere: Drop skin .PNG file here or click to browse
+  supportedFormats: 'Supported format: 64x64 or 64x32 PNG image'
+  preview: Skin Preview
+  previewPlaceholder: No skin preview available
+  saveToLibrary: Save to Closet
+  saveAndEquip: Save & Equip
+  equip: Equip
+  equipToAccount: Equip to Minecraft Account
+  equipped: Equipped
+  noSkinSelected: No Skin Selected
+  saveCurrent: Save Current
+  officialPreset: Official Preset
+  mySkins: My Skins
+  presets: Presets
+  noSkinsFound: No skins found
+  tryAddingOne: Try adding a new skin with the button above!
+  skinUpdated: Skin updated!
+  skinDeleteFailed: Failed to remove skin from closet
+  edit: Edit
+  fetch: Load
+version:
+  checkIntegrity: Check Integrity
+  name: Version | Versions
+  notInstalled: Version is not installed
+versionType:
+  alpha: Alpha
+  beta: Beta
+  name: Status
+  release: Release
+gamepad:
+  detectedTitle: Gamepad Detected
+  connected: Controller Connected
+  guideTitle: Controller Controls
+  enableSwitchLabel: Gamepad Controls
+  enabledState: Enabled
+  disabledState: Disabled
+  toggle: Toggle
+  disabledNotify: Gamepad controls disabled.
+  enabledNotify: Gamepad controls enabled! Use D-pad/Left stick to navigate, {btnA} to select, {btnB} to go back.
+  guide:
+    confirm: Select
+    navigate: Navigate
+    tabs: Switch tabs
+    sections: Switch sections
+    launch: Launch game
+    instanceSettings: Instance settings
+  modSuggestTitle: Controller Mod
+  modSuggestBody: To use your gamepad inside Minecraft, a controller mod is recommended. Would you like to install the appropriate mod for your modloader?
+  modInstall: Install Mod
+  modSkip: Skip
+  modDone: Done
+  modInstalled: Controller mod installed successfully! It will be active next time you launch Minecraft.
+  modInstalledNotify: '{name} has been installed for in-game controller support.'
+  modNotFound: No compatible version found for {loader} on Minecraft {version}.
+  autoEnableLabel: Auto Enable Controls
+  autoEnableHint: Automatically enable gamepad navigation when a controller is detected.
+  autoOpenKeyboardLabel: Auto Open Steam Keyboard
+  autoOpenKeyboardHint: Open Steam On-Screen Keyboard when focusing text input fields.
+  focusTooltipsLabel: Show Tooltips on Focus
+  focusTooltipsHint: Display hover tooltips when navigating elements using gamepad focus.
+  disableModPromptLabel: Disable Controller Mod Suggestions
+  disableModPromptHint: Do not prompt to install controller mods when launching with a gamepad.
+  settingSteamTitle: Add Launcher to Steam
+  steamAddedNotify: Launcher added to Steam Library successfully! Please restart Steam to see it.
+  steamAlreadyAddedNotify: Launcher is already in your Steam Library.
+  steamDeckTitle: Steam Deck Detected
+  steamDeckDesc: We detected that you are running on Steam Deck. Would you like to add Zenith Launcher to your Steam Library as a non-Steam game for full Steam overlay and controller integration in Gaming Mode?
+  steamDeckAddBtn: Add to Steam ({btn})
+  steamDeckCancelBtn: Cancel ({btn})
+  disconnected: Controller Disconnected
+bigPicture:
+  title: Big Picture Mode
+  description: Full-screen couch and gamepad experience inspired by Steam Big Picture.
+  enter: Enter Big Picture
+  exit: Exit Big Picture
+  launchByDefault: Launch in Big Picture by default
+  launchByDefaultHint: Automatically open the launcher in Big Picture mode on startup.
+  autoOnGamepad: Auto-enter on Controller Connected
+  autoOnGamepadHint: Switch to Big Picture mode when a gamepad is detected.
+  library: Library
+  discover: Discover
+  multiplayer: Multiplayer
+  settings: Settings
+  play: Play
+  launching: Launching...
+  running: Running
+  stop: Stop
+  manage: Manage
+  instanceSettings: Options
+  openFolder: Open Folder
+  addInstance: Add Instance
+  noInstances: No instances found
+  createFirstInstance: Create or import an instance to get started
+  recentInstances: Instances
+  controllerConnected: Controller Connected
+  noController: Keyboard & Mouse
+  virtualKeyboard: Virtual Keyboard
+  switchTab: Switch Tabs
+  quickMenu: Quick Menu
+  quickMenuDesc: Quick access to games, settings and launcher actions
+  quickActions: Quick Actions
+  mods: Mods & Plugins
+  noRunningTasksHint: All downloads, installations, and background tasks have finished.
+  tasks: Tasks
+  battery: Battery
+  charging: Charging
+  desktopMode: Desktop Mode
+  testRumble: Test Vibration
+  testRumbleSuccess: Controller vibration sent!
+  filterCompatibleOnly: Compatible with {version}
+  showAllVersions: All versions
+  installedSuccess: '{title} installed successfully!'
+  noVersionsFound: No compatible versions found for this item.
+  joinRoom: Join Room
+  shareGame: Host & Share Game
+  changeBackground: Change Background
+  backgroundDialogTitle: Game Background Settings
+  bgModeAuto: Default (Auto)
+  bgModeTheme: Instance Theme Background
+  bgModeThemeSubtitle: Use wallpaper configured in instance theme
+  bgModeScreenshots: In-Game Screenshots
+  bgModeScreenshotsSubtitle: Slideshow or specific screenshot from game
+  bgModeIcon: Instance Icon
+  bgModeIconSubtitle: Use game icon as a subtle backdrop
+  bgModeCustom: Custom Image
+  bgModeCustomSubtitle: Choose custom image from your computer
+  selectImageFile: Choose File...
+  slideshowAll: Slideshow of all screenshots
+  noScreenshotsAvailable: No screenshots found in this instance
+  noThemeBgAvailable: No theme background configured for this instance
+  resetDefaultBg: Reset to Default
+  newInstanceTitle: Create Game Instance
+  newInstanceDesc: Choose a modloader and version for your new game
+  editionToggle: Game Edition
+  loaderTitle: Mod Loader
+  mcVersion: Minecraft Version
+  createGame: Create Game
+  creatingGame: Creating…
+  accountSwitcherTitle: Accounts
+  accountSwitcherHint: Select an active account or add a new one
+  currentAccount: Current
+  tokenExpired: Session Expired
+  addAccount: Add New Account
+  connectedRoom: P2P Room
+  roomMembers: Room Members
+  copyRoomCode: Copy Room Code
+  roomCodeCopied: Room code copied to clipboard!
+  tagMap: MAP
+  tagDatapack: DATAPACK
+  tagModpack: MODPACK
+  tagResourcepack: RESOURCE PACK
+  tagShader: SHADER
+  tagMod: MOD
+  allInstances: All Instances
+  folder: Folder
+  ungrouped: Ungrouped
+  stopGame: Stop Game
+  forceKill: Force Close
+  forceKillHint: Force terminate the game process immediately (Emergency Stop)
+  gameStopped: Game Stopped
+  gameKilled: Game Terminated
+  gameKilledBody: The game process was forcibly closed.
+  clickToViewGame: 'Running: {name} (Click to view)'
+  createFolder: Create Folder
+  folderName: Folder Name
+  folderColor: Folder Color
+  folderNone: Ungrouped
+  removeFromFolder: Remove from Folder
+  editFolder: Edit Folder Style
+  folderSettingTitle: Instance Folder
+  qaLaunchDesc: Launch game
+  qaLaunchInstance: Launch {name}
+  qaAddInstanceDesc: Create new Minecraft instance
+  qaTasksDesc: View downloads and connections
+  qaModsDesc: Manage installed mods
+  qaInstanceSettingsDesc: Memory, resolution, versions
+  qaFolderDesc: Open folder in file explorer
+  qaBackgroundDesc: Customize background wallpaper
+  qaAccountDesc: Switch or add user profile
+  qaDiscoverDesc: Browse mods, resource packs and maps
+  qaHelpDesc: Controller controls and guide
+  qaFeedbackDesc: Report an issue or give feedback
+  qaExitDesc: Return to desktop mode
+
+zenith:
+  aboutCredit: Zenith Launcher is based on X Minecraft Launcher (XMCL) by Voxelum, MIT license
+  about:
+    author: Author and maintainer
+    credits: Credits
+    horizon: Zenith's game engine is a fork of Horizon, the Rust reimplementation of Minecraft.
+    license: Licence
+    repository: Zenith repository
+    version: Version
+    xmcl: Zenith Launcher is based on X Minecraft Launcher (XMCL) by Voxelum / ci010, MIT license.
+  create:
+    action: Create
+    exists: An instance with this name already exists.
+    hint: Zenith Launcher plays Zenith only. The game version, files and launch settings are managed for you.
+    title: Create a Zenith instance
+zenithMarket:
+  downloads: "{count} downloads"
+  empty: Nothing found
+  emptyHint: Try another search, another category or turn on "Show everything".
+  install: Install
+  installed: "{name} installed"
+  installFailed: "Could not install {name}"
+  kind:
+    datapack: Data packs
+    mod: Mods
+    modpack: Modpacks
+    nativeMod: Native mods
+    resourcepack: Resource packs
+    shader: Shader packs
+  name: Zenith Market
+  nativeNote: Native mods are compiled into the game, so they need a Zenith rebuild. They are listed but cannot be installed from the launcher yet.
+  noWorlds: This instance has no worlds yet
+  openPage: Open the project page
+  pickWorld: Install into world
+  recommended: Recommended
+  requiresRebuild: Requires rebuild
+  searchHint: Search the Zenith Market...
+  showEverything: Show everything
+  source:
+    zenith: Zenith registry
+  sourceError: "{source} could not be reached."
+  support:
+    no: Doesn't run
+    partial: Partly
+    works: Works
+  tagline: Mods, shader packs, resource packs and data packs that run in Zenith.
+  versions: Versions

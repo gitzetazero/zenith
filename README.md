@@ -10,13 +10,11 @@ Zenith is Minecraft: Java Edition 26.3 rewritten in Rust. You install it, sign i
 
 ## Download and install
 
-Windows only for now. Download **Zenith Launcher** from the [zenith-launcher Releases](https://github.com/gitzetazero/zenith-launcher/releases) page (a fork of XMCL with Zenith built in):
+Windows only for now. Download **Zenith Launcher** from the [Releases](https://github.com/gitzetazero/zenith/releases/latest) page (a fork of XMCL with Zenith built in; its source is in [`zenith/launcher`](zenith/launcher)):
 
-1. Get `Zenith-Launcher-Setup-x64.exe` (per-user installer, no administrator) or `Zenith-Launcher-Portable-x64.exe`, and check it against the SHA-256 in the release notes.
+1. Get `Zenith-Launcher-Setup-x64.exe` (per-user installer, no administrator) or `Zenith-Launcher-Portable-x64.zip` (the portable exe in a zip), and check it against the SHA-256 in the release notes.
 2. Run it. Windows will warn you ("Windows protected your PC") because the build is not code-signed: choose "More info", then "Run anyway".
 3. First-run steps, updates and limits are in [`zenith/README.md`](zenith/README.md). Note: Microsoft sign-in in Zenith Launcher needs an Azure app approved by Mojang that does not exist yet, so for now it shows a message instead of signing in.
-
-(The older interim installer on the [`nightly` release](https://github.com/gitzetazero/zenith/releases/tag/nightly) bundles unmodified XMCL and is being withdrawn.)
 
 ## Requirements
 

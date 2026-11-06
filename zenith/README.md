@@ -1,6 +1,6 @@
 # Zenith Launcher: player guide
 
-**Zenith Launcher** is the program that opens Zenith. It is a fork of [XMCL](https://github.com/Voxelum/x-minecraft-launcher) (Voxelum, MIT license) with Zenith branding and the Zenith **bridge** built in. Downloads: <https://github.com/gitzetazero/zenith-launcher/releases>. How it differs from XMCL: [`docs/ZENITH-LAUNCHER.md`](https://github.com/gitzetazero/zenith-launcher/blob/master/docs/ZENITH-LAUNCHER.md) in that repository.
+**Zenith Launcher** is the program that opens Zenith. It is a fork of [XMCL](https://github.com/Voxelum/x-minecraft-launcher) (Voxelum, MIT license) with Zenith branding and the Zenith **bridge** built in. Downloads: <https://github.com/gitzetazero/zenith/releases/latest>. The source is in [`zenith/launcher`](launcher); how it differs from XMCL: [`launcher/docs/ZENITH-LAUNCHER.md`](launcher/docs/ZENITH-LAUNCHER.md).
 
 It is an independent project and **not affiliated with XMCL (Voxelum), Mojang or Microsoft**. It is **experimental**: checked with automated tests and the contents of the published files, not by running the installer on third-party PCs.
 
@@ -12,7 +12,7 @@ It is an independent project and **not affiliated with XMCL (Voxelum), Mojang or
 
 ## Install
 
-1. From the Releases page, download `Zenith-Launcher-Setup-x64.exe` (or `Zenith-Launcher-Portable-x64.exe`) and compare its SHA-256 with the hashes in the release notes (`Get-FileHash <file> -Algorithm SHA256`). That only detects a corrupt download.
+1. From the Releases page, download `Zenith-Launcher-Setup-x64.exe` (or `Zenith-Launcher-Portable-x64.zip`) and compare its SHA-256 with the hashes in the release notes (`Get-FileHash <file> -Algorithm SHA256`). That only detects a corrupt download.
 2. Run it. **The build is not code-signed**, so SmartScreen will warn ("Windows protected your PC": More info, Run anyway). The installer is per-user, no administrator.
 3. Open "Zenith Launcher". The first time it asks for a data folder; once chosen, the **Zenith** instance is created (once; delete `zenith-instance.json` in the launcher data folder to recreate it).
 4. Sign in and press Play on the **Zenith** instance. **Microsoft sign-in needs an Azure app approved by Mojang, which does not exist yet**: until `ZENITH_MSA_CLIENT_ID` is configured the launcher shows a message instead of signing in.

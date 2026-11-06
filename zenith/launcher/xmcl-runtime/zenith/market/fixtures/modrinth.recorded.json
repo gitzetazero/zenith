@@ -1,0 +1,300 @@
+{
+ "search": {
+  "rp": {
+   "total_hits": 3,
+   "hits": [
+    {
+     "project_id": "50dA9Sha",
+     "project_type": "resourcepack",
+     "slug": "fresh-animations",
+     "author": "FreshLX",
+     "title": "Fresh Animations",
+     "description": "Make your game like the trailers! Dynamic animated entities to freshen your Minecraft experience.",
+     "categories": [
+      "16x",
+      "entities",
+      "minecraft",
+      "models",
+      "realistic",
+      "tweaks",
+      "vanilla-like"
+     ],
+     "versions": [
+      "1.21.9",
+      "26.1",
+      "26.1.1",
+      "26.1.2",
+      "26.2",
+      "26.3"
+     ],
+     "downloads": 51267107,
+     "icon_url": "https://cdn.modrinth.com/data/50dA9Sha/3132c10e9e3c73fde9799720fd3da5561071708c_96.webp",
+     "license": "LicenseRef-See-Terms-of-Use-in-Description"
+    },
+    {
+     "project_id": "yfDziwn1",
+     "project_type": "resourcepack",
+     "slug": "translations-for-sodium",
+     "author": "robotkoer",
+     "title": "Translations for Sodium",
+     "description": "Unofficial translations for the Sodium Minecraft mod",
+     "categories": [
+      "locale",
+      "minecraft",
+      "modded",
+      "tweaks",
+      "utility"
+     ],
+     "versions": [
+      "1.21.9",
+      "26.1",
+      "26.1.1",
+      "26.1.2",
+      "26.2",
+      "26.3"
+     ],
+     "downloads": 23010210,
+     "icon_url": "https://cdn.modrinth.com/data/yfDziwn1/907581019df45903df237952ce8d10ac37134cb5_96.webp",
+     "license": "CC0-1.0"
+    },
+    {
+     "project_id": "uvpymuxq",
+     "project_type": "resourcepack",
+     "slug": "better-leaves",
+     "author": "Motschen",
+     "title": "Motschen's Better Leaves",
+     "description": "Improves the appearance of leaves with high mod compatibility and performance!",
+     "categories": [
+      "minecraft",
+      "modded",
+      "models",
+      "realistic",
+      "tweaks",
+      "vanilla-like"
+     ],
+     "versions": [
+      "22w42a",
+      "22w43a",
+      "26.1",
+      "26.1.1",
+      "26.1.2",
+      "26.2"
+     ],
+     "downloads": 21379587,
+     "icon_url": "https://cdn.modrinth.com/data/uvpymuxq/fe1a61998ae57dc6ad1a4bb028334c3c3925d22f_96.webp",
+     "license": "MIT"
+    }
+   ]
+  },
+  "mod": {
+   "hits": [
+    {
+     "project_id": "P7dR8mSH",
+     "project_type": "mod",
+     "slug": "fabric-api",
+     "author": "modmuss50",
+     "title": "Fabric API",
+     "description": "Lightweight and modular API providing common hooks and intercompatibility measures utilized by mods using the Fabric toolchain.",
+     "categories": [
+      "fabric",
+      "library"
+     ],
+     "versions": [
+      "26.4-snapshot-3",
+      "26.4-snapshot-4",
+      "26.4-snapshot-5",
+      "26.4-snapshot-6",
+      "26.4-snapshot-7",
+      "26w14a"
+     ],
+     "downloads": 282767050,
+     "icon_url": "https://cdn.modrinth.com/data/P7dR8mSH/icon.png",
+     "license": "Apache-2.0"
+    },
+    {
+     "project_id": "AANobbMI",
+     "project_type": "mod",
+     "slug": "sodium",
+     "author": "jellysquid3",
+     "title": "Sodium",
+     "description": "A high-performance rendering engine replacement for Minecraft, which greatly improves frame rates and reduces micro-stutter.",
+     "categories": [
+      "fabric",
+      "neoforge",
+      "optimization",
+      "quilt"
+     ],
+     "versions": [
+      "26.2",
+      "26.2-rc-1",
+      "26.2-rc-2",
+      "26.3",
+      "26.3-rc-1",
+      "26.3-rc-2"
+     ],
+     "downloads": 248668379,
+     "icon_url": "https://cdn.modrinth.com/data/AANobbMI/295862f4724dc3f78df3447ad6072b2dcd3ef0c9_96.webp",
+     "license": "LicenseRef-Polyform-Shield-1.0.0"
+    }
+   ]
+  },
+  "dp": {
+   "hits": [
+    {
+     "project_id": "HFE7B8bM",
+     "project_type": "mod",
+     "slug": "mellomons",
+     "author": "MelloMatt",
+     "title": "MelloMons",
+     "description": "A datapack adding a remodel for Mew to Cobblemon.",
+     "categories": [
+      "datapack",
+      "fabric",
+      "mobs",
+      "neoforge"
+     ],
+     "versions": [
+      "1.21.1"
+     ],
+     "downloads": 3193689,
+     "icon_url": "https://cdn.modrinth.com/data/HFE7B8bM/1a434a2590e3333a8059b040c2faaca433cbe73c.png",
+     "license": "MIT"
+    },
+    {
+     "project_id": "BuWCQzqf",
+     "project_type": "mod",
+     "slug": "hopo-better-underwater-ruins",
+     "author": "Hoponopono",
+     "title": "Hopo Better Underwater Ruins",
+     "description": "Explore new ocean ruins to your world",
+     "categories": [
+      "adventure",
+      "datapack",
+      "decoration",
+      "fabric",
+      "forge",
+      "neoforge",
+      "worldgen"
+     ],
+     "versions": [
+      "1.21.9",
+      "26.1",
+      "26.1.1",
+      "26.1.2",
+      "26.2",
+      "26.3"
+     ],
+     "downloads": 2731853,
+     "icon_url": "https://cdn.modrinth.com/data/BuWCQzqf/3fcbab1a51a0b56df0e5a3e033ff0a2c8243b666_96.webp",
+     "license": "LGPL-3.0-or-later"
+    }
+   ]
+  }
+ },
+ "versions": [
+  {
+   "id": "xfE3qfr5",
+   "project_id": "50dA9Sha",
+   "version_number": "1.11.2",
+   "date_published": "2026-11-01T11:30:46.167498Z",
+   "status": "listed",
+   "game_versions": [
+    "26.1",
+    "26.1.1",
+    "26.1.2",
+    "26.2",
+    "26.3"
+   ],
+   "loaders": [
+    "minecraft"
+   ],
+   "dependencies": [],
+   "files": [
+    {
+     "url": "https://cdn.modrinth.com/data/50dA9Sha/versions/xfE3qfr5/FreshAnimations_v1.11.2_26.1%2B.zip",
+     "filename": "FreshAnimations_v1.11.2_26.1+.zip",
+     "size": 778725,
+     "primary": true,
+     "hashes": {
+      "sha512": "c0a529479b9e43465d8b5c5f939711fded92d92fd26053b75fcbe0560046e23655f2d429d108b286cbfceb0470960b5a519ac2311ab108899b7529b76a9e9e30",
+      "sha1": "8176a3c13963aac2adc1f12214ceabfc45127ab2"
+     }
+    }
+   ]
+  },
+  {
+   "id": "HC1XRKGD",
+   "project_id": "50dA9Sha",
+   "version_number": "1.11.2",
+   "date_published": "2026-11-01T11:29:00.920509Z",
+   "status": "listed",
+   "game_versions": [
+    "1.20",
+    "1.20.1",
+    "1.20.2",
+    "1.20.3",
+    "1.20.4",
+    "1.20.5",
+    "1.20.6",
+    "1.21",
+    "1.21.1",
+    "1.21.10",
+    "1.21.11",
+    "1.21.2",
+    "1.21.3",
+    "1.21.4",
+    "1.21.5",
+    "1.21.6",
+    "1.21.7",
+    "1.21.8",
+    "1.21.9"
+   ],
+   "loaders": [
+    "minecraft"
+   ],
+   "dependencies": [],
+   "files": [
+    {
+     "url": "https://cdn.modrinth.com/data/50dA9Sha/versions/HC1XRKGD/FreshAnimations_v1.11.2_1.20%2B.zip",
+     "filename": "FreshAnimations_v1.11.2_1.20+.zip",
+     "size": 742790,
+     "primary": true,
+     "hashes": {
+      "sha1": "c0f564f3b9c12762923015eefad53edbdbbd3d96",
+      "sha512": "e64c2fc73d2c61f6814d1223ac2a2bb1dda7ed55edb75efef23449475140a42ef2a490c4789f42e022eca96ffa6b50b63de70a2858fc7b257421b36aab5c10b3"
+     }
+    }
+   ]
+  },
+  {
+   "id": "tvGVYMD4",
+   "project_id": "50dA9Sha",
+   "version_number": "1.11.1",
+   "date_published": "2026-10-20T02:23:13.605095Z",
+   "status": "listed",
+   "game_versions": [
+    "26.1",
+    "26.1.1",
+    "26.1.2",
+    "26.2",
+    "26.3"
+   ],
+   "loaders": [
+    "minecraft"
+   ],
+   "dependencies": [],
+   "files": [
+    {
+     "url": "https://cdn.modrinth.com/data/50dA9Sha/versions/tvGVYMD4/FreshAnimations_v1.11.1_26.1%2B.zip",
+     "filename": "FreshAnimations_v1.11.1_26.1+.zip",
+     "size": 776684,
+     "primary": true,
+     "hashes": {
+      "sha512": "5357a3dbce74f5bdb688f3c4e6f7cadb6e0d81d3dde41d46017993d5bc5456a325a39a3faad0d471be51fcc73e3a47218ec64ed8e0024b092cd117b422f23356",
+      "sha1": "ae9175983c5109162c86daae1acff34ccf623faf"
+     }
+    }
+   ]
+  }
+ ]
+}

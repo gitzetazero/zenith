@@ -25,7 +25,7 @@ zenith/
   README.md          player guide (install, update, uninstall)
   SERVERS.md         server versions and how the translator picks one
   bridge/            the bridge (own workspace): ownership check, signed installs, launch
-  launcher-interim/  the interim installer (bundles unmodified XMCL); zenith/launcher/ is reserved for the real Zenith Launcher
+  launcher/          Zenith Launcher: our fork of XMCL (Electron + Vue, MIT, credits kept), a self-contained pnpm workspace
   branding/          logo, palette, banners, icons and the tools that regenerate them
   ci/                sync, prune, intact check, link check, release publisher and their tests
 ```
@@ -73,7 +73,7 @@ Edit `zenith/ci/prune-paths.txt` (directory prefixes end in `/`, `!` keeps). Run
 
 - On-screen name "Zenith" and none of Horizon's servers.
 - Server version translator, on by default, with a per-server selector (`crates/horizon-client/src/zenith_versions.rs`). It comes from Horizon PR #8718, which is still a draft. See [`zenith/SERVERS.md`](zenith/SERVERS.md).
-- Bridge and launcher (`zenith/bridge`, `zenith/launcher-interim`): checks the account owns the game, installs the signed builds and starts the client.
+- Bridge and launcher (`zenith/bridge`, `zenith/launcher`): checks the account owns the game, installs the signed builds and starts the client.
 - Client only: see "Repository layout". The one edit in Horizon's files for this is the `TOOLS` list in `xtask/src/main.rs` (marked `// zenith:`).
 
 ### Version translator (PR #8718)
@@ -98,7 +98,7 @@ python -m unittest discover zenith/ci                # sync, prune, intact and l
 python zenith/ci/check_links.py                      # relative links in our markdown
 ```
 
-Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` (the launcher installer and portable zip only: what players download) and the moving `nightly` release (the signed game channel the launcher and game fetch from) (`zenith/ci/zenith_publish.sh`). The installer is built with `zenith/launcher-interim/build.sh` (see the script header).
+Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` (the launcher installer and portable zip only: what players download) and the moving `nightly` release (the signed game channel the launcher and game fetch from) (`zenith/ci/zenith_publish.sh`). The installer and portable are built by the `launcher` job from `zenith/launcher` (typecheck, tests, electron-builder, a check of `app.asar`), with the bridge built in the same run bundled inside; the portable exe is published zipped.
 
 Binary and variable names are still Horizon's: `horizon-client`, `horizon-prepare`, `HORIZON_HOME`, `HORIZON_OLDER_SERVERS`, etc.
 
@@ -115,14 +115,13 @@ Not verified: real Play from the launcher, the real owner API response, server a
 
 ## Launcher
 
-Zenith Launcher is our own fork of XMCL (Voxelum, MIT, Electron + Vue), renamed and re-branded, with the Zenith bridge built in: <https://github.com/gitzetazero/zenith-launcher> (releases: <https://github.com/gitzetazero/zenith-launcher/releases>). It replaces the earlier plan of porting XMCL to Rust (archived as `gitzetazero/zenith-launcher-rust-port`) and the interim installer that bundled unmodified XMCL (`zenith/launcher-interim/`).
+Zenith Launcher is our own fork of XMCL (Voxelum, MIT, Electron + Vue), renamed and re-branded, with the Zenith bridge built in. Its source lives here, in `zenith/launcher/` (the former repository `gitzetazero/zenith-launcher` is archived); releases: <https://github.com/gitzetazero/zenith/releases>. It replaces the earlier plan of porting XMCL to Rust (archived as `gitzetazero/zenith-launcher-rust-port`) and the interim installer that bundled unmodified XMCL (removed).
 
-- Base: XMCL v0.73.1, kept mergeable with upstream (`git fetch upstream && git merge <tag>`); our changes are marked `// zenith:` or live in new files. Details, and the table of third-party IDs and endpoints XMCL embedded and what we did about each, are in the fork's `docs/ZENITH-LAUNCHER.md`.
+- Base: XMCL v0.73.1, kept mergeable with upstream (`git fetch upstream && git merge <tag>`); our changes are marked `// zenith:` or live in new files. Details, and the table of third-party IDs and endpoints XMCL embedded and what we did about each, are in `zenith/launcher/docs/ZENITH-LAUNCHER.md`. Run every launcher command from `zenith/launcher/`.
 - No telemetry, no XMCL-hosted services. XMCL's Microsoft application ID is **not** used.
 - On first start the launcher creates the `Zenith` instance, whose Java is a copy of the bundled bridge.
-- The release workflow downloads the bridge from this repository's `nightly` release and verifies the Ed25519 signature of `SHA256SUMS` and the exe's SHA-256 before bundling it.
+- The release workflow bundles the bridge it builds in the same run (`xmcl-electron-app/build/zenith/`). `tools/zenith/fetch-bridge.mjs` (signature and SHA-256 of the `nightly` release) is only for local builds. The launcher checks the app's update feed against this repository's Releases.
 - **Open problem:** Microsoft sign-in needs an Azure app of our own, approved by Mojang (`ZENITH_MSA_CLIENT_ID`). Until then it shows a clear message instead of signing in. The first releases are unsigned (SmartScreen warns) and not verified on third-party PCs.
-- `zenith/launcher-interim/` (the interim installer built by `build.sh`) stays only while its release assets are still published; the fork's releases are the primary route.
 
 ## Legal notice
 
