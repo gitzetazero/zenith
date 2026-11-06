@@ -123,6 +123,8 @@ pub enum Screen {
     /// Join a friend's world with its invite code (Horizon's own, behind the
     /// title screen's Friends button).
     Friend {
+        /// The title and server list both open this page; cancellation returns to its parent.
+        from_title: bool,
         code: String,
         /// The relay for short codes (optional; saved on Join).
         relay: String,
@@ -1446,7 +1448,9 @@ impl Screen {
                     centered(batch, &line.plain(), top + 17.0 + i as f32 * 9.0, u32::MAX);
                 }
             }
-            Self::Friend { code, relay, focus } => {
+            Self::Friend {
+                code, relay, focus, ..
+            } => {
                 centered(
                     batch,
                     &crate::lang::get_or("horizon.multiplayer.join_friend", "Join a Friend"),
@@ -1556,7 +1560,7 @@ impl Screen {
                     address: String::new(),
                 }
             }
-            (Self::List { .. }, Some(47)) => *self = Self::friend(),
+            (Self::List { .. }, Some(47)) => *self = Self::friend(false),
             (Self::List { .. }, Some(42)) => {
                 *self = Self::Edit {
                     index: None,
@@ -1749,6 +1753,12 @@ impl Screen {
                 *self = Self::list(saves);
             }
             (
+                Self::Friend {
+                    from_title: true, ..
+                },
+                Some(57),
+            ) => return Outcome::Back,
+            (
                 Self::Edit { .. }
                 | Self::Direct { .. }
                 | Self::Friend { .. }
@@ -1924,8 +1934,9 @@ impl Screen {
         }
     }
     /// Join a friend, with the relay the player set before.
-    pub fn friend() -> Self {
+    pub fn friend(from_title: bool) -> Self {
         Self::Friend {
+            from_title,
             code: String::new(),
             relay: crate::net::friends_relay_setting().unwrap_or_default(),
             focus: 0,
@@ -2030,7 +2041,10 @@ impl Screen {
     /// Escape: back to the list, or out of it (true).
     pub fn escape(&mut self, saves: &Path) -> bool {
         match self {
-            Self::List { .. } => true,
+            Self::List { .. }
+            | Self::Friend {
+                from_title: true, ..
+            } => true,
             // ConfirmScreen.keyPressed: Escape answers no.
             Self::ConfirmDelete { list, .. } => {
                 let list = std::mem::replace(
@@ -2252,6 +2266,7 @@ mod tests {
         assert_eq!(at(&direct, 427.0, 334.0), [(113.0, 191.0), (113.0, 215.0)]);
         assert_eq!(at(&direct, 320.0, 240.0), [(60.0, 168.0), (60.0, 192.0)]);
         let friend = Screen::Friend {
+            from_title: false,
             code: String::new(),
             relay: String::new(),
             focus: 0,
