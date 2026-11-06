@@ -645,6 +645,9 @@ login:
   userRelogin: El token de acceso del usuario ha caducado. ¡Vuelve a iniciar sesión!
 loginError:
   acquireMicrosoftTokenFailed: Error al obtener el token de Microsoft. Puede ser un problema de red. Vuelve a intentarlo.
+  msaAppNotFound: "Microsoft no conoce la aplicación de inicio de sesión de este launcher (el ID de cliente no existe o no admite cuentas personales de Microsoft). Esta versión se compiló con un ID erróneo o sin registrar; actualiza Zenith Launcher o avísanos."
+  msaRedirectNotRegistered: "La aplicación de inicio de sesión no acepta la dirección de redirección de este launcher (http://localhost/auth). Su registro en Azure necesita ese URI de redirección en Aplicaciones móviles y de escritorio."
+  msaInvalidScope: "La aplicación de inicio de sesión no tiene permiso para pedir acceso a Xbox Live (XboxLive.signin). Su registro en Azure necesita el permiso de Xbox Live."
   badNetworkOrServer: ¡Revisa tu conexión de red! ¡O quizás el servidor de autenticación no está disponible!
   checkOwnershipFailed: Error al verificar la propiedad del juego. Vuelve a intentarlo.
   connectionReset: Error al iniciar sesión porque la conexión fue reiniciada por el servidor

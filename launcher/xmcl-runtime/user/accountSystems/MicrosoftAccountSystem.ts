@@ -7,9 +7,8 @@ import { toRecord } from '~/util/object'
 import { XBoxResponse, normalizeSkinData } from '../user'
 import { UserTokenStorage } from '../userTokenStore'
 import { UserAccountSystem } from './AccountSystem'
-import { isAccountSuspendedError, isNetworkError, isUserCanceledError } from './MicrosoftAuthErrors'
+import { classifyMicrosoftAppSetupProblem, isAccountSuspendedError, isNetworkError, isUserCanceledError } from './MicrosoftAuthErrors'
 import {
-  MICROSOFT_GRAPH_USER_READ_SCOPE,
   MicrosoftOAuthClient,
   MICROSOFT_XBOX_LAUNCHER_SCOPES,
 } from './MicrosoftOAuthClient'
@@ -252,9 +251,8 @@ export class MicrosoftAccountSystem implements UserAccountSystem {
     const { result, extra } = await this.oauthClient.authenticate(microsoftEmailAddress, MICROSOFT_XBOX_LAUNCHER_SCOPES, {
       code: oauthCode,
       // XMCL identity binding verifies the stable subject through Microsoft
-      // Graph. Keep its consent/token in the same MSAL cache as the launcher
-      // Xbox token; the commercial bridge acquires it silently later.
-      extraScopes: [MICROSOFT_GRAPH_USER_READ_SCOPE],
+      // zenith: no Microsoft Graph consent (XMCL asked for User.Read for its commercial bridge); the app
+      // registration then needs no API permission beyond XboxLive.signin.
       useDeviceCode,
       directRedirectToLauncher,
       // WAM selects the account signed in to Windows/Xbox. If it is
@@ -270,7 +268,7 @@ export class MicrosoftAccountSystem implements UserAccountSystem {
           ? 'USER_CANCELED'
           : isNetworkError(e)
             ? 'NETWORK_ERROR'
-            : undefined,
+            : classifyMicrosoftAppSetupProblem(e),
       }, 'Failed to acquire Microsoft access token', { cause: e })
     })
 

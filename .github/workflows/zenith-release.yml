@@ -238,7 +238,7 @@ jobs:
       - name: Typecheck (runtime API, runtime, Electron app, UI)
         run: pnpm run check
       - name: Unit tests of the Zenith changes
-        run: pnpm vitest run xmcl-runtime/zenith xmcl-runtime/app xmcl-runtime/infra/plugins xmcl-runtime/moddb xmcl-runtime/instance/InstanceService.icon.test.ts xmcl-runtime/settings xmcl-electron-app/build xmcl-keystone-ui/src/telemetry.test.ts xmcl-runtime-api/src/entities/setting.test.ts xmcl-keystone-ui/src/views/SettingUpdate.test.ts xmcl-keystone-ui/src/i18n.integration.test.ts
+        run: pnpm vitest run xmcl-runtime/zenith xmcl-runtime/user/accountSystems xmcl-runtime/app xmcl-runtime/infra/plugins xmcl-runtime/moddb xmcl-runtime/instance/InstanceService.icon.test.ts xmcl-runtime/settings xmcl-electron-app/build xmcl-keystone-ui/src/telemetry.test.ts xmcl-runtime-api/src/entities/setting.test.ts xmcl-keystone-ui/src/views/SettingUpdate.test.ts xmcl-keystone-ui/src/i18n.integration.test.ts
       - name: Build
         env:
           BUILD_NUMBER: ${{ github.run_number }}

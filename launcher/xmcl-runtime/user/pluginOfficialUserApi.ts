@@ -101,7 +101,7 @@ export const pluginOfficialUserApi: LauncherAppPlugin = async (app) => {
       let error: Error | undefined
       if (parsed.searchParams.get('error')) {
         const err = parsed.searchParams.get('error')!
-        const errDescription = parsed.searchParams.get('error')!
+        const errDescription = parsed.searchParams.get('error_description') ?? err
         error = new Error(unescape(errDescription));
         (error as any).error = err
       }

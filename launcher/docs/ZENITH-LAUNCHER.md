@@ -117,3 +117,17 @@ Releases are dated (`nightly-<date>`), so "is there an update" compares the buil
 - **Portable build** (`PORTABLE_EXECUTABLE_FILE` is set, or no `Uninstall *.exe` next to the program), development builds, AppX and non-Windows: the old behaviour. The dialog says the build does not update itself and opens the Releases page.
 - **Security model and limits:** HTTPS from GitHub releases of `gitzetazero/zenith` plus the SHA-256 from the notes of the same release. The hash catches a corrupt or truncated download, not a replaced release (whoever can edit the release can edit both). Installers are not code-signed for Windows, so SmartScreen may warn. The game itself is updated separately by the bridge, with its Ed25519 signature.
 - **Tested:** unit tests of the pure decisions (`xmcl-runtime/zenith/updateVerify.test.ts`) and typecheck. The download, hash check and silent install on a real installed build were not exercised.
+
+## Microsoft sign-in: the Azure app
+
+Zenith Launcher signs in with MSAL against `https://login.microsoftonline.com/consumers/` (personal Microsoft accounts), then Xbox Live (`user.auth.xboxlive.com`, `xsts.auth.xboxlive.com`), then Minecraft Services (`api.minecraftservices.com/authentication/login_with_xbox`, `/minecraft/profile`, `/entitlements/mcstore`). It uses a public client with PKCE and the scopes `XboxLive.signin offline_access`. There is no client secret anywhere: the client ID is public and is embedded at build time from the repository variable `ZENITH_MSA_CLIENT_ID` (or set by `ZENITH_MSA_CLIENT_ID` / `zenith-config.json` at run time).
+
+The Azure app registration must be:
+
+1. **Supported account types:** personal Microsoft accounts ("Personal Microsoft accounts only", or "Accounts in any organizational directory and personal Microsoft accounts"). `unauthorized_client: The client does not exist or is not enabled for consumers` means the ID does not exist or is not enabled for them.
+2. **Platform:** *Mobile and desktop applications* with the redirect URI `http://localhost/auth` (the launcher listens on `http://localhost:<port>/auth`, port 25555 or the next free one; Microsoft ignores the port for loopback addresses). Without it Microsoft answers `invalid_request ... redirect_uri is not valid`.
+3. **Allow public client flows:** yes.
+4. **API permissions:** nothing extra (`XboxLive.signin` is requested at sign-in; Zenith no longer asks for Microsoft Graph `User.Read`).
+5. **Mojang's review:** until Mojang approves the app registration, `login_with_xbox` answers 403 ("Invalid app registration") even though Microsoft sign-in itself works. Their form: https://aka.ms/AppRegInfo.
+
+You can test an ID without signing in: open `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=<ID>&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%2Fauth&scope=XboxLive.signin%20offline_access` in a browser. "The client does not exist" means a wrong ID; a redirect_uri error means step 2 is missing; the Microsoft sign-in page means the registration is fine.

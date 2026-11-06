@@ -486,6 +486,9 @@ const errorMessage = computed(() => {
       if (exception.reason === 'NETWORK_ERROR') {
         return t('loginError.badNetworkOrServer')
       }
+      if (exception.reason === 'APP_NOT_FOUND') return t('loginError.msaAppNotFound')
+      if (exception.reason === 'REDIRECT_URI_NOT_REGISTERED') return t('loginError.msaRedirectNotRegistered')
+      if (exception.reason === 'INVALID_SCOPE') return t('loginError.msaInvalidScope')
       return t('loginError.acquireMicrosoftTokenFailed')
     }
 

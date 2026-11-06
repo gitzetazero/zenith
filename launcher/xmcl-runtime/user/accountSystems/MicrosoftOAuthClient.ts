@@ -14,9 +14,10 @@ import { isNetworkError, isUserCanceledError } from './MicrosoftAuthErrors'
 import { createNetworkClient } from './OAuthNetworkClient'
 
 export const MICROSOFT_GRAPH_USER_READ_SCOPE = 'User.Read'
+// zenith: the scopes of the standard Minecraft sign-in (wiki.vg "Microsoft Authentication Scheme"). `offline_access`
+// is what gives MSAL a refresh token; `XboxLive.offline_access` is not a scope a newly registered app can rely on.
 export const MICROSOFT_XBOX_LAUNCHER_SCOPES = [
   'XboxLive.signin',
-  'XboxLive.offline_access',
   'offline_access',
 ]
 

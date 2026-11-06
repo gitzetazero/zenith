@@ -680,6 +680,9 @@ login:
 loginError:
   acquireMicrosoftTokenFailed: Fail to acquire Microsoft token. This might be a network issue. Please retry.
   loginCanceled: Microsoft sign-in was canceled.
+  msaAppNotFound: "Microsoft does not know this launcher's sign-in app (the client ID does not exist or is not enabled for personal Microsoft accounts). This build was made with a wrong or unregistered client ID; update Zenith Launcher or report it."
+  msaRedirectNotRegistered: "The sign-in app does not accept this launcher's redirect address (http://localhost/auth). Its Azure registration needs that redirect URI under Mobile and desktop applications."
+  msaInvalidScope: "The sign-in app is not allowed to request Xbox Live access (XboxLive.signin). Its Azure registration needs the Xbox Live permission."
   badNetworkOrServer: Please check your network connectivity! Or maybe the authentication server is down!
   checkOwnershipFailed: Fail to check game ownership. Please try again.
   connectionReset: Fail to login since connection is reset by server
