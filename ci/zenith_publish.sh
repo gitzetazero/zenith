@@ -58,11 +58,25 @@ step() { echo "::group::$*"; }
 
 step "1. draft $dated"
 old=$(release_id "$dated")
+id=
 if [[ -n "$old" ]]; then
   echo "removing the earlier $dated (release $old)"
-  gh api -X DELETE "repos/$repo/releases/$old"
+  if gh api -X DELETE "repos/$repo/releases/$old" > /dev/null 2>&1; then
+    old=
+  else
+    # The workflow token cannot always delete a published release (HTTP 403 seen): refresh it in place instead, as
+    # a draft, so its tag and its place in the history stay and nothing is left half-updated.
+    echo "could not delete release $old; refreshing it in place"
+    id=$old
+    for asset in $(gh api "repos/$repo/releases/$id" --jq '.assets[].id'); do
+      gh api -X DELETE "repos/$repo/releases/assets/$asset" > /dev/null
+    done
+    gh api -X PATCH "repos/$repo/releases/$id" -f name="$title" -F body=@notes.md -F draft=true -F prerelease=false > /dev/null
+  fi
 fi
-id=$(gh api -X POST "repos/$repo/releases" -f tag_name="$dated" -f target_commitish="$SHA" -f name="$title"   -F body=@notes.md -F draft=true -F prerelease=false --jq .id)
+if [[ -z "$id" ]]; then
+  id=$(gh api -X POST "repos/$repo/releases" -f tag_name="$dated" -f target_commitish="$SHA" -f name="$title"     -F body=@notes.md -F draft=true -F prerelease=false --jq .id)
+fi
 for file in "${launcher[@]}"; do
   gh api -X POST "https://uploads.github.com/repos/$repo/releases/$id/assets?name=$(basename "$file")"     -H "Content-Type: application/octet-stream" --input "$file" > /dev/null
 done
