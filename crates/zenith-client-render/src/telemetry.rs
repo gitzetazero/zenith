@@ -379,10 +379,7 @@ mod tests {
             thread: "Render thread".into(),
             side: "client",
             details: vec![
-                (
-                    "Zenith Version".into(),
-                    "v2026.10.15 (client 0.1.0)".into(),
-                ),
+                ("Zenith Version".into(), "v2026.10.15 (client 0.1.0)".into()),
                 (
                     "Operating System".into(),
                     "macos (aarch64) version macOS 26.0".into(),

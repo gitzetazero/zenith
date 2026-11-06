@@ -193,19 +193,16 @@ pub fn run_game(
         // a game that already exited just closes the pipe
         let _ = stdin.write_all(session_json.as_bytes());
     }
-    pump(
-        child,
-        &mut |stream, line| match line
-            .strip_prefix(CRASH_LINE)
-            .or_else(|| line.strip_prefix(CRASH_LINE_OLD))
-        {
-            Some(path) => {
-                if stream == Stream::Err {
-                    emit(stream, line);
-                }
-                emit(Stream::Out, &format!("Crash report saved to: #@!@# {path}"));
+    pump(child, &mut |stream, line| match line
+        .strip_prefix(CRASH_LINE)
+        .or_else(|| line.strip_prefix(CRASH_LINE_OLD))
+    {
+        Some(path) => {
+            if stream == Stream::Err {
+                emit(stream, line);
             }
-            None => emit(stream, line),
-        },
-    )
+            emit(Stream::Out, &format!("Crash report saved to: #@!@# {path}"));
+        }
+        None => emit(stream, line),
+    })
 }
