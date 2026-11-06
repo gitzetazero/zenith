@@ -5,6 +5,7 @@ use crate::{
     Result,
     motion::{MotionEvent, PlayerMotion},
 };
+use std::{cell::Cell, fs, io, path::Path, sync::OnceLock};
 use zenith_world::{
     attributes::live::LiveAttributes,
     block_landing::LandingDamage,
@@ -21,7 +22,6 @@ use zenith_world::{
     server_player_damage::ServerDamageEnvironment,
     synced_floats::{FloatValue, Observer, SyncedFloats},
 };
-use std::{cell::Cell, fs, io, path::Path, sync::OnceLock};
 pub(crate) type Attributes = LiveAttributes<Box<dyn zenith_world::attributes::live::Identities>>;
 pub(crate) type State = HurtState<DamageTypeId>;
 

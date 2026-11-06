@@ -7,10 +7,10 @@
 //! place, which the readers name by their `dimension`
 //! (`minecraft:overworld`), as `native_set_block` does.
 use super::Game;
+use std::sync::Arc;
 use zenith_client::containers::ModEnergyBuffer;
 use zenith_core::geometry::Direction;
 use zenith_world::nbt::{Compound, JavaString, Tag};
-use std::sync::Arc;
 
 /// A block's energy as a side reaches it (`native_energy`).
 #[allow(dead_code)]

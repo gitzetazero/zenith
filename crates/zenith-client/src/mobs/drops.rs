@@ -740,8 +740,8 @@ mod death_loot_table_tests {
 mod slot_tests {
     use super::*;
     use crate::mobs::sensor_scan_tests::kind;
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     fn mob(id: &str, species: Species) -> Mob {
         let mut kind = kind();

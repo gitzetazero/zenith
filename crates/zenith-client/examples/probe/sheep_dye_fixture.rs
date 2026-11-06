@@ -1,4 +1,5 @@
 //! Actual production sheep-dye interaction without prepared resources.
+use std::{io::Write, sync::Arc};
 use zenith_client::{
     Result,
     items::ItemStack,
@@ -6,7 +7,6 @@ use zenith_client::{
 };
 use zenith_core::geometry::Vec3;
 use zenith_world::nbt::Tag;
-use std::{io::Write, sync::Arc};
 
 fn kind() -> Arc<MobType> {
     Arc::new(MobType {

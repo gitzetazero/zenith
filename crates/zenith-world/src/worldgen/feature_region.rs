@@ -14,6 +14,7 @@ use crate::{
     registry::BlockStateId,
     tick_data::TickKind,
 };
+use std::{collections::HashMap, sync::Arc};
 use zenith_core::{
     position::BlockPos,
     ticks::{
@@ -21,7 +22,6 @@ use zenith_core::{
         WorldGenTickContainers,
     },
 };
-use std::{collections::HashMap, sync::Arc};
 
 struct RegionBlockQueries {
     fluids: super::fluid_predicate::FluidPredicateBindings,

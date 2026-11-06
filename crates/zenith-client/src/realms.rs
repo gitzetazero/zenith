@@ -16,11 +16,11 @@ use client::{
     RealmTierRange, RealmWorldOptions, RealmsClient, RealmsError, RegionDataDto,
     RegionSelectionPreferenceDto, Subscription,
 };
-use zenith_client_render::auth::{self, AuthSession};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use zenith_client_render::auth::{self, AuthSession};
 
 const HEADER_HEIGHT: f32 = 44.0;
 const CONTENT_WIDTH: f32 = 308.0;

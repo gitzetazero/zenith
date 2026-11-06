@@ -7,8 +7,8 @@ use super::args::{
 use super::codec::{either, is_number, not_map, snbt};
 use super::packrat::{Grammar, Reason, State, Sugg, Term, Value, alt, ch, opt, seq};
 use super::{CmdResult, CommandError, Reader, SuggestionsBuilder};
-use zenith_world::nbt::Tag;
 use std::rc::Rc;
+use zenith_world::nbt::Tag;
 
 fn int_of(t: &Tag) -> Option<i64> {
     Some(match t {

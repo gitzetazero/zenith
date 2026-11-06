@@ -286,10 +286,7 @@ impl Game<'_> {
         let name = item_name.unwrap_or_else(|| self.target_name(target));
         self.feedback(Text::translate(
             "commands.damage.success",
-            &[
-                Text::literal(zenith_client::snbt::java_float(amount)),
-                name,
-            ],
+            &[Text::literal(zenith_client::snbt::java_float(amount)), name],
         ));
         Ok(1)
     }

@@ -5,6 +5,12 @@
 //! two rings around it are level chunks with their light, the third ring has
 //! its features and the fourth only its terrain.
 extern crate zenith_client_lib as zenith_client;
+use std::{
+    path::Path,
+    sync::Arc,
+    thread,
+    time::{Duration, Instant},
+};
 use zenith_client::{
     assets::Assets,
     biome::Biomes,
@@ -19,12 +25,6 @@ use zenith_client::{
     world::World,
 };
 use zenith_world::registry::BlockStateId;
-use std::{
-    path::Path,
-    sync::Arc,
-    thread,
-    time::{Duration, Instant},
-};
 
 fn resources() -> Option<std::path::PathBuf> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))

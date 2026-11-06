@@ -3,12 +3,12 @@
 //! renders it (which starts or stops the listening as the "Show Subtitles"
 //! option says).
 use super::Game;
+use std::cell::RefCell;
 use zenith_client::{
     hud::HudBatch,
     hud_layout,
     hud_overlays::{SubtitleFrame, SubtitleOverlay, now_ms},
 };
-use std::cell::RefCell;
 
 #[derive(Default)]
 pub(super) struct SubtitleState {

@@ -4,6 +4,7 @@
 //! (`SculkShriekerBlockEntity`, `SpawnUtil`), catalysts feeding the sculk
 //! spreader from deaths, and the darkness wardens and shriekers cast.
 use super::{Game, Result};
+use std::collections::HashSet;
 use zenith_client::actions::Action;
 use zenith_client::{
     containers::BlockEntity,
@@ -20,7 +21,6 @@ use zenith_core::{
 };
 use zenith_protocol::entity_data::PositionSource;
 use zenith_world::registry::BlockStateId;
-use std::collections::HashSet;
 
 pub const HELP: &[&str] = &[
     "sculk                          sculk listeners, the warning level and the darkness blend",
@@ -2115,8 +2115,7 @@ impl Game<'_> {
             at[1].floor() as i32,
             at[2].floor() as i32,
         );
-        self.res.facts().get(self.world.block(x, y, z)).fluid
-            == zenith_client::blocks::Fluid::Water
+        self.res.facts().get(self.world.block(x, y, z)).fluid == zenith_client::blocks::Fluid::Water
     }
     /// `Entity.checkSupportingBlock`: the block under this box closest to the
     /// entity. Everything but the player works it out when it asks.

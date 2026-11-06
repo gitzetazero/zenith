@@ -4,12 +4,12 @@
 //! rows after `zenith_client::hotbar::from_tag`.
 //!
 //! usage: hotbar_fixture RESOURCES CASES OUTPUT
-use zenith_client::{hotbar, item_data::canon_stack, items::Items};
-use zenith_world::loot::PackOverlay;
-use zenith_world::nbt::{Tag, parse_snbt};
 use serde_json::Value;
 use std::path::Path;
 use std::{fmt::Write as _, fs};
+use zenith_client::{hotbar, item_data::canon_stack, items::Items};
+use zenith_world::loot::PackOverlay;
+use zenith_world::nbt::{Tag, parse_snbt};
 
 pub fn main() -> zenith_client::Result<()> {
     let args: Vec<String> = crate::args().collect();

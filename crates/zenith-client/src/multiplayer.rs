@@ -6,13 +6,13 @@ use crate::hud::{HudAtlas, HudBatch, rgba};
 use crate::lan::discovery::Scanner;
 use crate::text::{DARK_GRAY, GRAY, Text, format_translation};
 use crate::title::confirm_top;
-use zenith_protocol::servers::{self, ServerEntry};
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
+use zenith_protocol::servers::{self, ServerEntry};
 
 const SERVER_NAME: crate::clipboard::FieldId = ("server.name", 0);
 const SERVER_ADDRESS: crate::clipboard::FieldId = ("server.address", 0);

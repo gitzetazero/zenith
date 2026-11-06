@@ -21,6 +21,7 @@
 //! inventory's (an optional key sorts the part under the cursor); the
 //! clicks come from `inv_sort::plan`.
 use super::{Creative, Game, Screen};
+use winit::{event::MouseButton, keyboard::KeyCode};
 use zenith_client::{
     containers::BlockEntity,
     hud::{HudBatch, rgba},
@@ -30,7 +31,6 @@ use zenith_client::{
     menu::Input,
     stations::hover_name,
 };
-use winit::{event::MouseButton, keyboard::KeyCode};
 
 /// A sort button's side in GUI pixels.
 const SORT_BUTTON: f32 = 9.0;

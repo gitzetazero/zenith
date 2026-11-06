@@ -4,6 +4,13 @@
 //! block entity: its data slots follow `Furnace::input_clicked`.
 //!
 //! usage: menu_fixture RESOURCES INPUT OUTPUT
+use serde_json::Value;
+use std::{
+    cell::{Cell, RefCell},
+    collections::HashMap,
+    fs,
+    path::Path,
+};
 use zenith_client::{
     containers::{Furnace, FurnaceKind},
     crafting::Recipes,
@@ -14,13 +21,6 @@ use zenith_client::{
 };
 use zenith_protocol::registry::Ids;
 use zenith_world::loot::PackOverlay;
-use serde_json::Value;
-use std::{
-    cell::{Cell, RefCell},
-    collections::HashMap,
-    fs,
-    path::Path,
-};
 
 /// The case's maps: (locked, scale) by id, and the next free id.
 #[derive(Default)]

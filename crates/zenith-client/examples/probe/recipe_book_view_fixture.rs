@@ -5,6 +5,8 @@
 //! `zenith_client::recipe_book::ClientBook`.
 //!
 //! usage: recipe_book_view_fixture RESOURCES CASES OUTPUT
+use serde_json::Value;
+use std::{fmt::Write as _, fs, path::Path};
 use zenith_client::{
     crafting::Recipes,
     item_data::parse_stack,
@@ -13,8 +15,6 @@ use zenith_client::{
     recipe_book::{Book, BookType, ClientBook, Display, RecipeIndex, Tab},
 };
 use zenith_world::loot::PackOverlay;
-use serde_json::Value;
-use std::{fmt::Write as _, fs, path::Path};
 
 pub fn main() -> zenith_client::Result<()> {
     let args: Vec<String> = crate::args().collect();

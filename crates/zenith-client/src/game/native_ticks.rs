@@ -4,8 +4,8 @@
 //! its ticking entities to a `TickRound` before the loop and hears the Posts after it; the
 //! minecarts and boats, whose loops can call the hooks, ask for each one in turn.
 use super::Game;
-use zenith_client::mobs::MobType;
 use std::sync::Arc;
+use zenith_client::mobs::MobType;
 
 /// The type of an entity in a round, as the hooks name it.
 pub(super) enum TickKind {

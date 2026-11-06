@@ -13,13 +13,13 @@ use super::{CURRENT, update_chunk_to, update_region_tag_to};
 use crate::compression::Compression;
 use crate::nbt::{Limits, Tag};
 use crate::region::{ChunkRecord, RegionFile};
-use zenith_core::position::ChunkPos;
 use std::collections::{BTreeMap, HashSet};
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::thread::JoinHandle;
+use zenith_core::position::ChunkPos;
 
 const NEW_DIRECTORY_PREFIX: &str = "new_";
 

@@ -3,6 +3,7 @@
 //! `TreeNodePosition`, dragged or scrolled inside the 252x140 window, with
 //! the progress tooltip of the hovered advancement.
 use super::{Game, Screen, advancements::text_of};
+use std::{sync::Arc, time::Instant};
 use zenith_client::{
     advancements::{Frame, Tree},
     hud::HudBatch,
@@ -10,7 +11,6 @@ use zenith_client::{
     text::{Style, Text},
     ui,
 };
-use std::{sync::Arc, time::Instant};
 
 const INSIDE_W: i32 = 234;
 const INSIDE_H: i32 = 113;

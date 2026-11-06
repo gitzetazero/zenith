@@ -4,7 +4,6 @@
 //! value/attribute effect components (`LevelBasedValue`, `EnchantmentValueEffect`
 //! and the loot-condition subset that enchantment requirements use).
 use crate::items::{ItemStack, Items};
-use zenith_core::random::{LegacyRandom, RandomSource};
 use serde_json::Value;
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
@@ -14,6 +13,7 @@ use std::{
         atomic::{AtomicBool, Ordering},
     },
 };
+use zenith_core::random::{LegacyRandom, RandomSource};
 
 /// Levels as numbers in enchantment names ("Sharpness 5"): Horizon's PvP & HUD option, off by
 /// default (vanilla's numerals).

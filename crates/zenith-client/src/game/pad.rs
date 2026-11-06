@@ -5,6 +5,10 @@
 //! injects a virtual pad on top of the real one.
 use super::event_loop::EventLoopCtl;
 use super::{Game, Screen};
+use serde_json::{Value, json};
+use std::time::{Duration, Instant};
+use winit::event::MouseButton;
+use winit::keyboard::KeyCode;
 use zenith_client::actions::Action;
 use zenith_client::held::Source;
 use zenith_client::{
@@ -14,10 +18,6 @@ use zenith_client::{
     gamepad::{self, Button, Edges, GlyphStyle, HealthWatch, PadState, Route, Rumble},
     keymapping::SNEAK,
 };
-use serde_json::{Value, json};
-use std::time::{Duration, Instant};
-use winit::event::MouseButton;
-use winit::keyboard::KeyCode;
 
 pub(super) const HELP: &[&str] = &[
     "pad BUTTON down|up|tap         a virtual controller button (south east west north lb rb lt rt select start ls rs up down left right)",
@@ -122,8 +122,8 @@ pub(in crate::game) enum PadEvent {
 #[cfg(not(feature = "controllers"))]
 mod hardware {
     use super::{super::Game, Pads};
-    use zenith_client::gamepad::{PadState, Pulse, Rumble};
     use serde_json::{Value, json};
+    use zenith_client::gamepad::{PadState, Pulse, Rumble};
 
     impl Pads {
         pub(super) fn read(&mut self) -> PadState {

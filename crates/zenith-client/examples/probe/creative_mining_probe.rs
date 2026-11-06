@@ -1,3 +1,9 @@
+use serde_json::Value;
+use std::{
+    fs::File,
+    io::{BufRead, BufReader, BufWriter, Write},
+    path::Path,
+};
 use zenith_client::{
     Result,
     item_data::StackData,
@@ -5,12 +11,6 @@ use zenith_client::{
 };
 use zenith_world::loot::PackOverlay;
 use zenith_world::nbt::Tag;
-use serde_json::Value;
-use std::{
-    fs::File,
-    io::{BufRead, BufReader, BufWriter, Write},
-    path::Path,
-};
 
 pub fn main() -> Result<()> {
     let args: Vec<_> = crate::args().collect();

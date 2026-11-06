@@ -14,6 +14,7 @@ use zenith_client::{
     projectiles::{Projectile, ProjectileKind},
 };
 // Its old home, for mixin code that names it here.
+use std::sync::Arc;
 pub(super) use zenith_client::mod_api::NativeDispensed;
 use zenith_core::{
     geometry::{Aabb, Direction, Vec3},
@@ -25,7 +26,6 @@ use zenith_world::{
     level::{BucketContent, PlaceContext, PlaceOutcome},
     registry::BlockStateId,
 };
-use std::sync::Arc;
 
 type Pos = (i32, i32, i32);
 
@@ -1932,8 +1932,7 @@ impl Game<'_> {
                         .play("minecraft:entity.sulfur_cube.eject", sound_at, 1.0, 1.0);
                 }
                 Species::Sheep if !m.extra.sheared && !m.is_baby() => {
-                    let color =
-                        zenith_client::mobs::render::DYE_NAMES[m.extra.color as usize & 15];
+                    let color = zenith_client::mobs::render::DYE_NAMES[m.extra.color as usize & 15];
                     self.audio
                         .play("minecraft:entity.sheep.shear", sound_at, 1.0, 1.0);
                     let drops = self.sequence_loot(

@@ -1,5 +1,6 @@
 //! BoatItem's server POV clip; deliberately separate from renderer/mining picks.
 use super::{Fluid, Game};
+use std::io;
 use zenith_core::{
     geometry::{Aabb, ShapeOp, Vec3, VoxelShape},
     position::BlockPos,
@@ -8,7 +9,6 @@ use zenith_world::{
     registry::BlockStateId,
     world_ray::{RayBlockMode, RayFluidMode, RayWorld, clip_world},
 };
-use std::io;
 
 struct BoatItemRay<'a, 'r>(&'a Game<'r>);
 impl RayWorld for BoatItemRay<'_, '_> {

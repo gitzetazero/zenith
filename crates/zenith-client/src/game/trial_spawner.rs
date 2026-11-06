@@ -2,6 +2,7 @@
 //! spawner (`mobs::trial_spawner`), the block's state as it changes, the mobs
 //! it adds and the rewards it ejects.
 use super::{Game, natural_spawning::GameLevel, spawner::Planned};
+use std::collections::HashMap;
 use zenith_client::{
     Result,
     containers::BlockEntity,
@@ -20,7 +21,6 @@ use zenith_core::{
     random::{LegacyRandom, RandomSource},
 };
 use zenith_world::nbt::Tag;
-use std::collections::HashMap;
 
 type Pos = (i32, i32, i32);
 
@@ -164,8 +164,7 @@ impl Game<'_> {
                 let added = l.game.plan_spawner_mob(l, r, &mut planned)?;
                 let uuid = match planned.last_mut() {
                     Some(Planned::Loaded(Tag::Compound(tag), _)) => {
-                        let tag_uuid =
-                            zenith_client::entity_nbt::uuid(&Tag::Compound(tag.clone()));
+                        let tag_uuid = zenith_client::entity_nbt::uuid(&Tag::Compound(tag.clone()));
                         tag_uuid.unwrap_or_else(|| {
                             let uuid = zenith_client::save::random_uuid();
                             tag.insert("UUID".into(), Tag::IntArray(uuid.to_vec()));

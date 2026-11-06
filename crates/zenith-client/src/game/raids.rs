@@ -3,6 +3,7 @@
 //! `zenith_client::patrol` and `zenith_client::raid`; this is the game's
 //! side of them.
 use super::{Dim, Game};
+use std::collections::{HashMap, HashSet};
 use zenith_client::mobs::villager as mobs_villager;
 use zenith_client::{
     effects::{EffectInstance, OmenTick},
@@ -17,7 +18,6 @@ use zenith_client::{
 };
 use zenith_core::{geometry::Vec3, random::RandomSource};
 use zenith_world::nbt::Tag;
-use std::collections::{HashMap, HashSet};
 
 /// Patrol and raid state owned by the game.
 #[derive(Default)]
@@ -1280,15 +1280,14 @@ impl Game<'_> {
                 centers: self.village_centers(),
                 can_spawn: &biome_ok,
             };
-            let mut spawn =
-                |l: &PatrolCx, m: Member, _: &mut zenith_core::random::LegacyRandom| {
-                    // EntityType.create makes no monsters in peaceful.
-                    if l.level.game.difficulty_id() == 0 {
-                        return false;
-                    }
-                    members.push(m);
-                    true
-                };
+            let mut spawn = |l: &PatrolCx, m: Member, _: &mut zenith_core::random::LegacyRandom| {
+                // EntityType.create makes no monsters in peaceful.
+                if l.level.game.difficulty_id() == 0 {
+                    return false;
+                }
+                members.push(m);
+                true
+            };
             spawner.tick(&level, enemies, &mut random, &mut spawn);
         }
         self.raiding.patrol = spawner;

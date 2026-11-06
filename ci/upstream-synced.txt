@@ -1,0 +1,2 @@
+41f822b659789780f58d32c63ddfb6887ea1b8bf
+# the last horizon-rust/horizon commit ported into this tree (ci/port_upstream.py)

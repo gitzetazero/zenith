@@ -11,8 +11,8 @@ use crate::worldgen::{
     tree_blocks::{self as tb, Axis},
     value_provider::IntProvider,
 };
-use zenith_core::{geometry::Direction, random::RandomSource};
 use serde_json::value::RawValue;
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct FoliageAttachment {

@@ -8,8 +8,8 @@ use super::{
     processor::ProcessorList,
 };
 use crate::heightmap::HeightmapType;
-use zenith_core::{geometry::Direction, random::RandomSource};
 use std::sync::{Arc, Mutex};
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 fn empty_processors() -> Arc<ProcessorList> {
     Arc::new(ProcessorList::default())

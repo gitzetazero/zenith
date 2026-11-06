@@ -6,6 +6,7 @@
 //! date at the entity type's update interval (`tracking`); each client's
 //! `Tracker` is the set of entities it has been paired with.
 use super::tracking;
+use std::sync::Arc;
 use zenith_protocol::{
     buf::pack_degrees,
     entity_data::{Value, serializer},
@@ -16,7 +17,6 @@ use zenith_protocol::{
         SetEntityMotion, SetEquipment, SetPassengers, UpdateAttributes, VecDelta,
     },
 };
-use std::sync::Arc;
 
 /// The attribute instances of `now` that differ from what `sent` held (an
 /// instance is never removed: one that disappears is left as it was sent).

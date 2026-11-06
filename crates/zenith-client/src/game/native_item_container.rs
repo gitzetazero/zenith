@@ -205,8 +205,8 @@ impl Game<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_world::nbt::JavaString;
     use std::sync::Arc;
+    use zenith_world::nbt::JavaString;
 
     fn bag(count: u32) -> ItemStack {
         ItemStack::new("mymod:bag", count)

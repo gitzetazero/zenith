@@ -1,14 +1,14 @@
-use zenith_world::{
-    component_patch::Prototype,
-    item_stack_refs::{ItemStacks, StackRef},
-    player_equipment::{self, EquipWorld, InteractionHand},
-    player_inventory::{EntityEquipment, EquipmentSlot, PlayerInventory},
-};
 use serde_json::Value;
 use std::{
     fs,
     io::{self, Write},
     path::Path,
+};
+use zenith_world::{
+    component_patch::Prototype,
+    item_stack_refs::{ItemStacks, StackRef},
+    player_equipment::{self, EquipWorld, InteractionHand},
+    player_inventory::{EntityEquipment, EquipmentSlot, PlayerInventory},
 };
 type Stack = StackRef<u8, u8, i32>;
 type Inventory = PlayerInventory<u8, u8, i32>;

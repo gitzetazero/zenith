@@ -10,12 +10,12 @@ use super::{
         reduced,
     },
 };
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::{
     geometry::{Aabb, Axis, Vec3},
     random::RandomSource,
 };
-use std::f32::consts::PI;
 
 /// Wolf variants: registry name and texture file (`WolfVariants`).
 pub const WOLF_VARIANTS: [(&str, &str); 9] = [
@@ -1699,8 +1699,8 @@ pub fn feline(p: &mut Poses, s: &State, st: &Feline) {
 mod tests {
     use super::*;
     use crate::mobs::{Damage, sensor_scan_tests::kind};
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     /// Wolf.tick: a shake starting posts ENTITY_ACTION with its sound, on the server only.
     #[test]

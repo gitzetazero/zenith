@@ -158,7 +158,7 @@ jobs:
       - name: Package
         run: |
           set -euo pipefail
-          cargo run --locked -p xtask -- package "$BIN/zenith-client${{ matrix.exe }}" "dist/${{ matrix.dir }}"
+          cargo run --locked -p xtask -- package "$BIN/zenith${{ matrix.exe }}" "dist/${{ matrix.dir }}"
           cd dist
           rm -f "${{ matrix.asset }}"
           7z a -tzip "${{ matrix.asset }}" "${{ matrix.dir }}" > /dev/null

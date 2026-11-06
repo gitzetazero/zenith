@@ -13,9 +13,9 @@ use super::{
 };
 use crate::blocks::Fluid;
 use crate::particles::ParticleType;
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::{geometry::Vec3, random::RandomSource};
-use std::f32::consts::PI;
 
 // Squid animation slots in AnimState.v.
 const TENTACLE_MOVEMENT: usize = 0;
@@ -1234,8 +1234,8 @@ mod pufferfish_sting_tests {
     use super::*;
     use crate::mobs::apply_brain_events;
     use crate::mobs::world::with_test_world;
-    use zenith_core::random::LegacyRandom;
     use std::sync::Arc;
+    use zenith_core::random::LegacyRandom;
 
     #[test]
     fn mob_tick_dispatches_puffed_contacts_with_or_without_ai() {

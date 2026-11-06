@@ -3,9 +3,9 @@
 //! - `new <dir> [--template post|sky|material] [--name "Name"]`: a pack from a template.
 //! - `check <pack>... [--json]`: the check the game, the launcher and the registry run.
 //! - `pack <dir> [--out <file.hshader>]`: check, then write the reproducible `.hshader`.
-use zenith_shader_api::{EXTENSION, MANIFEST, Pack, Problem, check, package::sha256_hex};
 use serde::Serialize;
 use std::{path::Path, process::ExitCode};
+use zenith_shader_api::{EXTENSION, MANIFEST, Pack, Problem, check, package::sha256_hex};
 
 const USAGE: &str = "usage: zenith-shader new <dir> [--template post|sky|material] [--name \"Name\"] | check <pack>... [--json] | pack <dir> [--out <file.hshader>]";
 

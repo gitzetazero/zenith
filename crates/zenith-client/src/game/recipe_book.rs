@@ -5,6 +5,10 @@
 //! (`ServerPlaceRecipe`). Which recipes are known comes from the advancement
 //! rewards; the open and filter settings are saved with the player.
 use super::{Game, Screen};
+use std::{
+    collections::BTreeSet,
+    hash::{Hash, Hasher},
+};
 use zenith_client::{
     containers::{BlockEntity, FurnaceKind},
     hud::{HudBatch, Rect, rgba},
@@ -17,10 +21,6 @@ use zenith_client::{
     },
     text::{Style, Text},
     ui::EditBox,
-};
-use std::{
-    collections::BTreeSet,
-    hash::{Hash, Hasher},
 };
 
 const WIDTH: f32 = 147.0;
@@ -543,11 +543,9 @@ impl Game<'_> {
             }
             if !query.is_empty()
                 && !book.collection_matches(&c.entries, &query, &|stack| {
-                    zenith_client::item_tooltip::lines(
-                        stack,
-                        self.items().get(&stack.item),
-                        &|k| self.pack.names.display_get(k),
-                    )
+                    zenith_client::item_tooltip::lines(stack, self.items().get(&stack.item), &|k| {
+                        self.pack.names.display_get(k)
+                    })
                 })
             {
                 continue;

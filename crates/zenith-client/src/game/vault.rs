@@ -85,10 +85,8 @@ impl Game<'_> {
         let players = self.vault_players();
         let mut random = std::mem::replace(&mut self.world.random, LegacyRandom::new(0));
         let mut sequences = std::mem::take(&mut self.rand_sequences);
-        let loot = zenith_client::structure_blocks::loot_data(
-            &self.options.resources,
-            &self.pack_files(),
-        );
+        let loot =
+            zenith_client::structure_blocks::loot_data(&self.options.resources, &self.pack_files());
         let seed = self.level.seed;
         let mut events = Vec::new();
         let out = {

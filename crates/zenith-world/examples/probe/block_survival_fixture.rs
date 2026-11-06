@@ -1,3 +1,11 @@
+use serde_json::Value;
+use std::{
+    collections::BTreeMap,
+    fs,
+    io::{self, BufRead, Write},
+    path::Path,
+    sync::Arc,
+};
 use zenith_core::geometry::VoxelShape;
 use zenith_world::{
     block_collision::{BlockCollisionRegistry, DynamicCollisionWorld, ShulkerCollisionState},
@@ -10,14 +18,6 @@ use zenith_world::{
     nbt::{self, Limits, Tag},
     registry::{BlockRegistry, BlockStateId},
     worldgen::tags::TagDefinitions,
-};
-use serde_json::Value;
-use std::{
-    collections::BTreeMap,
-    fs,
-    io::{self, BufRead, Write},
-    path::Path,
-    sync::Arc,
 };
 struct World<'a, W> {
     out: &'a mut W,

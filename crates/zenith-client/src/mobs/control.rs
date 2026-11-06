@@ -479,8 +479,8 @@ fn rotate_toward_max(from: f32, to: f32, max: f32) -> f32 {
 #[cfg(test)]
 mod goat_head_tests {
     use super::*;
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     fn mob(species: Species) -> Mob {
         let mut kind = (*crate::mobs::sensor_scan_tests::kind()).clone();

@@ -1,11 +1,11 @@
 //! Transport for native carving-mask traversal and callback mutation behavior.
-use zenith_core::carving::CarvingMask;
 use serde_json::Value;
 use std::{
     fs,
     io::{self, Write},
     path::Path,
 };
+use zenith_core::carving::CarvingMask;
 fn n(v: &Value) -> i32 {
     v.as_i64().unwrap() as i32
 }

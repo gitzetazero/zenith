@@ -10,9 +10,9 @@ use super::{
 };
 use crate::items::ItemStack;
 use crate::projectiles::{Projectile, ProjectileKind};
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::{DEG_TO_RAD, Mth};
 use zenith_core::{geometry::Vec3, random::RandomSource};
-use std::f32::consts::PI;
 
 fn targets(m: &mut Mob, villagers_seen: bool) {
     let mut hurt = HurtByTarget::new().alert();

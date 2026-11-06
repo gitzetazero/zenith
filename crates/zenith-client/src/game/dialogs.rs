@@ -5,6 +5,8 @@
 //! buttons send back.
 use super::Game;
 use super::remote_chat::Behind;
+use std::time::Instant;
+use winit::keyboard::KeyCode;
 use zenith_client::{
     Result,
     clipboard::EditShortcut,
@@ -19,8 +21,6 @@ use zenith_client::{
     widgets::{self, ScreenInfo},
 };
 use zenith_world::nbt::Tag;
-use std::time::Instant;
-use winit::keyboard::KeyCode;
 
 /// An open `DialogScreen`.
 struct Open {

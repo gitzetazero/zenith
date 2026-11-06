@@ -264,9 +264,9 @@ mod tests {
     #[test]
     fn culling_bounds_contain_the_generated_shadow_quads() {
         use crate::chunk::Chunk;
+        use std::{path::PathBuf, sync::Arc};
         use zenith_core::geometry::{Aabb, Vec3};
         use zenith_world::level::data;
-        use std::{path::PathBuf, sync::Arc};
         let root = std::env::var_os("HORIZON_RESOURCES")
             .map(PathBuf::from)
             .unwrap_or_else(|| {
@@ -344,8 +344,8 @@ mod tests {
     #[test]
     fn shadows_lie_on_the_block_top_under_model_feet() {
         use crate::chunk::Chunk;
-        use zenith_world::level::data;
         use std::{path::PathBuf, sync::Arc};
+        use zenith_world::level::data;
         let root = std::env::var_os("HORIZON_RESOURCES")
             .map(PathBuf::from)
             .unwrap_or_else(|| {

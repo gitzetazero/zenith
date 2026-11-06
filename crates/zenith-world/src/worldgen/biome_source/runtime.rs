@@ -8,8 +8,8 @@ use crate::worldgen::{
     biome::{BiomeError, BiomeResolver, MultiNoiseBiomeSource},
     climate::{ClimateSampler, ClimateVolume},
 };
-use zenith_core::density::{DensitySampler, SampleError, SamplerContext};
 use std::collections::{BTreeMap, BTreeSet};
+use zenith_core::density::{DensitySampler, SampleError, SamplerContext};
 
 #[derive(Debug)]
 pub enum BiomeSourceError {

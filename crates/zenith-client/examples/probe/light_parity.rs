@@ -4,6 +4,7 @@
 //!
 //! cargo run --profile fast -p zenith-client --example probe -- light_parity \
 //!     RESOURCES DIMENSION_DIR [--nether] [--chunks X0 Z0 X1 Z1]
+use std::{collections::HashMap, path::PathBuf};
 use zenith_client::{
     assets::Assets,
     biome::Biomes,
@@ -17,7 +18,6 @@ use zenith_world::{
     nbt::{Limits, Tag},
     region::RegionFile,
 };
-use std::{collections::HashMap, path::PathBuf};
 
 type Arrays = HashMap<i32, (Option<Vec<u8>>, Option<Vec<u8>>)>;
 
@@ -206,8 +206,8 @@ fn incremental(
     sky_light: bool,
     edits: usize,
 ) {
-    use zenith_client::light::{LightChanges, relight};
     use std::sync::Arc;
+    use zenith_client::light::{LightChanges, relight};
     let mut world: HashMap<(i32, i32), Arc<Chunk>> = HashMap::new();
     let inner: Vec<(i32, i32)> = {
         let mut k: Vec<_> = chunks

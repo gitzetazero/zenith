@@ -3,12 +3,12 @@
 //! them each frame, short of the GPU. `cargo run --release -p zenith-cosmetics --example fx_bench`
 
 use glam::{DVec3, Mat4, Vec3};
-use zenith_cosmetics::follow::{self, Follow};
-use zenith_cosmetics::trail::{Budget, Emitter};
-use zenith_cosmetics::{Item, Part, pose_matrix};
 use std::collections::HashMap;
 use std::hint::black_box;
 use std::time::Instant;
+use zenith_cosmetics::follow::{self, Follow};
+use zenith_cosmetics::trail::{Budget, Emitter};
+use zenith_cosmetics::{Item, Part, pose_matrix};
 
 fn png(width: u32, height: u32) -> String {
     use base64::Engine;

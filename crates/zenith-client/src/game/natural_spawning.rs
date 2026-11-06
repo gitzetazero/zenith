@@ -2,6 +2,7 @@
 //! it reads, the spawning chunks and caps of `ServerChunkCache.tickChunks`,
 //! and the mobs it adds (finalized with the game's `finalizeSpawn`).
 use super::{Dim, Game};
+use std::collections::HashMap;
 use zenith_client::vanillagen::VanillaTerrain;
 use zenith_client::{
     biome::{BiomeInfo, SpawnEntry},
@@ -26,7 +27,6 @@ use zenith_world::{
     nbt::{Compound, Tag},
     registry::BlockStateId,
 };
-use std::collections::HashMap;
 
 /// Natural spawning's candidate chunks (`ChunkMap.collectSpawningChunks`):
 /// the union of every player's 17×17 chunk square, in player then dx/dz

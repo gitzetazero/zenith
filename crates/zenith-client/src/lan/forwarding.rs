@@ -9,9 +9,9 @@
 //! share: `version` (VarInt), the player's `address` (string), `uuid` (16 bytes), `name` (string) and the
 //! profile `properties` (VarInt count; each a name, a value, a bool and the signature string when it is set).
 
-use zenith_protocol::{buf::Reader, packets::login};
 use sha2::{Digest, Sha256};
 use std::net::IpAddr;
+use zenith_protocol::{buf::Reader, packets::login};
 
 /// The login plugin channel the proxy answers on.
 pub const CHANNEL: &str = "velocity:player_info";

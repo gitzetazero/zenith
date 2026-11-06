@@ -13,9 +13,9 @@ use crate::worldgen::{
     tree_blocks::{self as tb, Axis, TreeBlocks},
     value_provider::IntProvider,
 };
-use zenith_core::{geometry::Direction, random::RandomSource};
 use serde_json::value::RawValue;
 use std::{collections::BTreeSet, sync::Arc};
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 #[derive(Clone, Debug)]
 enum Kind {

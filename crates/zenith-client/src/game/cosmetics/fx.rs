@@ -8,13 +8,13 @@
 use super::{FULL_LIGHT, OWN};
 use crate::game::Game;
 use glam::{DVec3, Mat4, Vec3};
+use std::sync::Arc;
 use zenith_client::mesher::Vertex;
 use zenith_client::mobs::anim::Poses;
 use zenith_client::mobs::{Mob, Part};
 use zenith_cosmetics::follow::{self, Follow};
 use zenith_cosmetics::trail::Emitter;
 use zenith_cosmetics::{Item, Slot};
-use std::sync::Arc;
 
 /// How far from the camera (blocks) a wearer's companion, trail and aura are drawn.
 const FAR: f32 = 48.0;

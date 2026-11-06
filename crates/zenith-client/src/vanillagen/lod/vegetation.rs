@@ -6,11 +6,11 @@ use crate::{
     fast_hash::FxHashMap,
     lod::{Column, Span, Surface},
 };
+use serde_json::Value;
 use zenith_world::{
     registry::{BlockRegistry, BlockStateId},
     worldgen::generator::GeneratorData,
 };
-use serde_json::Value;
 
 /// The widest LOD cell that draws chorus: a cell is drawn as a full-footprint
 /// column, so a one-block plant in a wider cell would read as a coloured slab.

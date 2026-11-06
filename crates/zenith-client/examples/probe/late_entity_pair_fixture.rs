@@ -1,4 +1,5 @@
 //! Late trident pairing and subsequent updates through the production tracker.
+use std::io::Write;
 use zenith_client::{
     Result,
     lan::entity::{Entities, EntityState, Riding, Tracker, Viewer},
@@ -8,7 +9,6 @@ use zenith_protocol::{
     entity_data::{Value, serializer},
     packets::play::Clientbound as C,
 };
-use std::io::Write;
 
 fn dump(out: &mut impl Write, index: usize, phase: &str, packets: &mut Vec<Vec<u8>>) -> Result<()> {
     let mut encoded = Vec::new();

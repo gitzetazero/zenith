@@ -5,6 +5,10 @@
 //! server. The screens change the client's copy of the block entity as they
 //! are used, as vanilla's do, so the box preview follows them.
 use super::{Game, Screen};
+use winit::{
+    event::{ElementState, KeyEvent},
+    keyboard::{KeyCode, PhysicalKey},
+};
 use zenith_client::{
     containers::BlockEntity,
     hud::{HudBatch, rgba},
@@ -12,10 +16,6 @@ use zenith_client::{
     ui::{self, EditBox},
 };
 use zenith_protocol::packets::play::Serverbound as S;
-use winit::{
-    event::{ElementState, KeyEvent},
-    keyboard::{KeyCode, PhysicalKey},
-};
 
 pub(super) type Pos = (i32, i32, i32);
 

@@ -3,13 +3,13 @@
 //! `handleSetEquipment`): the server simulates them, the client places them
 //! where it says and interpolates their moves like a mob's.
 use super::Game;
+use std::sync::Arc;
 use zenith_client::entities::{ArmorStand, Cushion, ItemFrame, Painting};
 use zenith_client::mobs::leash::Holder;
 use zenith_client::particles::{ParticleOptions, ParticleType};
 use zenith_core::geometry::Vec3;
 use zenith_core::random::RandomSource;
 use zenith_protocol::entity_data::Value;
-use std::sync::Arc;
 
 /// `Mth.rotLerp(alpha, from, to)`: `from` turned `alpha` of the way to `to` by
 /// the shorter arc (`wrapDegrees` of the difference).

@@ -9,7 +9,6 @@
 //! The events are also what a repro recording writes to `inputs.jsonl`
 //! (game/repro.rs).
 use super::{Game, Screen};
-use zenith_client::{Result, keybinds};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
@@ -21,6 +20,7 @@ use winit::{
     event::{ElementState, MouseScrollDelta, WindowEvent},
     keyboard::PhysicalKey,
 };
+use zenith_client::{Result, keybinds};
 
 pub(super) const HELP: &[&str] = &[
     "input-log [--since SEQ] [--limit N] [--origin user|agent|game]  recent input and who caused it",

@@ -5,12 +5,12 @@ use super::{
     simple::Scattered,
 };
 use crate::nbt::{Compound, Tag};
+use std::sync::Mutex;
 use zenith_core::{
     geometry::Direction,
     position::BlockPos,
     random::{LegacyRandom, PositionalRandom, RandomSource},
 };
-use std::sync::Mutex;
 
 #[derive(Debug)]
 pub struct DesertPyramidPiece {

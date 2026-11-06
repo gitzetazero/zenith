@@ -6,9 +6,9 @@
 //! packs are read as vanilla's `SimpleJsonResourceReloadListener.prepare` reads
 //! its folder, and handed to the mod (`native_server_reload_listener_apply`).
 use super::{Game, functions};
-use zenith_client::datapack::DataPack;
 use std::collections::BTreeMap;
 use std::path::{Component, Path};
+use zenith_client::datapack::DataPack;
 
 /// A folder of JSON files a mod reads from the data packs, as vanilla's
 /// `SimpleJsonResourceReloadListener` over `FileToIdConverter.json(folder)`.

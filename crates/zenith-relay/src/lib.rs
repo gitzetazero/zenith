@@ -6,10 +6,6 @@
 //! State is in memory; nothing about players is logged.
 pub mod limits;
 
-use zenith_friends::{
-    code,
-    wire::{self, ErrorCode, FromRelay, ToRelay},
-};
 use limits::{Bucket, Limiter, Rates};
 use std::{
     collections::HashMap,
@@ -22,6 +18,10 @@ use std::{
     },
     thread::JoinHandle,
     time::{Duration, Instant},
+};
+use zenith_friends::{
+    code,
+    wire::{self, ErrorCode, FromRelay, ToRelay},
 };
 
 #[derive(Clone, Debug)]

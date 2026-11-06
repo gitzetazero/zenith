@@ -1,10 +1,10 @@
+use std::collections::{BTreeMap, BTreeSet};
 use zenith_world::{
     DATA_VERSION,
     nbt::Tag,
     registry::BlockRegistry,
     worldgen::{block_feature::FeatureBlockBindings, rule_test::RuleTest},
 };
-use std::collections::{BTreeMap, BTreeSet};
 fn registry() -> BlockRegistry {
     let names = [
         "minecraft:air",

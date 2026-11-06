@@ -2,12 +2,12 @@
 //! (`gameplay-facts.json`), indexed by registry state ID.
 mod decode;
 use crate::Result;
+use serde_json::Value;
+use std::{collections::HashMap, path::Path, sync::Arc};
 use zenith_world::{
     level::{Behaviours, GameplayStateSource},
     registry::{BlockRegistry, BlockStateId},
 };
-use serde_json::Value;
-use std::{collections::HashMap, path::Path, sync::Arc};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RenderShape {
@@ -248,16 +248,14 @@ pub struct BlockFacts {
 }
 impl BlockFacts {
     pub fn load(root: &Path, registry: &BlockRegistry) -> Result<Self> {
-        let behaviours: Value =
-            zenith_world::json_file::read(&root.join("block-behaviours.json"))?;
+        let behaviours: Value = zenith_world::json_file::read(&root.join("block-behaviours.json"))?;
         Self::load_with_behaviour_json(root, registry, &behaviours)
     }
 
     /// Load both tables from one resource root, sharing each JSON decode.
     /// No data is cached across calls: changes to prepared packs or mods are read again.
     pub fn load_pair(root: &Path, registry: &BlockRegistry) -> Result<(Self, Behaviours)> {
-        let behaviours: Value =
-            zenith_world::json_file::read(&root.join("block-behaviours.json"))?;
+        let behaviours: Value = zenith_world::json_file::read(&root.join("block-behaviours.json"))?;
         Self::load_with_behaviours(root, registry, &behaviours)
     }
 

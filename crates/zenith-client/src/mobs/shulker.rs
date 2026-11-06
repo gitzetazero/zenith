@@ -12,12 +12,12 @@ use super::{
     },
 };
 use crate::projectiles::{Projectile, ProjectileWorld, STEPS};
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::{
     geometry::{Aabb, Direction, ShapeOp, Vec3, VoxelShape},
     random::{LegacyRandom, RandomSource},
 };
-use std::f32::consts::PI;
 
 // Shulker state: `variant3` the attach face (3D data value), `counter` the
 // raw peek (0..100), `color` the shell colour (16 none). AnimState slot 0

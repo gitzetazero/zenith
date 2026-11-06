@@ -188,8 +188,8 @@ impl World {
 mod tests {
     use super::*;
     use crate::chunk::Chunk;
-    use zenith_world::registry::BlockStateId;
     use std::sync::Arc;
+    use zenith_world::registry::BlockStateId;
 
     fn world() -> World {
         let mut w = World::new(BlockStateId(0), 0);

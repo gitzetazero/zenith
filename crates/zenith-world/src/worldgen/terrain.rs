@@ -8,6 +8,7 @@ use crate::{
     heightmap::{Heightmap, HeightmapChunk, HeightmapError, HeightmapState, HeightmapType},
     registry::{BlockRegistry, BlockStateId},
 };
+use std::{cell::RefCell, io};
 use zenith_core::{
     density::{DensitySampler, SampleError, SamplerContext},
     noise::DensityVolume,
@@ -15,7 +16,6 @@ use zenith_core::{
     random::PositionalRandom,
     ticks::ProtoChunkTicks,
 };
-use std::{cell::RefCell, io};
 
 thread_local! {
     static SCRATCH_DENSITY: RefCell<Vec<f32>> = const { RefCell::new(Vec::new()) };

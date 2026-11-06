@@ -1,3 +1,9 @@
+use serde_json::Value;
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_world::{
     component_patch::{Patch, Prototype},
     identifier::Identifier,
@@ -6,12 +12,6 @@ use zenith_world::{
     item_stack_refs::{ItemStacks, StackRef},
     item_stack_storage::ItemStackData,
     item_template::{ItemTemplate, ValidationRules},
-};
-use serde_json::Value;
-use std::{
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 #[derive(Clone, Debug, PartialEq)]
 enum Component {

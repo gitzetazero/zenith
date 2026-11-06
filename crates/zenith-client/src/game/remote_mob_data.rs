@@ -360,9 +360,8 @@ fn apply(m: &mut Mob, values: &[(u8, i32, Value)], builtin: &Builtin, local_enti
             // Mannequin.DATA_IMMOVABLE and DATA_DESCRIPTION (an empty one is hidden).
             (Species::Mannequin, 18, Value::Bool(immovable)) => m.extra.immovable = *immovable,
             (Species::Mannequin, 19, Value::OptText(description)) => {
-                m.extra.description = zenith_client::mobs::MannequinDescription::from_component(
-                    description.as_ref(),
-                );
+                m.extra.description =
+                    zenith_client::mobs::MannequinDescription::from_component(description.as_ref());
             }
             _ => {}
         }
@@ -538,8 +537,8 @@ mod tests {
     use zenith_protocol::entity_data::serializer as s;
 
     fn fixture_mob(kind: &str) -> Mob {
-        use zenith_client::mobs::{Anim, Brain, Flags, MobType, Part};
         use std::sync::Arc;
+        use zenith_client::mobs::{Anim, Brain, Flags, MobType, Part};
         let species = match kind {
             "minecraft:cow" => Species::Cow,
             "minecraft:axolotl" => Species::Axolotl,
@@ -1047,8 +1046,8 @@ mod tests {
     /// a parrot never is one (`Parrot.canBeABaby`).
     #[test]
     fn a_happy_ghast_and_a_nautilus_take_their_babyhood() {
-        use zenith_client::mobs::MobTypes;
         use std::{fs, sync::Arc};
+        use zenith_client::mobs::MobTypes;
 
         let root = std::env::temp_dir().join(format!("horizon-baby-flag-{}", std::process::id()));
         fs::create_dir_all(&root).unwrap();
@@ -1099,10 +1098,10 @@ mod tests {
 
     #[test]
     fn bat_flags_select_continuous_client_clocks_without_changing_motion() {
-        use zenith_client::mobs::{MobTypes, anim, keyframes::Animation};
-        use zenith_core::geometry::Vec3;
         use serde_json::json;
         use std::{collections::HashMap, fs, sync::Arc};
+        use zenith_client::mobs::{MobTypes, anim, keyframes::Animation};
+        use zenith_core::geometry::Vec3;
 
         // Original minimal resources keep this regression runnable without vanilla data.
         let root =
@@ -1446,9 +1445,9 @@ mod tests {
     /// `tickBoost` then `boostFactor` is `1 + 1.15 * sin(boostTime / total * PI)`.
     #[test]
     fn a_synced_boost_starts_the_client_timer() {
+        use std::{fs, sync::Arc};
         use zenith_client::mobs::MobTypes;
         use zenith_core::geometry::trig::Mth;
-        use std::{fs, sync::Arc};
 
         let root = std::env::temp_dir().join(format!("horizon-boost-sync-{}", std::process::id()));
         fs::create_dir_all(&root).unwrap();

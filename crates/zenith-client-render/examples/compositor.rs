@@ -1,6 +1,5 @@
 //! Two offscreen frames presented in one window, without game resources or player data.
 //! `cargo run --profile fast -p zenith-client-render --example compositor -- --smoke`
-use zenith_client_render::gfx::compositor::Compositor;
 use std::sync::Arc;
 use winit::{
     application::ApplicationHandler,
@@ -8,6 +7,7 @@ use winit::{
     event_loop::{ActiveEventLoop, EventLoop},
     window::{Window, WindowId},
 };
+use zenith_client_render::gfx::compositor::Compositor;
 
 struct Frames {
     window: Arc<Window>,

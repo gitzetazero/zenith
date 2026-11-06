@@ -10,12 +10,12 @@ use super::{
     },
 };
 use crate::projectiles::{Projectile, ProjectileKind};
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::{
     geometry::{Aabb, Vec3},
     random::RandomSource,
 };
-use std::f32::consts::PI;
 
 /// `RandomSource.triangle(mode, deviation)`.
 fn triangle(m: &mut Mob, mode: f64, deviation: f64) -> f64 {

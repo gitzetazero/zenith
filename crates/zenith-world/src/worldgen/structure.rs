@@ -26,7 +26,6 @@ use crate::{
     nbt::{self, Limits},
     registry::{BlockRegistry, BlockStateId},
 };
-use zenith_core::geometry::Direction;
 use processor::ProcessorList;
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap},
@@ -35,6 +34,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 pub use template::{BlockInfo, EntityInfo, JigsawInfo, StructureTemplate, save_nbt};
+use zenith_core::geometry::Direction;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Rotation {

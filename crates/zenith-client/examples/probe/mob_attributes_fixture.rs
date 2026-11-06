@@ -2,9 +2,9 @@
 //! `VanillaMobAttributesOracle` (tools/test_mob_attributes_parity.py).
 //!
 //! usage: mob_attributes_fixture RESOURCES OUTPUT
+use std::{fmt::Write as _, fs, path::Path, sync::Arc};
 use zenith_client::mobs::{Mob, MobTypes};
 use zenith_core::geometry::Vec3;
-use std::{fmt::Write as _, fs, path::Path, sync::Arc};
 
 pub fn main() -> zenith_client::Result<()> {
     let args: Vec<String> = crate::args().collect();

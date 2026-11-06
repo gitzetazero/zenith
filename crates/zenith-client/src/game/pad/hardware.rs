@@ -5,10 +5,10 @@ use super::{
     super::{Game, Screen},
     Connection, PadEvent, Pads,
 };
-use zenith_client::controller_ui::Device;
-use zenith_client::gamepad::{self, Button, GlyphStyle, PadState, Rumble, TriggerFeel};
 use serde_json::{Value, json};
 use std::time::{Duration, Instant};
+use zenith_client::controller_ui::Device;
+use zenith_client::gamepad::{self, Button, GlyphStyle, PadState, Rumble, TriggerFeel};
 
 mod face_buttons;
 mod hid_layout;

@@ -2,8 +2,8 @@
 mod codec;
 mod runtime;
 pub use codec::{BiomeSet, BiomeSourceCatalog, BiomeSourceDefinition};
-use zenith_core::density::{DensitySampler, SampleError, SamplerContext};
 pub use runtime::{BiomeSourceError, BiomeSourceResolver, ResolvedBiomeSource};
+use zenith_core::density::{DensitySampler, SampleError, SamplerContext};
 
 #[derive(Clone, Debug)]
 pub struct FixedBiomeSource<T> {

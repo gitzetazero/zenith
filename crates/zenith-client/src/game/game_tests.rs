@@ -17,6 +17,7 @@ use super::{
     test_environments::Activation,
     test_instances::TestDef,
 };
+use std::time::Instant;
 use zenith_client::{
     containers::BlockEntity,
     lan::data::component_nbt,
@@ -28,7 +29,6 @@ use zenith_world::{
     level::flags,
     worldgen::structure::{BoundingBox, Mirror, Rotation, StructureTemplate},
 };
-use std::time::Instant;
 
 type Pos = (i32, i32, i32);
 

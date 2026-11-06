@@ -1,6 +1,6 @@
 //! `RandomSequences`: the named random streams `/random` draws from.
-use zenith_core::random::{XoroshiroRandom, mix_stafford13, seed_from_hash};
 use std::collections::BTreeMap;
+use zenith_core::random::{XoroshiroRandom, mix_stafford13, seed_from_hash};
 
 const GOLDEN_RATIO: u64 = 0x9e37_79b9_7f4a_7c15;
 const SILVER_RATIO: u64 = 0x6a09_e667_f3bc_c909;

@@ -1,3 +1,4 @@
+use std::{collections::BTreeSet, sync::Arc};
 use zenith_core::{
     carving::CarvingMask,
     density::{ConstantSampler, SamplerContext},
@@ -18,7 +19,6 @@ use zenith_world::{
         terrain::{TerrainAquifer, TerrainBlockStates, TerrainChunk},
     },
 };
-use std::{collections::BTreeSet, sync::Arc};
 #[derive(Clone, Copy)]
 struct State(u32);
 impl HeightmapState for State {

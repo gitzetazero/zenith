@@ -1,9 +1,9 @@
 //! Original token controls, independently checked with GCC and Clang preprocessing.
 //! The shader controls also pass glslang and Horizon's translation/backends.
-use zenith_shaders::{Macros, Pack, Target, preprocess, translate_composite};
 use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
+use zenith_shaders::{Macros, Pack, Target, preprocess, translate_composite};
 
 fn macros() -> Macros {
     let mut macros = Macros::default();

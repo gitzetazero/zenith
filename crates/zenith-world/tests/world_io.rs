@@ -1,3 +1,9 @@
+use std::{
+    fs,
+    io::{Seek, SeekFrom, Write},
+    path::{Path, PathBuf},
+    sync::atomic::{AtomicU32, Ordering},
+};
 use zenith_core::position::{BlockPos, ChunkPos};
 use zenith_world::{
     DATA_VERSION,
@@ -5,12 +11,6 @@ use zenith_world::{
     compression::Compression,
     nbt::{JavaString, Limits, NamedTag, Tag},
     region::{ChunkRecord, RegionFile, RegionWriter},
-};
-use std::{
-    fs,
-    io::{Seek, SeekFrom, Write},
-    path::{Path, PathBuf},
-    sync::atomic::{AtomicU32, Ordering},
 };
 
 static NEXT: AtomicU32 = AtomicU32::new(0);

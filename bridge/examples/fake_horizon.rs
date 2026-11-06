@@ -19,7 +19,7 @@ fn main() {
             .and_then(|i| args.get(i + 1).cloned())
     };
     let mut stdin = String::new();
-    if tool == "zenith-client" && args.iter().any(|a| a == "--session-stdin") {
+    if tool == "zenith" && args.iter().any(|a| a == "--session-stdin") {
         let _ = std::io::stdin().read_to_string(&mut stdin);
     }
     let env: Vec<(String, String)> = std::env::vars().collect();

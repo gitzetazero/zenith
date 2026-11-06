@@ -2,6 +2,7 @@
 //! rotation, mirroring and integrity.
 use super::{Arg, Context, Game, R, err};
 use crate::game::structure_blocks::{load_settings, template_size};
+use std::sync::OnceLock;
 use zenith_client::text::Text;
 use zenith_core::position::BlockPos;
 use zenith_world::{
@@ -9,7 +10,6 @@ use zenith_world::{
     nbt::{self, Limits, Tag},
     worldgen::structure::{Mirror, Rotation, StateTransforms},
 };
-use std::sync::OnceLock;
 
 fn num(n: impl std::fmt::Display) -> Text {
     Text::literal(n.to_string())

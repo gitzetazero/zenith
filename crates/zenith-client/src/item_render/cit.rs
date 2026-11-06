@@ -8,17 +8,17 @@ use crate::cit_assets::{self, model_id, sprite_id};
 use crate::hud::cit_glint::GlintTextures;
 use crate::items::ItemStack;
 use glam::Vec3;
+use std::{
+    collections::{BTreeMap, HashMap},
+    path::Path,
+    sync::{Arc, Mutex, MutexGuard, PoisonError},
+};
 use zenith_assets::{
     item_bake::{BakedItemModel, bake_resolved},
     model::{Material, TextureSlot},
     resolve::{MISSING_MODEL, ModelLibrary},
 };
 use zenith_world::nbt::Tag;
-use std::{
-    collections::{BTreeMap, HashMap},
-    path::Path,
-    sync::{Arc, Mutex, MutexGuard, PoisonError},
-};
 
 /// A baked layer and its quad corners, as `ItemRenderer::bake` and `quad_extents` give them.
 pub(super) type Baked = (Arc<BakedItemModel>, Arc<Vec<Vec3>>);
@@ -369,8 +369,8 @@ impl ItemRenderer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_assets::item_model::{DisplayContext, NoEnv, StackView};
     use std::{collections::BTreeSet, fs, path::PathBuf};
+    use zenith_assets::item_model::{DisplayContext, NoEnv, StackView};
 
     const CIT: &str = "assets/minecraft/optifine/cit";
 

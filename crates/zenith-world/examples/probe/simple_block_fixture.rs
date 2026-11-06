@@ -1,4 +1,12 @@
 //! Ordered feature effects over a mutable registry-bound world.
+use serde_json::Value;
+use std::{
+    collections::BTreeMap,
+    fs,
+    io::{self, BufRead, Write},
+    path::Path,
+    sync::Arc,
+};
 use zenith_core::{
     geometry::{Direction, VoxelShape},
     random::{LegacyRandom, RandomSource, XoroshiroRandom},
@@ -29,14 +37,6 @@ use zenith_world::{
         state_provider::{StateProviderBindings, StateProviderCatalog},
         tags::TagDefinitions,
     },
-};
-use serde_json::Value;
-use std::{
-    collections::BTreeMap,
-    fs,
-    io::{self, BufRead, Write},
-    path::Path,
-    sync::Arc,
 };
 struct World<'a, 'r, W, R> {
     out: &'a mut W,

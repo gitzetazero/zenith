@@ -4,6 +4,10 @@
 //! server list's setting, downloads into `downloads/`, and a resource reload
 //! with the server's packs on top of the player's own.
 use super::{Game, packs::ReloadKind};
+use std::{
+    path::PathBuf,
+    sync::mpsc::{Receiver, TryRecvError},
+};
 use zenith_client::{
     Result,
     confirm_screen::Confirm,
@@ -17,10 +21,6 @@ use zenith_client::{
 };
 use zenith_core::jmath;
 use zenith_protocol::{packets::configuration::ResourcePackPush, servers};
-use std::{
-    path::PathBuf,
-    sync::mpsc::{Receiver, TryRecvError},
-};
 
 /// `ClientCommonPacketListenerImpl.PackConfirmScreen`: the packs it asks
 /// about, whether the last one is required, and the server's message.

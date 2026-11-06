@@ -319,9 +319,7 @@ fn info_to_nbt(info: &Info) -> Tag {
     ])
 }
 fn info_from_nbt(tag: &Tag) -> Option<Info> {
-    let event = intern(&zenith_client_core::nbt_value::text(
-        tag.get("game_event"),
-    )?)?;
+    let event = intern(&zenith_client_core::nbt_value::text(tag.get("game_event"))?)?;
     let distance = match tag.get("distance") {
         Some(Tag::Float(f)) => f32::from_bits(*f),
         _ => 0.0,

@@ -3,6 +3,8 @@
 //! and frame times for mods (`native_clicks`, `native_frame_rate`).
 //! Each hook does nothing while its extra is off and no mod uses it.
 use super::{Dim, Game, Screen, native_hooks::NativeMinimap};
+use std::time::Duration;
+use winit::event::MouseButton;
 use zenith_client::{
     extras::{Corner, Cps, FpsCounter, fov_target},
     extras_hud::{self, Corners},
@@ -12,8 +14,6 @@ use zenith_client::{
     reconnect::{Retry, Tracker},
     title::Mode,
 };
-use std::time::Duration;
-use winit::event::MouseButton;
 
 #[derive(Default)]
 pub(super) struct ExtrasState {

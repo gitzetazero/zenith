@@ -1,7 +1,7 @@
 //! The SDK: every template and the example pack pass the check, and the
 //! `zenith-shader` tool makes, checks and packages a pack.
-use zenith_shader_api::{Pack, check};
 use std::{path::Path, process::Command};
+use zenith_shader_api::{Pack, check};
 
 const TOOL: &str = env!("CARGO_BIN_EXE_zenith-shader");
 

@@ -4,11 +4,11 @@ use super::{
     legacy::{LegacyPiece, PieceContext, Result, TemplateHandler, TemplatePiece},
     processor::ProcessorList,
 };
+use std::sync::Arc;
 use zenith_core::{
     position::BlockPos,
     random::{LegacyRandom, PositionalRandom, RandomSource},
 };
-use std::sync::Arc;
 
 const FOSSILS: usize = 14;
 

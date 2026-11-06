@@ -4,6 +4,7 @@
 //! the default pose, the hit wobble and humanoid armor layers.
 use super::entity::Entity;
 use super::{Game, InteractTarget};
+use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use zenith_client::{
     Result,
     cit::{Hand, Kind, Rule},
@@ -19,7 +20,6 @@ use zenith_core::{
     position::BlockPos,
     random::RandomSource,
 };
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 /// Velocity `AbstractMinecart.push` adds: the cart, and a quarter on the stand.
 #[derive(Clone, Copy, Debug, PartialEq)]

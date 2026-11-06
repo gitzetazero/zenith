@@ -232,11 +232,11 @@ fn postprocessing_routes_to_resident_chunks_and_preserves_partial_marks() {
 
 #[test]
 fn query_bindings_reject_foreign_registries_and_preserve_resolved_tag_snapshot() {
+    use std::collections::{BTreeMap, BTreeSet};
     use zenith_world::{
         fluid::FluidKind,
         worldgen::{block_feature::FeatureBlockBindings, placement::PlacementQueryError},
     };
-    use std::collections::{BTreeMap, BTreeSet};
     let foreign = registry();
     let registry = registry();
     let chunk = || TerrainChunk::new(ChunkPos::new(-1, 0), 0, 16, &registry, Properties).unwrap();
@@ -291,8 +291,8 @@ fn query_bindings_reject_foreign_registries_and_preserve_resolved_tag_snapshot()
 
 #[test]
 fn upgrade_height_rejects_mutations_before_callbacks_but_preserves_reads_and_ticks() {
-    use zenith_world::worldgen::write_zone::{GenerationWriteZone, UpgradeWriteHeight};
     use std::cell::Cell;
+    use zenith_world::worldgen::write_zone::{GenerationWriteZone, UpgradeWriteHeight};
     let registry = registry();
     let mut chunk =
         TerrainChunk::new(ChunkPos::new(0, 0), -64, 128, &registry, Properties).unwrap();

@@ -1,13 +1,13 @@
 //! Transport for ClientLevel shape-aware terrain-particle placement.
-use zenith_client::{assets::Assets, blocks::BlockFacts, mesher::MeshTables, models, particles};
-use zenith_core::random::{LegacyRandom, RandomSource};
-use zenith_world::registry::BlockStateId;
 use serde_json::{Value, json};
 use std::{
     fs,
     io::{BufRead, BufReader, BufWriter, Write},
     path::Path,
 };
+use zenith_client::{assets::Assets, blocks::BlockFacts, mesher::MeshTables, models, particles};
+use zenith_core::random::{LegacyRandom, RandomSource};
+use zenith_world::registry::BlockStateId;
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = crate::args().collect();
     let root = Path::new(&args[1]);

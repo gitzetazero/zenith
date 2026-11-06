@@ -1,27 +1,30 @@
 name: zenith-sync
 
-# Keeps Zenith's main level with horizon-rust/horizon main: every 6 hours (Horizon pushes dozens of commits a day, and each
-# merge costs a full build) it merges Horizon's tip into main with a real
-# merge commit (never a rebase, never a force push to main), so every commit of ours stays. All the logic is in
-# ci/sync.py (runnable locally: `python ci/sync.py merge --upstream-ref upstream/main`).
+# Zenith is a hard fork of horizon-rust/horizon (crates, binaries and folders have other names), so Horizon's work
+# is not merged: once a week this workflow TRANSLATES Horizon's new commits to Zenith's names and layout
+# (ci/port_upstream.py + ci/rename_map.py, from the SHA in ci/upstream-synced.txt) and applies them on top of main.
 #
-#   merge     prune.py removes what Zenith never uses, merge=ours keeps our README/CONTRIBUTING, Cargo.toml/Cargo.lock
-#             take Horizon's and are pruned/regenerated; any other conflict blocks the sync.
-#   checks    check_zenith_intact.py (nothing of ours was dropped), unit tests, links, public tree, fmt,
-#             protocol tests, bridge fmt/clippy/tests, client build, launch API.
-#   blocked   (conflict or failed check) main is NOT touched: the attempt goes to branch sync/<date>-<short>, a PR
-#             and ONE issue labelled `sync`; the run ends red. main then stays behind until someone resolves it.
-#   release   after a merge (or when already level), zenith-release is dispatched only if the merged Horizon commit
-#             is covered by the newest Horizon nightly (its exporters must match the code); otherwise the job
-#             summary says "release pending".
+#   port      drops what Zenith does not carry (ci/prune-paths.txt) and its own files, renames paths and
+#             `horizon_*`/`horizon-*` identifiers, applies the patch, records the new upstream SHA and commits.
+#   gate      the STRICT check, run on the ported tree: ci unit tests, intact check (nothing of ours dropped), public
+#             tree, links, fmt, `cargo check --workspace --tests --locked`, protocol tests, bridge fmt/clippy/tests, client
+#             build and launch API. Anything red means nothing is pushed.
+#   all green the ported commit is pushed to main with a NORMAL push (never forced; if main moved meanwhile it is
+#             refused and the next run starts again), and the open `sync` issue and old sync/* pull requests close.
+#   otherwise (a patch that does not apply, or a red gate) main is NOT touched: the attempt goes to branch
+#             sync/<date>-<short>, a PR and ONE issue labelled `sync`; the run ends red. A person (or an agent) finishes the
+#             port by hand (docs/ZENITH.md, "Sync with Horizon").
+#   release   after a landed port (or when already level), zenith-release is dispatched only if the Horizon commit is
+#             covered by the newest Horizon nightly (its exporters must match the code); otherwise the job summary says
+#             "release pending". The repository variable ZENITH_AUTOPUBLISH=off stops that.
 #
-# Uses secrets.ZENITH_SYNC_TOKEN (contents + workflows on gitzetazero/zenith): GITHUB_TOKEN cannot push merges that
+# Uses secrets.ZENITH_SYNC_TOKEN (contents + workflows on gitzetazero/zenith): GITHUB_TOKEN cannot push changes that
 # touch .github/workflows nor trigger other workflows. The token is given only to the steps that push, open
-# PRs/issues or dispatch; the steps that run merged upstream code (cargo build/test/clippy, build.rs, proc macros)
+# PRs/issues or dispatch; the steps that run ported upstream code (cargo build/test/clippy, build.rs, proc macros)
 # never see it, and checkout does not keep it in .git/config.
 on:
   schedule:
-    - cron: "7 */6 * * *"
+    - cron: "7 3 * * 1" # weekly, Mondays 03:07 UTC
   workflow_dispatch:
 
 permissions:
@@ -41,7 +44,7 @@ jobs:
   sync:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -50,52 +53,58 @@ jobs:
           persist-credentials: false
 
       - name: Fetch Horizon main
+        id: fetch
         run: |
           git remote add upstream https://github.com/horizon-rust/horizon.git
           git fetch upstream main --no-tags --quiet
           # Only Horizon's permanent nightly-source/* tags: its other tags (`nightly`...) clash with ours and would
           # make a plain `--tags` fetch fail ("would clobber existing tag").
           git fetch upstream 'refs/tags/nightly-source/*:refs/tags/nightly-source/*' --quiet
+          up=$(git rev-parse upstream/main)
+          synced=$(head -n1 ci/upstream-synced.txt | cut -d' ' -f1)
+          echo "upstream=$up" >> "$GITHUB_OUTPUT"
+          if [ "$up" = "$synced" ]; then echo "new=false" >> "$GITHUB_OUTPUT"; else echo "new=true" >> "$GITHUB_OUTPUT"; fi
 
-      - name: Merge Horizon main
-        id: merge
-        run: python3 ci/sync.py merge --upstream-ref upstream/main --output "$GITHUB_OUTPUT" || [ $? -eq 10 ]
+      - name: Install system deps
+        if: steps.fetch.outputs.new == 'true'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        if: steps.fetch.outputs.new == 'true'
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+        if: steps.fetch.outputs.new == 'true'
 
-      - name: Report a blocked merge
-        if: steps.merge.outputs.outcome == 'blocked'
+      - name: Port Horizon main
+        id: port
+        if: steps.fetch.outputs.new == 'true'
+        run: python3 ci/sync.py port --upstream-ref upstream/main --output "$GITHUB_OUTPUT" || [ $? -eq 10 ]
+
+      - name: Report a port that does not apply
+        if: steps.port.outputs.outcome == 'blocked'
         env:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}
-          UPSTREAM_SHA: ${{ steps.merge.outputs.upstream }}
-          REASON: ${{ steps.merge.outputs.reason }}
-          COMMIT: ${{ steps.merge.outputs.commit }}
-          DETAILS: ${{ steps.merge.outputs.conflicts }}
+          UPSTREAM_SHA: ${{ steps.port.outputs.upstream }}
+          REASON: ${{ steps.port.outputs.reason }}
+          COMMIT: ${{ steps.port.outputs.commit }}
+          DETAILS: ${{ steps.port.outputs.conflicts }}
         run: |
           python3 ci/sync.py report --reason "$REASON" --commit "$COMMIT" --conflicts "$DETAILS"
           exit 1
 
-      - name: Install system deps
-        if: steps.merge.outputs.outcome == 'merged'
-        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
-        if: steps.merge.outputs.outcome == 'merged'
-        with:
-          components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
-        if: steps.merge.outputs.outcome == 'merged'
-
-      - name: Check the merged tree
+      - name: Gate the ported tree
         id: check
-        if: steps.merge.outputs.outcome == 'merged'
+        if: steps.port.outputs.outcome == 'ported'
         run: python3 ci/sync.py checks | tee "$RUNNER_TEMP/checks.log"; grep '^failed=' "$RUNNER_TEMP/checks.log" >> "$GITHUB_OUTPUT"
 
       - name: Report a failed check
-        if: steps.merge.outputs.outcome == 'merged' && steps.check.outputs.failed != ''
+        if: steps.port.outputs.outcome == 'ported' && steps.check.outputs.failed != ''
         env:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}
-          UPSTREAM_SHA: ${{ steps.merge.outputs.upstream }}
-          COMMIT: ${{ steps.merge.outputs.commit }}
+          UPSTREAM_SHA: ${{ steps.port.outputs.upstream }}
+          COMMIT: ${{ steps.port.outputs.commit }}
           FAILED: ${{ steps.check.outputs.failed }}
         run: |
           python3 ci/sync.py report --reason "failed check: $FAILED" --commit "$COMMIT"
@@ -103,17 +112,21 @@ jobs:
 
       - name: Push main
         id: push
-        if: steps.merge.outputs.outcome == 'merged' && steps.check.outputs.failed == ''
+        if: steps.port.outputs.outcome == 'ported' && steps.check.outputs.failed == ''
         env:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
         run: |
-          # A normal fast-forward push of the merge commit. If main moved meanwhile it is rejected and the next
-          # scheduled run starts again from the new main (nothing is forced).
-          if git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main; then
+          # sync.py land: a normal push of the ported commit, only when it contains the current main (exit 11 = main
+          # moved meanwhile: nothing is forced and the next scheduled run starts again from the new main).
+          rc=0
+          python3 ci/sync.py land || rc=$?
+          if [ "$rc" -eq 0 ]; then
             echo "pushed=true" >> "$GITHUB_OUTPUT"
-          else
+          elif [ "$rc" -eq 11 ]; then
             echo "::warning::main moved while the sync ran; the next run retries"
             echo "pushed=false" >> "$GITHUB_OUTPUT"
+          else
+            exit "$rc"
           fi
 
       - name: Close the sync issue
@@ -125,9 +138,9 @@ jobs:
 
       # zenith-release.yml requires `date` to be today's UTC date. Only a Horizon commit covered by a Horizon
       # nightly may be published (the exporters come from that nightly); the sync.py release step decides.
-      - name: Release if the merged Horizon commit is covered by a nightly
-        if: (steps.merge.outputs.outcome == 'up-to-date' || steps.push.outputs.pushed == 'true') && vars.ZENITH_AUTOPUBLISH != 'off'
+      - name: Release if the ported Horizon commit is covered by a nightly
+        if: (steps.fetch.outputs.new == 'false' || steps.push.outputs.pushed == 'true') && vars.ZENITH_AUTOPUBLISH != 'off'
         env:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
-          UPSTREAM: ${{ steps.merge.outputs.upstream }}
+          UPSTREAM: ${{ steps.fetch.outputs.upstream }}
         run: python3 ci/sync.py release --upstream "$UPSTREAM" | tee -a "$GITHUB_STEP_SUMMARY"

@@ -12,6 +12,7 @@ use super::{
     lan_crafting::MenuRemoval,
     respawn_anchor::RespawnConfig,
 };
+use winit::keyboard::KeyCode;
 use zenith_client::{
     command::vanilla,
     containers::BlockEntity,
@@ -35,7 +36,6 @@ use zenith_protocol::{
     text::literal,
 };
 use zenith_world::entity_move::EntityMoveWorld;
-use winit::keyboard::KeyCode;
 
 /// Per-guest state of the gameplay code that lives outside `Guest`.
 #[derive(Default)]
@@ -841,9 +841,7 @@ impl Game<'_> {
                 zenith_client::projectiles::ProjectileKind::Snowball => {
                     Some("minecraft:snowball".to_owned())
                 }
-                zenith_client::projectiles::ProjectileKind::Egg => {
-                    Some("minecraft:egg".to_owned())
-                }
+                zenith_client::projectiles::ProjectileKind::Egg => Some("minecraft:egg".to_owned()),
                 zenith_client::projectiles::ProjectileKind::EnderPearl => {
                     Some("minecraft:ender_pearl".to_owned())
                 }
@@ -2728,8 +2726,7 @@ impl Game<'_> {
                             "commands.gamerule.set",
                             &[&entry.name, &entry.value],
                         );
-                        let content =
-                            zenith_client::lan::data::component_nbt(&message.component());
+                        let content = zenith_client::lan::data::component_nbt(&message.component());
                         for g in &host.hub.guests {
                             if g.permission >= 2 {
                                 g.send(&C::SystemChat(play::SystemChat {
@@ -2985,8 +2982,7 @@ impl Game<'_> {
             let conn = g.conn;
             let reason = format!("Invalid packet: count {} is not in 1..={max}", s.count);
             eprintln!("{} sent an invalid creative stack: {reason}", g.name);
-            host.hub
-                .kick(conn, zenith_protocol::text::literal(&reason));
+            host.hub.kick(conn, zenith_protocol::text::literal(&reason));
             return false;
         }
         s.count <= self.stack_max_size(s)
@@ -4815,8 +4811,7 @@ impl Game<'_> {
             let velocity = marked.then_some(player.velocity);
             // Player.causeFallDamage: a fall of 2 blocks or more counts.
             for event in &events {
-                if let MotionEvent::Fall(zenith_client::landing::FallEvent::Statistic(cm)) = event
-                {
+                if let MotionEvent::Fall(zenith_client::landing::FallEvent::Statistic(cm)) = event {
                     game.award_custom_stat("fall_one_cm", *cm);
                 }
             }
@@ -6052,10 +6047,10 @@ mod spin_target_tests {
 #[cfg(test)]
 mod respawn_world_point_tests {
     use crate::game::{Audio, Game, Options, Progress, Settings, load_resources};
+    use std::sync::{Arc, atomic::AtomicI32, mpsc};
     use zenith_client::lan::{Joined, NetConfig, Out, PlayerSender, guest::Guest, hub::HubConfig};
     use zenith_core::geometry::Vec3;
     use zenith_protocol::packets::{configuration::ClientInformation, play::Clientbound};
-    use std::sync::{Arc, atomic::AtomicI32, mpsc};
 
     /// PlayerList.respawn sends world respawn data, independently of the personal landing.
     #[test]

@@ -6,6 +6,7 @@ use crate::{
     save::SavedProto,
     streaming::{ChunkGenerator, LodSampler, Proto},
 };
+use std::{path::Path, sync::Arc};
 use zenith_core::{
     paletted::PalettedContainer,
     position::ChunkPos,
@@ -25,7 +26,6 @@ use zenith_world::{
         terrain::PreLightChunkStage,
     },
 };
-use std::{path::Path, sync::Arc};
 mod lod;
 mod structure_mobs;
 use lod::VanillaLodSampler;

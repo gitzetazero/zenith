@@ -2183,10 +2183,10 @@ fn shapes_reject_unknown_or_missing_template_values() {
 #[test]
 #[ignore = "full content root: CI and pr_ready run it"]
 fn connecting_blocks_join_themselves_and_their_tag() {
+    use std::collections::HashMap;
     use zenith_core::position::BlockPos;
     use zenith_core::random::LegacyRandom;
     use zenith_world::level::{Behaviours, LevelAccess, Ticks};
-    use std::collections::HashMap;
 
     let Some(_) = prepared() else {
         return;

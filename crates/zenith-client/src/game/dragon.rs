@@ -3461,9 +3461,8 @@ impl Game<'_> {
         // moves the tagged quads into its stages (the HDR tier is the eyes'
         // shine, `mobs::render::EYES_TIER`).
         for v in &mut eye_quads {
-            v.layer = 2
-                | zenith_client::gfx::OIT_ENTITY
-                | u32::from(zenith_client::mesher::BRIGHT) << 16;
+            v.layer =
+                2 | zenith_client::gfx::OIT_ENTITY | u32::from(zenith_client::mesher::BRIGHT) << 16;
         }
         additive.extend(eye_quads);
         if death > 0.0 {

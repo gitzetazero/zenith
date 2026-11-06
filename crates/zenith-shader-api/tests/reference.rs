@@ -2,8 +2,8 @@
 //! frame's WGSL layout is the uploaded struct's, 0.1's WGSL is what it always was, and
 //! docs/api/shaders-reference.md and shaders-reference-0.2.md are up to date. Rewrite the
 //! references with `HORIZON_WRITE_DOCS=1 cargo test -p zenith-shader-api --test reference`.
-use zenith_shader_api::{Api, Frame, Pack, StageKind, compose, package::sha256_hex, reference};
 use std::path::Path;
+use zenith_shader_api::{Api, Frame, Pack, StageKind, compose, package::sha256_hex, reference};
 
 fn root() -> &'static Path {
     Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../.."))

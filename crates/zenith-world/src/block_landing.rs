@@ -5,8 +5,8 @@ use crate::{
     movement_properties::MovementProperties,
     registry::BlockStateId,
 };
-use zenith_core::position::BlockPos;
 use std::{collections::BTreeMap, fmt, io};
+use zenith_core::position::BlockPos;
 #[derive(Clone, Debug)]
 pub enum FallDefinition {
     Default,

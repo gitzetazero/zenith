@@ -1,11 +1,11 @@
 //! Transport for the vanilla quad sorting / viewpoint parity gate.
-use zenith_client::gfx::translucency::{SortState, Sorter, quad_center};
 use serde::Deserialize;
 use serde_json::json;
 use std::{
     fs,
     io::{BufWriter, Write},
 };
+use zenith_client::gfx::translucency::{SortState, Sorter, quad_center};
 
 #[derive(Deserialize)]
 struct Case {

@@ -15,13 +15,13 @@ use crate::{
         uuid_from_tag,
     },
 };
+use std::{collections::HashMap, sync::Arc};
 use zenith_core::geometry::Vec3;
 use zenith_world::{
     chunk::BlockState,
     nbt::{Compound, Tag},
     registry::{BlockRegistry, BlockStateId},
 };
-use std::{collections::HashMap, sync::Arc};
 
 /// Saved data carried by `ConversionType.convertCommon` outside the modelled
 /// mob fields. The converted entity has its own identity and type-specific data;

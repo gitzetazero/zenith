@@ -5,12 +5,12 @@
 //! same JSON-lines shape as VanillaCommandParseOracle.
 //!
 //! usage: command_parse_fixture RESOURCES REGISTRIES.json CORPUS PERMISSION OUTPUT
+use serde_json::{Value, json};
+use std::{fs, path::Path};
 use zenith_client::{
     command::{ArgType, Dispatcher, NodeKind, Registries, args::RegistryIds, vanilla},
     lang,
 };
-use serde_json::{Value, json};
-use std::{fs, path::Path};
 
 fn strings(v: &Value) -> Vec<String> {
     v.as_array()

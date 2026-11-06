@@ -5,6 +5,7 @@ use crate::{
     collisions::SceneCollisions,
     motion::{MotionEvent, MotionWorld},
 };
+use std::{collections::BTreeMap, fs, path::Path};
 use zenith_core::{
     geometry::{Aabb, Vec3, VoxelShape},
     position::BlockPos,
@@ -23,7 +24,6 @@ use zenith_world::{
     movement_properties::MovementProperties,
     registry::BlockStateId,
 };
-use std::{collections::BTreeMap, fs, path::Path};
 
 /// A living entity is about to handle a fall (`LivingFallEvent`). Mods may
 /// change the distance and damage multiplier, or cancel fall handling.

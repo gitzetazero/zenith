@@ -21,6 +21,16 @@ use crate::{
     mobs::{spawner::SpawnerExt, trial_spawner::TrialSpawnerExt},
     streaming::ChunkGenerator,
 };
+use std::{
+    collections::{BTreeMap, HashMap, HashSet},
+    fs,
+    path::{Path, PathBuf},
+    sync::{
+        Arc, Condvar, Mutex, OnceLock,
+        atomic::{AtomicU64, Ordering},
+        mpsc,
+    },
+};
 use zenith_core::{
     paletted::PalettedContainer,
     position::{BlockPos, ChunkPos},
@@ -37,16 +47,6 @@ use zenith_world::{
     region::{ChunkRecord, RegionFile},
     registry::{BlockRegistry, BlockStateId},
     worldgen::terrain::TerrainBlockStates,
-};
-use std::{
-    collections::{BTreeMap, HashMap, HashSet},
-    fs,
-    path::{Path, PathBuf},
-    sync::{
-        Arc, Condvar, Mutex, OnceLock,
-        atomic::{AtomicU64, Ordering},
-        mpsc,
-    },
 };
 
 pub const VERSION_NAME: &str = zenith_core::VANILLA_VERSION;

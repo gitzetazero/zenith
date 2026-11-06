@@ -7,9 +7,9 @@ use super::{
     goals::{Float, HurtByTarget, LookAtPlayer, MeleeAttack, NearestTarget, Stroll},
     path::PathType,
 };
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::random::RandomSource;
-use std::f32::consts::PI;
 
 // Ravager state: `counter` attackTick, `counter2` stunnedTick,
 // `anim_ticks` roarTick.

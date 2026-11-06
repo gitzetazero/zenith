@@ -1,10 +1,10 @@
 //! Resident client chunk storage. Sections are reference-counted so worker
 //! threads can mesh and light immutable snapshots while the game thread edits
 //! (copy-on-write through `Arc::make_mut`).
+use std::sync::{Arc, OnceLock};
 use zenith_core::paletted::{PalettedContainer, Strategy};
 use zenith_world::nbt::{Compound, Tag};
 use zenith_world::registry::BlockStateId;
-use std::sync::{Arc, OnceLock};
 
 pub mod block_entity;
 

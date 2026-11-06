@@ -3,6 +3,7 @@
 //! the result and remainders into the container in front or as items, the
 //! crafting animation ticks, and the menu with its toggleable slots.
 use super::*;
+use serde_json::Value;
 use zenith_client::{
     advancements as adv,
     containers::Crafter,
@@ -10,7 +11,6 @@ use zenith_client::{
     menu::{Maps as _, Menu},
 };
 use zenith_protocol::packets::play::{self, Serverbound as S};
-use serde_json::Value;
 
 /// `CrafterBlock`'s crafting animation length.
 const CRAFTING_TICKS: i32 = 6;

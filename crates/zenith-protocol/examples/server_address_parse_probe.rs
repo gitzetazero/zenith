@@ -1,6 +1,6 @@
 //! Host/port parser corpus, without DNS or a connection.
-use zenith_protocol::servers::parse_address;
 use std::{error::Error, fs::File};
+use zenith_protocol::servers::parse_address;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<_> = std::env::args().collect();

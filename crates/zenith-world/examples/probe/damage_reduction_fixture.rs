@@ -1,13 +1,13 @@
 use crate::support::common::f32_bits;
-use zenith_world::{
-    combat_rules::ArmorWorld,
-    damage_reduction::{self, Bypass, DamageReductionWorld},
-};
 use serde_json::Value;
 use std::{
     fs,
     io::{self, Write},
     path::Path,
+};
+use zenith_world::{
+    combat_rules::ArmorWorld,
+    damage_reduction::{self, Bypass, DamageReductionWorld},
 };
 fn single(v: &Value) -> f32 {
     f32::from_bits(u32::from_str_radix(v.as_str().unwrap(), 16).unwrap())

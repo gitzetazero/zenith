@@ -3,12 +3,12 @@
 //! checks every 100 ticks, breaking by attack (`dropItem`), saving, and
 //! `PaintingRenderer` quads.
 use super::{Game, Hit, entity_culling::default_range};
+use std::sync::Arc;
 use zenith_client::{entities::Painting, items::ItemStack, mesher::Vertex};
 use zenith_core::{
     geometry::{Aabb, Vec3},
     random::RandomSource,
 };
-use std::sync::Arc;
 
 /// A `painting_variant` and whether `#placeable` lists it (in tag order).
 #[derive(Clone, Debug)]

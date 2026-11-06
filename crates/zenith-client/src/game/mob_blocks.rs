@@ -226,8 +226,7 @@ impl Game<'_> {
         light: u32,
         out: &mut Vec<Vertex>,
     ) {
-        if mob.species() != Species::CopperGolem || zenith_client::mobs::trader::is_invisible(mob)
-        {
+        if mob.species() != Species::CopperGolem || zenith_client::mobs::trader::is_invisible(mob) {
             return;
         }
         let Some(stack) = mob.saddle_item() else {

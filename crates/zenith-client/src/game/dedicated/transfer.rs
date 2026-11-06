@@ -9,10 +9,10 @@
 //! tick. The rules are `lan/arrivals.rs`'s. All of them are refused while `server.toml`'s
 //! `[transfer]` is off.
 use crate::game::{Dim, Game, lan::LanHost};
-use zenith_client::lan::arrivals;
-use zenith_protocol::packets::play::{self, Clientbound as C};
 use serde_json::{Value, json};
 use std::time::Instant;
+use zenith_client::lan::arrivals;
+use zenith_protocol::packets::play::{self, Clientbound as C};
 
 impl Game<'_> {
     /// A proxy's `player-*` request; the reply is one JSON line, `{"ok": true, ...}` or

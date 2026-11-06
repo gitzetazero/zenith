@@ -1,6 +1,8 @@
 //! The options screens bound to the game: drawing, input, applying settings
 //! (video, sound, chat, font, language) and the F11 fullscreen toggle.
 use super::{Game, Screen};
+use serde_json::{Value, json};
+use winit::{event::MouseButton, keyboard::KeyCode, window::Fullscreen};
 use zenith_client::{
     Result,
     hud::HudBatch,
@@ -8,8 +10,6 @@ use zenith_client::{
     options_ui::{Event, Page},
     window::{FrameContext, InactivityFpsLimit, framerate_limit},
 };
-use serde_json::{Value, json};
-use winit::{event::MouseButton, keyboard::KeyCode, window::Fullscreen};
 
 /// `CommonLinks.ACCESSIBILITY_HELP`, the Accessibility page's footer link.
 pub(super) const ACCESSIBILITY_HELP_LINK: &str = "https://aka.ms/MinecraftJavaAccessibility";

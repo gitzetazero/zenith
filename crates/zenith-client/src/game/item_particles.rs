@@ -1,6 +1,7 @@
 //! The sprites of item particles: `BreakingItemParticle.ItemParticleProvider.getSprite`
 //! resolves the stack's model for the ground and picks a layer's particle sprite.
 use super::Game;
+use serde_json::Value;
 use zenith_assets::item_model::DisplayContext;
 use zenith_client::{
     item_render::stack_view,
@@ -9,7 +10,6 @@ use zenith_client::{
 };
 use zenith_core::random::RandomSource;
 use zenith_world::player_inventory::EquipmentSlot;
-use serde_json::Value;
 
 impl Game<'_> {
     /// `ItemParticleOption(ITEM, stack)`: the layer particle sprites of the

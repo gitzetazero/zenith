@@ -1,12 +1,12 @@
 //! Headless passenger-order regression through the real remote client paths.
 use super::{Game, Keys, boats::Boat};
-use zenith_client::{Result, held::Source, motion::PlayerMotion};
-use zenith_core::geometry::Vec3;
-use zenith_protocol::{connection::Pipe, packets::play::Serverbound};
 use serde::Deserialize;
 use serde_json::json;
 use std::path::Path;
 use winit::keyboard::KeyCode;
+use zenith_client::{Result, held::Source, motion::PlayerMotion};
+use zenith_core::geometry::Vec3;
+use zenith_protocol::{connection::Pipe, packets::play::Serverbound};
 
 #[derive(Deserialize)]
 struct Case {

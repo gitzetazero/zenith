@@ -171,8 +171,8 @@ mod tests {
 
     #[test]
     fn vanilla_766_player_and_disguised_chat_decode_through_the_complete_pipeline() {
-        use zenith_world::nbt::Tag;
         use packet_ids::play::clientbound as cb;
+        use zenith_world::nbt::Tag;
         // Actual full packet STREAM_CODEC outputs from both 766 releases and 1.21.1.
         // Zero-filled signature blocks in the final fixture are abbreviated without changing bytes.
         let prefix = "000000000000000000000000000000010301";

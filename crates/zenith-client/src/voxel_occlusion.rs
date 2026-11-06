@@ -2,8 +2,8 @@
 //!
 //! A covered projection rectangle proves that an entire bounding box is hidden.
 //! Testing a few rays would miss openings between those rays.
-use zenith_core::geometry::Aabb;
 use std::cell::Cell;
+use zenith_core::geometry::Aabb;
 
 const EPSILON: f64 = 1.0e-5;
 

@@ -20,12 +20,12 @@ use crate::{
     fast_hash::{FxHashMap, FxHashSet},
     lod::{Column, Span},
 };
-use zenith_world::registry::{BlockRegistry, BlockStateId};
 use std::{
     path::{Path, PathBuf},
     sync::{Arc, Condvar, Mutex, OnceLock, Weak},
     time::{Duration, Instant, SystemTime},
 };
+use zenith_world::registry::{BlockRegistry, BlockStateId};
 
 /// Downloaded tiles kept on disk per server, at most.
 const DISK_CAP: u64 = 256 << 20;

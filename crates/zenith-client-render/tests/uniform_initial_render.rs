@@ -1,7 +1,7 @@
 //! Original synthetic rendering controls for ordinary uniform initial values.
+use wgpu::util::DeviceExt;
 use zenith_client_render::gfx::pack_uniforms::Value;
 use zenith_shaders::{Origin, Preprocessed, Target, translate_composite};
-use wgpu::util::DeviceExt;
 
 fn source(code: &str) -> Preprocessed {
     Preprocessed {

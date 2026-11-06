@@ -1,9 +1,9 @@
+use std::{collections::BTreeMap, sync::Arc};
 use zenith_core::position::ChunkPos;
 use zenith_world::worldgen::{
     anchor::WorldGenerationContext,
     carver::{CarverCatalog, MaskGenerationError, generate_carving_mask},
 };
-use std::{collections::BTreeMap, sync::Arc};
 
 #[test]
 fn origin_order_wraps_coordinates_and_upgrading_changes_the_ceiling() {

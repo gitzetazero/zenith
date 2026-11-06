@@ -4,10 +4,10 @@
 //! game server.
 
 use super::{Game, Screen};
-use zenith_client::{hud::HudBatch, text::Text};
 use std::time::{Duration, Instant};
 use winit::event::{ElementState, MouseButton, WindowEvent};
 use winit::keyboard::{KeyCode, PhysicalKey};
+use zenith_client::{hud::HudBatch, text::Text};
 
 /// Emotes on the wheel.
 pub(super) const SLOTS: usize = 8;

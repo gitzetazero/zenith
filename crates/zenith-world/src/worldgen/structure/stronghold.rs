@@ -5,12 +5,12 @@ use super::{
     legacy::{LegacyPiece, PieceContext, PieceFrame, Result, make_bounding_box, random_horizontal},
 };
 use crate::{registry::BlockStateId, worldgen::biome::BiomeId};
+use std::{collections::BTreeSet, f64::consts::PI, sync::Mutex};
 use zenith_core::{
     geometry::Direction,
     position::ChunkPos,
     random::{LegacyRandom, RandomSource, WorldgenRandom},
 };
-use std::{collections::BTreeSet, f64::consts::PI, sync::Mutex};
 
 /// ChunkGeneratorStructureState.generateRingPositions with
 /// BiomeSource.findBiomeHorizontal (radius 112, step 1, not closest).

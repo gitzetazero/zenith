@@ -737,11 +737,7 @@ impl Game<'_> {
         }
     }
     /// `Player.getRopeHoldPosition` (and `LocalPlayer`'s in first person).
-    fn player_rope_hold(
-        &self,
-        p: &zenith_client::motion::PlayerMotion,
-        alpha: f64,
-    ) -> glam::DVec3 {
+    fn player_rope_hold(&self, p: &zenith_client::motion::PlayerMotion, alpha: f64) -> glam::DVec3 {
         let pos = glam::DVec3::new(p.position.x, p.position.y, p.position.z);
         // Player.getRopeHoldPosition: `0.22 * (RIGHT ? -1 : 1)`.
         let hand_dir = if self.settings.main_hand_left {

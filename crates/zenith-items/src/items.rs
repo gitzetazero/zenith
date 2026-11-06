@@ -2,9 +2,6 @@
 //! tool mining rules and block loot tables (`LootTable`/`LootPool` semantics
 //! for the condition, entry and modifier types used by block drops).
 use crate::{Result, blocks::BlockFacts};
-use zenith_core::random::RandomSource;
-use zenith_world::loot::PackOverlay;
-use zenith_world::registry::{BlockRegistry, BlockStateId};
 use serde_json::Value;
 use std::{
     collections::{HashMap, HashSet},
@@ -12,6 +9,9 @@ use std::{
     path::Path,
     sync::Arc,
 };
+use zenith_core::random::RandomSource;
+use zenith_world::loot::PackOverlay;
+use zenith_world::registry::{BlockRegistry, BlockStateId};
 
 /// A fire starter's use sound: `SoundEvents.FIRECHARGE_USE` or
 /// `FLINTANDSTEEL_USE`.
@@ -2382,8 +2382,8 @@ mod consume_effect_tests {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_core::random::LegacyRandom;
     use serde_json::json;
+    use zenith_core::random::LegacyRandom;
 
     /// `LootCommand.dropFishingLoot` carries TOOL even for an inline holder.
     #[test]

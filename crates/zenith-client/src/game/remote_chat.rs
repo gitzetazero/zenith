@@ -6,6 +6,8 @@
 //! account, or on a server that plays the account under another profile
 //! (offline mode), there is no session and everything goes unsigned.
 use super::{Game, Screen, books::BookScreen, dialogs::ClosedDialog};
+use std::sync::Arc;
+use winit::keyboard::KeyCode;
 use zenith_client::{
     auth::{self, ChatKeyPair},
     command::{Dispatcher, Registries},
@@ -17,8 +19,6 @@ use zenith_protocol::{
     packets::play::{self, Serverbound as S},
     secure_chat::{Body, Encoder, LastSeenTracker, Signature},
 };
-use std::sync::Arc;
-use winit::keyboard::KeyCode;
 
 /// ClientPacketListener.sendChatAcknowledgement's threshold.
 const ACK_AFTER: i32 = 64;

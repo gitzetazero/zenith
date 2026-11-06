@@ -5,11 +5,11 @@
 //! `horizon_cit:minecraft/optifine/cit/swords/flame`). A file already under `textures/` (or
 //! `models/`) keeps its vanilla id, so it is not packed twice.
 
-use zenith_assets::model::{CuboidModel, TextureSlot};
-use zenith_optifine::cit::{Kind, Rule};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::Path;
+use zenith_assets::model::{CuboidModel, TextureSlot};
+use zenith_optifine::cit::{Kind, Rule};
 
 /// The namespace of CIT files outside `textures/` and `models/`.
 pub const NAMESPACE: &str = "horizon_cit";

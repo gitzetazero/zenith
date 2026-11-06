@@ -6,10 +6,10 @@ use super::{
     json::{self, Json},
     properties::parse_uuid,
 };
+use std::{cmp::Ordering, path::PathBuf};
 use zenith_core::random::java_string_hash;
 use zenith_protocol::crypto::uuid_string;
 use zenith_world::java_hash_map::{JavaHashMap, JavaKey};
-use std::{cmp::Ordering, path::PathBuf};
 
 /// A map key: a Java String.
 #[derive(Clone, Debug, PartialEq, Eq)]

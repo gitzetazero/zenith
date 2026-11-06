@@ -3,6 +3,8 @@
 //! it reads (`Options.narrator`, `getFinalSoundSourceVolume(VOICE)`); and its
 //! `NARRATOR_TOGGLE` toast.
 use super::{Game, Screen};
+use winit::event::{ElementState, KeyEvent, MouseButton, WindowEvent};
+use winit::keyboard::{KeyCode, PhysicalKey};
 use zenith_client::{
     clipboard,
     hud::{HudAtlas, HudBatch},
@@ -12,8 +14,6 @@ use zenith_client::{
     toasts::SystemToast,
 };
 use zenith_narrator::{Status, screen::Trigger};
-use winit::event::{ElementState, KeyEvent, MouseButton, WindowEvent};
-use winit::keyboard::{KeyCode, PhysicalKey};
 
 /// `Minecraft`'s constructor: `new GameNarrator`, then
 /// `narrator.checkStatus(options.narrator().get() != OFF)`.

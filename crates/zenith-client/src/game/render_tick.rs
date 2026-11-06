@@ -623,9 +623,9 @@ impl Game<'_> {
 #[cfg(test)]
 mod tests {
     use super::{Properties, World, splash_height};
+    use std::sync::Arc;
     use zenith_client::chunk::Chunk;
     use zenith_world::registry::BlockStateId;
-    use std::sync::Arc;
 
     /// #3810: under a stone roof more than 64 blocks above the camera, as in a
     /// deep excavation, MOTION_BLOCKING is the roof, so no rain splash lands on

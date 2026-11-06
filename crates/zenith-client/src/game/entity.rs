@@ -13,6 +13,8 @@ use super::{FallingBlock, Game};
 use super::{
     boats::Boat, fireworks::Rocket, minecarts::Minecart, tnt::PrimedTnt, trident::ThrownTrident,
 };
+use std::borrow::Cow;
+use std::collections::{HashMap, HashSet};
 use zenith_client::entities::{
     ArmorStand, Cushion, ExperienceOrb, ItemEntity, ItemFrame, Painting,
 };
@@ -25,8 +27,6 @@ use zenith_core::geometry::{Aabb, Direction, Vec3};
 use zenith_core::position::BlockPos;
 use zenith_world::nbt::Tag;
 use zenith_world::{level::data::PushReaction, piston_push};
-use std::borrow::Cow;
-use std::collections::{HashMap, HashSet};
 
 /// What `Entity.thunderHit` does to a kind: it sets the entity on fire and
 /// calls `hurtServer(lightning_bolt, 5)`, so a kind whose `hurtServer` does

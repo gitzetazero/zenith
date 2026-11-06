@@ -3,6 +3,7 @@
 //! the merchant menu, NBT) and prints the same lines.
 //!
 //! usage: trading_fixture RESOURCES INPUT VANILLA_OUTPUT OUTPUT
+use std::{collections::HashMap, fmt::Write as _, fs, path::Path};
 use zenith_client::{
     enchant::Enchantments,
     entity_nbt,
@@ -15,7 +16,6 @@ use zenith_client::{
 use zenith_core::random::{LegacyRandom, RandomSource};
 use zenith_world::loot::PackOverlay;
 use zenith_world::nbt::Tag;
-use std::{collections::HashMap, fmt::Write as _, fs, path::Path};
 
 const PLAYER: [i32; 4] = [0, 0x1234, 0, 0x5678];
 

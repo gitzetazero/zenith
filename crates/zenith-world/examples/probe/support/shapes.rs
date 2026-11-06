@@ -1,7 +1,7 @@
 //! Shapes and boxes printed the same way by the collision probes.
 use super::common::f64_bits;
-use zenith_core::geometry::{Aabb, Axis, VoxelShape};
 use std::io::{self, Write};
+use zenith_core::geometry::{Aabb, Axis, VoxelShape};
 
 pub fn emit(out: &mut impl Write, shape: &VoxelShape) -> io::Result<()> {
     writeln!(

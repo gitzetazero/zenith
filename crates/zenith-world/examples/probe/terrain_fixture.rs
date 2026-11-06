@@ -1,5 +1,13 @@
 //! Test transport for registry-backed noise-stage filling against vanilla doFill.
 use crate::support::common::tag;
+use serde_json::Value;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    io::{self, Write},
+    path::Path,
+    sync::Arc,
+};
 use zenith_core::{
     density::{
         Beardifier, JigsawJunction, RigidPiece, SamplerContext, StructureBounds, TerrainAdjustment,
@@ -24,14 +32,6 @@ use zenith_world::{
         tags::TagDefinitions,
         terrain::{TerrainAquifer, TerrainBlockStates, TerrainChunk, fill_noise},
     },
-};
-use serde_json::Value;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    fs,
-    io::{self, Write},
-    path::Path,
-    sync::Arc,
 };
 #[derive(Clone, Copy)]
 struct State {

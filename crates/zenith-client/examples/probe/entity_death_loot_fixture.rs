@@ -3,6 +3,7 @@
 //! `VanillaEntityDeathLootOracle` and prints what `mobs::drops::die` drops.
 //!
 //! usage: entity_death_loot_fixture RESOURCES INPUT OUTPUT
+use std::{collections::BTreeMap, fmt::Write as _, fs, path::Path, sync::Arc};
 use zenith_client::{
     assets::Assets,
     blocks::BlockFacts,
@@ -14,7 +15,6 @@ use zenith_client::{
 };
 use zenith_core::{geometry::Vec3, random::LegacyRandom};
 use zenith_world::loot::{LootDamage, LootData, LootEntity, LootStack, PackOverlay};
-use std::{collections::BTreeMap, fmt::Write as _, fs, path::Path, sync::Arc};
 
 /// `id[;enchantment:level...]`.
 fn stack(spec: &str) -> LootStack {

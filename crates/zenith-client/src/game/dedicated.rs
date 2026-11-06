@@ -7,6 +7,16 @@
 //! from server.properties, with the operator, whitelist and ban lists and a
 //! console on standard input.
 use super::{Game, Options, lan::LanSettings, world_loading::WorldRequest};
+use std::{
+    io::Write,
+    path::PathBuf,
+    sync::{
+        Arc, Mutex, OnceLock,
+        atomic::{AtomicBool, AtomicU64, Ordering},
+        mpsc,
+    },
+    time::{Duration, Instant},
+};
 use zenith_client::{
     Result,
     lan::{LoginGate, NetConfig, NetLog, OnlineMode, hub::HubConfig},
@@ -23,16 +33,6 @@ use zenith_client::{
 };
 use zenith_protocol::text::translatable;
 use zenith_world::nbt::{JavaString, Tag};
-use std::{
-    io::Write,
-    path::PathBuf,
-    sync::{
-        Arc, Mutex, OnceLock,
-        atomic::{AtomicBool, AtomicU64, Ordering},
-        mpsc,
-    },
-    time::{Duration, Instant},
-};
 
 pub(super) mod events;
 mod management;
@@ -652,10 +652,7 @@ impl Lists {
 /// names, before the presets had their own ids.
 const LEGACY_PRESET_NAMES: [(&str, zenith_client::save::WorldPreset); 2] = [
     ("default", zenith_client::save::WorldPreset::Normal),
-    (
-        "largebiomes",
-        zenith_client::save::WorldPreset::LargeBiomes,
-    ),
+    ("largebiomes", zenith_client::save::WorldPreset::LargeBiomes),
 ];
 
 /// server.properties' line for `server.toml`'s `max_view_distance` (zenith-server writes it).
@@ -726,9 +723,7 @@ impl Game<'_> {
             structures: props.generate_structures,
             bonus_chest: false,
         };
-        zenith_client::save::write_world_gen_settings_with(
-            dir, props.seed, options, settings, None,
-        )
+        zenith_client::save::write_world_gen_settings_with(dir, props.seed, options, settings, None)
     }
 }
 
@@ -1742,9 +1737,7 @@ impl Game<'_> {
                 let names: Vec<String> = if rest.first() == Some(&"uuids") {
                     guests
                         .iter()
-                        .map(|(n, u)| {
-                            format!("{n} ({})", zenith_protocol::crypto::uuid_string(*u))
-                        })
+                        .map(|(n, u)| format!("{n} ({})", zenith_protocol::crypto::uuid_string(*u)))
                         .collect()
                 } else {
                     guests.iter().map(|(n, _)| n.clone()).collect()

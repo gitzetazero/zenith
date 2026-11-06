@@ -1,4 +1,11 @@
 //! Chunk biome generation from bundled climate routers and imported preset tables.
+use serde_json::Value;
+use std::{
+    collections::BTreeMap,
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::{
     biome::{BiomeZoom, obfuscate_seed},
     density::{SamplerContext, graph::DensityCompiler},
@@ -9,13 +16,6 @@ use zenith_world::worldgen::{
     biome_source::{BiomeSet, BiomeSourceDefinition},
     density::DensityRegistry,
     router::{NoiseRouter, RouterField},
-};
-use serde_json::Value;
-use std::{
-    collections::BTreeMap,
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 fn n(v: &Value) -> i32 {
     v.as_i64().unwrap() as i32

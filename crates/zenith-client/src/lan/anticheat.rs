@@ -6,10 +6,10 @@
 //! server does.
 use super::hub::{HostEvent, Hub, TickCtx};
 use crate::collisions::SceneCollisions;
+use std::{io::Write, time::Instant};
 use zenith_anticheat::{Check, Config, Strikes};
 use zenith_core::geometry::{Aabb, Vec3};
 use zenith_world::nbt::{JavaString, Tag};
-use std::{io::Write, time::Instant};
 
 pub struct Anticheat {
     pub config: Config,

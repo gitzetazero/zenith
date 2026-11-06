@@ -17,8 +17,8 @@ use super::{
     path::PathType,
 };
 use crate::beehive::BeehiveExt;
-use zenith_core::random::{LegacyRandom, RandomSource};
 use std::collections::HashMap;
+use zenith_core::random::{LegacyRandom, RandomSource};
 
 const FLAG_ROLL: u8 = 2;
 const FLAG_HAS_STUNG: u8 = 4;

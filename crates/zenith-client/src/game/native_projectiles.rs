@@ -10,13 +10,13 @@ use super::{
     lan_pvp::meets_players,
     native_hooks::mob_kind,
 };
+use std::ops::Range;
 use zenith_client::{
     arrows::ArrowEvent,
     mobs::Who,
     projectiles::{Hit, Projectile},
 };
 use zenith_core::geometry::Vec3;
-use std::ops::Range;
 
 /// A projectile's impact in one tick of `tick_projectiles`.
 pub(super) struct Impact {

@@ -12,8 +12,8 @@ use super::{
     path::PathType,
 };
 use crate::containers::BlockEntity;
-use zenith_core::{geometry::Vec3, random::RandomSource};
 use std::collections::HashMap;
+use zenith_core::{geometry::Vec3, random::RandomSource};
 
 /// `Extra.ints` slots.
 const INVULNERABLE: usize = 0;

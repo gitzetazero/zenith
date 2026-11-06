@@ -5,8 +5,8 @@
 //! helpers the other layouts share (`hud_overlays`, `chat`). Computed without
 //! drawing so the parity fixture can compare them with the vanilla client.
 use crate::{font::Font, text::Text};
-use zenith_core::random::{LegacyRandom, RandomSource};
 use std::borrow::Cow;
+use zenith_core::random::{LegacyRandom, RandomSource};
 
 /// A `Matrix3x2fStack` operation applied to a copy of the current pose.
 #[derive(Clone, Copy, Debug, PartialEq)]

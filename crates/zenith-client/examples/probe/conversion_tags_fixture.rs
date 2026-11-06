@@ -1,7 +1,7 @@
 //! Command-tag data carried to a converted mob's new entity ID.
+use std::io::Write;
 use zenith_client::entity_nbt;
 use zenith_world::nbt::Tag;
-use std::io::Write;
 
 pub fn main() {
     let args: Vec<_> = super::args().collect();

@@ -5,6 +5,8 @@
 //!
 //! cargo run --profile fast -p zenith-client --example probe -- entity_anim_fixture \
 //!     RESOURCES VANILLA.jsonl OUT.jsonl
+use serde_json::{Value, json};
+use std::{collections::BTreeMap, fs, path::PathBuf, sync::Arc};
 use zenith_client::mesher::Vertex;
 use zenith_client::mobs::{
     Mob, MobData, MobTypes, Part, Species, allay,
@@ -14,8 +16,6 @@ use zenith_client::mobs::{
     render, shulker, sniffer, species, tame,
 };
 use zenith_core::geometry::Vec3;
-use serde_json::{Value, json};
-use std::{collections::BTreeMap, fs, path::PathBuf, sync::Arc};
 
 fn walk(part: &Part, path: &str, poses: &Poses, out: &mut BTreeMap<String, Value>) {
     let p = poses.pose(part);

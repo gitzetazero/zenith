@@ -10,8 +10,8 @@ use crate::{
     nbt::Tag,
     registry::{BlockRegistry, BlockStateId, BlockTable},
 };
-use zenith_core::geometry::{Axis, VoxelShape};
 use std::{collections::HashMap, io};
+use zenith_core::geometry::{Axis, VoxelShape};
 
 /// `PipeBlock`'s shape for `size` pixels across (`makeShapes`): the core
 /// cube, with an arm from the centre out to each joined side (`sides` by
@@ -267,8 +267,8 @@ impl<'r> CachedCollisionRegistry<'r> {
 mod pipe_tests {
     use super::*;
     use crate::registry::BlockTableFile;
-    use zenith_core::geometry::ShapeOp;
     use std::path::PathBuf;
+    use zenith_core::geometry::ShapeOp;
 
     /// `pipe_shape` at the chorus plant's 10 pixels is vanilla's own shape for
     /// each of its 64 states.

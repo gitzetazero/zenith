@@ -1,6 +1,13 @@
 //! Chunk-send batches for separated players, without a window or sockets.
 //! cargo run --profile fast -p zenith-client-lib --example chunk_encoding_bench -- RESOURCES
 extern crate zenith_client_lib as zenith_client;
+use std::{
+    hash::{DefaultHasher, Hash, Hasher},
+    hint::black_box,
+    path::Path,
+    sync::Arc,
+    time::Instant,
+};
 use zenith_client::{
     assets::Assets,
     chunk::{Chunk, Section},
@@ -8,13 +15,6 @@ use zenith_client::{
     save::SaveTables,
     spans::thread_cpu,
     world::World,
-};
-use std::{
-    hash::{DefaultHasher, Hash, Hasher},
-    hint::black_box,
-    path::Path,
-    sync::Arc,
-    time::Instant,
 };
 
 fn bodies(encoder: &ChunkEncoder, columns: &[&Chunk], world: &World) -> Vec<Vec<u8>> {

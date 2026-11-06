@@ -13,6 +13,7 @@ use crate::{
     projectiles::{Hit, Projectile, ProjectileKind},
     world::World,
 };
+use std::{collections::HashSet, fmt};
 use zenith_core::{
     geometry::{Aabb, Direction, Vec3, sweep_intersected_blocks},
     position::BlockPos,
@@ -30,7 +31,6 @@ use zenith_world::{
     registry::BlockStateId,
     water_splash::{self, SplashParticle, WaterSplashWorld},
 };
-use std::{collections::HashSet, fmt};
 
 /// `EntityType.ARROW` (and tipped/spectral arrows): 0.5 x 0.5, eyes at 0.13.
 pub const WIDTH: f32 = 0.5;

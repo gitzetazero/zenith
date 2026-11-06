@@ -1131,8 +1131,8 @@ pub fn styled_name(stack: &ItemStack, fallback: impl FnOnce() -> String) -> crat
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_world::loot::PackOverlay;
     use std::sync::Arc;
+    use zenith_world::loot::PackOverlay;
 
     #[test]
     fn disc_fragment_shows_music_disc_line_first() {

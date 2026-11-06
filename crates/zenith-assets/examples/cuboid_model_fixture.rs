@@ -1,11 +1,11 @@
 mod support;
-use zenith_assets::model::CuboidModel;
 use serde_json::json;
 use std::{
     fs::File,
     io::{BufRead, BufReader, BufWriter, Write},
 };
 use support::model;
+use zenith_assets::model::CuboidModel;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = std::env::args().collect();

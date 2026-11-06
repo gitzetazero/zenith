@@ -1,6 +1,6 @@
 # Zenith Launcher: player guide
 
-**Zenith Launcher** is the program that opens Zenith. It is a fork of [XMCL](https://github.com/Voxelum/x-minecraft-launcher) (Voxelum, MIT license) with Zenith branding and the Zenith **bridge** built in. Downloads: <https://github.com/gitzetazero/zenith/releases/latest>. The source is in [`launcher`](launcher); how it differs from XMCL: [`launcher/docs/ZENITH-LAUNCHER.md`](launcher/docs/ZENITH-LAUNCHER.md).
+**Zenith Launcher** is the program that opens Zenith. It is a fork of [XMCL](https://github.com/Voxelum/x-minecraft-launcher) (Voxelum, MIT license) with Zenith branding and the Zenith **bridge** built in. Downloads: <https://github.com/gitzetazero/zenith/releases/latest>. The source is in [`launcher`](../launcher); how it differs from XMCL: [`launcher/docs/ZENITH-LAUNCHER.md`](../launcher/docs/ZENITH-LAUNCHER.md).
 
 It is an independent project and **not affiliated with XMCL (Voxelum), Mojang or Microsoft**. It is **experimental**: checked with automated tests and the contents of the published files, not by running the installer on third-party PCs.
 

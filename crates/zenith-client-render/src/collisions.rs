@@ -2,6 +2,7 @@
 //! The development scene has no entities, block entities or world border.
 //! Entity-dependent rules use the defaults for players and the supported mobs.
 use crate::{Result, world::World};
+use std::{io, path::Path, sync::Arc};
 use zenith_core::{
     geometry::{Aabb, Vec3, VoxelShape, border::BorderGeometry},
     position::{BlockPos, ChunkPos},
@@ -23,7 +24,6 @@ use zenith_world::{
         resolve_world_movement,
     },
 };
-use std::{io, path::Path, sync::Arc};
 
 pub fn load<'r>(root: &Path, registry: &'r BlockRegistry) -> Result<BlockCollisionRegistry<'r>> {
     let file = BlockTableFile::open(&root.join("cached-collision.nbt"), registry)?;

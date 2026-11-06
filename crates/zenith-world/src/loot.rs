@@ -9,7 +9,6 @@
 //! need an entity, tool or damage source fail when the context has none, as
 //! they do for containers.
 use crate::{lazy_json::LazyJson, nbt::Tag};
-use zenith_core::random::{LegacyRandom, RandomSource};
 use serde_json::Value;
 use std::{
     cell::RefCell,
@@ -19,6 +18,7 @@ use std::{
     rc::Rc,
     sync::{Arc, Mutex, Weak},
 };
+use zenith_core::random::{LegacyRandom, RandomSource};
 
 /// Raw files a world's data packs add over the game's own data, by
 /// `<kind>/<ns>:<path>` (a `recipe/minecraft:stick` key names the file

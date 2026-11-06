@@ -707,8 +707,8 @@ impl Game<'_> {
         origin: [f64; 3],
         depth: u32,
     ) -> Option<ItemStack> {
-        use zenith_core::random::RandomSource;
         use serde_json::Value;
+        use zenith_core::random::RandomSource;
         if depth > 16 {
             return stack;
         }
@@ -1425,9 +1425,9 @@ fn list_operation(m: &serde_json::Value, old: Vec<Tag>, new: Vec<Tag>) -> Vec<Ta
 #[cfg(test)]
 mod stand_equip_event_tests {
     use crate::game::{Audio, Game, Options, Progress, Settings, load_resources};
+    use std::sync::Arc;
     use zenith_client::{chunk::Chunk, containers::BlockEntity, mobs::Who, sculk::Info};
     use zenith_core::position::ChunkPos;
-    use std::sync::Arc;
 
     fn candidate(game: &Game<'_>) -> Option<Info> {
         let Some(BlockEntity::Sculk(sensor)) = game.world.block_entities.get(&(9, 200, 10)) else {

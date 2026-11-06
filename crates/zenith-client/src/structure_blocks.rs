@@ -2,14 +2,14 @@
 //! template containers): turned into client containers, with loot tables
 //! unpacked as `RandomizableContainer.unpackLootTable` would on first open.
 use crate::{containers::BlockEntity, items::ItemStack};
+use std::{
+    path::Path,
+    sync::{Arc, Mutex},
+};
 use zenith_world::{
     loot::LootData,
     nbt::{Compound, JavaString, Tag},
     worldgen::generator::ProtoChunk,
-};
-use std::{
-    path::Path,
-    sync::{Arc, Mutex},
 };
 
 /// The `custom_data` key holding an exploration map's search until the game

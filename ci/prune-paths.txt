@@ -1,11 +1,11 @@
-# Paths Zenith never uses: removed from main and kept removed after every sync (ci/prune.py).
+# UPSTREAM paths (Horizon's names and layout) that Zenith does not carry: ci/port_upstream.py drops every upstream change that touches one.
 # One pattern per line. A trailing "/" is a directory prefix; anything else is an fnmatch glob over the whole
 # path ("*" also crosses "/"). A line starting with "!" keeps what it matches (it wins over every other line).
-# Add a path here and the next sync deletes it; remove it from this list to take it back (restore it with git).
+# Careful: `launcher/` here is Horizon's own Rust launcher; Zenith's launcher/ is ours and is never touched by a port.
 
-# Dedicated server and its bot client: the integrated single-player server lives in zenith-client
-crates/zenith-server/
-crates/zenith-bots/
+# Dedicated server and its bot client: the integrated single-player server lives in horizon-client
+crates/horizon-server/
+crates/horizon-bots/
 packaging/server/
 docs/hosting.md
 docs/server.md
@@ -21,8 +21,8 @@ tests/test_server_bench.py
 
 # Horizon's own Rust launcher, telemetry ingest server and mod registry service (separate workspaces)
 launcher/
-crates/zenith-telemetry-server/
-crates/zenith-mod-registry/
+crates/horizon-telemetry-server/
+crates/horizon-mod-registry/
 
 # Historical benchmark results
 benchmarks/

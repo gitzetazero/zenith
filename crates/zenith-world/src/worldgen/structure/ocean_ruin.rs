@@ -9,8 +9,8 @@ use crate::{
     heightmap::HeightmapType,
     worldgen::{DecodeError, block_feature::FeatureBlockBindings},
 };
-use zenith_core::random::RandomSource;
 use std::sync::Arc;
+use zenith_core::random::RandomSource;
 
 const WARM: [&str; 8] = [
     "warm_1", "warm_2", "warm_3", "warm_4", "warm_5", "warm_6", "warm_7", "warm_8",
@@ -375,8 +375,8 @@ mod tests {
             },
         },
     };
-    use zenith_core::{position::ChunkPos, random::LegacyRandom};
     use std::{collections::BTreeMap, path::Path, sync::Mutex};
+    use zenith_core::{position::ChunkPos, random::LegacyRandom};
 
     /// Air, the water and the floor the piece is placed in, and the structure
     /// block that carries the piece's markers.

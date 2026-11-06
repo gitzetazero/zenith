@@ -12,14 +12,6 @@ use crate::{
         spawning::{LocalDifficulty, MOON_BRIGHTNESS},
     },
 };
-use zenith_core::{
-    geometry::{Aabb, Vec3},
-    random::{LegacyRandom, RandomSource, XoroshiroRandom},
-};
-use zenith_world::{
-    nbt::{Compound, Tag},
-    worldgen::{generator::StructureMobs, structure::legacy::PieceRandom},
-};
 use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
@@ -27,6 +19,14 @@ use std::{
         Arc, OnceLock,
         atomic::{AtomicI64, AtomicU8, Ordering},
     },
+};
+use zenith_core::{
+    geometry::{Aabb, Vec3},
+    random::{LegacyRandom, RandomSource, XoroshiroRandom},
+};
+use zenith_world::{
+    nbt::{Compound, Tag},
+    worldgen::{generator::StructureMobs, structure::legacy::PieceRandom},
 };
 
 struct Data {
@@ -326,10 +326,7 @@ mod tests {
         )
         .unwrap();
         let limits = zenith_world::nbt::Limits::templates();
-        let template = zenith_world::nbt::read_named(&bytes, limits)
-            .unwrap()
-            .0
-            .tag;
+        let template = zenith_world::nbt::read_named(&bytes, limits).unwrap().0.tag;
         let Some(Tag::List(entities)) = template.get("entities") else {
             panic!("no entities");
         };

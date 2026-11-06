@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Checks that a merge did not silently drop Zenith's own work.
+"""Checks that a port of Horizon's work did not silently drop Zenith's own work.
 
 Compares the work tree with ci/zenith-manifest.json:
   (a) every Zenith-own file (a file Horizon does not have) still exists;
@@ -17,6 +17,8 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import rename_map  # noqa: E402
 MARKER = re.compile(r"(//|#|<!--)\s*zenith:")
 # Files Horizon also has but that are ours (kept by merge=ours): they must stay.
 EXTRA_FILES = ["README.md", "CONTRIBUTING.md", ".gitattributes", "LICENSE", "THIRD_PARTY_NOTICES.md"]
@@ -64,9 +66,11 @@ def markers(repo, files):
 
 def build(repo, upstream_ref):
     ours = set(tracked(repo))
-    # against the common ancestor: files Horizon deleted since then are not ours
-    base = git(repo, "merge-base", "HEAD", upstream_ref).strip()
-    theirs = set(git(repo, "ls-tree", "-r", "--name-only", base).split("\n"))
+    # against Horizon's tree at the last port, in Zenith's names: what it does not have is ours
+    if upstream_ref is None:
+        with open(os.path.join(repo, "ci/upstream-synced.txt"), encoding="utf-8") as f:
+            upstream_ref = f.readline().split()[0]
+    theirs = {rename_map.map_path(p) for p in git(repo, "ls-tree", "-r", "--name-only", upstream_ref).split("\n") if p}
     own = sorted(p for p in ours - theirs if os.path.isfile(os.path.join(repo, p)))
     return {"own_files": sorted(set(own) | set(EXTRA_FILES)),
             "markers": markers(repo, sorted(ours - set(own)))}
@@ -92,7 +96,7 @@ def main():
     ap.add_argument("--repo", default=".")
     ap.add_argument("--manifest")
     ap.add_argument("--update", action="store_true")
-    ap.add_argument("--upstream-ref", default="upstream/main")
+    ap.add_argument("--upstream-ref")
     a = ap.parse_args()
     repo = os.path.abspath(a.repo)
     path = a.manifest or os.path.join(repo, "ci/zenith-manifest.json")

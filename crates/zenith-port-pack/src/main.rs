@@ -32,11 +32,11 @@
 //!
 //! The work folder belongs to the user: jars and carried-over files stay
 //! there and are never uploaded or committed.
-use zenith_port_pack::{fetch, inventory::Record, pipeline, upgrade};
 use std::{
     path::{Path, PathBuf},
     process::ExitCode,
 };
+use zenith_port_pack::{fetch, inventory::Record, pipeline, upgrade};
 
 const USAGE: &str = "usage: zenith-port-pack import <pack> <work> | inventory <work> [--offline] | fetch <work> [--from <folder>] [<mod id>...] | carry <work> [--resources <prepared>] [<mod id>...] | report <work> | check <jar> <out> | port <pack> <work> [--from <folder>] [--resources <prepared>] | upgrade-datapack <pack> (<out> | --world <world>)";
 

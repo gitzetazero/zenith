@@ -1,7 +1,7 @@
 //! DamageType resource-codec probe; Java's actual DIRECT_CODEC is the oracle.
-use zenith_world::{damage_source::Definition, nbt::Tag};
 use serde_json::json;
 use std::io::{self, BufRead};
+use zenith_world::{damage_source::Definition, nbt::Tag};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     for line in io::stdin().lock().lines() {

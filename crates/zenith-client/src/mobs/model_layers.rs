@@ -11,8 +11,8 @@
 //! bakes one of them or a vanilla layer (`EntityModelSet.bakeLayer`).
 
 use super::Part;
-use zenith_core::geometry::Direction;
 use std::{collections::HashMap, sync::OnceLock};
+use zenith_core::geometry::Direction;
 
 /// `CubeDeformation`: how far a box grows past its size on each side, in
 /// texels, with its texture unchanged: a hat or an armour layer over a head.

@@ -668,9 +668,7 @@ impl Game<'_> {
                     .find(|m| m.id == id)
                     .and_then(|m| m.extra.owner)
                     // A guest owner too, not only the player in place.
-                    .and_then(|u| {
-                        self.target_by_uuid(zenith_client::lan::playerdata::ints_uuid(u))
-                    })
+                    .and_then(|u| self.target_by_uuid(zenith_client::lan::playerdata::ints_uuid(u)))
                     .filter(|owner| {
                         matches!(
                             owner,
@@ -727,9 +725,7 @@ impl Game<'_> {
                         // including loaded owners that cannot be a Who.
                         let Some(owner) = p.owner else {
                             return p.owner_uuid.and_then(|uuid| {
-                                self.target_by_uuid(zenith_client::lan::playerdata::ints_uuid(
-                                    uuid,
-                                ))
+                                self.target_by_uuid(zenith_client::lan::playerdata::ints_uuid(uuid))
                             });
                         };
                         match (owner, p.guest) {

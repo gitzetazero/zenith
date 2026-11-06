@@ -1,14 +1,14 @@
 //! A data-pack biome is in the registry a server sends, with its data, at the
 //! place the chunk encoder numbers it by, and a client rebuilds it from that
 //! data.
+use serde_json::Value;
+use std::path::PathBuf;
 use zenith_client::{
     biome::{BiomeColors, Biomes},
     chunk::LevelShapes,
     lan::data::{BIOME_REGISTRY, SyncData, client_biomes},
     scoreboard::json_to_tag,
 };
-use serde_json::Value;
-use std::path::PathBuf;
 
 /// Removes the folder when the test ends, passed or not.
 struct Scratch(PathBuf);

@@ -15,9 +15,9 @@ use crate::worldgen::{
     state_provider::BlockStateProvider,
     tree_blocks::{self as tb, TreeBlocks},
 };
-use zenith_core::{geometry::Direction, random::RandomSource};
 use serde_json::value::RawValue;
 use std::collections::BTreeSet;
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 /// Catalog-injected configured feature for the pale-moss ground patch, which
 /// vanilla looks up by registry key during decoration.

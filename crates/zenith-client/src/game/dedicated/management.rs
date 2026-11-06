@@ -5,6 +5,7 @@
 //! players a change shuts out are disconnected. The supervisor answers with the lists, from their files.
 use super::{GAME_MODES, ServerState, auto_save, log, set_auto_save};
 use crate::game::Game;
+use serde_json::{Value, json};
 use zenith_client::{
     command::vanilla::DIFFICULTIES,
     gamerules::{self, Value as GameRuleValue},
@@ -15,7 +16,6 @@ use zenith_client::{
     text::Text,
 };
 use zenith_protocol::text::translatable;
-use serde_json::{Value, json};
 
 /// A `UserBan`: the player, the reason, the source, the end.
 type Ban = BanEntry<NameAndId>;

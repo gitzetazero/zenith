@@ -1,7 +1,5 @@
 //! Original differential-test transport. State air/fluid facts are private inputs;
 //! tag predicates are resolved by the Rust loader, not imported oracle results.
-use zenith_world::heightmap::{Heightmap, HeightmapChunk, HeightmapState, HeightmapType};
-use zenith_world::worldgen::tags::TagDefinitions;
 use serde_json::Value;
 use std::{
     cell::RefCell,
@@ -10,6 +8,8 @@ use std::{
     io::{self, Write},
     path::Path,
 };
+use zenith_world::heightmap::{Heightmap, HeightmapChunk, HeightmapState, HeightmapType};
+use zenith_world::worldgen::tags::TagDefinitions;
 
 #[derive(Clone, Copy)]
 struct State {

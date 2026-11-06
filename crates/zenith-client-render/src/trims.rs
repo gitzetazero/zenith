@@ -5,9 +5,9 @@
 //! at the same index of the material's palette (`textures/palettes/trim/*`),
 //! unless the equipment asset's `trim_overrides` pick another texture or
 //! palette (iron armour with an iron trim uses `trim/iron_darker`).
-use zenith_assets::palette::apply_palette;
 use serde_json::Value;
 use std::{collections::HashMap, fs, path::Path};
+use zenith_assets::palette::apply_palette;
 
 /// An RGBA image: width, height, pixels.
 pub type Image = (u32, u32, Vec<u8>);

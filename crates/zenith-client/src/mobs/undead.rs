@@ -1455,27 +1455,26 @@ mod go_to_water_tests {
     #[test]
     fn a_drowned_goes_to_water_blocks_not_kelp() {
         for (block, expect) in [("minecraft:kelp", false), ("minecraft:water", true)] {
-            let build =
-                |world: &mut crate::world::World,
-                 registry: &zenith_world::registry::BlockRegistry| {
-                    for cx in -2..2 {
-                        for cz in -2..2 {
-                            world
-                                .chunks
-                                .insert((cx, cz), Arc::new(crate::chunk::Chunk::empty(cx, cz)));
+            let build = |world: &mut crate::world::World,
+                         registry: &zenith_world::registry::BlockRegistry| {
+                for cx in -2..2 {
+                    for cz in -2..2 {
+                        world
+                            .chunks
+                            .insert((cx, cz), Arc::new(crate::chunk::Chunk::empty(cx, cz)));
+                    }
+                }
+                let state = registry.default_state(block).unwrap();
+                for x in -12..12 {
+                    for z in -12..12 {
+                        for y in 58..=66 {
+                            world.set(x, y, z, state).unwrap();
                         }
                     }
-                    let state = registry.default_state(block).unwrap();
-                    for x in -12..12 {
-                        for z in -12..12 {
-                            for y in 58..=66 {
-                                world.set(x, y, z, state).unwrap();
-                            }
-                        }
-                    }
-                    let stone = registry.default_state("minecraft:stone").unwrap();
-                    world.set(0, 63, 0, stone).unwrap();
-                };
+                }
+                let stone = registry.default_state("minecraft:stone").unwrap();
+                world.set(0, 63, 0, stone).unwrap();
+            };
             let ran = with_built_test_world(&[], build, |w, types| {
                 let mut kind = types.types["minecraft:drowned"].clone();
                 kind.species = Species::Drowned;

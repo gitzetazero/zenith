@@ -8,15 +8,15 @@
 //! the chunks of each level, and gives the memory, the CPU and the view settings. It holds no player names,
 //! UUIDs or addresses, no seed and no world name. It runs beside the game: nothing restarts.
 use super::super::{Dim, Game, tick_profile};
-use zenith_client::{
-    spans::{self, Span},
-    streaming::job_stats,
-};
 use serde_json::{Value, json};
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
     time::{Duration, Instant},
+};
+use zenith_client::{
+    spans::{self, Span},
+    streaming::job_stats,
 };
 
 /// The longest window a report records.

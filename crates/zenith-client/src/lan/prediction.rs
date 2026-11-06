@@ -656,8 +656,8 @@ mod tests {
         motion::{MotionResources, MotionWorld},
         world::World,
     };
-    use zenith_anticheat::prediction::Record;
     use std::path::Path;
+    use zenith_anticheat::prediction::Record;
 
     /// Keys for each tick: 20 walking, 12 sprint-jumping, 12 strafing while turning, 6 still.
     fn script() -> Vec<(u8, f32)> {

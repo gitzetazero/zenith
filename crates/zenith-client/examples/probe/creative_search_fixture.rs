@@ -5,12 +5,12 @@
 //! as an operator with the Operator Items Tab option on.
 //!
 //! usage: creative_search_fixture RESOURCES CREATIVE_JSON VANILLA_JSON OUTPUT [permissions]
+use serde_json::{Value, json};
+use std::{fs, path::Path};
 use zenith_client::{
     creative::{Creative, Names},
     item_data::canon_stack,
 };
-use serde_json::{Value, json};
-use std::{fs, path::Path};
 
 pub fn main() -> zenith_client::Result<()> {
     let args: Vec<String> = crate::args().collect();

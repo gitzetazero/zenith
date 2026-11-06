@@ -4,9 +4,9 @@
 //! `tools/test_block_transformer_parity.py` compares every block state with
 //! vanilla.
 use crate::{Result, items::Items};
-use zenith_world::{chunk::BlockState, registry::BlockRegistry};
 use serde_json::Value;
 use std::{collections::HashMap, fs, path::Path};
+use zenith_world::{chunk::BlockState, registry::BlockRegistry};
 
 enum Predicate {
     Blocks(Vec<String>),

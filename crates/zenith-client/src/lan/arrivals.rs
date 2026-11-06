@@ -836,9 +836,9 @@ mod hub_tests {
         guest::Guest,
         hub::{Hub, HubConfig, TickCtx},
     };
-    use zenith_protocol::ids::play::clientbound as id;
     use std::sync::mpsc::{Receiver, channel};
     use std::time::{Duration, Instant};
+    use zenith_protocol::ids::play::clientbound as id;
 
     fn hub() -> Hub {
         let config = NetConfig {
@@ -1214,11 +1214,7 @@ mod hub_tests {
         packets
             .iter()
             .filter(|(i, _)| *i == id::ADD_ENTITY)
-            .map(|(_, payload)| {
-                zenith_protocol::buf::Reader::new(payload)
-                    .varint()
-                    .unwrap()
-            })
+            .map(|(_, payload)| zenith_protocol::buf::Reader::new(payload).varint().unwrap())
             .collect()
     }
 

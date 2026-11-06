@@ -13,7 +13,6 @@ use super::{
         stronghold::RingSearch,
     },
 };
-use zenith_core::{density::Beardifier, position::ChunkPos};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::{
@@ -23,6 +22,7 @@ use std::{
         atomic::{AtomicUsize, Ordering},
     },
 };
+use zenith_core::{density::Beardifier, position::ChunkPos};
 
 pub(super) type Starts = Arc<Vec<Arc<StructureStart>>>;
 impl StructureState {

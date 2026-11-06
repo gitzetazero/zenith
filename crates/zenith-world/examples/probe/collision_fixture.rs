@@ -1,4 +1,10 @@
 //! Queries imported cached shapes through resident section state IDs.
+use std::{
+    error::Error,
+    fs,
+    io::{BufRead, Write},
+    path::PathBuf,
+};
 use zenith_core::{
     geometry::{Aabb, Axis, Vec3},
     position::BlockPos,
@@ -8,12 +14,6 @@ use zenith_world::{
     collision::CachedCollisionRegistry,
     nbt::{self, Limits, Tag},
     registry::{BlockRegistry, BlockStateId},
-};
-use std::{
-    error::Error,
-    fs,
-    io::{BufRead, Write},
-    path::PathBuf,
 };
 
 fn bits(value: f64) -> u64 {

@@ -277,12 +277,9 @@ fn shader_packs_pass_the_game_s_own_check() {
     let manifest = "schema = 1\nid = \"glow\"\nname = \"Glow\"\nversion = \"1.0.0\"\napi = \"0.1\"\n\
                     [[post]]\nfile = \"post.wgsl\"\n";
     let pack = |post: &str| {
-        let files = [
-            (zenith_shader_api::MANIFEST, manifest),
-            ("post.wgsl", post),
-        ]
-        .map(|(n, t)| (n.to_owned(), t.as_bytes().to_vec()))
-        .into();
+        let files = [(zenith_shader_api::MANIFEST, manifest), ("post.wgsl", post)]
+            .map(|(n, t)| (n.to_owned(), t.as_bytes().to_vec()))
+            .into();
         zenith_shader_api::Pack::from_files(files)
             .unwrap()
             .package()

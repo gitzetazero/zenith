@@ -55,10 +55,15 @@ pub const API: &str = "https://cosmetics.playhorizon.dev";
 /// (development, the bench).
 pub fn enabled() -> bool {
     static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    *ON.get_or_init(|| match std::env::var("HORIZON_COSMETICS").as_deref() {
-        Ok("1") => true,
-        Ok("0") => false,
-        _ => ON_BY_DEFAULT,
+    *ON.get_or_init(|| {
+        match std::env::var("ZENITH_COSMETICS")
+            .or_else(|_| std::env::var("HORIZON_COSMETICS"))
+            .as_deref()
+        {
+            Ok("1") => true,
+            Ok("0") => false,
+            _ => ON_BY_DEFAULT,
+        }
     })
 }
 
@@ -68,5 +73,8 @@ const _: () = assert!(!ON_BY_DEFAULT);
 /// `HORIZON_COSMETICS=1` asked for this run: the launcher shows its Wardrobe even while the
 /// cosmetics service has no Shop to show (development, screenshots).
 pub fn forced() -> bool {
-    std::env::var("HORIZON_COSMETICS").as_deref() == Ok("1")
+    std::env::var("ZENITH_COSMETICS")
+        .or_else(|_| std::env::var("HORIZON_COSMETICS"))
+        .as_deref()
+        == Ok("1")
 }

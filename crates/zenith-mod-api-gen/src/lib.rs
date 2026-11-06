@@ -1692,9 +1692,7 @@ mod tests {
             Some(("zenith-client", "crafting::native_ingredient".to_owned()))
         );
         assert_eq!(
-            super::free_function_source(
-                "zenith_client::game::native_hooks::Game<'_>::native_zoom"
-            ),
+            super::free_function_source("zenith_client::game::native_hooks::Game<'_>::native_zoom"),
             None
         );
     }

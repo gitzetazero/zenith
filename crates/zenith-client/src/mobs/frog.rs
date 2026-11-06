@@ -15,11 +15,11 @@ use super::{
     sync,
 };
 use crate::blocks::Fluid;
+use std::fmt::Debug;
 use zenith_core::{
     geometry::Vec3,
     random::{LegacyRandom, RandomSource},
 };
-use std::fmt::Debug;
 
 const JUMP: usize = 0;
 const CROAK: usize = 1;

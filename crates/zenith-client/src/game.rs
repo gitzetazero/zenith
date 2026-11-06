@@ -383,6 +383,45 @@ mod zombie_reinforcements;
 mod zombie_villagers;
 use event_loop::EventLoopCtl;
 // `Action` here is the title screen's buttons (`title::Action`).
+pub use machines::native_fluids::NativeFluidTank;
+pub use maps::{NativeMapDecoration, NativeMapInfo};
+pub use native_block_entity_draw::BlockEntityDraw;
+pub use native_claimed_items::{NativeHeldItem, NativeHit, NativeModEvent};
+pub use native_components::NativeComponentError;
+pub use native_configs::{NativeConfig, NativeConfigFile, NativeConfigKind};
+pub use native_criteria::NativeCriterion;
+pub use native_data_maps::NativeDataMapType;
+pub use native_falling::NativeFalling;
+pub use native_hooks::{NativeClock, NativeItemEntity, NativePlayer, NativeShake};
+pub use native_item_energy::ItemEnergyBuffer;
+pub use native_mob_draw::{NativeMobRender, NativePlayerRender};
+pub use native_reload_listeners::NativeReloadListener;
+pub use native_server::NativeExperienceOrb;
+pub use native_structures::{NativeStructureBlock, NativeStructureTemplate};
+pub use native_world_columns::NativeColumnBlocks;
+pub use native_world_draw::NativeWorldDraw;
+pub use native_world_edit::{NativeBlockEdit, NativeBlockRun, NativeHeightmap};
+pub use native_world_read::NativeBlockReadError;
+use std::{
+    cell::RefCell,
+    collections::{HashMap, HashSet},
+    path::PathBuf,
+    sync::{
+        Arc,
+        atomic::{AtomicU32, Ordering},
+        mpsc::{Receiver, TryRecvError},
+    },
+    thread::JoinHandle,
+    time::{Duration, Instant},
+};
+use winit::{
+    application::ApplicationHandler,
+    error::EventLoopError,
+    event::{DeviceEvent, DeviceId, ElementState, MouseButton, MouseScrollDelta, WindowEvent},
+    event_loop::{ActiveEventLoop, ControlFlow, EventLoop},
+    keyboard::{KeyCode, PhysicalKey},
+    window::{CursorGrabMode, Window, WindowId},
+};
 use zenith_client::actions::Action as Mapping;
 use zenith_client::held::Source;
 use zenith_client::spans::startup;
@@ -445,45 +484,6 @@ use zenith_world::{
         Ticks, flags as level_flags,
     },
     registry::BlockStateId,
-};
-pub use machines::native_fluids::NativeFluidTank;
-pub use maps::{NativeMapDecoration, NativeMapInfo};
-pub use native_block_entity_draw::BlockEntityDraw;
-pub use native_claimed_items::{NativeHeldItem, NativeHit, NativeModEvent};
-pub use native_components::NativeComponentError;
-pub use native_configs::{NativeConfig, NativeConfigFile, NativeConfigKind};
-pub use native_criteria::NativeCriterion;
-pub use native_data_maps::NativeDataMapType;
-pub use native_falling::NativeFalling;
-pub use native_hooks::{NativeClock, NativeItemEntity, NativePlayer, NativeShake};
-pub use native_item_energy::ItemEnergyBuffer;
-pub use native_mob_draw::{NativeMobRender, NativePlayerRender};
-pub use native_reload_listeners::NativeReloadListener;
-pub use native_server::NativeExperienceOrb;
-pub use native_structures::{NativeStructureBlock, NativeStructureTemplate};
-pub use native_world_columns::NativeColumnBlocks;
-pub use native_world_draw::NativeWorldDraw;
-pub use native_world_edit::{NativeBlockEdit, NativeBlockRun, NativeHeightmap};
-pub use native_world_read::NativeBlockReadError;
-use std::{
-    cell::RefCell,
-    collections::{HashMap, HashSet},
-    path::PathBuf,
-    sync::{
-        Arc,
-        atomic::{AtomicU32, Ordering},
-        mpsc::{Receiver, TryRecvError},
-    },
-    thread::JoinHandle,
-    time::{Duration, Instant},
-};
-use winit::{
-    application::ApplicationHandler,
-    error::EventLoopError,
-    event::{DeviceEvent, DeviceId, ElementState, MouseButton, MouseScrollDelta, WindowEvent},
-    event_loop::{ActiveEventLoop, ControlFlow, EventLoop},
-    keyboard::{KeyCode, PhysicalKey},
-    window::{CursorGrabMode, Window, WindowId},
 };
 
 /// The time a frame spends uploading chunk meshes when the player set no
@@ -4206,9 +4206,7 @@ impl Game<'_> {
     fn loot_block_entity(&self, pos: [i32; 3], block: &str) -> Option<zenith_world::nbt::Tag> {
         let key = (pos[0], pos[1], pos[2]);
         match self.world.block_entities.get(&key) {
-            Some(entity) => Some(zenith_client::save::encode_block_entity(
-                key, entity, block,
-            )),
+            Some(entity) => Some(zenith_client::save::encode_block_entity(key, entity, block)),
             None => spill::saved_entity(&self.world, pos),
         }
     }
@@ -4252,23 +4250,22 @@ impl Game<'_> {
         let registry = self.pack.assets.registry;
         let dynamic = self.pending.dynamic(pos);
         let place = self.loot_place_at(pos.map(|v| f64::from(v) + 0.5), block_entity);
-        let mut drops =
-            zenith_world::loot::with_native_loot_place(place, || {
-                match world_items!(self).block_loot_sequence(registry, state) {
-                    Some(sequence) => {
-                        let random = self.rand_sequences.get(&sequence, self.level.seed);
-                        world_items!(self)
-                            .block_drops_by_player(registry, state, held, &dynamic, random)
-                    }
-                    None => world_items!(self).block_drops_by_player(
-                        registry,
-                        state,
-                        held,
-                        &dynamic,
-                        &mut self.world.random,
-                    ),
+        let mut drops = zenith_world::loot::with_native_loot_place(place, || {
+            match world_items!(self).block_loot_sequence(registry, state) {
+                Some(sequence) => {
+                    let random = self.rand_sequences.get(&sequence, self.level.seed);
+                    world_items!(self)
+                        .block_drops_by_player(registry, state, held, &dynamic, random)
                 }
-            });
+                None => world_items!(self).block_drops_by_player(
+                    registry,
+                    state,
+                    held,
+                    &dynamic,
+                    &mut self.world.random,
+                ),
+            }
+        });
         let player = self.native_acting_id();
         self.native_block_drops(pos, state, Some(player), held, None, &mut drops);
         drops
@@ -5151,14 +5148,10 @@ impl Game<'_> {
             .iter()
             .filter(|p| p.arrow.is_some())
         {
-            inside.extend(zenith_client::arrows::blocks_inside(
-                p.previous, p.position,
-            ));
+            inside.extend(zenith_client::arrows::blocks_inside(p.previous, p.position));
         }
         for t in &self.tridents {
-            inside.extend(zenith_client::arrows::blocks_inside(
-                t.position, t.position,
-            ));
+            inside.extend(zenith_client::arrows::blocks_inside(t.position, t.position));
         }
         // BigDripleafBlock.entityInside also asks whether the player stands on
         // the ground and how high its feet are: the leaves its box's feet
@@ -11941,8 +11934,7 @@ impl Game<'_> {
                 - camera)
                 .as_vec3();
             let state = self.world.block(pos[0], pos[1], pos[2]);
-            if self.res.facts().get(state).render_shape
-                == zenith_client::blocks::RenderShape::Model
+            if self.res.facts().get(state).render_shape == zenith_client::blocks::RenderShape::Model
                 && let Ok(models) = self
                     .pack
                     .render
@@ -12723,9 +12715,7 @@ impl Game<'_> {
                 self.open_options_at(true, zenith_client::options_ui::Page::Language)
             }
             Action::Sounds => self.open_options_at(true, zenith_client::options_ui::Page::Sound),
-            Action::Credits => {
-                self.open_options_at(true, zenith_client::options_ui::Page::Credits)
-            }
+            Action::Credits => self.open_options_at(true, zenith_client::options_ui::Page::Credits),
             Action::OpenUri(uri) => packs::open_uri(&uri),
             Action::CopyText(text) => {
                 use zenith_client::clipboard::Clipboard;
@@ -14703,8 +14693,7 @@ impl Game<'_> {
                     .swap_animation_scale(&zenith_client::item_render::stack_view(stack))
             });
             let attack = attacks[i];
-            let inverse_height =
-                zenith_client::first_person::equip_displacement(heights[i], scale);
+            let inverse_height = zenith_client::first_person::equip_displacement(heights[i], scale);
             let mut canceled = false;
             self.native_render_hand(
                 hand,
@@ -16634,8 +16623,7 @@ impl Game<'_> {
                 fov_degrees,
                 near: 0.05,
                 far: depth_far,
-                view: (bob * spin * zenith_client::camera::view_matrix(yaw, pitch))
-                    .to_cols_array(),
+                view: (bob * spin * zenith_client::camera::view_matrix(yaw, pitch)).to_cols_array(),
                 projection: glam::Mat4::perspective_rh(
                     fov_degrees.to_radians(),
                     size[0] as f32 / size[1].max(1) as f32,
@@ -18908,9 +18896,8 @@ impl Game<'_> {
                     if pressed
                         && (self.sort_mouse_press(button)
                             || self.hdr_mouse_press(button)
-                            || self.hud_editor_key_press(&zenith_client::keybinds::mouse_name(
-                                button,
-                            )))
+                            || self
+                                .hud_editor_key_press(&zenith_client::keybinds::mouse_name(button)))
                     {
                         return Ok(());
                     }
@@ -22409,10 +22396,9 @@ impl Loading {
         game.apply_settings();
         game.previous = Instant::now();
         // Minecraft.onGameLoadFinished: a start that made it this far is clean.
-        game.settings.file.set(
-            "startedCleanly",
-            zenith_client::options_file::V::Bool(true),
-        );
+        game.settings
+            .file
+            .set("startedCleanly", zenith_client::options_file::V::Bool(true));
         game.settings.save(&Game::options_path());
         log::info!(
             "Horizon: startup handoff {} ms (renderer {} ms, start_game {} ms)",
@@ -22790,10 +22776,9 @@ pub fn run_with() -> Result<()> {
     if let Some(mut game) = game {
         // Minecraft.onGameLoadFinished: a start that made it this far is clean.
         if game.options.execution_role.is_client() {
-            game.settings.file.set(
-                "startedCleanly",
-                zenith_client::options_file::V::Bool(true),
-            );
+            game.settings
+                .file
+                .set("startedCleanly", zenith_client::options_file::V::Bool(true));
             game.settings.save(&Game::options_path());
         }
         run_event_loop(game)?;
@@ -23228,10 +23213,9 @@ mod tests {
         assert_eq!(settings.file.fullscreen_resolution, None);
         assert_eq!(settings.resource_packs, ["pack"]);
         let mut settings = fullscreen();
-        settings.file.set(
-            "startedCleanly",
-            zenith_client::options_file::V::Bool(true),
-        );
+        settings
+            .file
+            .set("startedCleanly", zenith_client::options_file::V::Bool(true));
         assert!(!unclean_start_recovery(&mut settings));
         assert!(settings.fullscreen);
     }

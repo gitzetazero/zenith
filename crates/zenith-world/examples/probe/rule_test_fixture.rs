@@ -1,17 +1,17 @@
 //! Differential transport for replacement rules over pinned block identities.
 use crate::support::common::tag;
+use serde_json::Value;
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::random::{LegacyRandom, RandomSource, XoroshiroRandom};
 use zenith_world::{
     DATA_VERSION,
     nbt::Tag,
     registry::{BlockRegistry, BlockStateId},
     worldgen::{block_feature::FeatureBlockBindings, rule_test::RuleTest, tags::TagDefinitions},
-};
-use serde_json::Value;
-use std::{
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 fn fixture(
     f: &Value,

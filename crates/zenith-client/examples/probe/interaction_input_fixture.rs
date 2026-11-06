@@ -1,9 +1,9 @@
+use serde_json::Value;
+use std::io::{BufRead, Write};
 use zenith_client::interaction_input::{
     Button, InteractionInput, InteractionWorld, TargetUseWorld, release_on_screen_open,
     use_on_target,
 };
-use serde_json::Value;
-use std::io::{BufRead, Write};
 
 struct World {
     using: bool,

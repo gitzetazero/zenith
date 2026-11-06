@@ -3,18 +3,18 @@
 //! clicks that go through the same window events as the mouse.
 use super::event_loop::EventLoopCtl;
 use super::{Game, Screen, agent::Handled};
-use zenith_client::{
-    Result,
-    control::Request,
-    creative::Creative,
-    widgets::{self, Kind, Node},
-};
 use serde_json::{Value, json};
 use std::{
     sync::mpsc::Sender,
     time::{Duration, Instant},
 };
 use winit::event::MouseButton;
+use zenith_client::{
+    Result,
+    control::Request,
+    creative::Creative,
+    widgets::{self, Kind, Node},
+};
 
 pub(super) const HELP: &[&str] = &[
     "ui                             every widget of the open screen: id, kind, label, bounds, value",

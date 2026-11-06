@@ -8,11 +8,11 @@ use super::{
     Game,
     maps::{MapData, map_id, shown_on_frame},
 };
-use zenith_client::{hud::HudBatch, items::ItemStack, menu::Maps};
 use std::{
     cell::{Cell, RefCell},
     collections::HashMap,
 };
+use zenith_client::{hud::HudBatch, items::ItemStack, menu::Maps};
 
 /// The level's maps as a menu sees them (`ContainerLevelAccess`): the
 /// states of the maps the click can reach, and the copies it makes.

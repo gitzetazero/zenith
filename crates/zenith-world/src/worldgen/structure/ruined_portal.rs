@@ -11,9 +11,9 @@ use super::{
 use crate::{
     heightmap::HeightmapType, registry::BlockStateId, worldgen::block_feature::FeatureBlockBindings,
 };
-use zenith_core::{geometry::Direction, position::ChunkPos, random::RandomSource};
 use serde_json::{Value, json};
 use std::sync::Arc;
+use zenith_core::{geometry::Direction, position::ChunkPos, random::RandomSource};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Vertical {

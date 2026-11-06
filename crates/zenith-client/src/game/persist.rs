@@ -2,6 +2,10 @@
 //! entities (`entities/*.mca`, per chunk like vanilla's `EntityStorage`) and
 //! scheduled block/fluid ticks (chunk `block_ticks`/`fluid_ticks`).
 use super::{FallingBlock, Game};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 use zenith_client::{
     Result,
     chunk::Chunk,
@@ -18,10 +22,6 @@ use zenith_core::{
 };
 use zenith_world::attachments::{ATTACHMENTS_KEY, attachment_compound};
 use zenith_world::{level::MovingPiston, nbt::Tag, registry::BlockStateId};
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
 
 /// What Horizon remembers about loaded entities to save them faithfully.
 #[derive(Default)]
@@ -1210,10 +1210,8 @@ impl Game<'_> {
         if cart.items.is_empty() || cart.items.iter().any(Option::is_some) {
             return;
         }
-        let loot = zenith_client::structure_blocks::loot_data(
-            &self.options.resources,
-            &self.pack_files(),
-        );
+        let loot =
+            zenith_client::structure_blocks::loot_data(&self.options.resources, &self.pack_files());
         let p = cart.position;
         let pos = (p.x.floor() as i32, p.y.floor() as i32, p.z.floor() as i32);
         let biome = self.biome_name_at(p).unwrap_or_default();

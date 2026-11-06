@@ -1,12 +1,12 @@
 //! `cargo horizon-mod check <file>`: what the registry checks of a submission,
 //! run anywhere: its kind's own checks (docs/api/mod-index.md), its signature
 //! when given a key, and for a `.hmod` that it is content only.
+use serde_json::{Value, json};
+use std::path::Path;
 use zenith_mods::{
     Package,
     index::{self, Facts, Kind},
 };
-use serde_json::{Value, json};
-use std::path::Path;
 
 pub struct Report {
     pub kind: Kind,

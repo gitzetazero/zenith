@@ -62,38 +62,24 @@ pub fn main_with(mods: crate::mod_api::Mods) {
     if crate::gfx::native_render::install(renderers).is_err() {
         log::warn!("Trait renderers already installed; keeping the first list");
     }
-    if zenith_world::native_load_hooks::install(
-        zenith_world::native_load_hooks::NativeLoadHooks {
-            loot_table_load: |id, table| {
-                crate::mod_api::dispatch_loot_table_load(crate::mod_api::mods(), id, table);
-            },
-            modify_default_components: |item, components| {
-                crate::mod_api::dispatch_modify_default_components(
-                    crate::mod_api::mods(),
-                    item,
-                    components,
-                );
-            },
-            loot_function: |kind, data, ctx, stack| {
-                crate::mod_api::dispatch_loot_function(
-                    crate::mod_api::mods(),
-                    kind,
-                    data,
-                    ctx,
-                    stack,
-                );
-            },
-            loot_condition: |kind, data, ctx, holds| {
-                crate::mod_api::dispatch_loot_condition(
-                    crate::mod_api::mods(),
-                    kind,
-                    data,
-                    ctx,
-                    holds,
-                );
-            },
+    if zenith_world::native_load_hooks::install(zenith_world::native_load_hooks::NativeLoadHooks {
+        loot_table_load: |id, table| {
+            crate::mod_api::dispatch_loot_table_load(crate::mod_api::mods(), id, table);
         },
-    )
+        modify_default_components: |item, components| {
+            crate::mod_api::dispatch_modify_default_components(
+                crate::mod_api::mods(),
+                item,
+                components,
+            );
+        },
+        loot_function: |kind, data, ctx, stack| {
+            crate::mod_api::dispatch_loot_function(crate::mod_api::mods(), kind, data, ctx, stack);
+        },
+        loot_condition: |kind, data, ctx, holds| {
+            crate::mod_api::dispatch_loot_condition(crate::mod_api::mods(), kind, data, ctx, holds);
+        },
+    })
     .is_err()
     {
         log::warn!("Native data-load hooks already installed; keeping the first callbacks");

@@ -4,6 +4,10 @@
 //! reading written books, and lecterns (placing a book, turning its pages
 //! with a redstone pulse, the comparator output and taking the book).
 use super::{Game, lan::LanHost, screen_info};
+use winit::{
+    event::{ElementState, KeyEvent},
+    keyboard::{KeyCode, PhysicalKey},
+};
 use zenith_client::{
     containers::{BlockEntity, Lectern},
     first_person::Hand,
@@ -18,10 +22,6 @@ use zenith_client::{
 use zenith_core::position::BlockPos;
 use zenith_protocol::packets::play::{self, Clientbound as C, Serverbound as S};
 use zenith_world::level::flags as level_flags;
-use winit::{
-    event::{ElementState, KeyEvent},
-    keyboard::{KeyCode, PhysicalKey},
-};
 
 const BLACK: u32 = 0xFF00_0000;
 const PAGE_CHARS: usize = 1024;
@@ -79,9 +79,9 @@ fn view_pages(data: Option<&StackData>) -> Vec<Text> {
         .map(|(i, page)| match tagged.then(|| &w.page_tags[i]) {
             // A component object, or a component list (`ComponentSerialization`
             // takes both; servers behind ViaVersion send the list form).
-            Some(
-                tag @ (zenith_world::nbt::Tag::Compound(_) | zenith_world::nbt::Tag::List(_)),
-            ) => zenith_client::entity_nbt::name_text(tag),
+            Some(tag @ (zenith_world::nbt::Tag::Compound(_) | zenith_world::nbt::Tag::List(_))) => {
+                zenith_client::entity_nbt::name_text(tag)
+            }
             _ => Text::literal(page),
         })
         .collect()

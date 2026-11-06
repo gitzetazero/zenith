@@ -1,11 +1,11 @@
 //! `CommandStorage`: named compounds for `/data ... storage <id>`, kept per
 //! namespace in `data/<namespace>/command_storage.dat`.
 use crate::save;
-use zenith_world::nbt::{Compound, Tag};
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
 };
+use zenith_world::nbt::{Compound, Tag};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct CommandStorage {

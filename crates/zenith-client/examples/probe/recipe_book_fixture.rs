@@ -4,6 +4,8 @@
 //! `zenith_client::recipe_book::{Settings, RecipeIndex}`.
 //!
 //! usage: recipe_book_fixture RESOURCES CASES OUTPUT
+use serde_json::Value;
+use std::{collections::BTreeSet, fs, path::Path};
 use zenith_client::recipe_book::{BookType, RecipeIndex, Settings};
 use zenith_protocol::{
     buf::{Codec, Reader, Writer},
@@ -11,8 +13,6 @@ use zenith_protocol::{
 };
 use zenith_world::loot::PackOverlay;
 use zenith_world::nbt::Tag;
-use serde_json::Value;
-use std::{collections::BTreeSet, fs, path::Path};
 
 fn fnv<'a>(ids: impl IntoIterator<Item = &'a String>) -> u64 {
     let mut sorted: Vec<&String> = ids.into_iter().collect();

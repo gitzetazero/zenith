@@ -3,12 +3,12 @@
 //! killed by, saved to `players/stats/<uuid>.json`, plus the phantom
 //! spawner that reads the time since rest (`PhantomSpawner`).
 use super::{Dim, Game};
-use zenith_core::geometry::Vec3;
-use zenith_core::random::RandomSource;
 use std::{
     collections::{BTreeMap, BTreeSet},
     path::{Path, PathBuf},
 };
+use zenith_core::geometry::Vec3;
+use zenith_core::random::RandomSource;
 
 /// `stats[type][key]`, with `type` and `key` namespaced ids.
 #[derive(Default)]

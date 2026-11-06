@@ -1,9 +1,9 @@
 use super::*;
 use crate::game::entity::RenderEntityBounds;
+use std::path::Path;
 use zenith_client::chunk::ColumnLayout;
 use zenith_client::mobs::{Mob, MobData, MobTypes, Species, render};
 use zenith_core::geometry::Vec3;
-use std::path::Path;
 
 #[test]
 fn vanilla_models_and_animations_stay_inside_the_precheck_envelope() {

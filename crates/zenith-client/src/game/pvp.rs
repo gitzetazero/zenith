@@ -1,6 +1,8 @@
 //! The PvP & HUD page's options in the game (`zenith_client::pvp`, `docs/pvp.md`). Each
 //! does nothing while it is off.
 use super::{Dim, Game};
+use std::sync::Arc;
+use winit::event::MouseButton;
 use zenith_client::{
     extras::Corner,
     extras_hud::Corners,
@@ -10,8 +12,6 @@ use zenith_client::{
     pvp_hud::{self, Combo, Durability, Icon, Key, Line, Widget},
     text::Text,
 };
-use std::sync::Arc;
-use winit::event::MouseButton;
 
 #[derive(Default)]
 pub(super) struct PvpState {

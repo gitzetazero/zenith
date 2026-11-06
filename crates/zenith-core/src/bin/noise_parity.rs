@@ -1,4 +1,6 @@
 //! Test transport for comparing noise with the downloaded vanilla artifacts.
+use std::io::{self, BufRead, BufWriter, Write};
+use std::sync::Arc;
 use zenith_core::{
     geometry::Axis,
     noise::{
@@ -7,8 +9,6 @@ use zenith_core::{
     },
     random::{LegacyRandom, RandomSource, XoroshiroRandom},
 };
-use std::io::{self, BufRead, BufWriter, Write};
-use std::sync::Arc;
 
 enum Sampler {
     Perlin(PerlinNoise),

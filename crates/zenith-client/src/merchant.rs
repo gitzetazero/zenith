@@ -7,10 +7,10 @@ use crate::{
     enchant::Enchantments,
     items::{ItemStack, Items},
 };
-use zenith_core::random::{RandomSource, XoroshiroRandom, mix_stafford13, seed_from_hash};
-use zenith_world::loot::PackOverlay;
 use serde_json::Value;
 use std::{collections::HashMap, path::Path, sync::Arc};
+use zenith_core::random::{RandomSource, XoroshiroRandom, mix_stafford13, seed_from_hash};
+use zenith_world::loot::PackOverlay;
 
 /// `VillagerData.NEXT_LEVEL_XP_THRESHOLDS`.
 pub const LEVEL_XP: [i32; 5] = [0, 10, 70, 150, 250];

@@ -1,8 +1,8 @@
 //! Text components from commands: `ComponentArgument` reads an SNBT (or JSON)
 //! value, `ComponentSerialization` turns it into styled text.
 use crate::text::{InlineObject, Style, Text, named_color};
-use zenith_world::nbt::Tag;
 use serde_json::{Map, Value};
+use zenith_world::nbt::Tag;
 
 /// `SnbtGrammar`, enough for components: compounds, lists, quoted and
 /// unquoted strings, numbers (with type suffixes) and booleans. Returns the

@@ -40,16 +40,16 @@ use crate::{
     heightmap::HeightmapType, identifier::Identifier, java_hash_map::JavaHashMap,
     worldgen::block_feature::FeatureBlockBindings,
 };
-use zenith_core::{
-    position::ChunkPos,
-    random::{LegacyRandom, RandomSource, WorldgenRandom},
-};
 use serde_json::Value;
 use std::{
     cell::RefCell,
     collections::{HashSet, VecDeque},
     rc::Rc,
     sync::Arc,
+};
+use zenith_core::{
+    position::ChunkPos,
+    random::{LegacyRandom, RandomSource, WorldgenRandom},
 };
 
 /// Which mod's copy of the code: they differ in a few post-layout steps.

@@ -15,6 +15,21 @@
 //! not all saved keeps its captured mesh.
 //! `--memory on` adds the renderer's largest GPU resources and, on macOS, the process's
 //! physical footprint by category (`footprint`), taken after the timed frames.
+use serde_json::{Value, json};
+use std::{
+    path::{Path, PathBuf},
+    sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    },
+    time::{Duration, Instant},
+};
+use winit::{
+    application::ApplicationHandler,
+    event::WindowEvent,
+    event_loop::{ActiveEventLoop, EventLoop},
+    window::{Window, WindowId},
+};
 use zenith_client_render::{
     assets::{Assets, RenderAssets},
     biome::Biomes,
@@ -41,21 +56,6 @@ use zenith_world::{
     nbt::{Limits, NamedTag, Tag},
     region::RegionFile,
     registry::BlockRegistry,
-};
-use serde_json::{Value, json};
-use std::{
-    path::{Path, PathBuf},
-    sync::{
-        Arc,
-        atomic::{AtomicUsize, Ordering},
-    },
-    time::{Duration, Instant},
-};
-use winit::{
-    application::ApplicationHandler,
-    event::WindowEvent,
-    event_loop::{ActiveEventLoop, EventLoop},
-    window::{Window, WindowId},
 };
 
 // The game's allocator, so that `--memory`'s footprint is the game's: the system heap kept
@@ -693,11 +693,7 @@ fn remesh(
 /// The world seed: `data/minecraft/world_gen_settings.dat`, or level.dat's
 /// `Data.WorldGenSettings` in older saves.
 fn world_seed(save: &Path) -> Option<i64> {
-    let read = |path: PathBuf| {
-        zenith_world::datafix::files::read_dat(&path)
-            .ok()
-            .flatten()
-    };
+    let read = |path: PathBuf| zenith_world::datafix::files::read_dat(&path).ok().flatten();
     let seed = |tag: Option<&Tag>| match tag?.get("seed")? {
         Tag::Long(seed) => Some(*seed),
         _ => None,

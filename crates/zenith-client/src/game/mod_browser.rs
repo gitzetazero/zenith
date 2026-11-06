@@ -4,6 +4,11 @@
 //! options screen's `mod_browser`. The window's game and the startup menu each
 //! have one.
 use super::Game;
+use std::path::PathBuf;
+use std::sync::{
+    Arc,
+    mpsc::{Receiver, TryRecvError, channel},
+};
 use zenith_client::{
     lang,
     mod_browser::{Listing, ModBrowser, Status},
@@ -11,11 +16,6 @@ use zenith_client::{
     mod_registry::{self, Done},
 };
 use zenith_mods::index::Index;
-use std::path::PathBuf;
-use std::sync::{
-    Arc,
-    mpsc::{Receiver, TryRecvError, channel},
-};
 
 /// What the worker sends back: the index and its listings, or an install's
 /// outcome with the listings after it.

@@ -13,13 +13,13 @@ use crate::sound_engine::{
 use crate::sound_events::{Sound, SoundRegistry};
 #[cfg(feature = "audio")]
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use zenith_core::random::{LegacyRandom, RandomSource};
 use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
+use zenith_core::random::{LegacyRandom, RandomSource};
 
 /// An OpenAL source's state.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

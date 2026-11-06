@@ -21,7 +21,11 @@ const MAX_WAIT: Duration = Duration::from_secs(600);
 /// Starts the pings, once. Call when the game itself starts (not a dedicated server, not a
 /// benchmark or an automated run).
 pub fn start() {
-    if PINGER.get().is_some() || std::env::var_os("HORIZON_NO_HEARTBEAT").is_some() {
+    if PINGER.get().is_some()
+        || std::env::var_os("ZENITH_NO_HEARTBEAT")
+            .or_else(|| std::env::var_os("HORIZON_NO_HEARTBEAT"))
+            .is_some()
+    {
         return;
     }
     let Some(endpoint) = zenith_telemetry::endpoint() else {

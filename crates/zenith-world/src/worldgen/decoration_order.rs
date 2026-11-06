@@ -29,8 +29,8 @@
 //! overlap), so a chunk may be decorated as soon as no lower-ranked chunk
 //! within two of it is still waiting: [`DecorationOrder::blocked`]. Chunks
 //! further apart still decorate in parallel.
-use zenith_core::fast_hash::FxHashMap;
 use std::collections::VecDeque;
+use zenith_core::fast_hash::FxHashMap;
 
 #[derive(Default)]
 pub struct DecorationOrder {

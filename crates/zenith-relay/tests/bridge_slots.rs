@@ -1,10 +1,10 @@
 //! `max_bridges` counts from the moment a guest is matched with its host, and every way out of a
 //! join gives the slot back, spoken to the relay over raw sockets.
-use zenith_friends::wire::{self, ErrorCode, FromRelay, ToRelay};
-use zenith_relay::{Config, Relay};
 use std::io::BufReader;
 use std::net::{Shutdown, SocketAddr, TcpStream};
 use std::time::{Duration, Instant};
+use zenith_friends::wire::{self, ErrorCode, FromRelay, ToRelay};
+use zenith_relay::{Config, Relay};
 
 const PROTOCOL: i32 = 777;
 

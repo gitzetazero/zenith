@@ -1,5 +1,5 @@
-use zenith_world::worldgen::{feature_catalog::FeatureCatalog, tags::TagDefinitions};
 use std::collections::BTreeMap;
+use zenith_world::worldgen::{feature_catalog::FeatureCatalog, tags::TagDefinitions};
 fn map(values: &[(&str, &str)]) -> BTreeMap<String, String> {
     values
         .iter()

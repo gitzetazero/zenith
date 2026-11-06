@@ -43,7 +43,12 @@ pub const DEFAULT_ENDPOINT: &str = "https://telemetry.playhorizon.dev";
 
 /// Where items are sent, if anywhere.
 pub fn endpoint() -> Option<String> {
-    resolve(std::env::var("HORIZON_TELEMETRY_URL").ok().as_deref())
+    resolve(
+        std::env::var("ZENITH_TELEMETRY_URL")
+            .or_else(|_| std::env::var("HORIZON_TELEMETRY_URL"))
+            .ok()
+            .as_deref(),
+    )
 }
 
 fn resolve(var: Option<&str>) -> Option<String> {

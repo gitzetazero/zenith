@@ -2203,35 +2203,34 @@ mod tests {
     fn a_bubble_column_lifts_a_mob_after_travel_not_inside_it() {
         let run = |column: bool| {
             let mut out = None;
-            let build =
-                |world: &mut crate::world::World,
-                 registry: &zenith_world::registry::BlockRegistry| {
-                    world.chunks.insert(
-                        (0, 0),
-                        std::sync::Arc::new(crate::chunk::Chunk::empty(0, 0)),
-                    );
-                    let stone = registry.default_state("minecraft:stone").unwrap();
-                    let water = registry.default_state("minecraft:water").unwrap();
-                    let mut lift = registry
-                        .state(registry.default_state("minecraft:bubble_column").unwrap())
-                        .unwrap()
-                        .clone();
-                    lift.properties.insert("drag".into(), "false".into());
-                    let lift = registry.resolve(&lift).unwrap();
-                    for x in 0..=2 {
-                        for z in 0..=2 {
-                            world.set(x, 0, z, stone).unwrap();
-                            for y in 1..=6 {
-                                world.set(x, y, z, water).unwrap();
-                            }
-                        }
-                    }
-                    if column {
+            let build = |world: &mut crate::world::World,
+                         registry: &zenith_world::registry::BlockRegistry| {
+                world.chunks.insert(
+                    (0, 0),
+                    std::sync::Arc::new(crate::chunk::Chunk::empty(0, 0)),
+                );
+                let stone = registry.default_state("minecraft:stone").unwrap();
+                let water = registry.default_state("minecraft:water").unwrap();
+                let mut lift = registry
+                    .state(registry.default_state("minecraft:bubble_column").unwrap())
+                    .unwrap()
+                    .clone();
+                lift.properties.insert("drag".into(), "false".into());
+                let lift = registry.resolve(&lift).unwrap();
+                for x in 0..=2 {
+                    for z in 0..=2 {
+                        world.set(x, 0, z, stone).unwrap();
                         for y in 1..=6 {
-                            world.set(1, y, 1, lift).unwrap();
+                            world.set(x, y, z, water).unwrap();
                         }
                     }
-                };
+                }
+                if column {
+                    for y in 1..=6 {
+                        world.set(1, y, 1, lift).unwrap();
+                    }
+                }
+            };
             crate::mobs::world::with_built_test_world(&[], build, |w, types| {
                 let kind = std::sync::Arc::new(types.types["minecraft:iron_golem"].clone());
                 let mut m = Mob::new(1, kind, Vec3::new(1.5, 2.0, 1.5), 0.0);
@@ -2269,20 +2268,19 @@ mod tests {
             ("minecraft:soul_sand", 0.4),
             ("minecraft:honey_block", 0.4),
         ] {
-            let build =
-                |world: &mut crate::world::World,
-                 registry: &zenith_world::registry::BlockRegistry| {
-                    world.chunks.insert(
-                        (0, 0),
-                        std::sync::Arc::new(crate::chunk::Chunk::empty(0, 0)),
-                    );
-                    let id = registry.default_state(block).unwrap();
-                    for x in 0..=4 {
-                        for z in 0..=2 {
-                            world.set(x, 0, z, id).unwrap();
-                        }
+            let build = |world: &mut crate::world::World,
+                         registry: &zenith_world::registry::BlockRegistry| {
+                world.chunks.insert(
+                    (0, 0),
+                    std::sync::Arc::new(crate::chunk::Chunk::empty(0, 0)),
+                );
+                let id = registry.default_state(block).unwrap();
+                for x in 0..=4 {
+                    for z in 0..=2 {
+                        world.set(x, 0, z, id).unwrap();
                     }
-                };
+                }
+            };
             crate::mobs::world::with_built_test_world(&[], build, |w, types| {
                 let kind = std::sync::Arc::new(types.types["minecraft:zombie"].clone());
                 let mut m = Mob::new(1, kind, Vec3::new(0.5, 1.0, 1.5), 0.0);
@@ -2307,8 +2305,7 @@ mod tests {
         let border =
             zenith_core::geometry::border::BorderGeometry::new([8.0, 8.0], 10.0, 29_999_984)
                 .unwrap();
-        let build = |world: &mut crate::world::World,
-                     _: &zenith_world::registry::BlockRegistry| {
+        let build = |world: &mut crate::world::World, _: &zenith_world::registry::BlockRegistry| {
             world.chunks.insert(
                 (0, 0),
                 std::sync::Arc::new(crate::chunk::Chunk::empty(0, 0)),
@@ -2518,28 +2515,27 @@ mod tests {
     fn a_mob_in_vines_slides_down_slowly() {
         let run = |vines: bool| {
             let mut out = None;
-            let build =
-                |world: &mut crate::world::World,
-                 registry: &zenith_world::registry::BlockRegistry| {
-                    let stone = registry.default_state("minecraft:stone").unwrap();
-                    let mut vine = registry
-                        .state(registry.default_state("minecraft:vine").unwrap())
-                        .unwrap()
-                        .clone();
-                    vine.properties.insert("south".into(), "true".into());
-                    let vine = registry.resolve(&vine).unwrap();
-                    world.chunks.insert(
-                        (0, 0),
-                        std::sync::Arc::new(crate::chunk::Chunk::empty(0, 0)),
-                    );
-                    world.set(1, 0, 1, stone).unwrap();
-                    for y in 1..=12 {
-                        world.set(1, y, 2, stone).unwrap();
-                        if vines {
-                            world.set(1, y, 1, vine).unwrap();
-                        }
+            let build = |world: &mut crate::world::World,
+                         registry: &zenith_world::registry::BlockRegistry| {
+                let stone = registry.default_state("minecraft:stone").unwrap();
+                let mut vine = registry
+                    .state(registry.default_state("minecraft:vine").unwrap())
+                    .unwrap()
+                    .clone();
+                vine.properties.insert("south".into(), "true".into());
+                let vine = registry.resolve(&vine).unwrap();
+                world.chunks.insert(
+                    (0, 0),
+                    std::sync::Arc::new(crate::chunk::Chunk::empty(0, 0)),
+                );
+                world.set(1, 0, 1, stone).unwrap();
+                for y in 1..=12 {
+                    world.set(1, y, 2, stone).unwrap();
+                    if vines {
+                        world.set(1, y, 1, vine).unwrap();
                     }
-                };
+                }
+            };
             crate::mobs::world::with_built_test_world(&[], build, |w, types| {
                 let kind = std::sync::Arc::new(types.types["minecraft:cow"].clone());
                 let mut m = Mob::new(1, kind, Vec3::new(1.5, 10.0, 1.5), 0.0);

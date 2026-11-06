@@ -1,7 +1,7 @@
 //! Tooltip display visibility oracle companion for tools/test_tooltip_display_parity.py.
+use std::{error::Error, fmt::Write};
 use zenith_client::{item_tooltip::TooltipDisplay, items::ItemStack};
 use zenith_world::nbt::Tag;
-use std::{error::Error, fmt::Write};
 
 pub fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = crate::args().collect();

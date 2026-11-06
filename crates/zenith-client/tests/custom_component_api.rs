@@ -1,5 +1,6 @@
 //! Native component registration, value limits and content identity.
 extern crate zenith_client_lib as zenith_client;
+use std::fs;
 use zenith_client::{
     content_identity,
     mod_content::{ContentMod, accept_mod, build, known_components},
@@ -9,7 +10,6 @@ use zenith_protocol::{
     item::custom::{self, InstallError},
 };
 use zenith_world::nbt::Tag;
-use std::fs;
 
 #[test]
 fn registration_limits_and_defaults_are_bound_to_the_connection() {
@@ -140,8 +140,7 @@ fn registration_limits_and_defaults_are_bound_to_the_connection() {
     assert!(items["good:thing"].get("minecraft:repairable").is_none());
     assert!(items.get("bad:thing").is_none());
     let catalog =
-        zenith_client::items::Items::catalog(&out, &zenith_world::loot::PackOverlay::NONE)
-            .unwrap();
+        zenith_client::items::Items::catalog(&out, &zenith_world::loot::PackOverlay::NONE).unwrap();
     assert_eq!(
         catalog.get("good:thing").unwrap().custom_components["sample:a"],
         Tag::compound([("value", Tag::Int(5))])

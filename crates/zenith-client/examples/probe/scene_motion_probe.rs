@@ -1,5 +1,11 @@
 //! Repeated movement over the same owned actor and resident scene as the client.
 #![forbid(unsafe_code)]
+use serde_json::Value;
+use std::{
+    fs,
+    io::{BufRead, Write},
+    path::PathBuf,
+};
 use zenith_client::{
     Result,
     assets::Assets,
@@ -12,12 +18,6 @@ use zenith_core::geometry::Vec3;
 use zenith_core::{position::BlockPos, random::RandomSource};
 use zenith_world::attributes::{Modifier, Operation};
 use zenith_world::movement_statistics::{self, MovementStat, MovementStatisticsWorld};
-use serde_json::Value;
-use std::{
-    fs,
-    io::{BufRead, Write},
-    path::PathBuf,
-};
 fn number(v: &Value) -> f64 {
     f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap())
 }

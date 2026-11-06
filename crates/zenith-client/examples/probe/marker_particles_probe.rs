@@ -1,4 +1,12 @@
 //! Probe for tools/test_marker_particles_parity.py.
+use serde_json::Value;
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{BufRead, BufReader, BufWriter, Write},
+    path::Path,
+    sync::Arc,
+};
 use zenith_client::{
     Result,
     animate_tick::{
@@ -20,14 +28,6 @@ use zenith_core::{
     random::{RandomSource, position_seed},
 };
 use zenith_world::{chunk::BlockState, registry::BlockStateId};
-use serde_json::Value;
-use std::{
-    collections::HashMap,
-    fs::File,
-    io::{BufRead, BufReader, BufWriter, Write},
-    path::Path,
-    sync::Arc,
-};
 
 /// A `minecraft:name[k=v,...]` block state, as the cases write one.
 fn parse_state(spec: &str) -> BlockState {

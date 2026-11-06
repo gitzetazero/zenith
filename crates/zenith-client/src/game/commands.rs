@@ -3610,9 +3610,7 @@ impl Game<'_> {
                             match &v {
                                 zenith_world::nbt::Tag::Compound(_) => {
                                     let get = |k: &str| match v.get(k) {
-                                        Some(zenith_world::nbt::Tag::Int(i)) => {
-                                            Some(i64::from(*i))
-                                        }
+                                        Some(zenith_world::nbt::Tag::Int(i)) => Some(i64::from(*i)),
                                         _ => None,
                                     };
                                     get("min").is_none_or(|m| n >= m)

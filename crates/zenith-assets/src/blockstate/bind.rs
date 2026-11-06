@@ -1,8 +1,8 @@
 //! Bind resource selectors to a block's property schema and ordered states.
 use super::{BlockStateDefinition, Condition, Term};
 use crate::json::{Result, error};
-use zenith_core::text::parse_java_integer;
 use std::collections::{BTreeMap, BTreeSet};
+use zenith_core::text::parse_java_integer;
 
 pub type Properties = BTreeMap<String, String>;
 pub type PropertySchema = BTreeMap<String, PropertyValues>;

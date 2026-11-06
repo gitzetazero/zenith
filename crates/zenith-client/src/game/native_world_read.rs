@@ -186,9 +186,9 @@ fn read_block(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
     use zenith_client::chunk::Chunk;
     use zenith_world::registry::BlockStateId;
-    use std::sync::Arc;
 
     #[test]
     fn reads_only_loaded_in_bounds_states() {

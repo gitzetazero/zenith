@@ -1,7 +1,7 @@
 //! Number formats and JSON readers several probes share.
+use serde_json::Value;
 use zenith_core::position::BlockPos;
 use zenith_world::nbt::Tag;
-use serde_json::Value;
 
 /// An f64's bits, every NaN as Java's canonical one (Double.doubleToLongBits).
 pub fn f64_bits(v: f64) -> u64 {

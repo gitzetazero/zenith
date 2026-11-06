@@ -10,8 +10,8 @@
 //! a fit to one driver's values, not a rule Iris states. `RGBA4` and `RGBA2` read back the `RGBA8`
 //! bytes in the same probe, as Horizon's 8-bit buffers already do.
 
-use zenith_shaders::{Format, Kind};
 use naga::{BinaryOperator, Expression, Literal, MathFunction, Statement, VectorSize};
+use zenith_shaders::{Format, Kind};
 
 /// The bits each channel keeps in a buffer of format `f`, for the formats that keep fewer than
 /// 8; a three-channel format's alpha keeps 8 (it reads 1 anyway).

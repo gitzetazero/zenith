@@ -1,5 +1,10 @@
 //! The decode-time bounds vanilla's processor codecs check, which a data pack
 //! that vanilla refuses must not get past here either.
+use serde_json::{Value, json};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    path::Path,
+};
 use zenith_world::{
     DATA_VERSION,
     nbt::Tag,
@@ -11,11 +16,6 @@ use zenith_world::{
             processor::{Processor, ProcessorList},
         },
     },
-};
-use serde_json::{Value, json};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    path::Path,
 };
 
 fn names() -> [&'static str; 4] {

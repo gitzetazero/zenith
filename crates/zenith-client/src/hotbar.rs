@@ -2,8 +2,8 @@
 //! `Hotbar`): nine saved rows of nine stacks, read through the `HOTBAR`
 //! data fixers when the file is from an older version.
 use crate::{items::ItemStack, save};
-use zenith_world::nbt::{JavaString, Tag};
 use std::path::Path;
+use zenith_world::nbt::{JavaString, Tag};
 
 /// `HotbarManager.NUM_HOTBAR_GROUPS`.
 pub const GROUPS: usize = 9;

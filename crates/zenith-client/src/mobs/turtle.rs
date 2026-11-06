@@ -510,8 +510,8 @@ mod tests {
         Species,
         path::{Path, PathNode, PathType},
     };
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     /// A turtle (movement speed 0.25) strolling (`speedModifier` 1.0) to a
     /// point ten blocks ahead along a path it has not finished.

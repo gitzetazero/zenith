@@ -1,6 +1,6 @@
 //! Banner pattern layers (`BannerPatternLayers`) and their NBT form.
-use zenith_world::nbt::Tag;
 use std::sync::Arc;
+use zenith_world::nbt::Tag;
 
 /// `BannerPatternLayers.Layer`: a pattern id and the dye name it is painted in.
 #[derive(Clone, Debug, PartialEq, Eq)]

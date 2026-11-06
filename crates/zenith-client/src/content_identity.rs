@@ -2,7 +2,6 @@
 //! the item, mob effect, entity type and menu registries once content mods
 //! add to them (item stacks, effect, entity and open screen packets carry
 //! their network ids).
-use zenith_protocol::registry::Builtin;
 use serde::{Deserialize, Serialize, de::IgnoredAny};
 use sha2::{Digest, Sha256};
 use std::{
@@ -11,6 +10,7 @@ use std::{
     path::{Path, PathBuf},
     sync::{Mutex, OnceLock},
 };
+use zenith_protocol::registry::Builtin;
 
 pub const CHANNEL: &str = "horizon:block_registry";
 pub const MARKER: &str = "horizon-content-blocks";

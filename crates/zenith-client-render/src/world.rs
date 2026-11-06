@@ -5,9 +5,9 @@ use crate::{
     fast_hash::{FxHashMap, FxHashSet},
     section_mask::SectionMask,
 };
+use std::sync::Arc;
 use zenith_core::random::LegacyRandom;
 use zenith_world::registry::BlockStateId;
-use std::sync::Arc;
 
 /// Sections (x, section index, z) waiting to be remeshed, kept by column
 /// (a bit per section index), so the mesh scheduler looks at each column once
@@ -564,8 +564,8 @@ impl Default for HealthRules {
 mod tests {
     use super::{DirtySections, World};
     use crate::chunk::{Chunk, MIN_Y, SECTIONS};
-    use zenith_world::registry::BlockStateId;
     use std::sync::Arc;
+    use zenith_world::registry::BlockStateId;
 
     /// Every block write marks the same section set the 27-cell loop did, but
     /// only the distinct keys: one in the interior, a neighbour section on a

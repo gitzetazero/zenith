@@ -3,8 +3,8 @@
 //! (`zenith_client::no_resources`) and quits when it is closed. No loader, no
 //! crash report: nothing went wrong in the game.
 use super::*;
-use zenith_client::no_resources::{Action, DOWNLOAD_URL, NoResources};
 use winit::event::MouseButton;
+use zenith_client::no_resources::{Action, DOWNLOAD_URL, NoResources};
 
 struct Missing {
     window: Option<Arc<Window>>,

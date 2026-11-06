@@ -8,7 +8,7 @@ import re
 import sys
 
 OWN = ["README.md", "docs/ZENITH.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md",
-       "zenith/**/*.md", ".github/ISSUE_TEMPLATE/*.md", ".github/PULL_REQUEST_TEMPLATE/*.md",
+       "bridge/**/*.md", "launcher/**/*.md", "branding/**/*.md", "docs/PLAYER-GUIDE.md", "docs/SERVERS.md", "docs/GRAPHICS-SETTINGS.md", ".github/ISSUE_TEMPLATE/*.md", ".github/PULL_REQUEST_TEMPLATE/*.md",
        "docs/superpowers/**/*.md"]
 LINK = re.compile(r'\]\(\s*<?([^)\s>]+)|<img[^>]*\ssrc="([^"]+)"|<a[^>]*\shref="([^"]+)"')
 SKIP = ("http://", "https://", "mailto:", "#", "data:")

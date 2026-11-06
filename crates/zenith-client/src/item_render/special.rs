@@ -6,9 +6,9 @@
 use super::{Foil, ItemQuad, ItemRenderer, ItemSink, SpecialHost, argb};
 use crate::{block_entity_render::ModelPart, hud::Rect};
 use glam::{Mat4, Quat, Vec3};
-use zenith_assets::item_model::{SpecialKind, SpecialModel};
 use serde_json::Value;
 use std::{collections::HashMap, f32::consts::PI, path::Path};
+use zenith_assets::item_model::{SpecialKind, SpecialModel};
 
 /// Entity model layers the special renderers bake (`ModelLayers`).
 const LAYERS: [(&str, &str); 22] = [

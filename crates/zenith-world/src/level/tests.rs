@@ -3,12 +3,12 @@
 //! repository root) and are skipped when those are absent.
 use super::*;
 use crate::chunk::BlockState;
-use zenith_core::random::RandomSource;
 use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
     sync::OnceLock,
 };
+use zenith_core::random::RandomSource;
 
 struct Fixture {
     registry: BlockRegistry,
@@ -3214,8 +3214,8 @@ fn flowers_and_saplings_can_be_placed_in_flower_pots() {
 
 #[test]
 fn update_shape_hook_can_answer_for_the_block() {
-    use zenith_core::ticks::TickPriority;
     use std::cell::RefCell;
+    use zenith_core::ticks::TickPriority;
 
     struct Shaper {
         inner: TestLevel,
@@ -3363,8 +3363,8 @@ fn update_shape_hook_can_answer_for_the_block() {
 #[test]
 fn the_level_chooses_the_state_a_block_is_placed_in() {
     use crate::fluid::{FluidKind, FluidState};
-    use zenith_core::geometry::Vec3;
     use std::cell::RefCell;
+    use zenith_core::geometry::Vec3;
 
     /// What one call of the hook was asked.
     struct Asked {

@@ -5,8 +5,8 @@ use super::{
     required,
 };
 use crate::{block_properties::BoundOcclusionFaces, registry::BlockStateId};
-use zenith_core::{geometry::Direction, random::RandomSource};
 use std::{collections::BTreeSet, sync::Arc};
+use zenith_core::{geometry::Direction, random::RandomSource};
 #[derive(Clone, Debug)]
 pub struct UnderwaterMagmaFeature {
     search: i32,

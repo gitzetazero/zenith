@@ -1,10 +1,10 @@
 //! The coverage report in plain words: the headline above the numbers, a sentence for each
 //! reason and for "partial", all derived from the report's own rows (`report.rs`).
+use std::collections::BTreeMap;
 use zenith_port_pack::{
     inventory::Record,
     report::{Row, Status, Summary, build, markdown, summary},
 };
-use std::collections::BTreeMap;
 
 fn record(key: &str, class: &str, tier: &str, depends: &[&str]) -> Record {
     Record {

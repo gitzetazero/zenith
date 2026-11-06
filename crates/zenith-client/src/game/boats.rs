@@ -5,6 +5,7 @@
 mod placement;
 
 use super::{Game, InteractTarget, entity::Entity, entity_culling::at, view_vector};
+use std::{collections::HashMap, f32::consts::PI, sync::Arc};
 use zenith_client::actions::Action;
 use zenith_client::entity_rules::EntityRules;
 use zenith_client::{
@@ -26,7 +27,6 @@ use zenith_core::{
     random::RandomSource,
 };
 use zenith_world::collision_context::CollisionContext;
-use std::{collections::HashMap, f32::consts::PI, sync::Arc};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum Status {
@@ -1621,16 +1621,7 @@ impl Game<'_> {
                 b.position.z.floor() as i32,
             );
             let packed = (u32::from(l >> 4) * 16) | ((u32::from(l & 15) * 16) << 8);
-            zenith_client::mobs::render::draw(
-                model,
-                base,
-                &poses,
-                uv,
-                0xFFFF_FFFF,
-                packed,
-                0,
-                out,
-            );
+            zenith_client::mobs::render::draw(model, base, &poses, uv, 0xFFFF_FFFF, packed, 0, out);
             // BoatRenderer.submitTypeAdditions: the water patch hides the water
             // inside the hull unless the boat is under water (RaftRenderer has none).
             if let Some(patch) = self.boat_models.water_patch.as_ref()

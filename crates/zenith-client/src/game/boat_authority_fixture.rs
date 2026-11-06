@@ -1,11 +1,11 @@
 //! The native parity harness runs the client boat ticker and authoritative
 //! boat attacks without a renderer, on an empty world.
 use super::{Game, boats::Boat};
-use zenith_client::Result;
-use zenith_core::geometry::Vec3;
 use serde::Deserialize;
 use serde_json::json;
 use std::path::Path;
+use zenith_client::Result;
+use zenith_core::geometry::Vec3;
 
 #[derive(Deserialize)]
 struct Case {
@@ -64,8 +64,7 @@ impl Game<'_> {
             boat.delta_rotation = case.spin;
             self.boats.push(boat);
             if let Some(attack) = case.attack {
-                let mut player =
-                    zenith_client::motion::PlayerMotion::new(self.motion, Vec3::ZERO)?;
+                let mut player = zenith_client::motion::PlayerMotion::new(self.motion, Vec3::ZERO)?;
                 player.velocity = Vec3::new(
                     attack.player_velocity[0],
                     attack.player_velocity[1],

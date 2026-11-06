@@ -25,10 +25,10 @@ use decorator::TreeDecorator;
 pub(crate) use decorator::{GROUND_FEATURE_KEY, beehive_occupants};
 pub use fallen::FallenTreeFeature;
 use foliage::{FoliageAttachment, FoliagePlacer};
-use zenith_core::{geometry::Direction, random::RandomSource};
 use serde_json::value::RawValue;
 use std::{collections::BTreeSet, sync::Arc};
 use trunk::TrunkPlacer;
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 pub(crate) type TreeResult<T, E> = Result<T, FeatureExecutionError<E>>;
 /// Places a nested configured feature (the pale-moss ground patch).

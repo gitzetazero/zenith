@@ -8,12 +8,12 @@ use crate::{
     save::Level,
     text::{Text, format_translation},
 };
-use zenith_world::datafix::world_upgrader::{self, WorldUpgrader};
 use std::path::{Path, PathBuf};
 use std::{
     cell::{Cell, RefCell},
     sync::mpsc,
 };
+use zenith_world::datafix::world_upgrader::{self, WorldUpgrader};
 
 mod buffet;
 mod confirm_experiments;

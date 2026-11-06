@@ -13,17 +13,17 @@ use crate::{
     world::World,
 };
 use glam::{DVec3, Quat, Vec3 as FVec3};
+use std::{
+    array,
+    collections::{HashMap, HashSet},
+    path::Path,
+};
 use zenith_core::{
     geometry::{Aabb, Axis, Vec3, trig},
     random::{LegacyRandom, RandomSource},
 };
 use zenith_protocol::entity_data::PositionSource;
 use zenith_world::block_collision::BlockCollisionRegistry;
-use std::{
-    array,
-    collections::{HashMap, HashSet},
-    path::Path,
-};
 
 pub use zenith_client_core::particle_type::ParticleType;
 pub use zenith_items::firework::{DYE_FIREWORK_COLORS, FireworkExplosion, FireworkShape};

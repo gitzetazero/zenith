@@ -1,8 +1,8 @@
 //! The multiplayer server list, stored like vanilla's ServerList in an
 //! uncompressed `servers.dat`: `{servers: [{name, ip, icon?, acceptTextures?,
 //! acceptedCodeOfConduct?}]}`.
-use zenith_world::nbt::{self, JavaString, NamedTag, Tag};
 use std::path::Path;
+use zenith_world::nbt::{self, JavaString, NamedTag, Tag};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ServerEntry {

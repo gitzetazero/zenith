@@ -1,4 +1,10 @@
 use crate::support::shapes::emit;
+use serde_json::Value;
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::geometry::{Direction, VoxelShape};
 use zenith_world::{
     collision::CachedCollisionRegistry,
@@ -6,12 +12,6 @@ use zenith_world::{
     nbt::{self, Limits, Tag},
     piston_shape::{MovingPistonState, PistonBlockBindings, PistonCollisionWorld},
     registry::{BlockRegistry, BlockStateId},
-};
-use serde_json::Value;
-use std::{
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 struct World<'a, 'r, W> {
     collisions: &'a CachedCollisionRegistry<'r>,

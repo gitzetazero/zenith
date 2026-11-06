@@ -1,5 +1,12 @@
 //! Feature world transport retaining ordered mutations and partial failures.
 use crate::support::common::tag;
+use serde_json::Value;
+use std::{
+    collections::BTreeMap,
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::random::{LegacyRandom, RandomSource, WorldgenRandom, XoroshiroRandom};
 use zenith_world::{
     DATA_VERSION,
@@ -15,13 +22,6 @@ use zenith_world::{
         placement::{FeaturePlacer, PlacementContext, PlacementModifier, PlacementQueryError},
         tags::TagDefinitions,
     },
-};
-use serde_json::Value;
-use std::{
-    collections::BTreeMap,
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 struct World<'a, W> {
     states: BTreeMap<[i32; 3], BlockStateId>,

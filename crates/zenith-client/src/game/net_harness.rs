@@ -10,12 +10,12 @@
 //! (`zenith_protocol::quiet`, `tools/quiet_commands_e2e.py`) and waits two
 //! seconds for any chat they bring.
 use super::Game;
-use zenith_client::Result;
 use serde_json::json;
 use std::{
     path::Path,
     time::{Duration, Instant},
 };
+use zenith_client::Result;
 
 impl Game<'_> {
     pub(super) fn run_net_harness(&mut self, report: &Path) -> Result<()> {

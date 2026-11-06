@@ -1,4 +1,5 @@
 //! Process vanilla saved block/fluid ticks through Horizon's storage and queues.
+use std::{collections::BTreeMap, error::Error, fs, path::PathBuf};
 use zenith_core::{
     position::ChunkPos,
     ticks::{ScheduledTick, TickPriority, TickTypeId},
@@ -10,7 +11,6 @@ use zenith_world::{
     region::{ChunkRecord, RegionFile, RegionWriter},
     tick_data::TickKind,
 };
-use std::{collections::BTreeMap, error::Error, fs, path::PathBuf};
 pub fn main() -> Result<(), Box<dyn Error>> {
     let base = PathBuf::from(crate::args().nth(1).ok_or("expected fixture directory")?);
     let bytes = fs::read(base.join("ticks-input.nbt"))?;

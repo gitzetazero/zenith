@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use zenith_core::{
     density::{
         BlendDensitySampler, CachingDensitySampler, ConstantSampler, ContextBoundSampler,
@@ -6,7 +7,6 @@ use zenith_core::{
     },
     noise::DensityVolume,
 };
-use std::sync::{Arc, Mutex};
 
 #[derive(Debug)]
 struct SpatialBlender {

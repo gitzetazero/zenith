@@ -1,13 +1,13 @@
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::geometry::Direction;
 use zenith_world::{
     block_support::{CachedBlockSupportRegistry, SupportType},
     nbt::{self, Limits, Tag},
     registry::{BlockRegistry, BlockStateId},
-};
-use std::{
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let arg = crate::args().nth(1).expect("private fixture directory");

@@ -7,12 +7,12 @@ use crate::{
     fluid::{FluidKind, FluidState},
     registry::BlockStateId,
 };
-use zenith_core::geometry::{Direction, ShapeOp, VoxelShape};
 use std::{
     collections::{BTreeMap, HashMap},
     io,
     sync::Arc,
 };
+use zenith_core::geometry::{Direction, ShapeOp, VoxelShape};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SkipRendering {

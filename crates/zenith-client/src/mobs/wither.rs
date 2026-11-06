@@ -670,9 +670,9 @@ mod tests {
     #[test]
     fn a_powered_wither_sheds_dim_effect_particles_one_tick_in_four() {
         use crate::mobs::sensor_scan_tests::kind;
+        use std::sync::Arc;
         use zenith_core::geometry::trig::Mth;
         use zenith_core::random::LegacyRandom;
-        use std::sync::Arc;
         let mut kind = kind();
         let k = Arc::make_mut(&mut kind);
         k.id = "minecraft:wither".into();

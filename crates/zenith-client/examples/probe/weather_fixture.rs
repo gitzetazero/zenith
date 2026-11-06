@@ -1,6 +1,6 @@
 //! WeatherEffectRenderer column instances and quads, without a GPU.
-use zenith_client::weather;
 use std::{fmt::Write, fs};
+use zenith_client::weather;
 fn bits(value: f32) -> String {
     if value.is_nan() {
         "nan".into()

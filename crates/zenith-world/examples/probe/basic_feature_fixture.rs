@@ -1,4 +1,11 @@
 //! Feature world transport retaining ordered mutations and partial failures.
+use serde_json::Value;
+use std::{
+    collections::BTreeMap,
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::random::{LegacyRandom, RandomSource, XoroshiroRandom};
 use zenith_world::{
     heightmap::HeightmapType,
@@ -8,13 +15,6 @@ use zenith_world::{
         feature::{BasicFeature, FeatureBlocks, FeatureWorld},
         placement::{FeaturePlacer, PlacementContext, PlacementModifier, PlacementQueryError},
     },
-};
-use serde_json::Value;
-use std::{
-    collections::BTreeMap,
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 struct World<'a, W> {
     states: BTreeMap<[i32; 3], BlockStateId>,

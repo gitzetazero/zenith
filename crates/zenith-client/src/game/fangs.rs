@@ -1,11 +1,11 @@
 //! Evoker fangs (`EvokerFangs`): rising out of the floor after a delay,
 //! biting what stands on them for 6 damage, sinking back after 22 ticks.
 use super::Game;
+use std::sync::Arc;
 use zenith_client::mobs::{Part, Species, anim::Poses};
 use zenith_client::particles::{ParticleOptions, ParticleType};
 use zenith_core::geometry::Vec3;
 use zenith_core::random::{LegacyRandom, RandomSource};
-use std::sync::Arc;
 
 #[derive(Clone, Debug)]
 pub(super) struct Fangs {

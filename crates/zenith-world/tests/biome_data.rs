@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use zenith_core::{
     density::{ConstantSampler, DensitySampler, GradientSampler, SamplerContext, TilingMode},
     geometry::Axis,
@@ -6,7 +7,6 @@ use zenith_world::worldgen::{
     biome::{BiomeError, MultiNoiseBiomeSource},
     climate::ClimateSampler,
 };
-use std::sync::Arc;
 
 fn fixture() -> MultiNoiseBiomeSource {
     MultiNoiseBiomeSource::from_quantized_json(

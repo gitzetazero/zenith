@@ -9,8 +9,8 @@ use crate::{
         placement::{PlacementContext, PlacementQueryError},
     },
 };
-use zenith_core::geometry::Direction;
 use std::{collections::BTreeSet, io, sync::Arc};
+use zenith_core::geometry::Direction;
 
 const HORIZONTAL: [Direction; 4] = [
     Direction::North,

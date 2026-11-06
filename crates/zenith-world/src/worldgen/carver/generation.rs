@@ -3,12 +3,12 @@ use super::{CanyonCarver, CarverError, CaveCarver};
 use crate::worldgen::{
     DecodeError, Object, anchor::WorldGenerationContext, density::identifier, required,
 };
+use std::{collections::BTreeMap, sync::Arc};
 use zenith_core::{
     carving::{CarverOutput, CarvingMask, CarvingMaskError},
     position::ChunkPos,
     random::{LegacyRandom, RandomSource},
 };
-use std::{collections::BTreeMap, sync::Arc};
 
 #[derive(Clone, Debug)]
 pub enum WorldCarver {

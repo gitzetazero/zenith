@@ -1,13 +1,13 @@
-use zenith_core::{geometry::Direction, position::BlockPos};
-use zenith_world::{
-    fluid::FluidState,
-    fluid_flow::{self, FluidFlowWorld},
-};
 use serde_json::Value;
 use std::{
     fs,
     io::{self, Write},
     path::Path,
+};
+use zenith_core::{geometry::Direction, position::BlockPos};
+use zenith_world::{
+    fluid::FluidState,
+    fluid_flow::{self, FluidFlowWorld},
 };
 fn pos(p: BlockPos) -> String {
     format!("{} {} {}", p.x, p.y, p.z)

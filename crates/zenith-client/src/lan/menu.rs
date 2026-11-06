@@ -874,9 +874,9 @@ fn quick_craft(
 mod tests {
     use super::*;
     use crate::lan::{Joined, PlayerSender};
+    use std::sync::{Arc, atomic::AtomicI32, mpsc};
     use zenith_protocol::packets::configuration::ClientInformation;
     use zenith_world::loot::PackOverlay;
-    use std::sync::{Arc, atomic::AtomicI32, mpsc};
 
     struct ItemRules(Items);
     impl Rules for ItemRules {

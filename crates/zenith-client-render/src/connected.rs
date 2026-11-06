@@ -6,13 +6,13 @@
 //! The rules and the tile geometry are `zenith_optifine::ctm`'s.
 
 use crate::sprites::Sprites;
+use std::{collections::HashMap, path::Path};
 use zenith_optifine::ctm::{
     self, Connect, Method, Orient, Rule, Tile,
     connect::{self as geometry, Axes, Axis, Face},
 };
 use zenith_world::block_state_properties::BlockProperties;
 use zenith_world::registry::{BlockRegistry, BlockStateId};
-use std::{collections::HashMap, path::Path};
 
 /// A tile as the mesher draws it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

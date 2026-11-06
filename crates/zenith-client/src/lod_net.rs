@@ -18,12 +18,12 @@
 //! It is off unless the owner sets the key: far tiles show the generator's
 //! terrain far beyond view distance, which helps crack a world's seed.
 use crate::lod::{Column, Span, Spans, Surface};
+use std::{collections::HashMap, time::Instant};
 use zenith_protocol::{
     Error, Result,
     buf::{Reader, Writer},
 };
 use zenith_world::registry::BlockStateId;
-use std::{collections::HashMap, time::Instant};
 
 mod client;
 mod server;

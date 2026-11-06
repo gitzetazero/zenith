@@ -1,3 +1,10 @@
+use serde_json::Value;
+use std::{
+    collections::BTreeSet,
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::{
     geometry::{Direction, VoxelShape},
     position::BlockPos,
@@ -9,13 +16,6 @@ use zenith_world::{
     nbt::{self, Limits},
     registry::{BlockRegistry, BlockStateId},
     registry_fluid::{FluidBlockWorld, FluidRegistry, RegistryFluidWorld},
-};
-use serde_json::Value;
-use std::{
-    collections::BTreeSet,
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 fn pos(p: BlockPos) -> String {
     format!("{} {} {}", p.x, p.y, p.z)

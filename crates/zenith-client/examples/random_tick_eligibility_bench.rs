@@ -1,6 +1,7 @@
 //! Selection cost only (not block simulation). Run with prepared client resources.
 //! cargo run --profile fast -p zenith-client --example random_tick_eligibility_bench -- RESOURCES
 extern crate zenith_client_lib as zenith_client;
+use std::{hint::black_box, path::Path, sync::Arc, time::Instant};
 use zenith_client::{
     blocks::BlockFacts,
     chunk::{Chunk, MIN_Y, Section},
@@ -8,7 +9,6 @@ use zenith_client::{
     random_tick_sections::RandomTickSections,
 };
 use zenith_world::registry::BlockStateId;
-use std::{hint::black_box, path::Path, sync::Arc, time::Instant};
 
 fn select_baseline(chunks: &FxHashMap<(i32, i32), Arc<Chunk>>, facts: &BlockFacts) -> usize {
     let mut ticking = Vec::new();

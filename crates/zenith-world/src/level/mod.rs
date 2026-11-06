@@ -88,12 +88,12 @@ use crate::{
     fluid::{FluidBlockBindings, FluidKind, FluidState},
     registry::{BlockRegistry, BlockStateId},
 };
+use std::{collections::HashMap, io, path::Path, sync::Arc, sync::RwLock};
 use zenith_core::{
     geometry::{Aabb, Direction, VoxelShape},
     position::{BlockPos, ChunkPos},
     random::LegacyRandom,
 };
-use std::{collections::HashMap, io, path::Path, sync::Arc, sync::RwLock};
 
 pub mod classes;
 pub mod data;

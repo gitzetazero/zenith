@@ -1,3 +1,4 @@
+use std::io;
 use zenith_core::{
     geometry::{Aabb, Vec3, VoxelShape},
     position::{BlockPos, ChunkPos},
@@ -9,7 +10,6 @@ use zenith_world::{
     collision_context::CollisionContext,
     registry::BlockStateId,
 };
-use std::io;
 
 struct FailedChunk {
     calls: usize,

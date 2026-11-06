@@ -1,3 +1,9 @@
+use serde_json::Value;
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::{
     geometry::{Axis, VoxelShape},
     position::BlockPos,
@@ -5,12 +11,6 @@ use zenith_core::{
 use zenith_world::{
     fluid::{FluidHeightWorld, FluidState},
     fluid_shape::FluidShapeCache,
-};
-use serde_json::Value;
-use std::{
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 struct World<'a> {
     out: &'a mut dyn Write,

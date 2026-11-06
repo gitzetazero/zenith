@@ -3,6 +3,12 @@
 //! powder snow's block-inside effects and freezing. Entity lifecycle, other
 //! block-inside effects and audiovisual event consumers remain separate work.
 use crate::{Result, assets::Assets, collisions::SceneCollisions, world::World};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    io,
+    path::Path,
+    sync::Arc,
+};
 use zenith_core::{
     geometry::{Aabb, Axis, Direction, Vec3, VoxelShape, traverse_blocks, trig},
     position::BlockPos,
@@ -35,12 +41,6 @@ use zenith_world::{
     registry::{BlockStateId, BlockTableFile},
     world_movement::{self, MovementRequest},
     worldgen::tags::TagDefinitions,
-};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    io,
-    path::Path,
-    sync::Arc,
 };
 
 /// A living entity jumped (`LivingEvent.LivingJumpEvent`). 359.
@@ -833,10 +833,7 @@ impl PlayerMotion {
     /// `AttributeMap.apply` of a saved `attributes` list
     /// (LivingEntity.readAdditionalSaveData): each known attribute takes its
     /// saved base and permanent modifiers; unknown ones are skipped.
-    pub fn apply_saved_attributes(
-        &mut self,
-        saved: Option<&zenith_world::nbt::Tag>,
-    ) -> Result<()> {
+    pub fn apply_saved_attributes(&mut self, saved: Option<&zenith_world::nbt::Tag>) -> Result<()> {
         use zenith_client_core::nbt_value::{float, text};
         use zenith_world::{attributes::Packed, nbt::Tag};
         let Some(Tag::List(list)) = saved else {

@@ -167,12 +167,12 @@ mod tests {
     #[ignore = "needs prepared resources in HORIZON_TEST_RESOURCES"]
     fn for_player_keeps_the_outer_body_in_its_original_dimension() {
         use crate::game::{Audio, Game, Options, Progress, Settings, load_resources};
+        use std::sync::{Arc, atomic::AtomicI32, mpsc};
         use zenith_client::{
             lan::{Joined, NetConfig, PlayerSender, guest::Guest, hub::HubConfig},
             motion::PlayerMotion,
         };
         use zenith_protocol::packets::configuration::ClientInformation;
-        use std::sync::{Arc, atomic::AtomicI32, mpsc};
         let root = std::path::PathBuf::from(std::env::var_os("HORIZON_TEST_RESOURCES").unwrap());
         let settings = Settings::default();
         let loaded = load_resources(

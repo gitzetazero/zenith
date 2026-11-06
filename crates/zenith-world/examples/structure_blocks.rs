@@ -5,6 +5,8 @@
 //! structure_blocks <client resource dir> <seed> <dimension> <cx,cz>...
 //! prints `chunk CX CZ`, one `y Y ID...` line per block row (256 state ids in
 //! z-major order) and `be X Y Z ID LOOTTABLE SEED` per block entity.
+use serde_json::Value;
+use std::{fs, path::Path};
 use zenith_core::position::ChunkPos;
 use zenith_world::{
     DATA_VERSION,
@@ -12,8 +14,6 @@ use zenith_world::{
     registry::BlockRegistry,
     worldgen::generator::{GeneratorData, OverworldGenerator, ProtoChunk},
 };
-use serde_json::Value;
-use std::{fs, path::Path};
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 

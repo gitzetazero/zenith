@@ -3,15 +3,15 @@
 //! or a server's `WIN_GAME` event), and the credits from Credits &
 //! Attribution.
 use super::{Game, Screen};
-use zenith_client::{
-    Result,
-    hud::{EndPortalFill, HudBatch},
-    win_screen::{Key, WinScreen},
-};
 use std::time::Instant;
 use winit::{
     event::{ElementState, KeyEvent},
     keyboard::{KeyCode, PhysicalKey},
+};
+use zenith_client::{
+    Result,
+    hud::{EndPortalFill, HudBatch},
+    win_screen::{Key, WinScreen},
 };
 
 /// What closing the screen does (`WinScreen.onFinished`).

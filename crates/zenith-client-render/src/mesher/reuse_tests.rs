@@ -114,8 +114,7 @@ fn a_shader_pack_lights_the_faces_itself() {
     let root = std::env::var_os("HORIZON_MESH_TEST_RESOURCES")
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|| {
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../.local/zenith-client/26.3")
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/zenith-client/26.3")
         });
     let assets = Assets::load(&root).unwrap();
     let facts = BlockFacts::load(&root, assets.registry).unwrap();
@@ -169,8 +168,7 @@ fn a_shader_pack_lights_every_nether_face_like_an_up_face() {
     let root = std::env::var_os("HORIZON_MESH_TEST_RESOURCES")
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|| {
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../.local/zenith-client/26.3")
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/zenith-client/26.3")
         });
     let assets = Assets::load(&root).unwrap();
     let facts = BlockFacts::load(&root, assets.registry).unwrap();
@@ -221,8 +219,7 @@ fn separate_ao_passes_ao_in_alpha_without_darkening_rgb() {
     let root = std::env::var_os("HORIZON_MESH_TEST_RESOURCES")
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|| {
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../.local/zenith-client/26.3")
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/zenith-client/26.3")
         });
     let assets = Assets::load(&root).unwrap();
     let facts = BlockFacts::load(&root, assets.registry).unwrap();
@@ -270,8 +267,7 @@ fn reused_mesh_matches_fresh_geometry_across_sections_and_resource_reload() {
     let root = std::env::var_os("HORIZON_MESH_TEST_RESOURCES")
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|| {
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../.local/zenith-client/26.3")
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/zenith-client/26.3")
         });
     let assets = Assets::load(&root).unwrap();
     let facts = BlockFacts::load(&root, assets.registry).unwrap();
@@ -440,8 +436,7 @@ fn a_shader_pack_s_still_water_top_starts_at_its_south_west_corner() {
     let root = std::env::var_os("HORIZON_MESH_TEST_RESOURCES")
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|| {
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../.local/zenith-client/26.3")
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/zenith-client/26.3")
         });
     let assets = Assets::load(&root).unwrap();
     let facts = BlockFacts::load(&root, assets.registry).unwrap();

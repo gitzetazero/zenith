@@ -8,9 +8,9 @@ use super::{
     living::wrap,
 };
 use crate::mesher::Vertex;
-use zenith_core::geometry::trig::Mth;
 use std::borrow::Cow;
 use std::f32::consts::PI;
+use zenith_core::geometry::trig::Mth;
 
 /// A texture lookup into the shared atlas (name without namespace -> uv rect).
 pub type Atlas<'a> = &'a dyn Fn(&str) -> Option<[f32; 4]>;
@@ -2792,9 +2792,9 @@ mod tests {
     #[test]
     fn the_elytra_flight_yaw_lerps_the_velocity_between_ticks() {
         use crate::mobs::{Anim, Brain, Flags, MobType, Part};
-        use zenith_core::geometry::Vec3;
         use serde_json::json;
         use std::sync::Arc;
+        use zenith_core::geometry::Vec3;
 
         let model = Arc::new(Part::parse("root", &json!({"children": {"head": {}}})));
         let kind = Arc::new(MobType {
@@ -3641,8 +3641,8 @@ mod scroll_tests {
 mod emissive_tests {
     use super::*;
     use crate::mobs::{Polygon, Species};
-    use zenith_optifine::{blink::Blinks, emissive::Emissive, random_textures::RandomTextures};
     use std::sync::{Arc, RwLock};
+    use zenith_optifine::{blink::Blinks, emissive::Emissive, random_textures::RandomTextures};
 
     /// A silverfish (drawn with its type's texture) whose model is one quad.
     fn silverfish() -> Mob {
@@ -3932,8 +3932,8 @@ mod emissive_tests {
 mod random_texture_tests {
     use super::*;
     use crate::mobs::{Polygon, Species};
-    use zenith_optifine::random_textures::RandomTextures;
     use std::sync::{Arc, RwLock};
+    use zenith_optifine::random_textures::RandomTextures;
 
     /// A silverfish (drawn with its type's texture) whose model is one quad.
     fn silverfish() -> Mob {

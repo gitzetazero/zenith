@@ -1,15 +1,15 @@
 #![forbid(unsafe_code)]
 //! Runs tools/test_fire_starter_sound_parity.py's cases through the fire
 //! starter's use sound (`zenith_client::items::fire_starter_pitch`).
+use std::{
+    fs::File,
+    io::{BufRead, BufReader, BufWriter, Write},
+};
 use zenith_client::{
     Result,
     items::{fire_starter_pitch, fire_starter_sound},
 };
 use zenith_core::random::{LegacyRandom, RandomSource};
-use std::{
-    fs::File,
-    io::{BufRead, BufReader, BufWriter, Write},
-};
 
 pub fn main() -> Result<()> {
     let args: Vec<String> = crate::args().collect();

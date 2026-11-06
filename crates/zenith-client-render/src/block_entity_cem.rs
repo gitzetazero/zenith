@@ -12,13 +12,13 @@
 //! block models here, so their files are not read; copper golem statues have no CEM name.
 
 use crate::block_entity_render::ModelPart;
-use zenith_optifine::cem::{
-    files::{atlas_name, jem_files, load_jem},
-    model::{Bone, EntityModel},
-};
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     path::Path,
+};
+use zenith_optifine::cem::{
+    files::{atlas_name, jem_files, load_jem},
+    model::{Bone, EntityModel},
 };
 
 /// One model the renderer draws, the CEM names that reshape it, best first, and OptiFine's

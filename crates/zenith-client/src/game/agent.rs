@@ -8,6 +8,18 @@ mod navigation;
 
 use super::event_loop::EventLoopCtl;
 use super::{Game, Screen};
+use navigation::{Cell, Node, Plan, Progress};
+use serde_json::{Value, json};
+use std::{
+    collections::{BTreeMap, HashMap, HashSet},
+    sync::mpsc::Sender,
+    time::{Duration, Instant},
+};
+use winit::{
+    dpi::PhysicalPosition,
+    event::{DeviceId, ElementState, MouseButton, MouseScrollDelta, TouchPhase, WindowEvent},
+    keyboard::KeyCode,
+};
 use zenith_client::actions::Action;
 use zenith_client::held::Source;
 use zenith_client::{
@@ -22,18 +34,6 @@ use zenith_client::{
 };
 use zenith_core::geometry::Vec3;
 use zenith_world::registry::BlockStateId;
-use navigation::{Cell, Node, Plan, Progress};
-use serde_json::{Value, json};
-use std::{
-    collections::{BTreeMap, HashMap, HashSet},
-    sync::mpsc::Sender,
-    time::{Duration, Instant},
-};
-use winit::{
-    dpi::PhysicalPosition,
-    event::{DeviceId, ElementState, MouseButton, MouseScrollDelta, TouchPhase, WindowEvent},
-    keyboard::KeyCode,
-};
 
 pub(super) const HELP: &[&str] = &[
     "state                          player, world, screen and crosshair target in one reply",

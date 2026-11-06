@@ -2,6 +2,12 @@
 //! guests, and (for the relay cases) a self-hosted relay, all on loopback
 //! in one process. Port mapping and STUN are off here: they have their own
 //! tests against mock routers and servers in zenith-friends.
+use std::{
+    cell::RefCell,
+    io::{Read, Write},
+    net::{SocketAddr, TcpListener, TcpStream},
+    time::{Duration, Instant},
+};
 use zenith_friends::{
     Code, Host, HostConfig, HostEvent, JoinError, PathMode,
     guest::{self, GuestConfig},
@@ -9,12 +15,6 @@ use zenith_friends::{
     reach,
 };
 use zenith_relay::{Config, Relay, limits::Rates};
-use std::{
-    cell::RefCell,
-    io::{Read, Write},
-    net::{SocketAddr, TcpListener, TcpStream},
-    time::{Duration, Instant},
-};
 
 const PROTOCOL: i32 = 777;
 

@@ -15,8 +15,8 @@ use super::{
     value_provider::IntProvider,
 };
 use crate::registry::BlockStateId;
-use zenith_core::{geometry::Direction, random::RandomSource};
 use std::{collections::BTreeSet, sync::Arc};
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 /// Places a nested placed feature with the caller's run budget.
 pub(crate) type PlacedPlacer<'a, W, R> = dyn FnMut(

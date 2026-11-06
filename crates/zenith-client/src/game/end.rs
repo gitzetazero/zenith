@@ -1129,16 +1129,7 @@ impl Game<'_> {
                 * glam::Mat4::from_scale(glam::Vec3::splat(2.0))
                 * glam::Mat4::from_translation(glam::Vec3::new(0.0, -0.5, 0.0));
             let start = out.len();
-            zenith_client::mobs::render::draw(
-                model,
-                base,
-                &poses,
-                uv,
-                0xFFFF_FFFF,
-                packed,
-                0,
-                out,
-            );
+            zenith_client::mobs::render::draw(model, base, &poses, uv, 0xFFFF_FFFF, packed, 0, out);
             // HDR output: the crystal shines; its tier's window leaves the dark base alone
             // (entity.wgsl fs_hdr_mark).
             for v in &mut out[start..] {

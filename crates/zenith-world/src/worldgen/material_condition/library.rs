@@ -10,14 +10,14 @@ use crate::{
         router::{NoiseRouter, RouterSamplers},
     },
 };
-use zenith_core::density::{
-    DensitySampler,
-    graph::{DensityCompiler, FunctionId},
-};
 use serde_json::value::RawValue;
 use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
+};
+use zenith_core::density::{
+    DensitySampler,
+    graph::{DensityCompiler, FunctionId},
 };
 
 #[derive(Debug)]

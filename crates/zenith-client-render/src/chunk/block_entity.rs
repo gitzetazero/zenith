@@ -2,18 +2,18 @@
 //! and its payloads). Plain data, as vanilla's block entities are world data;
 //! their behaviour lives with the features that use them (`containers`,
 //! `brewing`, `signs`, ...), which re-export these types under their old paths.
-use zenith_client_core::{text::Text, who::Who};
-use zenith_items::{banner_layer::BannerLayer, items::ItemStack};
-use zenith_world::{
-    level::sculk::SculkSpreader,
-    nbt::{Compound, Tag},
-};
 use std::{
     collections::HashMap,
     sync::{
         Arc,
         atomic::{AtomicU64, Ordering},
     },
+};
+use zenith_client_core::{text::Text, who::Who};
+use zenith_items::{banner_layer::BannerLayer, items::ItemStack};
+use zenith_world::{
+    level::sculk::SculkSpreader,
+    nbt::{Compound, Tag},
 };
 
 /// An entity's UUID as its four ints (`UUIDUtil.CODEC`).

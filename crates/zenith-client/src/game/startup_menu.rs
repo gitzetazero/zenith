@@ -3,12 +3,12 @@
 use super::event_loop::EventLoopCtl;
 use super::key_focus::{self, Act};
 use super::*;
+use winit::{event::KeyEvent, keyboard::ModifiersState};
 use zenith_client::{
     clipboard::{self, AppendSelection, SystemClipboard},
     options_ui::{Event, OptionsUi, Page},
     widgets::{Kind, Target},
 };
-use winit::{event::KeyEvent, keyboard::ModifiersState};
 
 #[derive(Default)]
 pub(super) struct StartupMenu {
@@ -866,8 +866,7 @@ impl Loading {
             }
             (Act::Step(button), Some(focus)) => {
                 let rects: Vec<[f32; 4]> = targets.iter().map(|t| t.rect).collect();
-                if let Some(i) =
-                    zenith_client::gamepad::focus_step_rect(focus.rect, button, &rects)
+                if let Some(i) = zenith_client::gamepad::focus_step_rect(focus.rect, button, &rects)
                 {
                     self.menu_key_focus_on(event_loop, targets[i]);
                 }

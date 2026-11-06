@@ -240,9 +240,9 @@ impl Game<'_> {
         });
         if let Some(chest) = chest {
             self.with_level(|b, level, ticks| b.set_block(level, ticks, pos, chest, 2));
-            if let Some(entity) = zenith_client::containers::BlockEntity::for_block(
-                &self.res.facts().get(chest).name,
-            ) {
+            if let Some(entity) =
+                zenith_client::containers::BlockEntity::for_block(&self.res.facts().get(chest).name)
+            {
                 self.world
                     .block_entities
                     .insert((below[0], below[1], below[2]), entity);
@@ -260,10 +260,10 @@ impl Game<'_> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use zenith_client::block_pattern::{
         BlockPattern, IRON_GOLEM_BASE, IRON_GOLEM_FULL, SNOW_GOLEM_BASE, SNOW_GOLEM_FULL,
     };
-    use std::collections::HashMap;
 
     /// `BlockPattern.find` over `blocks` (anything else is air): the cells of
     /// the match, column by column, top first.

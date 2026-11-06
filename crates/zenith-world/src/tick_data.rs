@@ -1,11 +1,11 @@
 //! Save-format bridge for scheduled block/fluid ticks. Registry identity is
 //! supplied by the caller; this module does not implement either type's behavior.
 use crate::{compression::invalid, nbt::Tag};
+use std::io;
 use zenith_core::{
     position::BlockPos,
     ticks::{SavedTick, TickPriority, TickTypeId},
 };
-use std::io;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TickKind {

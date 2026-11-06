@@ -2403,8 +2403,7 @@ mod tests {
     /// nothing: not into `carry`, not into `outside`, nowhere.
     #[test]
     fn entry_names_cannot_escape_the_output() {
-        let dir =
-            std::env::temp_dir().join(format!("zenith-port-pack-esc-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("zenith-port-pack-esc-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         let jar = dir.join("evil-1.0.jar");

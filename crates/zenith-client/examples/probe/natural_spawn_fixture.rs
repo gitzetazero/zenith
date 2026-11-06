@@ -21,6 +21,14 @@
 //! `vault::Vault` the same way, with players moving and using keys on it.
 //!
 //! usage: natural_spawn_fixture RESOURCES INPUT OUTPUT
+use serde_json::Value;
+use std::{
+    cell::{Cell, RefCell},
+    collections::{BTreeMap, HashMap, HashSet},
+    fmt::Write as _,
+    fs,
+    path::Path,
+};
 use zenith_client::{
     assets::Assets,
     biome::{Biomes, SpawnEntry},
@@ -55,14 +63,6 @@ use zenith_core::{
 use zenith_world::{
     block_collision::BlockCollisionRegistry, chunk::BlockState, loot::PackOverlay, nbt::Tag,
     registry::BlockStateId,
-};
-use serde_json::Value;
-use std::{
-    cell::{Cell, RefCell},
-    collections::{BTreeMap, HashMap, HashSet},
-    fmt::Write as _,
-    fs,
-    path::Path,
 };
 
 #[derive(Clone, Copy)]
@@ -1053,10 +1053,7 @@ fn trial_case(
             l.trial_count.set(l.trial_count.get() + 1);
             // Zombie.readAdditionalSaveData: IsBaby halves the box
             // (getAgeScale); finalizeSpawn's fixed random never makes one.
-            let baby = match r
-                .entity
-                .get(&zenith_world::nbt::JavaString::from("IsBaby"))
-            {
+            let baby = match r.entity.get(&zenith_world::nbt::JavaString::from("IsBaby")) {
                 Some(Tag::Byte(v)) => *v != 0,
                 Some(Tag::Int(v)) => *v != 0,
                 _ => false,

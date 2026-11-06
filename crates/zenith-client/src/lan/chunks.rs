@@ -8,6 +8,13 @@ use crate::{
     mobs::spawner::{SpawnDataExt, SpawnerExt},
     section_mask::SectionMask,
 };
+use std::{
+    collections::HashMap,
+    sync::{
+        Arc, OnceLock,
+        atomic::{AtomicUsize, Ordering},
+    },
+};
 use zenith_protocol::{
     buf::{BitSet, Codec, List, Writer, set_bit},
     chunk::{
@@ -17,13 +24,6 @@ use zenith_protocol::{
     registry::{Builtin, ceil_log2},
 };
 use zenith_world::nbt::{Compound, Tag};
-use std::{
-    collections::HashMap,
-    sync::{
-        Arc, OnceLock,
-        atomic::{AtomicUsize, Ordering},
-    },
-};
 
 const NON_AIR: u8 = 1;
 const FLUID: u8 = 2;

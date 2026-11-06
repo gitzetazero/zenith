@@ -6,9 +6,9 @@
 
 use super::Game;
 use super::perspective::CameraType;
+use std::sync::Arc;
 use zenith_cosmetics::account::OwnedEmote;
 use zenith_cosmetics::{Item, Playing, Slot};
-use std::sync::Arc;
 
 /// How far the player may drift (blocks) before the emote stops: a nudge, not a step.
 const DRIFT: f64 = 0.01;

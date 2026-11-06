@@ -1,3 +1,7 @@
+use std::sync::{
+    Arc,
+    atomic::{AtomicUsize, Ordering},
+};
 use zenith_core::{
     density::{
         CachingDensitySampler, ConstantSampler, ContextBoundSampler, DensitySampler, SampleError,
@@ -21,10 +25,6 @@ use zenith_world::{
         material_stage::{SurfaceInputs, TopMaterialInputs, build_surface, top_material},
         terrain::{TerrainBlockStates, TerrainChunk},
     },
-};
-use std::sync::{
-    Arc,
-    atomic::{AtomicUsize, Ordering},
 };
 
 #[derive(Clone, Copy)]

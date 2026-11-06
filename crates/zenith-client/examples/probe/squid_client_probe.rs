@@ -1,8 +1,3 @@
-use zenith_client::{
-    Result,
-    mobs::{Mob, MobTypes, aquatic},
-};
-use zenith_core::geometry::Vec3;
 use serde_json::Value;
 use std::{
     fs::File,
@@ -10,6 +5,11 @@ use std::{
     path::Path,
     sync::Arc,
 };
+use zenith_client::{
+    Result,
+    mobs::{Mob, MobTypes, aquatic},
+};
+use zenith_core::geometry::Vec3;
 
 pub fn main() -> Result<()> {
     let args: Vec<_> = crate::args().collect();

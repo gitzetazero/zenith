@@ -3,12 +3,12 @@
 //! and writes it), loads again (reads it) and compares the sprite arrays.
 //! cargo run --profile fast -p zenith-client --example sprite_cache_parity -- ROOT
 extern crate zenith_client_lib as zenith_client;
-use zenith_client::assets::{Assets, RenderAssets};
 use std::{
     hash::{DefaultHasher, Hash, Hasher},
     path::Path,
     time::Instant,
 };
+use zenith_client::assets::{Assets, RenderAssets};
 
 fn digest(render: &RenderAssets) -> u64 {
     let mut h = DefaultHasher::new();

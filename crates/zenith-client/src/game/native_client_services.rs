@@ -1,5 +1,6 @@
 //! Client services for trait mods, without exposing `Game` or the atlas.
 use super::Game;
+use winit::keyboard::KeyCode;
 use zenith_client::{
     collisions::SceneCollisions,
     hud::{HudBatch, rgba},
@@ -8,7 +9,6 @@ use zenith_client::{
     mod_api::Text,
 };
 use zenith_core::geometry::Vec3;
-use winit::keyboard::KeyCode;
 
 /// This window's state; unavailable on a server or before a window is attached.
 #[derive(Clone, Debug, Default)]

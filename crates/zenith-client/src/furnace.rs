@@ -191,8 +191,8 @@ fn total_time(time: u32, speed: f32) -> i32 {
 mod tests {
     use super::*;
     use crate::{containers::FurnaceKind, items::Items};
-    use zenith_world::loot::PackOverlay;
     use std::{collections::HashMap, fs};
+    use zenith_world::loot::PackOverlay;
 
     #[test]
     fn a_furnace_is_idle_only_while_its_tick_changes_nothing() {

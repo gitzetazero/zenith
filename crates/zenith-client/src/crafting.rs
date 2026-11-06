@@ -9,14 +9,14 @@ use crate::{
     items::{ItemStack, Items},
     particles::{DYE_FIREWORK_COLORS, FireworkExplosion, FireworkShape},
 };
-use zenith_world::nbt::{JavaString, Tag};
-use zenith_world::{component_patch::Patch, loot::PackOverlay};
 use serde_json::Value;
 use std::{
     collections::{HashMap, HashSet},
     path::Path,
     sync::Arc,
 };
+use zenith_world::nbt::{JavaString, Tag};
+use zenith_world::{component_patch::Patch, loot::PackOverlay};
 
 /// A recipe ingredient of a mod's own kind: the entry named a type in a
 /// namespace outside `minecraft:`, and the loader kept it for this call.

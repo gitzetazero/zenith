@@ -7,8 +7,8 @@ use crate::{
     Error, Result,
     packets::configuration::{RegistryData, UpdateTags},
 };
-use zenith_world::nbt::{JavaString, Tag};
 use std::{collections::HashMap, path::Path};
+use zenith_world::nbt::{JavaString, Tag};
 
 /// One registry: names by network id and the reverse lookup.
 #[derive(Clone, Debug, Default)]

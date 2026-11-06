@@ -4,11 +4,11 @@
 //! renderer's bookkeeping and the GPU allocator's resources by label say
 //! where it goes. Bytes the census doesn't reach show as the difference.
 use super::Game;
+use serde_json::{Value, json};
+use std::sync::Arc;
 use zenith_client::chunk::ColumnCensus;
 use zenith_client::fast_hash::FxHashSet;
 use zenith_client::world::World;
-use serde_json::{Value, json};
-use std::sync::Arc;
 
 const MB: f64 = 1048576.0;
 

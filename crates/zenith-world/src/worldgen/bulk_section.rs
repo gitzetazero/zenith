@@ -5,8 +5,8 @@ use super::{
     terrain::{TerrainBlockStates, TerrainError},
 };
 use crate::{heightmap::HeightmapType, registry::BlockStateId};
-use zenith_core::position::{BlockPos, SectionPos};
 use std::collections::BTreeMap;
+use zenith_core::position::{BlockPos, SectionPos};
 
 pub struct TerrainBulkAccess<'a, 'r, B: TerrainBlockStates> {
     region: &'a mut TerrainRegion<'r, B>,

@@ -7,6 +7,7 @@
 //! LAN one, unchanged: tunnelled guests are LAN guests that connect from the
 //! loopback address.
 use super::{Game, lan::LanSettings};
+use std::time::{Duration, Instant};
 use zenith_client::{
     Result,
     friends_screen::{self, Action, FriendsView},
@@ -16,7 +17,6 @@ use zenith_client::{
 };
 use zenith_friends::{Host, HostConfig, HostEvent, PathMode, host::DEFAULT_PORT, reach, stun};
 use zenith_protocol::{GAME_VERSION, PROTOCOL_VERSION};
-use std::time::{Duration, Instant};
 
 pub(super) struct Sharing {
     host: Host,

@@ -2,8 +2,8 @@
 //! error messages and completion suggestions, producing NBT tags.
 use super::packrat::{Grammar, Reason, State, Sugg, Term, Value, alt, ch, chs, look, opt, seq};
 use super::{CmdResult, CommandError, Reader, SuggestionsBuilder};
-use zenith_world::nbt::{Compound, JavaString, Tag};
 use std::rc::Rc;
+use zenith_world::nbt::{Compound, JavaString, Tag};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TypeSuffix {

@@ -9,8 +9,8 @@ use super::{
     anim::{Poses, State, quadruped},
     keyframes::{Animation, AnimationState},
 };
-use zenith_core::geometry::trig::Mth;
 use std::{collections::HashMap, f64::consts::PI};
+use zenith_core::geometry::trig::Mth;
 
 pub type Animations = HashMap<String, Animation>;
 const FPI: f32 = PI as f32;

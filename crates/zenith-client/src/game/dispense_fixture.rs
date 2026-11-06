@@ -7,6 +7,9 @@ use super::{
     Game,
     dispenser::{Slot, mob_set_slot, mob_slot_item},
 };
+use serde_json::Value;
+use std::{cell::RefCell, collections::HashMap, fmt::Write as _, io::Write as _, sync::Arc};
+use winit::keyboard::KeyCode;
 use zenith_client::{
     Result,
     chunk::Chunk,
@@ -28,9 +31,6 @@ use zenith_core::{
     random::{LegacyRandom, RandomSource},
 };
 use zenith_world::{level::Ticks, registry::BlockStateId};
-use serde_json::Value;
-use std::{cell::RefCell, collections::HashMap, fmt::Write as _, io::Write as _, sync::Arc};
-use winit::keyboard::KeyCode;
 
 thread_local! {
     /// Level and game events recorded while a fixture case runs.

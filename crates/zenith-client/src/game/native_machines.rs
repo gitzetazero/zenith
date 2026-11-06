@@ -3,6 +3,7 @@
 //! harvester), show its crack while it works, and use an item as a player
 //! would (a deployer) (docs/native-mods.md, "Machines").
 use super::{Game, GuestUse, Hit, InteractTarget, Screen};
+use winit::keyboard::KeyCode;
 use zenith_client::{
     command::args::GameMode,
     containers::BlockEntity,
@@ -11,7 +12,6 @@ use zenith_client::{
     mod_api::{NativeFakeUse, NativeUseTarget},
 };
 use zenith_core::{geometry::Vec3, position::BlockPos};
-use winit::keyboard::KeyCode;
 
 /// `Player.getStandingEyeHeight`: a fake player's eyes above its feet.
 const FAKE_EYE: f32 = 1.62;
@@ -272,9 +272,9 @@ pub(crate) mod tests {
         stations::{Kind, Station},
     };
     use super::*;
+    use std::sync::Arc;
     use zenith_client::chunk::Chunk;
     use zenith_core::geometry::Direction;
-    use std::sync::Arc;
 
     /// A server's game on the prepared resources: nobody is playing, and the
     /// chunk at the origin is loaded.

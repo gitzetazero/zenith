@@ -4,13 +4,13 @@
 //! or format is cleared on first use.
 use super::{Column, Span, Surface};
 use crate::fast_hash::FxHashMap;
-use zenith_world::registry::BlockStateId;
 use std::{
     fs::{File, OpenOptions},
     io::{Read, Seek, SeekFrom, Write},
     path::PathBuf,
     sync::{Arc, Mutex},
 };
+use zenith_world::registry::BlockStateId;
 
 const MAGIC: &[u8; 4] = b"HLOD";
 const FORMAT: u32 = 1;

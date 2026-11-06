@@ -1,10 +1,10 @@
+use std::collections::{BTreeMap, BTreeSet};
 use zenith_world::{
     DATA_VERSION,
     nbt::Tag,
     registry::BlockRegistry,
     worldgen::state_provider::{BlockStateProvider, StateProviderBindings, StateProviderCatalog},
 };
-use std::collections::{BTreeMap, BTreeSet};
 #[test]
 fn bound_recursive_providers_and_registry_lists_before_sampling() {
     let registry = BlockRegistry::from_nbt(&Tag::compound([

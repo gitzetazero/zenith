@@ -6,8 +6,8 @@ use super::{
         Breed, EatBlock, Float, FollowParent, LookAtPlayer, Panic, RandomLookAround, Stroll, Tempt,
     },
 };
-use zenith_core::random::RandomSource;
 use std::sync::Arc;
+use zenith_core::random::RandomSource;
 
 pub fn register(m: &mut Mob) {
     let food = m.kind.food.clone();

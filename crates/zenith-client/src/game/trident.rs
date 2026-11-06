@@ -1057,16 +1057,7 @@ impl Game<'_> {
             }
             let packed = (u32::from(l >> 4) * 16) | ((u32::from(l & 15) * 16) << 8);
             let poses = Poses::new(model);
-            zenith_client::mobs::render::draw(
-                model,
-                base,
-                &poses,
-                uv,
-                0xFFFF_FFFF,
-                packed,
-                0,
-                out,
-            );
+            zenith_client::mobs::render::draw(model, base, &poses, uv, 0xFFFF_FFFF, packed, 0, out);
             if let Some(glow) = glow {
                 let full = zenith_client::mobs::render::FULL_BRIGHT;
                 zenith_client::mobs::render::draw(

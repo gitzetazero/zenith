@@ -2,6 +2,12 @@
 //! once and share its geometry across positions. Resource failure recovery and
 //! resource-pack reloads remain separate work.
 use crate::{Result, sprites::Sprites};
+use serde_json::Value;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    path::Path,
+};
 use zenith_assets::{
     bake::{BlockModelTransform, ModelQuad, RenderType, bake_block_model},
     blockstate::{
@@ -17,12 +23,6 @@ use zenith_core::{
 use zenith_world::{
     chunk::BlockState,
     registry::{BlockRegistry, BlockStateId},
-};
-use serde_json::Value;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    fs,
-    path::Path,
 };
 
 pub struct BakedFace {

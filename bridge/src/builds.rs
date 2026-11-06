@@ -1,10 +1,10 @@
 //! Signed Zenith builds: fetched from the `nightly` Release of the fork, verified against the
 //! embedded keys, and unpacked under `<root>/builds/<version>/`.
 
-use zenith_release_sign::{NIGHTLY, PublicKey, SIGNATURE, SUMS, check, sha256_hex, verify};
 use std::io::{Cursor, Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
+use zenith_release_sign::{NIGHTLY, PublicKey, SIGNATURE, SUMS, check, sha256_hex, verify};
 
 pub const REPO: &str = "gitzetazero/zenith";
 const MAX_DOWNLOAD: u64 = 1 << 30;
@@ -169,7 +169,7 @@ impl Store {
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(&tmp).map_err(|e| e.to_string())?;
         let done = extract_zip(archive, &tmp).and_then(|()| {
-            if !tmp.join("zenith.exe").is_file() && !tmp.join("zenith-client.exe").is_file() {
+            if !tmp.join("zenith.exe").is_file() && !tmp.join("horizon-client.exe").is_file() {
                 return Err("the archive has no zenith.exe".to_string());
             }
             std::fs::write(tmp.join(STAMP), stamp.text()).map_err(|e| e.to_string())?;

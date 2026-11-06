@@ -6,8 +6,8 @@ use super::{
     update::rel,
 };
 use crate::registry::BlockStateId;
-use zenith_core::{geometry::Direction, position::BlockPos};
 use std::collections::HashMap;
+use zenith_core::{geometry::Direction, position::BlockPos};
 
 /// `SideChainPart`.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]

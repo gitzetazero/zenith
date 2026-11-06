@@ -100,8 +100,8 @@ pub fn single(from: &Mob, to: &mut Mob, params: Params) {
 mod tests {
     use super::*;
     use crate::{items::ItemStack, mobs::world::with_test_world};
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     #[test]
     fn a_frozen_skeleton_becomes_a_stray_that_keeps_its_bow_and_name() {

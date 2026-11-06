@@ -1,6 +1,11 @@
 //! Chat, the command registries and the per-world state behind commands
 //! (game rules, the world clock, difficulty), bound to the game.
 use super::{Game, Screen};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+};
 use zenith_client::{
     chat::{
         Chat, ChatAbilities, ChatAction, ChatScreen, ChatSource, ChatVisibility, Commands,
@@ -13,11 +18,6 @@ use zenith_client::{
     text::{ClickEvent, Style, Text},
 };
 use zenith_world::registry::{BlockRegistry, BlockStateId};
-use std::{
-    collections::BTreeMap,
-    path::{Path, PathBuf},
-    sync::{Arc, Mutex},
-};
 
 /// The tree the chat parses and completes with: `Remote::chat_tree`, which is
 /// a server's, once it has sent one (ClientPacketListener.commands), else the
@@ -2004,12 +2004,12 @@ mod tests {
     #[test]
     fn leave_bed_is_a_focus_target_above_the_chat_box() {
         use super::super::key_focus;
+        use std::collections::HashMap;
         use zenith_client::{
             font::Font,
             gamepad::{Button, focus_step_strict},
             widgets::Kind,
         };
-        use std::collections::HashMap;
         // The missing-glyph metrics measure without game assets.
         let font = Font::load(
             Path::new("/nonexistent-horizon-chat-test-resources"),

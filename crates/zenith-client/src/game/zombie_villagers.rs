@@ -306,9 +306,9 @@ mod tests {
     /// NoGravity and Invulnerable onto the mob that replaces the old one.
     #[test]
     fn infection_and_the_cure_keep_the_common_flags() {
+        use std::sync::Arc;
         use zenith_client::mobs::{Anim, Brain, MobType, Part};
         use zenith_core::geometry::Vec3;
-        use std::sync::Arc;
         let mob = |id, species, name: &str| {
             let kind = MobType {
                 id: name.into(),

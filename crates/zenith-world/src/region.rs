@@ -6,13 +6,13 @@ use crate::{
     compression::{Compression, invalid},
     nbt::{self, Limits, NamedTag},
 };
-use zenith_core::position::ChunkPos;
 use std::{
     fs::{self, File, OpenOptions},
     io::{self, Read, Seek, SeekFrom, Write},
     path::{Path, PathBuf},
     sync::atomic::{AtomicU32, Ordering},
 };
+use zenith_core::position::ChunkPos;
 
 const SECTOR: usize = 4096;
 const HEADER: usize = SECTOR * 2;

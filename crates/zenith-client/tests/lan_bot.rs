@@ -3,6 +3,12 @@
 //! then the play state (login, chunks with light, player list, entities,
 //! block changes). Needs the prepared resources; skipped without them.
 extern crate zenith_client_lib as zenith_client;
+use std::{
+    path::Path,
+    sync::Arc,
+    thread,
+    time::{Duration, Instant},
+};
 use zenith_client::{
     chunk::{Chunk, MIN_Y},
     lan::{
@@ -28,12 +34,6 @@ use zenith_protocol::{
     },
 };
 use zenith_world::registry::BlockStateId;
-use std::{
-    path::Path,
-    sync::Arc,
-    thread,
-    time::{Duration, Instant},
-};
 
 fn resources() -> Option<std::path::PathBuf> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))

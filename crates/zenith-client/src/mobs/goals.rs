@@ -1,12 +1,12 @@
 //! Vanilla's `GoalSelector` (priorities, MOVE/LOOK/JUMP/TARGET control flags,
 //! interruption) and the shared goals of `net.minecraft.world.entity.ai.goal`.
 use super::{Mob, MobEvent, MobWorld, Seen, Species, Who, world::TargetInfo};
+use std::sync::Arc;
 use zenith_core::{
     geometry::{Aabb, Vec3},
     jmath,
     random::{LegacyRandom, RandomSource},
 };
-use std::sync::Arc;
 
 pub const MOVE: u8 = 1;
 pub const LOOK: u8 = 2;

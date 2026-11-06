@@ -5,6 +5,12 @@
 pub use zenith_optifine::cit::{Hand, Kind, Rule};
 
 use crate::cit_glint::{Global, StackGlint};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::fs;
+use std::hash::{DefaultHasher, Hash, Hasher};
+use std::path::Path;
+use std::sync::{Arc, Mutex};
 use zenith_client_core::component::name_text;
 use zenith_client_core::scoreboard::comp_text;
 use zenith_items::item_data::{canon_tag, encode_components};
@@ -12,12 +18,6 @@ use zenith_items::items::ItemStack;
 use zenith_optifine::cit::{ComponentTest, Source, ValueTest};
 use zenith_optifine::{Properties, properties_files_in};
 use zenith_world::nbt::{JavaString, Tag, parse_snbt};
-use std::borrow::Cow;
-use std::collections::HashMap;
-use std::fs;
-use std::hash::{DefaultHasher, Hash, Hasher};
-use std::path::Path;
-use std::sync::{Arc, Mutex};
 
 /// Every rule under the root's `optifine/cit/`, `mcpatcher/cit/` and CIT Resewn's
 /// `citresewn/cit/` folders, the one chosen first when several match first (`Rule::priority`).

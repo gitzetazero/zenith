@@ -24,11 +24,9 @@ fn takes_terrain(programs: &[&str]) -> Option<(bool, bool)> {
             zip.write_all(source.as_bytes()).unwrap();
         }
     }
-    let pack = zenith_shaders::Pack::from_zip_bytes(
-        "undrawn-terrain",
-        zip.finish().unwrap().into_inner(),
-    )
-    .unwrap();
+    let pack =
+        zenith_shaders::Pack::from_zip_bytes("undrawn-terrain", zip.finish().unwrap().into_inner())
+            .unwrap();
     let mut macros = zenith_shaders::Macros::standard();
     let (properties, _) = zenith_shaders::read_properties(&pack, &mut macros);
     let inputs = zenith_shaders::GameInputs {

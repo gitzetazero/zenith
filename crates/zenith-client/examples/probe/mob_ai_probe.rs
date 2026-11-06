@@ -3,6 +3,13 @@
 //! `VanillaMobAiOracle`.
 //!
 //! usage: mob_ai_probe RESOURCES SCENARIOS OUTPUT
+use std::{
+    collections::{BTreeMap, HashMap},
+    fmt::Write as _,
+    fs,
+    path::Path,
+    sync::Arc,
+};
 use zenith_client::{
     assets::Assets,
     beehive::{BeehiveExt, HiveHost},
@@ -29,13 +36,6 @@ use zenith_core::{
 };
 use zenith_world::loot::PackOverlay;
 use zenith_world::{chunk::BlockState, registry::BlockRegistry, registry::BlockStateId};
-use std::{
-    collections::{BTreeMap, HashMap},
-    fmt::Write as _,
-    fs,
-    path::Path,
-    sync::Arc,
-};
 
 struct MobSpec {
     kind: String,
@@ -530,12 +530,8 @@ impl HiveHost for ProbeHive<'_, '_> {
     }
     fn load(&mut self, tag: &zenith_world::nbt::Tag) -> Option<Mob> {
         let index = self.first + self.added.len();
-        let mut m = zenith_client::entity_nbt::mob_from_nbt(
-            tag,
-            self.types,
-            100_000 + index as u32,
-            None,
-        )?;
+        let mut m =
+            zenith_client::entity_nbt::mob_from_nbt(tag, self.types, 100_000 + index as u32, None)?;
         if m.species() != Species::Bee {
             return None;
         }
@@ -1450,13 +1446,10 @@ pub fn main() -> zenith_client::Result<()> {
                     else {
                         continue;
                     };
-                    let tag = zenith_client::entity_nbt::mob_to_nbt(
-                        &mobs[i],
-                        [0; 4],
-                        None,
-                        None,
-                        |_| None,
-                    );
+                    let tag =
+                        zenith_client::entity_nbt::mob_to_nbt(&mobs[i], [0; 4], None, None, |_| {
+                            None
+                        });
                     let flower = zenith_client::mobs::bee::get(&mobs[i]).and_then(|b| b.flower);
                     let mut honey = Vec::new();
                     let stored = {

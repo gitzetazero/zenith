@@ -1,7 +1,7 @@
 //! Vanilla item-atlas coordinates for GUI glint; the HUD's unrelated packing cannot supply them.
 use crate::{atlas_sources, hud::Rect};
-use zenith_assets::animation::AnimationMetadata;
 use std::{collections::HashMap, path::Path};
+use zenith_assets::animation::AnimationMetadata;
 
 type Entry = (String, u32, u32);
 

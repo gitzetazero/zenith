@@ -2,6 +2,7 @@
 //! `handleDebugKeys` and `tick`): F3 combinations, F3+Escape, the held
 //! debug-crash keys, and the debug renderers they switch on.
 use super::{Game, Screen};
+use winit::keyboard::KeyCode;
 use zenith_client::{
     Result,
     command::args::GameMode,
@@ -15,7 +16,6 @@ use zenith_client::{
 use zenith_core::geometry::{Axis, Vec3};
 use zenith_protocol::packets::play::{BlockEntityTagQuery, EntityTagQuery, Serverbound};
 use zenith_world::nbt::Tag;
-use winit::keyboard::KeyCode;
 
 /// `ChatFormatting.YELLOW` and `RED`.
 const YELLOW: u32 = 0xFF_FF55;

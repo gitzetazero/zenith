@@ -1,3 +1,9 @@
+use serde_json::Value;
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_world::{
     component_patch::{Patch, Prototype},
     identifier::Identifier,
@@ -11,12 +17,6 @@ use zenith_world::{
     extra_items::{self, ExtraItemHooks},
     inventory_pickup::{PickupError, PickupHooks},
     player_inventory::{EntityEquipment, InventoryRules, PlayerInventory},
-};
-use serde_json::Value;
-use std::{
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 #[derive(Clone, Debug, PartialEq)]
 enum Component {

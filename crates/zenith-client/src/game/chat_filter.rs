@@ -25,8 +25,7 @@ impl Reply {
         if key.starts_with("horizon.") {
             static ENGLISH: std::sync::OnceLock<zenith_client::lang::Language> =
                 std::sync::OnceLock::new();
-            let english =
-                ENGLISH.get_or_init(|| zenith_client::lang::Language::load(&[], "en_us"));
+            let english = ENGLISH.get_or_init(|| zenith_client::lang::Language::load(&[], "en_us"));
             Text::translate_with_fallback(key, english.get(key).unwrap_or(key), args)
         } else {
             Text::translate(key, args)

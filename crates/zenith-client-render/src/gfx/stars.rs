@@ -3,8 +3,8 @@
 //! (the sky's rotation and the star brightness) instead of being regenerated
 //! and uploaded every frame.
 use glam::{Mat4, Vec3};
-use zenith_core::random::RandomSource;
 use wgpu::util::DeviceExt;
+use zenith_core::random::RandomSource;
 
 /// `SkyRenderer.buildStars` with its fixed seed: up to 1500 quads on a
 /// sphere of radius 100, each turned to face the centre and spun about its

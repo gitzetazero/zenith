@@ -7,6 +7,10 @@ use crate::{
     motion::PlayerMotion,
     pose::{Dimensions, Pose},
 };
+use std::{
+    collections::VecDeque,
+    sync::{Arc, atomic::AtomicI32},
+};
 use zenith_core::geometry::{Aabb, Vec3};
 use zenith_protocol::{
     attachment_sync,
@@ -15,10 +19,6 @@ use zenith_protocol::{
         configuration::{ClientInformation, CustomPayload},
         play,
     },
-};
-use std::{
-    collections::VecDeque,
-    sync::{Arc, atomic::AtomicI32},
 };
 
 /// GameType ids.
@@ -611,8 +611,8 @@ impl Guest {
     /// What `packet` changes about how the client moves, for the prediction's replay: kept until
     /// the tick's ping places it (`Hub::anticheat_ping`).
     fn note_change(&self, packet: &play::Clientbound) {
-        use zenith_anticheat::prediction::Change;
         use play::Clientbound as C;
+        use zenith_anticheat::prediction::Change;
         let own = |id: i32| id == self.entity_id;
         let change = match packet {
             C::SetEntityMotion(p) if own(p.id) => {
@@ -1205,8 +1205,7 @@ fn network_stack(
                 w.bool(stack.is_some());
                 if let Some(stack) = stack {
                     <zenith_protocol::item::Template as zenith_protocol::buf::Codec<Stack>>::write(
-                        stack,
-                        &mut w,
+                        stack, &mut w,
                     );
                 }
             }
@@ -1240,23 +1239,21 @@ fn network_stack(
         if let Some(w) = &d.written {
             stack.added.push((
                 zenith_protocol::item::component::WRITTEN_BOOK_CONTENT,
-                zenith_protocol::item::Component::WrittenBook(
-                    zenith_protocol::item::WrittenBook {
-                        title: w.title.clone(),
-                        author: w.author.clone(),
-                        generation: i32::from(w.generation),
-                        pages: if w.page_tags.len() == w.pages.len() {
-                            w.page_tags.clone()
-                        } else {
-                            w.pages
-                                .iter()
-                                .map(|p| zenith_protocol::text::literal(p))
-                                .collect()
-                        },
-                        resolved: true,
-                        ..Default::default()
+                zenith_protocol::item::Component::WrittenBook(zenith_protocol::item::WrittenBook {
+                    title: w.title.clone(),
+                    author: w.author.clone(),
+                    generation: i32::from(w.generation),
+                    pages: if w.page_tags.len() == w.pages.len() {
+                        w.page_tags.clone()
+                    } else {
+                        w.pages
+                            .iter()
+                            .map(|p| zenith_protocol::text::literal(p))
+                            .collect()
                     },
-                ),
+                    resolved: true,
+                    ..Default::default()
+                }),
             ));
         }
     }
@@ -1315,9 +1312,7 @@ fn network_stack(
     if s.data()
         .is_some_and(|d| d.other("!minecraft:rarity").is_some())
     {
-        stack
-            .removed
-            .push(zenith_protocol::item::component::RARITY);
+        stack.removed.push(zenith_protocol::item::component::RARITY);
     }
     // `DataComponents.MAX_STACK_SIZE`: an int in 1..=99 on this stack, not the
     // item's default. A removed component falls back to that default.

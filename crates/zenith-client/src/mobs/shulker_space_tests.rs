@@ -1,4 +1,5 @@
 use super::*;
+use std::sync::Arc;
 use zenith_core::geometry::{Axis, VoxelShape};
 use zenith_world::{
     block_collision::BlockCollisionRegistry,
@@ -6,7 +7,6 @@ use zenith_world::{
     nbt::Tag,
     registry::{BlockRegistry, BlockStateId},
 };
-use std::sync::Arc;
 
 fn text(value: &str) -> Tag {
     Tag::String(value.into())

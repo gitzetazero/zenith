@@ -7,8 +7,8 @@ use crate::{
     hud::{Blend, EndPortalFill, HudAtlas, HudBatch},
     text::{self, Style, Text},
 };
-use zenith_core::random::{LegacyRandom, RandomSource};
 use std::{collections::HashSet, path::Path};
+use zenith_core::random::{LegacyRandom, RandomSource};
 
 /// `WinScreen.OBFUSCATE_TOKEN`: `§f§k§a§b` marks where the poem hides a name.
 const OBFUSCATE_TOKEN: &str = "\u{a7}f\u{a7}k\u{a7}a\u{a7}b";

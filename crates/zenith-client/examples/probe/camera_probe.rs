@@ -1,6 +1,13 @@
 #![forbid(unsafe_code)]
 //! Runs the JSON-lines scenarios of tools/test_camera_parity.py through the
 //! Rust camera, field-of-view, avatar bob and view/hurt bobbing code.
+use serde_json::Value;
+use std::{
+    collections::HashMap,
+    convert::Infallible,
+    fs::File,
+    io::{BufRead, BufReader, BufWriter, Write},
+};
 use zenith_client::{
     Result,
     camera::{
@@ -13,13 +20,6 @@ use zenith_core::{
     position::BlockPos,
 };
 use zenith_world::world_ray::{RayBlockMode, RayFluidMode, RayWorld, clip_world};
-use serde_json::Value;
-use std::{
-    collections::HashMap,
-    convert::Infallible,
-    fs::File,
-    io::{BufRead, BufReader, BufWriter, Write},
-};
 
 fn fl(v: &Value) -> f32 {
     f32::from_bits(u32::from_str_radix(v.as_str().unwrap(), 16).unwrap())

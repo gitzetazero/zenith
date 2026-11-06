@@ -2,13 +2,13 @@
 //! the parts of them commands use: `.mcfunction` functions (with macros and
 //! line continuation), function tags and predicates.
 use crate::zip::Zip;
-use zenith_world::{
-    nbt::Tag,
-    worldgen::overrides::{self, PackFile, WorldgenOverrides},
-};
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
+};
+use zenith_world::{
+    nbt::Tag,
+    worldgen::overrides::{self, PackFile, WorldgenOverrides},
 };
 
 /// A pack on disk.

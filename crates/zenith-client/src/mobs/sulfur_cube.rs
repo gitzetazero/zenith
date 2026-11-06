@@ -9,10 +9,10 @@ use super::{
     control::MoveKind,
     goals::{Cx, Goal, JUMP, LOOK, MOVE, goal_clone},
 };
-use zenith_core::{geometry::Vec3, random::RandomSource};
 use std::cell::Cell;
 use std::collections::{HashMap, HashSet};
 use std::sync::OnceLock;
+use zenith_core::{geometry::Vec3, random::RandomSource};
 
 // Sulfur cube state (on top of `cube`'s `size`, `counter` jump delay,
 // `flag` aggressive, `flag2` was on ground, `vector[0]` direction):
@@ -1130,8 +1130,8 @@ pub fn from_nbt(m: &mut Mob, tag: &zenith_world::nbt::Tag) {
 mod tnt_rule_tests {
     use super::*;
     use crate::mobs::{Damage, DamageKind, Mob, Species};
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     fn tnt_cube() -> Mob {
         test_archetype_items();
@@ -1229,8 +1229,8 @@ mod tnt_rule_tests {
 mod fuse_anim_tests {
     use super::*;
     use crate::mobs::{Mob, Species};
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     fn cube() -> Mob {
         let mut kind = (*crate::mobs::sensor_scan_tests::kind()).clone();

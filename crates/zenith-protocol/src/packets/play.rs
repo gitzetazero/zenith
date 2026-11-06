@@ -467,8 +467,7 @@ impl VecDelta {
         let mut out = base;
         for i in 0..3 {
             if delta[i] != 0 {
-                out[i] = (zenith_core::jmath::round(base[i] * 4096.0) + i64::from(delta[i]))
-                    as f64
+                out[i] = (zenith_core::jmath::round(base[i] * 4096.0) + i64::from(delta[i])) as f64
                     / 4096.0;
             }
         }

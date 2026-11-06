@@ -1,9 +1,9 @@
+use std::cell::RefCell;
 use zenith_core::position::ChunkPos;
 use zenith_world::{
     retrogen::RetrogenBiomeResolver,
     worldgen::biome_chunk::{BiomeChunk, BiomeFillError},
 };
-use std::cell::RefCell;
 
 #[test]
 fn candidates_precede_old_columns_and_errors_short_circuit() {

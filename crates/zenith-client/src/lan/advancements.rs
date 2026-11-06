@@ -8,12 +8,12 @@ use crate::{
     advancements::{Progress, Tree},
     recipe_book::{Category, RecipeIndex, Settings, crafting_category, crafting_station},
 };
-use zenith_protocol::buf::Writer;
 use serde_json::Value;
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap},
     path::Path,
 };
+use zenith_protocol::buf::Writer;
 
 pub struct ServerAdvancements {
     tree: std::sync::Arc<Tree>,
@@ -423,10 +423,8 @@ impl ServerAdvancements {
         let result = |w: &mut Writer| {
             w.varint(slot("minecraft:item_stack"));
             w.varint(
-                item(
-                    zenith_world::loot::recipe_result_id(&r["result"]).unwrap_or("minecraft:air"),
-                )
-                .unwrap_or(0),
+                item(zenith_world::loot::recipe_result_id(&r["result"]).unwrap_or("minecraft:air"))
+                    .unwrap_or(0),
             );
             w.varint(r["result"]["count"].as_i64().unwrap_or(1) as i32);
             w.varint(0);
@@ -613,12 +611,12 @@ fn holder_set(w: &mut Writer, v: &Value, item: &dyn Fn(&str) -> Option<i32>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
     use zenith_protocol::{
         buf::Reader,
         item::Stack,
         packets::recipes::{HolderSet, RecipeBookEntry, RecipeDisplay, SlotDisplay},
     };
-    use std::path::PathBuf;
 
     /// The registries `book_entries` looks up, in the game's order
     /// (`RecipeBookCategories` and the two display registries).

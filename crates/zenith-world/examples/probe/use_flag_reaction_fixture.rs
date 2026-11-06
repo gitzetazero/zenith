@@ -1,3 +1,9 @@
+use serde_json::Value;
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_world::{
     component_patch::Prototype,
     inventory_use::{
@@ -9,12 +15,6 @@ use zenith_world::{
     player_equipment::InteractionHand,
     player_inventory::{EntityEquipment, EquipmentSlot, PlayerInventory},
     synced_values::{DataValue, SyncedValues},
-};
-use serde_json::Value;
-use std::{
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 type Stack = StackRef<usize, u8, bool>;
 type State = ActiveStack<usize, u8, bool>;

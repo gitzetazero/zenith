@@ -3,6 +3,11 @@
 use super::{
     Game, PackResources, Resources, UiResources, build_renderer, prepare_renderer_textures,
 };
+use std::{
+    collections::BTreeSet,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 use zenith_client::{
     assets::Assets,
     gfx::PreparedTextures,
@@ -12,11 +17,6 @@ use zenith_client::{
     packs::{self, Pack, Position},
     streaming::WorkerContext,
     text::{Style, Text},
-};
-use std::{
-    collections::BTreeSet,
-    path::{Path, PathBuf},
-    sync::Arc,
 };
 
 /// Where overlay roots are built (beside options.txt).
@@ -256,10 +256,7 @@ impl Game<'_> {
             }
         }
         if self.screen != super::Screen::Options {
-            self.open_options_at(
-                self.title.is_some(),
-                zenith_client::options_ui::Page::Packs,
-            );
+            self.open_options_at(self.title.is_some(), zenith_client::options_ui::Page::Packs);
         }
         self.ui.options.resource_error = Some(error.to_string());
     }

@@ -11,7 +11,6 @@ use client::{
     graphics::GraphicsApi,
     hud::HudBatch,
 };
-use zenith_client_render as client;
 use std::{
     path::Path,
     sync::{
@@ -25,6 +24,7 @@ use winit::{
     event_loop::{ActiveEventLoop, EventLoop},
     window::{Window, WindowId},
 };
+use zenith_client_render as client;
 
 static NEEDS_SPANS: AtomicBool = AtomicBool::new(false);
 static OBSERVED: AtomicUsize = AtomicUsize::new(0);

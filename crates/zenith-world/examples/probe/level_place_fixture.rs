@@ -1,5 +1,11 @@
 //! Rust side of `tools/test_level_place_parity.py`: evaluates
 //! `Behaviours::placement_state` for generated neighbourhoods.
+use serde_json::Value;
+use std::{
+    collections::HashMap,
+    io::{BufRead, Write},
+    path::Path,
+};
 use zenith_core::{
     geometry::{Direction, Vec3},
     position::{BlockPos, ChunkPos},
@@ -8,12 +14,6 @@ use zenith_core::{
 use zenith_world::{
     level::{Behaviours, LevelAccess, PlaceContext, Ticks, data::load_registry},
     registry::BlockStateId,
-};
-use serde_json::Value;
-use std::{
-    collections::HashMap,
-    io::{BufRead, Write},
-    path::Path,
 };
 
 struct Cells {

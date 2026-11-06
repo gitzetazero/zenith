@@ -3,6 +3,7 @@
 //! spawn egg used on one (`SpawnEggItem.useOn`), their events and the mob
 //! spinning inside (`SpawnerRenderer`).
 use super::Game;
+use std::collections::{HashMap, HashSet};
 use zenith_client::{
     Result,
     containers::BlockEntity,
@@ -16,7 +17,6 @@ use zenith_client::{
 };
 use zenith_core::{geometry::Vec3, random::RandomSource};
 use zenith_world::nbt::Tag;
-use std::collections::{HashMap, HashSet};
 
 type Pos = (i32, i32, i32);
 

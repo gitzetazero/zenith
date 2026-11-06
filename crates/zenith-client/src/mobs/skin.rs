@@ -11,8 +11,8 @@
 use super::{ModelNormals, Part, anim::Poses};
 use crate::fast_hash::FxHashMap;
 use crate::gfx::entity_skin::{SkinFrame, SkinJob, SkinPart, SkinVertex};
-use zenith_assets::item_bake::BakedItemModel;
 use std::sync::Arc;
+use zenith_assets::item_bake::BakedItemModel;
 
 /// A stored model: where its vertices start, and per part (pre-order) its
 /// own vertices and the end of its subtree, for the walk.

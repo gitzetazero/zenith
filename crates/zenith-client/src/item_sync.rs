@@ -4,11 +4,11 @@
 //! what its server sends, a server for a creative client's
 //! `SetCreativeModeSlot`. The other direction is `lan::guest::stack_to_network`.
 use crate::items::ItemStack;
+use std::sync::Arc;
 use zenith_protocol::buf::{Codec, Reader};
 use zenith_protocol::item::{Component, Profile, Stack, Template, component};
 use zenith_protocol::registry::{Builtin, Dynamic};
 use zenith_world::nbt::Tag;
-use std::sync::Arc;
 
 /// A stack from the wire: its item by the built-in registry's id, its
 /// components by the synced registries' (enchantments, trims).

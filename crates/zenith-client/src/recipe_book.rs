@@ -7,9 +7,9 @@ use crate::{
     crafting::{Ingredient, Placement, Recipe, Recipes},
     items::{ItemStack, Items},
 };
+use std::collections::{BTreeSet, HashMap};
 use zenith_world::loot::PackOverlay;
 use zenith_world::nbt::Tag;
-use std::collections::{BTreeSet, HashMap};
 
 /// A native mod's book category for one custom recipe type.
 #[derive(Clone, Debug, PartialEq, Eq)]

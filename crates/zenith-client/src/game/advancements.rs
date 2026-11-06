@@ -2,6 +2,12 @@
 //! events (`CriteriaTriggers`), awarding with rewards, the toast and the
 //! chat announcement, and `players/advancements/<uuid>.json`.
 use super::{Dim, Game};
+use serde_json::Value;
+use std::{
+    collections::{BTreeMap, BTreeSet, VecDeque},
+    sync::Arc,
+    time::Instant,
+};
 use zenith_client::actions::Action;
 use zenith_client::{
     advancements::{self as adv, EntityView, Frame, ItemView, Progress, Tree},
@@ -13,12 +19,6 @@ use zenith_client::{
 use zenith_core::geometry::Vec3;
 use zenith_core::random::RandomSource;
 use zenith_protocol::packets::play::Clientbound as C;
-use serde_json::Value;
-use std::{
-    collections::{BTreeMap, BTreeSet, VecDeque},
-    sync::Arc,
-    time::Instant,
-};
 
 pub(super) struct Toast {
     icon: String,
@@ -2753,8 +2753,8 @@ mod tests {
 mod structure_tag_tests {
     use super::View;
     use crate::game::{Audio, Game, Options, Progress, Settings, load_resources};
-    use zenith_client::advancements::{World, id_matches};
     use serde_json::json;
+    use zenith_client::advancements::{World, id_matches};
 
     /// `LocationPredicate.structures` names a `#tag`: the game's own
     /// `worldgen/structure` tags, and with a world's data packs theirs over

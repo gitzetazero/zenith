@@ -3,6 +3,12 @@
 //! `VanillaSpawnRulesOracle` and prints `mobs::spawn_rules`' answers.
 //!
 //! usage: spawn_rules_fixture RESOURCES INPUT OUTPUT
+use std::{
+    collections::{BTreeMap, HashMap, HashSet},
+    fmt::Write as _,
+    fs,
+    path::Path,
+};
 use zenith_client::{
     assets::Assets,
     blocks::BlockFacts,
@@ -16,12 +22,6 @@ use zenith_client::{
 use zenith_core::random::{LegacyRandom, RandomSource};
 use zenith_world::loot::PackOverlay;
 use zenith_world::{chunk::BlockState, registry::BlockStateId};
-use std::{
-    collections::{BTreeMap, HashMap, HashSet},
-    fmt::Write as _,
-    fs,
-    path::Path,
-};
 
 struct Column<'a> {
     facts: &'a BlockFacts,

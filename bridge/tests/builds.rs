@@ -1,12 +1,12 @@
 // The Windows build is the one that ships first (zip); the Linux .tar.gz is not installed yet.
 #![cfg(windows)]
 
-use zenith_release_sign::{SigningKey, sha256_hex, sums_file};
 use std::cell::{Cell, RefCell};
 use std::io::Write;
 use std::path::PathBuf;
 use std::time::Duration;
 use zenith_bridge::builds::{MIN_BUILT, STAMP, Stamp, Store, asset_name, ensure_latest_after};
+use zenith_release_sign::{SigningKey, sha256_hex, sums_file};
 
 type Fetch<'a> = dyn Fn(&str) -> Result<Option<Vec<u8>>, String> + 'a;
 
@@ -30,7 +30,7 @@ fn zip_of(entries: &[(&str, &str)]) -> Vec<u8> {
 
 fn good(tag: &str) -> Vec<u8> {
     zip_of(&[
-        ("horizon-windows-x64/zenith-client.exe", tag),
+        ("horizon-windows-x64/zenith.exe", tag),
         ("horizon-windows-x64/tools/a.txt", "a"),
     ])
 }
@@ -144,7 +144,7 @@ fn log(s: &Store) -> String {
 }
 
 fn exe(dir: &std::path::Path) -> String {
-    std::fs::read_to_string(dir.join("zenith-client.exe")).unwrap()
+    std::fs::read_to_string(dir.join("zenith.exe")).unwrap()
 }
 
 #[test]
@@ -293,10 +293,7 @@ fn good_zip() -> Vec<u8> {
 
 fn refused(entry: &str) {
     let (s, k) = (store(), key());
-    let evil = zip_of(&[
-        (entry, "x"),
-        ("horizon-windows-x64/zenith-client.exe", "x"),
-    ]);
+    let evil = zip_of(&[(entry, "x"), ("horizon-windows-x64/zenith.exe", "x")]);
     let r = release(&k, "nightly", evil, 1);
     let err = install_r(&s, &k, &r).unwrap_err();
     assert!(err.contains("unsafe path"), "{entry}: {err}");
@@ -499,7 +496,7 @@ fn live_release_install() {
     let dir =
         zenith_bridge::builds::ensure_latest(&s, &keys, zenith_bridge::builds::http_fetch).unwrap();
     eprintln!("first call: {:?}, {}", t.elapsed(), dir.display());
-    assert!(dir.join("zenith-client.exe").is_file());
+    assert!(dir.join("zenith.exe").is_file());
     let stamp = s.installed_stamp().expect("the stamp parses");
     eprintln!("stamp: {stamp:?}");
     assert_eq!(dir.file_name().unwrap().to_string_lossy(), stamp.version());

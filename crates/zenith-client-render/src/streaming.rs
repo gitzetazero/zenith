@@ -12,14 +12,14 @@ use crate::{
     mesher::{MeshScratch, MeshTables, Mesher, Region, SectionMesh, borrow},
     world::World,
 };
-use zenith_core::biome::BiomeZoom;
-use zenith_threads::jobs::{Class, PerWorker, Rank, Registration, Source};
-use zenith_world::block_render::FaceVisibility;
-use zenith_world::worldgen::decoration_order::DecorationOrder;
 use std::{
     collections::{BinaryHeap, HashSet, VecDeque},
     sync::{Arc, Condvar, Mutex, MutexGuard, RwLock, TryLockError},
 };
+use zenith_core::biome::BiomeZoom;
+use zenith_threads::jobs::{Class, PerWorker, Rank, Registration, Source};
+use zenith_world::block_render::FaceVisibility;
+use zenith_world::worldgen::decoration_order::DecorationOrder;
 
 /// How long a worker waits with nothing to do before it gives back its
 /// generator's scratch buffers ([`ChunkGenerator::idle`]).

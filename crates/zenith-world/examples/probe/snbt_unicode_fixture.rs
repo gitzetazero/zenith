@@ -1,6 +1,6 @@
 //! Compact SNBT over valid Unicode keys and recursive integer compounds.
-use zenith_world::{nbt::Tag, snbt_text::to_snbt};
 use std::io::Write;
+use zenith_world::{nbt::Tag, snbt_text::to_snbt};
 
 fn tag(value: &serde_json::Value) -> Tag {
     if let Some(number) = value.as_i64() {

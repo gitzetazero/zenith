@@ -2,6 +2,7 @@
 //! bobbing, lure and bite timers, open water, hooking mobs, retrieving the
 //! `gameplay/fishing` loot) and `FishingHookRenderer` (bobber and line).
 use super::{Game, lan::LanHost, lan_mobs::guest_bounds, view_vector};
+use std::{collections::HashMap, sync::Arc};
 use zenith_client::advancements::EntityView;
 use zenith_client::lan::{entity::States, hub::Hub};
 use zenith_client::{
@@ -20,7 +21,6 @@ use zenith_core::{
     random::{LegacyRandom, RandomSource},
 };
 use zenith_protocol::entity_data::{Value, serializer};
-use std::{collections::HashMap, sync::Arc};
 
 use super::lan_actions::GuestPlay;
 
@@ -946,9 +946,7 @@ impl Game<'_> {
                     let breeze = self
                         .mobs
                         .iter()
-                        .find(|m| {
-                            m.id == id && m.species() == zenith_client::mobs::Species::Breeze
-                        })
+                        .find(|m| m.id == id && m.species() == zenith_client::mobs::Species::Breeze)
                         .map(|m| [m.position.x, m.position.y, m.position.z]);
                     match h.hit_entity(id, breeze.is_some()) {
                         EntityCollision::Deflected { first } => {

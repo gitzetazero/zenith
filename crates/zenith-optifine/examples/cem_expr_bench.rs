@@ -5,8 +5,8 @@
 //!
 //! `cargo run --release -p zenith-optifine --example cem_expr_bench`
 
-use zenith_optifine::cem::expr::compile;
 use std::{hint::black_box, time::Instant};
+use zenith_optifine::cem::expr::compile;
 
 const NAMES: &[&str] = &[
     "limb_swing",

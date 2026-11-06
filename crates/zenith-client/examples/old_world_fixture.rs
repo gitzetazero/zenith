@@ -6,12 +6,12 @@
 //!
 //! old_world_fixture <source world> <destination world> <x0,z0,x1,z1>
 extern crate zenith_client_lib as zenith_client;
+use std::{fs, path::Path};
 use zenith_core::position::ChunkPos;
 use zenith_world::{
     nbt::{Limits, Tag},
     region::{ChunkRecord, RegionFile},
 };
-use std::{fs, path::Path};
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 

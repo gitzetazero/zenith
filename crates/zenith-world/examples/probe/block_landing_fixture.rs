@@ -1,5 +1,12 @@
 use crate::support::common::f64_bits;
 use crate::support::shapes::bounds;
+use serde_json::Value;
+use std::{
+    collections::BTreeMap,
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::{
     geometry::{Aabb, Vec3, VoxelShape},
     position::BlockPos,
@@ -12,13 +19,6 @@ use zenith_world::{
     movement_properties::MovementProperties,
     nbt::{self, Limits, Tag},
     registry::{BlockRegistry, BlockStateId},
-};
-use serde_json::Value;
-use std::{
-    collections::BTreeMap,
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 fn number(v: &Value) -> f64 {
     f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap())

@@ -1,8 +1,8 @@
 //! Windows and monitors: which window each player plays in, opening and placing them (a
 //! monitor's over its menu bar), closing them, the views' layout and the windows' titles.
 use super::*;
-use zenith_client::split_layout::Placement;
 use winit::window::Window;
+use zenith_client::split_layout::Placement;
 // zenith:
 use zenith_client_core::zenith_brand::WINDOW_TITLE;
 
@@ -519,9 +519,8 @@ impl<'a> Split<'a> {
                 continue;
             }
             // Opened without the focus: whoever types in the game's window keeps the keyboard.
-            let attributes =
-                zenith_client::window::with_horizon_icon(Window::default_attributes())
-                    .with_active(false);
+            let attributes = zenith_client::window::with_horizon_icon(Window::default_attributes())
+                .with_active(false);
             // A monitor's window covers it, borderless. On macOS not the system's fullscreen, a
             // Space of its own that hides the other windows as it slides in.
             let placement = self.placement(*key).cloned();

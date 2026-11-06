@@ -236,12 +236,12 @@ fn canonical_identity_claims_require_exact_geometry_and_unique_exports() {
 
 #[test]
 fn registry_scan_binding_requires_complete_canonical_metadata() {
+    use std::{collections::BTreeSet, sync::Arc};
     use zenith_world::{
         block_collision::BlockCollisionRegistry,
         registry_collision_scan::RegistryCollisionWorld,
         suffocation::{SuffocationDefinition, SuffocationRegistry},
     };
-    use std::{collections::BTreeSet, sync::Arc};
     let (registry_tag, mut collision_tag) = fixture();
     let registry = BlockRegistry::from_nbt(&registry_tag).unwrap();
     let definitions = ["minecraft:air", "minecraft:stone", "minecraft:context"]

@@ -2,16 +2,14 @@
 //! for tools/test_trident_parity.py: `AbstractArrow.tick`'s block step and
 //! `AbstractArrow.onHitBlock`, one line of state per fixture.
 #![forbid(unsafe_code)]
-use zenith_client::{
-    Result, arrows, assets::Assets, blocks::BlockFacts, collisions, world::World,
-};
-use zenith_core::geometry::Vec3;
 use serde_json::Value;
 use std::{
     fs,
     io::{BufRead, Write},
     path::PathBuf,
 };
+use zenith_client::{Result, arrows, assets::Assets, blocks::BlockFacts, collisions, world::World};
+use zenith_core::geometry::Vec3;
 
 fn number(v: &Value) -> f64 {
     f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap())

@@ -5,6 +5,7 @@
 //! oracle's format.
 //!
 //! usage: finalize_spawn_fixture RESOURCES INPUT OUTPUT HALLOWEEN
+use std::{collections::HashMap, fmt::Write as _, fs, path::Path, sync::Arc};
 use zenith_client::{
     assets::Assets,
     blocks::BlockFacts,
@@ -24,7 +25,6 @@ use zenith_core::{
     random::{LegacyRandom, RandomSource},
 };
 use zenith_world::loot::PackOverlay;
-use std::{collections::HashMap, fmt::Write as _, fs, path::Path, sync::Arc};
 
 struct Level<'a> {
     types: &'a MobTypes,

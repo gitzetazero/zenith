@@ -1,6 +1,4 @@
 //! Synchronous mod-block contacts from the server's simulation code.
-use zenith_core::position::BlockPos;
-use zenith_world::registry::BlockStateId;
 use std::{
     cell::Cell,
     sync::{
@@ -8,6 +6,8 @@ use std::{
         atomic::{AtomicBool, Ordering},
     },
 };
+use zenith_core::position::BlockPos;
+use zenith_world::registry::BlockStateId;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Contact<'a> {

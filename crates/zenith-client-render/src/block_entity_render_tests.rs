@@ -11,12 +11,12 @@ use crate::{
     world::World,
 };
 use glam::{DVec3, Mat4, Quat, Vec3};
-use zenith_world::registry::BlockStateId;
 use std::{
     cell::{Cell, RefCell},
     collections::{HashMap, HashSet},
     sync::Arc,
 };
+use zenith_world::registry::BlockStateId;
 
 fn unit_pose() -> [f32; 9] {
     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0]

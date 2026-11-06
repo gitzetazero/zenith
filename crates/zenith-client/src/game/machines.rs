@@ -8,6 +8,7 @@ mod crafter;
 pub(in crate::game) mod native_energy;
 pub(in crate::game) mod native_fluids;
 pub(in crate::game) mod native_items;
+use std::sync::Arc;
 use zenith_client::{
     Result,
     containers::{BlockEntity, HOPPER_SLOTS, ModContainer},
@@ -19,7 +20,6 @@ use zenith_world::{
     level::{Behaviours, LevelAccess},
     registry::BlockStateId,
 };
-use std::sync::Arc;
 
 type Pos = (i32, i32, i32);
 
@@ -424,12 +424,7 @@ pub(super) struct ItemColumns {
 }
 impl ItemColumns {
     /// Whether an item's box may reach into column (x, z).
-    fn may_reach(
-        &mut self,
-        items: &[zenith_client::entities::ItemEntity],
-        x: i32,
-        z: i32,
-    ) -> bool {
+    fn may_reach(&mut self, items: &[zenith_client::entities::ItemEntity], x: i32, z: i32) -> bool {
         let (len, last) = (items.len(), items.last().map(|i| i.id));
         let stale = self
             .seen
@@ -1675,8 +1670,8 @@ mod item_column_tests {
 #[cfg(test)]
 mod mod_container_tests {
     use super::{Kind, ModContainer, View};
-    use zenith_core::geometry::Direction;
     use std::sync::Arc;
+    use zenith_core::geometry::Direction;
 
     /// A mod's container reaches the slots its block names for each face;
     /// without a face, every slot.

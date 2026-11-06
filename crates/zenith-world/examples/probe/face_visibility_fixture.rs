@@ -1,16 +1,16 @@
-use zenith_core::geometry::Direction;
-use zenith_world::{
-    block_render::{FaceVisibility, RenderDefinition, SkipRendering},
-    collision::CachedCollisionRegistry,
-    nbt::{self, Limits, Tag},
-    registry::{BlockRegistry, BlockStateId},
-};
 use serde_json::Value;
 use std::{
     collections::BTreeMap,
     fs,
     io::{BufRead, BufReader, BufWriter, Write},
     path::Path,
+};
+use zenith_core::geometry::Direction;
+use zenith_world::{
+    block_render::{FaceVisibility, RenderDefinition, SkipRendering},
+    collision::CachedCollisionRegistry,
+    nbt::{self, Limits, Tag},
+    registry::{BlockRegistry, BlockStateId},
 };
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = crate::args().nth(1).ok_or("private fixture directory")?;

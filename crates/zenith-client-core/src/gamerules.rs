@@ -1,12 +1,12 @@
 //! Game rules (26.3 `GameRules`): the registered rules with their category,
 //! type, default and bounds, a value map, and persistence in the world's
 //! `data/minecraft/game_rules.dat` saved-data file.
+use std::{collections::BTreeMap, fs, path::Path};
 use zenith_world::{
     DATA_VERSION,
     compression::Compression,
     nbt::{self, Limits, NamedTag, Tag},
 };
-use std::{collections::BTreeMap, fs, path::Path};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Value {

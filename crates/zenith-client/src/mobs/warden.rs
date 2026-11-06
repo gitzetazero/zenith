@@ -10,12 +10,12 @@ use super::{
     warden_brain::{self, Brain},
 };
 use crate::sculk::{self, Context, Info};
+use std::{collections::HashMap, f32::consts::PI};
 use zenith_core::{
     geometry::{Vec3, trig::Mth},
     random::{LegacyRandom, RandomSource},
 };
 use zenith_protocol::entity_data::PositionSource;
-use std::{collections::HashMap, f32::consts::PI};
 
 pub const EMERGE_DURATION: i64 = warden_brain::EMERGE_DURATION as i64;
 pub const DIGGING_COOLDOWN: i64 = warden_brain::DIGGING_COOLDOWN;

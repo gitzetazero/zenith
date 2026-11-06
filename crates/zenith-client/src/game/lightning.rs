@@ -752,9 +752,9 @@ impl Game<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
     use zenith_client::mobs::{Anim, Brain, Mob, MobType, Part, Species};
     use zenith_core::geometry::Vec3;
-    use std::sync::Arc;
 
     #[test]
     fn viewer_box_reaches_15_around_and_down_and_21_up() {

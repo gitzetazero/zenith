@@ -1,8 +1,8 @@
 //! The machine a report was measured on. CPU, RAM and OS are detected here; the GPU and the display
 //! come from the program that rendered (the game knows its adapter, the launcher its window).
 
-use zenith_telemetry::system::command_output as output;
 use serde::{Deserialize, Serialize};
+use zenith_telemetry::system::command_output as output;
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Hardware {

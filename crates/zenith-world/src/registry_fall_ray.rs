@@ -11,11 +11,11 @@ use crate::{
         ResetPortal,
     },
 };
+use std::{collections::BTreeSet, fmt, io};
 use zenith_core::{
     geometry::{Vec3, VoxelShape},
     position::BlockPos,
 };
-use std::{collections::BTreeSet, fmt, io};
 #[derive(Clone, Copy)]
 struct State {
     reset: bool,

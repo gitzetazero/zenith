@@ -456,8 +456,7 @@ pub fn dynamic_nbt(profile: &zenith_world::nbt::Tag) -> Option<NameOrId> {
         let name = s.to_string_lossy();
         return valid_player_name(&name).then_some(NameOrId::Name(name));
     }
-    if matches!(profile.get("properties"), Some(zenith_world::nbt::Tag::List(l)) if !l.is_empty())
-    {
+    if matches!(profile.get("properties"), Some(zenith_world::nbt::Tag::List(l)) if !l.is_empty()) {
         return None;
     }
     match (nbt_text(profile.get("name")), profile_uuid_nbt(profile)) {

@@ -5,13 +5,13 @@
 use crate::options_ui::{MusicGroup, MusicTrack};
 use crate::sound_engine::{InstanceId, MUSIC, PlayResult, SoundEngine, SoundInstance, Sounds};
 use crate::sound_events::{Sentinel, SoundRegistry};
-use zenith_core::random::{LegacyRandom, RandomSource};
 use serde_json::Value;
 use std::{
     collections::{BTreeMap, HashMap},
     fs,
     path::Path,
 };
+use zenith_core::random::{LegacyRandom, RandomSource};
 
 /// `Music`: a sound event and the delay range (ticks) before it starts.
 #[derive(Clone, Debug, PartialEq)]

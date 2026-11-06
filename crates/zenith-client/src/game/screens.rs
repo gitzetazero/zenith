@@ -1,5 +1,6 @@
 //! The pause menu (PauseScreen) and death screen (DeathScreen) layouts.
 use super::{Game, Screen};
+use winit::keyboard::KeyCode;
 use zenith_client::{
     Result,
     confirm_screen::Confirm,
@@ -10,7 +11,6 @@ use zenith_client::{
     widgets::{self, ScreenInfo},
 };
 use zenith_world::nbt::Tag;
-use winit::keyboard::KeyCode;
 
 impl Screen {
     /// Screen.extractBackground for non-isInGameUi screens, and

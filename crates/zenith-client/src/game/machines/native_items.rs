@@ -236,8 +236,8 @@ impl Game<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_client::containers::ModContainer;
     use std::sync::Arc;
+    use zenith_client::containers::ModContainer;
 
     fn view(kind: Kind, slots: usize) -> View {
         View {

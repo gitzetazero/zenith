@@ -4,11 +4,11 @@
 //! it as it keeps vanilla's, and the mod fires it where its event happens, as
 //! a NeoForge mod calls its own `SimpleCriterionTrigger.trigger`.
 use super::{Game, advancements::item_view, commands::Target};
+use serde_json::Value;
 use zenith_client::{
     advancements::{self as adv, EntityView},
     items::ItemStack,
 };
-use serde_json::Value;
 
 /// One open criterion of a mod's trigger, as the mod's test sees it.
 pub struct NativeCriterion<'a> {

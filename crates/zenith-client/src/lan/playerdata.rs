@@ -5,14 +5,14 @@ use crate::{
     items::ItemStack,
     save::{Level, put, read_dat, uuid_from_tag, write_dat},
 };
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 use zenith_protocol::crypto::uuid_string;
 use zenith_world::{
     attachments::{ATTACHMENTS_KEY, attachment_compound},
     nbt::Tag,
-};
-use std::{
-    path::{Path, PathBuf},
-    sync::Arc,
 };
 
 /// `PlayerDataStorage`'s player directory (`players/data`), created on first use
@@ -529,8 +529,8 @@ pub fn store(guest: &Guest, level: &mut Level, vehicle: Option<Tag>) {
 mod tests {
     use super::*;
     use crate::lan::{Joined, PlayerSender};
-    use zenith_protocol::packets::configuration::ClientInformation;
     use std::sync::{Arc, atomic::AtomicI32, mpsc};
+    use zenith_protocol::packets::configuration::ClientInformation;
 
     fn guest() -> Guest {
         let (tx, _rx) = mpsc::channel();

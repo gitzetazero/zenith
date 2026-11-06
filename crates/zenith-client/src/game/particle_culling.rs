@@ -1,12 +1,5 @@
 //! Particle visibility checks and their worker, separate from entity culling.
 use super::Game;
-use zenith_client::{
-    blocks::{BlockFacts, RenderShape, StateFacts},
-    chunk::Chunk,
-    entity_culling::Culler,
-    graphics::ParticleCullingMode,
-    world::World,
-};
 use std::{
     array,
     cell::RefCell,
@@ -15,6 +8,13 @@ use std::{
         mpsc::{self, Receiver, SyncSender, TrySendError},
     },
     thread::JoinHandle,
+};
+use zenith_client::{
+    blocks::{BlockFacts, RenderShape, StateFacts},
+    chunk::Chunk,
+    entity_culling::Culler,
+    graphics::ParticleCullingMode,
+    world::World,
 };
 
 type ChunkKey = (i32, i32);

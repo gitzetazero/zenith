@@ -1806,8 +1806,7 @@ mod tests {
 
     #[test]
     fn stamps_skip_an_export_only_while_its_inputs_and_outputs_are_unchanged() {
-        let dir =
-            std::env::temp_dir().join(format!("zenith-prepare-stamp-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("zenith-prepare-stamp-{}", std::process::id()));
         let outputs = [dir.join("out/a.json"), dir.join("out/b.nbt")];
         mkdir(&dir.join("out")).unwrap();
         for output in &outputs {

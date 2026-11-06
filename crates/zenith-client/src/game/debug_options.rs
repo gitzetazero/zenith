@@ -4,6 +4,8 @@
 //! (`zenith_client::debug_entries`).
 //! https://mcsrc.dev/2/26.3/net/minecraft/client/gui/screens/debug/DebugOptionsScreen
 use super::{Game, Screen};
+use winit::event::{ElementState, KeyEvent};
+use winit::keyboard::{KeyCode, PhysicalKey};
 use zenith_client::{
     debug_entries::{Category, Entry, Profile, Status, search},
     hud::HudBatch,
@@ -11,8 +13,6 @@ use zenith_client::{
     text::Text,
     ui::{self, EditBox, Scroll},
 };
-use winit::event::{ElementState, KeyEvent};
-use winit::keyboard::{KeyCode, PhysicalKey};
 
 /// `HeaderAndFooterLayout(this, 61, 33)`.
 const HEADER: f32 = 61.0;

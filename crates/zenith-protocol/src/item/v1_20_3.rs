@@ -2,8 +2,8 @@
 //! Saved NBT upgrades use Horizon's vanilla datafix implementation; values stored here are pinned.
 use super::*;
 use crate::Error;
-use zenith_world::datafix::{self, dynamic as d, schema::Ty};
 use std::collections::{HashMap, VecDeque};
+use zenith_world::datafix::{self, dynamic as d, schema::Ty};
 
 const CACHE_ENTRIES: usize = 1024;
 const CACHE_BYTES: usize = 8 * 1024 * 1024;

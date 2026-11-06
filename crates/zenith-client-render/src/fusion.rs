@@ -13,6 +13,12 @@
 use crate::connected::{Overlay, Pick, TileLayer};
 use crate::models::StateModels;
 use crate::sprites::Sprites;
+use std::{
+    collections::HashMap,
+    fs,
+    num::NonZeroU16,
+    path::{Path, PathBuf},
+};
 use zenith_optifine::cem::json::Json;
 use zenith_optifine::ctm::connect::{self, Axes, Face};
 use zenith_optifine::fusion::{
@@ -23,12 +29,6 @@ use zenith_optifine::fusion::{
 };
 use zenith_world::block_state_properties::BlockProperties;
 use zenith_world::registry::{BlockRegistry, BlockStateId};
-use std::{
-    collections::HashMap,
-    fs,
-    num::NonZeroU16,
-    path::{Path, PathBuf},
-};
 
 /// A connecting texture as drawn: its layout and its tiles, `None` for an empty one.
 struct Sheet {

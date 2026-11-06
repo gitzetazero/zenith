@@ -8,12 +8,12 @@ use crate::{
     registry::{BlockRegistry, BlockStateId},
     tick_data::{self, TickKind},
 };
+use std::io;
 use zenith_core::{
     position::{BlockPos, ChunkPos},
     storage::PackedStorage,
     ticks::{ChunkTicks, SavedTick, TickTypeId},
 };
-use std::io;
 
 fn key(value: &str) -> JavaString {
     JavaString::from(value)

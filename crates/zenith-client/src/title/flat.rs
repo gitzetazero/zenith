@@ -9,10 +9,10 @@ use crate::{
     text::{Text, format_translation},
     ui,
 };
-use zenith_assets::item_model::{DisplayContext, ItemEnv};
-use zenith_world::nbt::Tag;
 use serde_json::Value;
 use std::{collections::BTreeSet, path::Path};
+use zenith_assets::item_model::{DisplayContext, ItemEnv};
+use zenith_world::nbt::Tag;
 
 /// DimensionType.Y_SIZE: the most blocks a flat generator takes.
 const Y_SIZE: i32 = 4064;

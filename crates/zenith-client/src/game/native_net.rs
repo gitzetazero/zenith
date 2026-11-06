@@ -5,6 +5,7 @@
 //! reaches `native_net_from_client` once the hub is back, and what a mod sends
 //! a player leaves at the tick's end, from whichever hook sent it.
 use super::{Game, lan::LanHost};
+use std::collections::HashMap;
 use zenith_client::mod_api::ServerboundPlayPacket;
 use zenith_protocol::{
     mod_net::{self, Message},
@@ -14,7 +15,6 @@ use zenith_protocol::{
     },
     quiet,
 };
-use std::collections::HashMap;
 
 /// Messages a tick at most: from one player, to one player, and from the
 /// window to its server.

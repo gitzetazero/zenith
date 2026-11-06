@@ -389,9 +389,7 @@ impl Station {
             beacon_levels: None,
             loom: Default::default(),
             cycling: Default::default(),
-            book: EnchantBook::new(LegacyRandom::new(
-                zenith_client::sound_engine::unique_seed(),
-            )),
+            book: EnchantBook::new(LegacyRandom::new(zenith_client::sound_engine::unique_seed())),
         }
     }
     pub(super) fn new_kind(kind: Kind, pos: [i32; 3]) -> Self {
@@ -2099,10 +2097,7 @@ impl Game<'_> {
 
     /// `ItemStack.getTooltipLines` subset: name in rarity colour, lore,
     /// potion effects, enchantments (gray, curses red), stored enchantments, trims.
-    pub(super) fn stack_tooltip(
-        &self,
-        stack: &ItemStack,
-    ) -> Vec<(zenith_client::text::Text, u32)> {
+    pub(super) fn stack_tooltip(&self, stack: &ItemStack) -> Vec<(zenith_client::text::Text, u32)> {
         self.stack_tooltip_lines(stack, false, false)
     }
     /// `ItemStack.getRarity`'s colour for the name line and a `[name]` link.
@@ -2238,8 +2233,7 @@ impl Game<'_> {
                 .unwrap_or_else(|| self.pack.names.display_item(&s.item))
         };
         if display.shows("minecraft:container") {
-            for text in
-                zenith_client::item_tooltip::container_lines(stack, &hover_name, &translate)
+            for text in zenith_client::item_tooltip::container_lines(stack, &hover_name, &translate)
             {
                 push(&mut lines, text, u32::MAX);
             }
@@ -2331,8 +2325,7 @@ impl Game<'_> {
                 push(&mut lines, text, c);
             }
             // The attribute modifiers of the effects (`When Applied:`).
-            for (text, c) in zenith_client::item_tooltip::potion_modifier_lines(stack, &translate)
-            {
+            for (text, c) in zenith_client::item_tooltip::potion_modifier_lines(stack, &translate) {
                 push(&mut lines, text, c);
             }
         }
@@ -2757,13 +2750,9 @@ impl Game<'_> {
         self.tooltip_box(batch, Some(stack), x, y, w, h);
         let text_h = h - extra;
         Self::tooltip_text(batch, atlas, &lines, x, y);
-        if let Some(layout) = zenith_client::item_tooltip::bundle_tooltip(
-            self.items(),
-            stack,
-            x,
-            y + text_h + 2.0,
-            w,
-        ) {
+        if let Some(layout) =
+            zenith_client::item_tooltip::bundle_tooltip(self.items(), stack, x, y + text_h + 2.0, w)
+        {
             self.draw_bundle_tooltip(batch, &layout);
             self.draw_bundle_selected_name(batch, &layout, x, y + text_h + 2.0, w);
         }
@@ -2791,8 +2780,7 @@ impl Game<'_> {
         let Some((_, stack)) = layout.selected.and_then(|i| layout.slots.get(i)) else {
             return;
         };
-        let name =
-            zenith_client::item_tooltip::styled_name(stack, || self.stack_hover_name(stack));
+        let name = zenith_client::item_tooltip::styled_name(stack, || self.stack_hover_name(stack));
         let lines = Self::resolved(&[(name, self.rarity_color(stack))]);
         let atlas = &self.gui.atlas;
         let tw = atlas.font.width_text(&lines[0].0);
@@ -2916,8 +2904,7 @@ impl Game<'_> {
     /// tooltip shows while a stack is carried only when its image says so, as
     /// a bundle's contents do (`ClientBundleTooltip`).
     pub(super) fn tooltip_with_carried(&self, stack: &ItemStack) -> bool {
-        self.carried.is_none()
-            || zenith_client::bundle::Contents::of(self.items(), stack).is_some()
+        self.carried.is_none() || zenith_client::bundle::Contents::of(self.items(), stack).is_some()
     }
     /// Hovered-slot tooltip on the plain inventory, crafting and container screens.
     pub(super) fn draw_slot_tooltip(&mut self, batch: &mut HudBatch) {
@@ -2949,10 +2936,7 @@ impl Game<'_> {
 
     /// `BrewingStandBlockEntity.serverTick` of the brewing stand at `pos`, in
     /// its place among the level's block entity tickers.
-    pub(super) fn tick_brewing_stand(
-        &mut self,
-        pos: (i32, i32, i32),
-    ) -> zenith_client::Result<()> {
+    pub(super) fn tick_brewing_stand(&mut self, pos: (i32, i32, i32)) -> zenith_client::Result<()> {
         let Some(BlockEntity::Brewing(b)) = self.world.block_entities.get_mut(&pos) else {
             return Ok(());
         };

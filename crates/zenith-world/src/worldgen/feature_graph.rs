@@ -17,9 +17,9 @@ use super::{
     required,
     weighted::OptionalWeightedList,
 };
-use zenith_core::random::{InvalidBound, RandomSource};
 use serde_json::value::RawValue;
 use std::{cell::Cell, collections::BTreeSet};
+use zenith_core::random::{InvalidBound, RandomSource};
 
 #[derive(Clone, Debug)]
 pub struct PlacedFeatureDefinition {

@@ -4,6 +4,7 @@
 //! moment vanilla draws them. The item entities they make are added to the
 //! world as soon as the behaviour returns, within the same tick.
 use super::{Game, GameLevel, Screen, dispenser::new_item_motion, storage::is_shulker_box};
+use std::collections::HashMap;
 use zenith_client::{
     block_entity_item, block_entity_nbt,
     containers::{Banner, BlockEntity},
@@ -22,7 +23,6 @@ use zenith_world::{
     nbt::{Compound, JavaString, Tag},
     registry::BlockStateId,
 };
-use std::collections::HashMap;
 
 /// What a broken block's entity gives its own dropped item (`copy_components`
 /// in the block loot tables): a shulker box's contents, a banner's layers, a
@@ -685,9 +685,7 @@ impl GameLevel<'_> {
                     self.seed,
                 );
                 let mut items = vec![None; slots];
-                items[0] = tag
-                    .get("item")
-                    .and_then(zenith_client::save::item_from_nbt);
+                items[0] = tag.get("item").and_then(zenith_client::save::item_from_nbt);
                 items
             }
             PreRemove::Contents { slots, .. } => {

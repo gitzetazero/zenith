@@ -9,8 +9,8 @@ use crate::{
     compression::invalid,
     registry::{BlockRegistry, BlockStateId},
 };
-use zenith_core::geometry::{Axis, Direction};
 use std::{collections::HashMap, io};
+use zenith_core::geometry::{Axis, Direction};
 
 /// Registry-order block index; equals vanilla's `Block` registry ID.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]

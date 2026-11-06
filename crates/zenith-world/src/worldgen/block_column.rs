@@ -9,11 +9,11 @@ use super::{
     state_provider::{BlockStateProvider, StateProviderError},
     value_provider::IntProvider,
 };
+use serde_json::value::RawValue;
 use zenith_core::{
     geometry::Direction,
     random::{InvalidBound, RandomSource},
 };
-use serde_json::value::RawValue;
 
 #[derive(Clone, Debug)]
 struct Layer {

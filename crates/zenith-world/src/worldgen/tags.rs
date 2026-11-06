@@ -1,8 +1,8 @@
 //! Version-pinned tag codecs, resource-stack merging and dependency resolution.
 use super::{DecodeError, Object, optional, required};
-use zenith_core::random::java_string_hash;
 use serde_json::value::RawValue;
 use std::collections::{BTreeMap, BTreeSet};
+use zenith_core::random::java_string_hash;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TagEntry {

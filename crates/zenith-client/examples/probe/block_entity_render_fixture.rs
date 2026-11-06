@@ -4,6 +4,15 @@
 //! (texture, sprite-local UVs, baked colour, light) and sign text calls.
 #![forbid(unsafe_code)]
 use glam::{DVec3, Mat4, Quat, Vec3};
+use serde_json::{Value, json};
+use std::{
+    cell::RefCell,
+    collections::{HashMap, HashSet},
+    fs,
+    io::{BufWriter, Write},
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 use zenith_client::{
     assets::Assets,
     banner::{self, Banners},
@@ -18,15 +27,6 @@ use zenith_client::{
     world::World,
 };
 use zenith_world::registry::{BlockRegistry, BlockStateId};
-use serde_json::{Value, json};
-use std::{
-    cell::RefCell,
-    collections::{HashMap, HashSet},
-    fs,
-    io::{BufWriter, Write},
-    path::{Path, PathBuf},
-    sync::Arc,
-};
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 /// Every texture the vanilla oracle used gets its own unit square on a small

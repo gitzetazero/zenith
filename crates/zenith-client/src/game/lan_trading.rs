@@ -374,11 +374,7 @@ impl Game<'_> {
     }
     /// `Merchant.stillValid` for a trader: it is alive and the guest is within
     /// the entity interaction range plus 4 of its box.
-    pub(super) fn lan_merchant_valid(
-        &self,
-        g: &zenith_client::lan::guest::Guest,
-        id: u32,
-    ) -> bool {
+    pub(super) fn lan_merchant_valid(&self, g: &zenith_client::lan::guest::Guest, id: u32) -> bool {
         self.mobs
             .iter()
             .find(|m| m.id == id)

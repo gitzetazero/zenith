@@ -5,8 +5,8 @@ use crate::{
     nbt::Tag,
     registry::{BlockRegistry, BlockStateId},
 };
-use zenith_core::geometry::VoxelShape;
 use std::io;
+use zenith_core::geometry::VoxelShape;
 /// The pinned implementation audit establishes that every interaction shape is
 /// static per state. The import retains native alias/canonical shape identity.
 pub struct InteractionShapes<'r> {

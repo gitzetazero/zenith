@@ -9,11 +9,11 @@
 //! server thread's), never on a client's.
 use super::{Dim, Game, commands::execute, lan::LanHost};
 // Their old home, for mixin code that names them here.
+use serde_json::{Map, Value, json};
+use std::{collections::HashMap, path::PathBuf};
 pub(crate) use zenith_client::mod_api::{NativeCommand, NativeServerPlayer};
 use zenith_client::{items::ItemStack, lan::data::component_nbt, text::Text};
 use zenith_protocol::packets::play::{self, Clientbound as C};
-use serde_json::{Map, Value, json};
-use std::{collections::HashMap, path::PathBuf};
 
 /// A sidebar a server mod shows one player (`native_sidebar`): its title and
 /// up to 15 lines, top first, each a text on the left and, where the score's

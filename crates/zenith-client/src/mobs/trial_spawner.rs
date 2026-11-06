@@ -14,9 +14,9 @@ use super::{
     spawner::{self, SpawnData, SpawnDataExt, SpawnerLevel, SpawnerSpawn},
 };
 pub use crate::chunk::block_entity::{ConfigSlot, TrialConfig, TrialSpawner};
+use std::{collections::HashMap, path::Path, sync::OnceLock};
 use zenith_core::{position::BlockPos, random::RandomSource};
 use zenith_world::nbt::{Compound, JavaString, Tag};
-use std::{collections::HashMap, path::Path, sync::OnceLock};
 
 /// An entity's UUID as its four ints (`UUIDUtil.CODEC`).
 pub type Uuid = [i32; 4];

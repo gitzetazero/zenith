@@ -1,9 +1,9 @@
 //! Original extension-query contracts, from EXT_gpu_shader4 section 8.7.
 use std::io::{Cursor, Write};
 
-use zenith_shaders::{GameInputs, Macros, Pack, Program, load_post, read_properties};
 use naga::valid::{Capabilities, ValidationFlags, Validator};
 use naga::{Expression, ImageQuery, ScalarKind, TypeInner, VectorSize};
+use zenith_shaders::{GameInputs, Macros, Pack, Program, load_post, read_properties};
 
 const VERTEX: &str = "#version 120\nvoid main() { gl_Position = ftransform(); }\n";
 

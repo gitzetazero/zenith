@@ -707,10 +707,10 @@ impl NativePost {
             texture_entry(11, wgpu::TextureSampleType::Uint),
         ];
         entries.extend(pack_texture_entries(frame.textures.len()));
-        entries
-            .extend((0..targets.len() as u32).map(|j| {
-                texture_entry(zenith_shader_api::stages::POST_TARGET_BINDING + j, float)
-            }));
+        entries.extend(
+            (0..targets.len() as u32)
+                .map(|j| texture_entry(zenith_shader_api::stages::POST_TARGET_BINDING + j, float)),
+        );
         let layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("Native shader pack post"),
             entries: &entries,

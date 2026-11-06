@@ -6,9 +6,9 @@ use super::{
     anim::{Poses, State},
 };
 use crate::items::ItemStack;
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::random::RandomSource;
-use std::f32::consts::PI;
 
 // Villager state: `variant` type, `variant2` profession (index into
 // `render::PROFESSIONS`), `variant3` level, `home` the claimed job site,

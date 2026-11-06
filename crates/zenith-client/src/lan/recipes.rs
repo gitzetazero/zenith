@@ -3,13 +3,13 @@
 //! table slot and brewing stand slot accepts) and the stonecutter's recipes,
 //! read from the data pack's recipe files.
 use super::data::SyncData;
-use zenith_protocol::buf::Writer;
 use serde_json::Value;
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap},
     path::Path,
     sync::{Arc, Mutex},
 };
+use zenith_protocol::buf::Writer;
 
 /// RecipeManager.RECIPE_PROPERTY_SETS: each set and the ingredients it takes
 /// from a recipe of the given type.

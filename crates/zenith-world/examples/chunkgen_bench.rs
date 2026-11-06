@@ -4,16 +4,6 @@
 //!     [--center CX CZ] [--verify <material-stage parity dir>] [--no-decorate]
 //!     [--dimension overworld|the_nether|the_end]
 //!     [--warmup] [--json] [--no-map] [--snapshot PATH]
-use zenith_core::position::ChunkPos;
-use zenith_world::{
-    DATA_VERSION,
-    heightmap::HeightmapType,
-    nbt::Tag,
-    registry::BlockRegistry,
-    worldgen::generator::{
-        DecorateStats, GeneratorData, GeneratorWorker, OverworldGenerator, ProtoChunk, StageTimings,
-    },
-};
 use serde_json::Value;
 use std::{
     collections::BTreeMap,
@@ -25,6 +15,16 @@ use std::{
         atomic::{AtomicUsize, Ordering},
     },
     time::Instant,
+};
+use zenith_core::position::ChunkPos;
+use zenith_world::{
+    DATA_VERSION,
+    heightmap::HeightmapType,
+    nbt::Tag,
+    registry::BlockRegistry,
+    worldgen::generator::{
+        DecorateStats, GeneratorData, GeneratorWorker, OverworldGenerator, ProtoChunk, StageTimings,
+    },
 };
 
 type Error = Box<dyn std::error::Error + Send + Sync>;

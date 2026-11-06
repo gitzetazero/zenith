@@ -1,13 +1,13 @@
 //! Biome colours from the pinned biome definitions and colormaps
 //! (`Biome.getGrassColor`/`getFoliageColor`/..., `BlockTintSources`).
 use crate::Result;
-use zenith_core::{noise::SimplexNoise, position::BlockPos, random::LegacyRandom};
 use serde_json::Value;
 use std::{
     collections::{BTreeMap, HashMap},
     path::Path,
     sync::Arc,
 };
+use zenith_core::{noise::SimplexNoise, position::BlockPos, random::LegacyRandom};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GrassModifier {

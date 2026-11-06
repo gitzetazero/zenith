@@ -3,6 +3,7 @@
 //! Run with prepared client resources:
 //! cargo run --profile fast -p zenith-client --example portal_scan_bench -- RESOURCES
 extern crate zenith_client_lib as zenith_client;
+use std::{hint::black_box, path::Path, sync::Arc, time::Instant};
 use zenith_client::{
     blocks::BlockFacts,
     chunk::{Chunk, MIN_Y, SECTIONS, Section},
@@ -15,7 +16,6 @@ use zenith_core::{
     position::BlockPos,
 };
 use zenith_world::{level::Behaviours, registry::BlockStateId};
-use std::{hint::black_box, path::Path, sync::Arc, time::Instant};
 
 /// `Game::swept_portal`'s reach (`Entity.checkInsideBlocks`'s swept box).
 fn reach(from: Vec3, to: Vec3, width: f32, height: f32) -> Aabb {

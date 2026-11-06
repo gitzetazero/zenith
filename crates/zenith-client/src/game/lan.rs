@@ -6,6 +6,11 @@ mod event_timings;
 
 use super::{Game, shield::OFFHAND_SLOT};
 use event_timings::EventTimings;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+    time::Instant,
+};
 use zenith_client::{
     Result,
     lan::{
@@ -25,11 +30,6 @@ use zenith_protocol::{
     packets::play::{self, Clientbound as C},
 };
 use zenith_world::block_collision::BlockCollisionRegistry;
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-    time::Instant,
-};
 
 /// What `sync_data` loaded: whether it was with data packs over the game's
 /// data, and the registries and tags.
@@ -3554,8 +3554,8 @@ mod tests {
     #[ignore = "requires prepared vanilla resources"]
     fn datapack_damage_world_open_reuses_the_no_pack_preload() {
         use super::{SyncCache, SyncData, cached_sync_data, initialize_world_sync_data};
-        use zenith_world::loot::PackOverlay;
         use std::{path::Path, sync::Arc};
+        use zenith_world::loot::PackOverlay;
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../.local/zenith-client")
             .join(zenith_core::VANILLA_VERSION);
@@ -3564,8 +3564,7 @@ mod tests {
             data: Some((false, Ok(preloaded.clone()))),
             ..Default::default()
         };
-        let damage =
-            zenith_world::damage_source::Catalog::load(&root, &PackOverlay::NONE).unwrap();
+        let damage = zenith_world::damage_source::Catalog::load(&root, &PackOverlay::NONE).unwrap();
         // A missing root makes an accidental second disk read fail, rather
         // than merely comparing equal snapshots loaded twice.
         let absent = root.join("no-such-resources");
@@ -3582,11 +3581,11 @@ mod tests {
     #[ignore = "requires prepared vanilla resources"]
     fn datapack_damage_world_open_replaces_preload_atomically() {
         use super::{SyncCache, SyncData, cached_sync_data, initialize_world_sync_data};
-        use zenith_world::loot::PackOverlay;
         use std::{
             path::Path,
             sync::{Arc, Barrier, Mutex},
         };
+        use zenith_world::loot::PackOverlay;
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../.local/zenith-client")
             .join(zenith_core::VANILLA_VERSION);
@@ -3641,8 +3640,8 @@ mod tests {
     #[ignore = "requires prepared vanilla resources"]
     fn datapack_damage_unrelated_packs_do_not_load_sync_data_at_open() {
         use super::{SyncCache, SyncData, initialize_world_sync_data};
-        use zenith_world::{damage_source::Catalog, loot::PackOverlay};
         use std::{path::Path, sync::Arc};
+        use zenith_world::{damage_source::Catalog, loot::PackOverlay};
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../.local/zenith-client")
             .join(zenith_core::VANILLA_VERSION);
@@ -3684,8 +3683,8 @@ mod tests {
     #[ignore = "requires prepared vanilla resources"]
     fn datapack_damage_lazy_wire_snapshot_survives_reload_before_first_hub() {
         use super::{SyncCache, cached_sync_data, initialize_world_sync_data, prepare_sync_reload};
-        use zenith_world::{damage_source::Catalog, loot::PackOverlay};
         use std::path::Path;
+        use zenith_world::{damage_source::Catalog, loot::PackOverlay};
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../.local/zenith-client")
             .join(zenith_core::VANILLA_VERSION);
@@ -3780,8 +3779,8 @@ mod tests {
     #[ignore = "requires prepared vanilla resources"]
     fn datapack_damage_lazy_wire_load_caches_after_all_packs_are_removed() {
         use super::{SyncCache, cached_sync_data, initialize_world_sync_data, prepare_sync_reload};
-        use zenith_world::{damage_source::Catalog, loot::PackOverlay};
         use std::{path::Path, sync::Arc};
+        use zenith_world::{damage_source::Catalog, loot::PackOverlay};
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../.local/zenith-client")
             .join(zenith_core::VANILLA_VERSION);

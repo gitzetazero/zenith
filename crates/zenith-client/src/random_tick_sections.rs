@@ -6,9 +6,9 @@ use crate::{
     fast_hash::FxHashMap,
     section_mask::SectionMask,
 };
-use zenith_world::{level::RandomTickMask, registry::BlockStateId};
 use std::rc::Rc;
 use std::sync::{Arc, Weak};
+use zenith_world::{level::RandomTickMask, registry::BlockStateId};
 
 /// A value snapshot, in ascending section order, with no per-chunk allocation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -379,12 +379,12 @@ mod tests {
 mod tick_parity {
     use super::*;
     use crate::chunk::SECTIONS;
+    use std::{cell::RefCell, path::PathBuf};
     use zenith_core::{
         position::{BlockPos, ChunkPos},
         random::{LegacyRandom, RandomSource},
     };
     use zenith_world::level::{LevelAccess, LevelEvent, Ticks, data};
-    use std::{cell::RefCell, path::PathBuf};
 
     #[derive(Clone)]
     struct Level {

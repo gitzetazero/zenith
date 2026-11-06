@@ -11,9 +11,9 @@ use crate::{
     registry::{BlockRegistry, BlockStateId, BlockTableFile},
     worldgen::tags::TagDefinitions,
 };
-use zenith_core::geometry::{Aabb, Direction, ShapeOp, Vec3, VoxelShape};
 use serde_json::Value;
 use std::{collections::HashMap, fs, io, path::Path, sync::Arc};
+use zenith_core::geometry::{Aabb, Direction, ShapeOp, Vec3, VoxelShape};
 #[path = "data/cache.rs"]
 mod cache;
 pub(super) use cache::set_dir as set_cache_dir;

@@ -296,8 +296,8 @@ mod tests {
         // texts: the keyword scan of the text would see none of the
         // English words, the keys do. A tiny fake language file stands in
         // for vanilla's; Horizon's bundled strings come with the map.
-        use zenith_client_core::lang::{Language, ResourceSource};
         use std::collections::HashMap;
+        use zenith_client_core::lang::{Language, ResourceSource};
         struct Mem(HashMap<String, Vec<u8>>);
         impl ResourceSource for Mem {
             fn read(&self, path: &str) -> Option<Vec<u8>> {

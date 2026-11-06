@@ -230,26 +230,27 @@ fn main() -> ExitCode {
             print(&fraction_line(fraction * scale));
         }
     };
-    let result = match assets.as_deref().and_then(|a| a.to_str()) {
-        Some("compile-exporters") => zenith_prepare::compile_exporters(&options, &log)
-            .inspect(|dir| log(&dir.display().to_string())),
-        Some(kind @ ("sounds" | "panorama" | "fonts" | "packs" | "languages")) => {
-            zenith_prepare::add_assets(
-                kind,
-                &options.root,
-                options.output.as_deref(),
-                options.minecraft_dir.as_deref(),
-                &options.inputs,
-                &log,
-            )
-        }
-        _ => zenith_prepare::prepare_with_progress(&options, &log, &progress).and_then(
-            |resources| match complete {
-                true => complete_resources(&options, resources, &log),
-                false => Ok(resources),
-            },
-        ),
-    };
+    let result =
+        match assets.as_deref().and_then(|a| a.to_str()) {
+            Some("compile-exporters") => zenith_prepare::compile_exporters(&options, &log)
+                .inspect(|dir| log(&dir.display().to_string())),
+            Some(kind @ ("sounds" | "panorama" | "fonts" | "packs" | "languages")) => {
+                zenith_prepare::add_assets(
+                    kind,
+                    &options.root,
+                    options.output.as_deref(),
+                    options.minecraft_dir.as_deref(),
+                    &options.inputs,
+                    &log,
+                )
+            }
+            _ => zenith_prepare::prepare_with_progress(&options, &log, &progress).and_then(
+                |resources| match complete {
+                    true => complete_resources(&options, resources, &log),
+                    false => Ok(resources),
+                },
+            ),
+        };
     match result {
         Ok(_) => {
             // A plain preparation reported its 1 already.

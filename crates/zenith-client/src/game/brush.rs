@@ -2,6 +2,7 @@
 //! `BrushableBlockEntity`. The block's loot table stays in its saved block
 //! entity (like a decorated pot's) until the first counted stroke rolls it.
 use super::{Game, Hit, decorated_pot, view_vector};
+use std::collections::HashMap;
 use zenith_client::{
     block_entity_render::vertex_light,
     containers::BlockEntity,
@@ -10,7 +11,6 @@ use zenith_client::{
     save,
 };
 use zenith_core::random::RandomSource;
-use std::collections::HashMap;
 
 /// `BrushItem.USE_DURATION`.
 const USE_DURATION: u32 = 200;
@@ -170,10 +170,8 @@ impl Game<'_> {
             "minecraft:brushable_block",
         );
         self.trigger_loot_table(&table);
-        let loot = zenith_client::structure_blocks::loot_data(
-            &self.options.resources,
-            &self.pack_files(),
-        );
+        let loot =
+            zenith_client::structure_blocks::loot_data(&self.options.resources, &self.pack_files());
         decorated_pot::unpack_loot(
             &mut tag,
             loot.as_deref(),

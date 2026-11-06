@@ -168,11 +168,11 @@ fn received_chat_is_replaced_in_order_and_cancel_stops_later_mods() {
 
 #[test]
 fn client_packet_hands_a_mod_the_decoded_packet() {
+    use std::sync::Mutex;
     use zenith_client::mod_api::{
         ClientPacketEvent, ClientboundPlayPacket, dispatch_client_packet,
     };
     use zenith_protocol::packets::configuration::{CustomPayload, Ping};
-    use std::sync::Mutex;
     static HEARD: Mutex<Vec<(String, Vec<u8>)>> = Mutex::new(Vec::new());
     struct TestHost;
     impl Host for TestHost {}
@@ -333,12 +333,12 @@ fn a_tank_hook_can_refuse_a_fluid() {
 
 #[test]
 fn tooltip_render_pre_intercepts_rendering_and_draws_gui_items() {
+    use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
     use zenith_client::hud::HudBatch;
     use zenith_client::items::ItemStack;
     use zenith_client::mod_api::{
         Flow, KeyCode, TooltipRenderPreEvent, dispatch_tooltip_render_pre,
     };
-    use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
     struct TestHost {
         draw_count: AtomicU32,

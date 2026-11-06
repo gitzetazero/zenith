@@ -1098,9 +1098,9 @@ mod tests {
     use super::*;
     use crate::shader_options::ShaderOptions;
     use crate::shader_pack_list::Entry;
-    use zenith_shaders::{Lang, Macros, PackOption, Properties, Screens};
     use std::collections::BTreeMap;
     use winit::keyboard::KeyCode as K;
+    use zenith_shaders::{Lang, Macros, PackOption, Properties, Screens};
 
     const SIZE: (f32, f32) = (854.0, 480.0);
 

@@ -6,6 +6,7 @@ use super::{
     Info, MeshTables, Padded, SectionMesh, TerrainVertex, fluid_face, lighting, pack_coords,
     pack_rgb, pi,
 };
+use std::{convert::Infallible, sync::OnceLock};
 use zenith_core::{
     geometry::{Axis, Direction, VoxelShape, trig},
     position::BlockPos,
@@ -14,7 +15,6 @@ use zenith_world::{
     fluid::{FluidKind, FluidState},
     fluid_flow::{FluidFlowWorld, flow_at},
 };
-use std::{convert::Infallible, sync::OnceLock};
 
 /// `FluidRenderer.MAX_FLUID_HEIGHT`.
 const MAX_HEIGHT: f32 = 0.888_888_9;

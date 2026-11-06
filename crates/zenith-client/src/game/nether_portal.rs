@@ -11,6 +11,7 @@
 //! saved compound until its destination chunks are loaded.
 use super::entity::{Entity as _, entity_lists_of, for_each_entity};
 use super::{Dim, Game, Screen};
+use std::collections::HashMap;
 use zenith_client::fast_hash::FxHashMap;
 use zenith_client::nether_portal::{ENTITY_DELAY, PortalState};
 use zenith_core::{
@@ -25,7 +26,6 @@ use zenith_world::{
     },
     nbt::Tag,
 };
-use std::collections::HashMap;
 
 /// `Player.getDimensionChangingDelay`.
 pub(super) const PLAYER_DELAY: i32 = 10;
@@ -141,10 +141,7 @@ pub(super) fn is_portal_projectile(p: &zenith_client::projectiles::Projectile) -
 /// Width and height of a projectile that goes through a portal.
 pub(super) fn projectile_box(p: &zenith_client::projectiles::Projectile) -> (f32, f32) {
     if is_arrow(p) {
-        (
-            zenith_client::arrows::WIDTH,
-            zenith_client::arrows::HEIGHT,
-        )
+        (zenith_client::arrows::WIDTH, zenith_client::arrows::HEIGHT)
     } else {
         let size = p.kind.size() as f32;
         (size, size)
@@ -880,12 +877,8 @@ impl Game<'_> {
             return None;
         }
         let mut found = None;
-        let _ = zenith_core::geometry::sweep_intersected_blocks(
-            from,
-            to,
-            bounds,
-            1_000_000,
-            |p, _| {
+        let _ =
+            zenith_core::geometry::sweep_intersected_blocks(from, to, bounds, 1_000_000, |p, _| {
                 let state = self.world.block(p.x, p.y, p.z);
                 if self.res.behaviours().portal_axis(state).is_some()
                     || (self.is_end_portal(state) && touches_end_portal(from, to, width, height, p))
@@ -894,8 +887,7 @@ impl Game<'_> {
                     return false;
                 }
                 true
-            },
-        );
+            });
         found
     }
     /// Whether a section `reach` touches has a nether or End portal state in

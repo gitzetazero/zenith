@@ -3,9 +3,9 @@
 //! part poses before the model is drawn.
 use super::{Mob, Part, keyframes::AnimationState, living::wrap};
 use crate::fast_hash::{FxHashMap, FxHashSet};
-use zenith_core::geometry::trig::Mth;
 use std::collections::HashMap;
 use std::f32::consts::{FRAC_PI_6, PI};
+use zenith_core::geometry::trig::Mth;
 
 /// The setupAnim implementation a model uses.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -1180,8 +1180,8 @@ mod emote_tests {
 #[cfg(test)]
 mod flight_pose_tests {
     use super::*;
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     #[test]
     fn spectators_show_only_the_head_and_its_hat() {
@@ -1292,8 +1292,8 @@ mod flight_pose_tests {
     fn a_seated_enderman_keeps_the_riding_leg_twist() {
         use super::super::enderman;
         use super::super::{Mob, Species};
-        use zenith_core::geometry::Vec3;
         use std::sync::Arc;
+        use zenith_core::geometry::Vec3;
         let mut kind = (*crate::mobs::sensor_scan_tests::kind()).clone();
         kind.species = Species::Enderman;
         let mut seated = Mob::new(1, Arc::new(kind), Vec3::ZERO, 0.0);

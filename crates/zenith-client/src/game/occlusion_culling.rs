@@ -1,5 +1,15 @@
 //! Shared, conservative block-occlusion queries for renderable geometry.
 use super::{Game, Vertex};
+use std::{
+    cell::{Cell, RefCell},
+    sync::{
+        Arc, Weak,
+        atomic::{AtomicU64, Ordering},
+        mpsc::{self, Receiver, SyncSender, TrySendError},
+    },
+    thread::JoinHandle,
+    time::Instant,
+};
 use zenith_client::{
     blocks::{BlockFacts, RenderShape, StateFacts},
     chunk::Chunk,
@@ -12,16 +22,6 @@ use zenith_client::{
     world::World,
 };
 use zenith_core::geometry::Aabb;
-use std::{
-    cell::{Cell, RefCell},
-    sync::{
-        Arc, Weak,
-        atomic::{AtomicU64, Ordering},
-        mpsc::{self, Receiver, SyncSender, TrySendError},
-    },
-    thread::JoinHandle,
-    time::Instant,
-};
 
 type ChunkKey = (i32, i32);
 type SectionKey = (i32, i32, i32);

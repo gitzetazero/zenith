@@ -4,6 +4,14 @@
 //! `VanillaBlockEntityAnimOracle`: the block entity's fields, the level calls
 //! its tick made and the render state the renderer derives from `BlockAnim`.
 #![forbid(unsafe_code)]
+use serde_json::Value;
+use std::{
+    collections::HashMap,
+    fmt::Write as _,
+    fs,
+    io::{BufWriter, Write},
+    path::PathBuf,
+};
 use zenith_client::{
     assets::Assets,
     block_entity_anim::{
@@ -18,14 +26,6 @@ use zenith_client::{
 use zenith_core::random::LegacyRandom;
 use zenith_world::loot::PackOverlay;
 use zenith_world::registry::{BlockRegistry, BlockStateId};
-use serde_json::Value;
-use std::{
-    collections::HashMap,
-    fmt::Write as _,
-    fs,
-    io::{BufWriter, Write},
-    path::PathBuf,
-};
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn f(v: f32) -> String {

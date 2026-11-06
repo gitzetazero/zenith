@@ -1,10 +1,10 @@
 //! Control-socket commands for inspecting rendering: place blocks without
 //! updates (`setblock`, `fill`) to build test scenes.
 use super::Game;
+use serde_json::{Value, json};
 use zenith_client::Result;
 use zenith_core::random::RandomSource;
 use zenith_world::registry::BlockStateId;
-use serde_json::{Value, json};
 
 pub const HELP: &[&str] = &[
     "setblock X Y Z STATE           set a block state (name[prop=value,...]) without updates",
@@ -68,9 +68,8 @@ impl Game<'_> {
                     | ParticleType::BlockMarker => {
                         ParticleOptions::block(ty, "block/stone".into(), 0x808080)
                     }
-                    ParticleType::Item => self.item_particle(
-                        &zenith_client::items::ItemStack::new("minecraft:apple", 1),
-                    ),
+                    ParticleType::Item => self
+                        .item_particle(&zenith_client::items::ItemStack::new("minecraft:apple", 1)),
                     ParticleType::ItemSlime
                     | ParticleType::ItemSnowball
                     | ParticleType::ItemCobweb => {

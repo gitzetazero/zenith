@@ -1381,6 +1381,7 @@ mod wolf_live_anger_tests {
 #[cfg(test)]
 mod loot_table_tests {
     use crate::game::{Audio, Game, Options, Progress, Settings, load_resources};
+    use std::sync::Arc;
     use zenith_client::{
         chunk::Chunk,
         containers::BlockEntity,
@@ -1388,7 +1389,6 @@ mod loot_table_tests {
         save::{self, ChunkExtras, RolledLoot},
     };
     use zenith_world::nbt::Tag;
-    use std::sync::Arc;
 
     const TABLE: &str = "minecraft:chests/simple_dungeon";
 

@@ -7,8 +7,8 @@ use super::{
     },
     processor::ProcessorList,
 };
-use zenith_core::{geometry::Direction, random::RandomSource};
 use std::sync::Arc;
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 const CORRIDOR_FLAG: i32 = 8_388_608;
 const STAIRS_FLAG: i32 = 4_194_304;

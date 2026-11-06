@@ -1,7 +1,7 @@
 //! Shared nearest-sampled sprite array for block and item textures.
 use crate::Result;
-use zenith_assets::animation::{AnimationClip, AnimationMetadata};
 use std::{collections::BTreeMap, path::Path, sync::Arc};
+use zenith_assets::animation::{AnimationClip, AnimationMetadata};
 
 #[derive(Clone)]
 pub struct SpriteAnimation {
@@ -442,15 +442,14 @@ impl Sprites {
         per_tile: bool,
     ) -> Result<Vec<Option<u32>>> {
         let path = crate::atlas_sources::texture_path(root, name, "textures");
-        let metadata = match zenith_core::prepared_files::read_to_string(
-            &path.with_extension("png.mcmeta"),
-        ) {
-            Ok(text) => Some(serde_json::from_str::<
-                BTreeMap<String, Box<serde_json::value::RawValue>>,
-            >(&text)?),
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
-            Err(error) => return Err(error.into()),
-        };
+        let metadata =
+            match zenith_core::prepared_files::read_to_string(&path.with_extension("png.mcmeta")) {
+                Ok(text) => Some(serde_json::from_str::<
+                    BTreeMap<String, Box<serde_json::value::RawValue>>,
+                >(&text)?),
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+                Err(error) => return Err(error.into()),
+            };
         let animation = metadata
             .as_ref()
             .and_then(|m| m.get("animation"))
@@ -553,15 +552,14 @@ impl Sprites {
         Self::decode_file(&path, name)
     }
     fn decode_file(path: &Path, name: &str) -> Result<crate::sprite_cache::Decoded> {
-        let metadata = match zenith_core::prepared_files::read_to_string(
-            &path.with_extension("png.mcmeta"),
-        ) {
-            Ok(text) => Some(serde_json::from_str::<
-                BTreeMap<String, Box<serde_json::value::RawValue>>,
-            >(&text)?),
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
-            Err(error) => return Err(error.into()),
-        };
+        let metadata =
+            match zenith_core::prepared_files::read_to_string(&path.with_extension("png.mcmeta")) {
+                Ok(text) => Some(serde_json::from_str::<
+                    BTreeMap<String, Box<serde_json::value::RawValue>>,
+                >(&text)?),
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+                Err(error) => return Err(error.into()),
+            };
         let animation_text = metadata
             .as_ref()
             .and_then(|v| v.get("animation"))

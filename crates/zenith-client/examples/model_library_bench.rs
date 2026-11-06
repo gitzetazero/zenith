@@ -3,7 +3,6 @@
 //! cargo run --profile fast -p zenith-client --example model_library_bench -- ROOT [--parity]
 //! Run fresh processes, warm up twice, then compare multiple alternating baseline/candidate runs.
 extern crate zenith_client_lib as zenith_client;
-use zenith_client::{assets::Assets, item_render::ItemRenderer};
 use std::{
     alloc::{GlobalAlloc, Layout, System},
     hash::{Hash, Hasher},
@@ -11,6 +10,7 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering::Relaxed},
     time::Instant,
 };
+use zenith_client::{assets::Assets, item_render::ItemRenderer};
 
 struct CountingAllocator;
 const TRACK: bool = option_env!("HORIZON_BENCH_COUNT_ALLOCATIONS").is_some();

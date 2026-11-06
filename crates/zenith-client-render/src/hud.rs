@@ -2,7 +2,6 @@
 //! textures, and a batch of textured quads in GUI pixels (vanilla's automatic
 //! GUI scale is applied when drawing).
 use crate::Result;
-use zenith_assets::animation::AnimationMetadata;
 use std::{
     collections::{HashMap, HashSet},
     fs,
@@ -10,6 +9,7 @@ use std::{
     sync::{Arc, OnceLock},
 };
 use wgpu::util::DeviceExt;
+use zenith_assets::animation::AnimationMetadata;
 
 pub mod cit_glint;
 mod pack_text;

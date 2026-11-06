@@ -127,9 +127,7 @@ fn entry(path: &Path) -> Option<Entry> {
                 .ok()
                 .and_then(|t| zenith_shader_api::Manifest::parse(&t).ok())
         } else {
-            zenith_shader_api::Pack::read(path)
-                .ok()
-                .map(|p| p.manifest)
+            zenith_shader_api::Pack::read(path).ok().map(|p| p.manifest)
         };
         let (title, options, pages) = manifest.map_or_else(
             || (file.clone(), Vec::new(), Vec::new()),

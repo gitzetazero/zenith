@@ -20,14 +20,20 @@ pub fn tool(build: &Path, name: &str) -> PathBuf {
     build.join(format!("{name}{}", std::env::consts::EXE_SUFFIX))
 }
 
-/// The game executable: `zenith` in current builds, `zenith-client` in older ones.
+/// `new` in current builds, `old` (Horizon's name) in builds made before the rename.
+pub fn tool_or(build: &Path, new: &str, old: &str) -> PathBuf {
+    let z = tool(build, new);
+    if z.is_file() { z } else { tool(build, old) }
+}
+
+/// The game executable: `zenith` in current builds, `horizon-client` in older ones.
 pub fn client(build: &Path) -> PathBuf {
-    let z = tool(build, "zenith");
-    if z.is_file() {
-        z
-    } else {
-        tool(build, "zenith-client")
-    }
+    tool_or(build, "zenith", "horizon-client")
+}
+
+/// The resource preparer: `zenith-prepare`, or `horizon-prepare` in older builds.
+pub fn preparer(build: &Path) -> PathBuf {
+    tool_or(build, "zenith-prepare", "horizon-prepare")
 }
 
 /// A GUI-subsystem bridge has no console: without this a console child would open its own window.
@@ -65,7 +71,10 @@ pub fn client_cmd(build: &Path, a: &LaunchArgs, prepared: &Path) -> Command {
         c.args(["--quickPlaySingleplayer", w]);
     }
     c.arg("--session-stdin")
-        .env("HORIZON_TELEMETRY_URL", "off")
+        .env("ZENITH_TELEMETRY_URL", "off")
+        .env("ZENITH_NO_HEARTBEAT", "1")
+        .env("ZENITH_COSMETICS", "0")
+        .env("HORIZON_TELEMETRY_URL", "off") // builds before the ZENITH_ names
         .env("HORIZON_NO_HEARTBEAT", "1")
         .env("HORIZON_COSMETICS", "0")
         .env("HORIZON_HOME", &a.game_dir);

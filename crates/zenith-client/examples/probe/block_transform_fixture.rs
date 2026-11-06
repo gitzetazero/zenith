@@ -3,6 +3,7 @@
 //! "name|prop=value,...") and prints the oracle's result lines.
 //!
 //! usage: block_transform_fixture RESOURCES INPUT OUTPUT
+use std::{fs, path::Path};
 use zenith_client::{
     assets::Assets,
     block_transform::{Around, Transformers},
@@ -10,7 +11,6 @@ use zenith_client::{
 };
 use zenith_world::chunk::BlockState;
 use zenith_world::loot::PackOverlay;
-use std::{fs, path::Path};
 
 fn parse(text: &str) -> BlockState {
     let (name, props) = text.split_once('|').unwrap_or((text, ""));

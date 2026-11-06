@@ -5,10 +5,10 @@ use crate::{Result, sprites::Sprites};
 pub use catalog::StateModels;
 use catalog::descriptor;
 pub use cube::CubeStyle;
-use zenith_core::position::BlockPos;
-use zenith_world::registry::{BlockRegistry, BlockStateId};
 use serde_json::{Value, json};
 use std::path::Path;
+use zenith_core::position::BlockPos;
+use zenith_world::registry::{BlockRegistry, BlockStateId};
 
 /// The standalone models native mods asked for (`native_standalone_models`).
 static STANDALONE: std::sync::OnceLock<Vec<String>> = std::sync::OnceLock::new();
@@ -153,12 +153,12 @@ pub fn load_visibility(
     root: &Path,
     registry: &BlockRegistry,
 ) -> Result<zenith_world::block_render::FaceVisibility> {
+    use std::collections::BTreeMap;
     use zenith_world::{
         block_render::{FaceVisibility, RenderDefinition, SkipRendering},
         collision::CachedCollisionRegistry,
         registry::BlockTableFile,
     };
-    use std::collections::BTreeMap;
     let file = BlockTableFile::open(&root.join("occlusion.nbt"), registry)?;
     let occlusion = CachedCollisionRegistry::from_table(file.table("occlusion")?)?;
     let raw: BTreeMap<String, Value> =

@@ -4,10 +4,10 @@ use crate::{
     save::{float, number},
     text::Text,
 };
-use zenith_protocol::entity_data::{Value, serializer};
-use zenith_world::nbt::Tag;
 use serde::Serialize;
 use std::sync::Arc;
+use zenith_protocol::entity_data::{Value, serializer};
+use zenith_world::nbt::Tag;
 
 /// `TextDisplay.Align`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -609,10 +609,7 @@ mod tests {
         let (_, left, _, right) = transformation(&Tag::Compound(t)).unwrap();
         assert_eq!(
             left,
-            zenith_assets::math::quaternion_from_axis_angle(
-                -std::f32::consts::PI,
-                [0.0, 0.0, 2.0]
-            )
+            zenith_assets::math::quaternion_from_axis_angle(-std::f32::consts::PI, [0.0, 0.0, 2.0])
         );
         assert!(left[2] > 1.9);
         assert_eq!(right, [0.0, 0.0, 0.0, 1.0]);

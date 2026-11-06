@@ -1,7 +1,7 @@
 //! Captured level sounds through the production packet builder and protocol codec.
+use std::io::Write;
 use zenith_client::{audio::CapturedSound, lan::containers::captured_sound_packet};
 use zenith_protocol::{buf::Reader, packets::play::Clientbound as C};
-use std::io::Write;
 
 pub fn main() {
     let args: Vec<String> = crate::args().collect();

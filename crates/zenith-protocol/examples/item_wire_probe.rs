@@ -8,12 +8,12 @@
 //! bytes back.
 //!
 //!     cargo run -p zenith-protocol --example item_wire_probe -- vanilla.jsonl rust.jsonl
+use serde_json::{Value, json};
+use std::io::Write;
 use zenith_protocol::{
     buf::{Codec, Reader, Writer},
     item::{Component, Slot},
 };
-use serde_json::{Value, json};
-use std::io::Write;
 
 fn hex(s: &str) -> Option<Vec<u8>> {
     (0..s.len())

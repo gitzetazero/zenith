@@ -1,12 +1,12 @@
 //! Persistent enchantment components and their displayed names.
-use zenith_items::{enchant::Enchantments, item_nbt::item_from_nbt};
-use zenith_world::nbt::parse_snbt;
 use std::{
     fs::File,
     io::{BufRead, BufReader, BufWriter, Write},
     path::Path,
     sync::Arc,
 };
+use zenith_items::{enchant::Enchantments, item_nbt::item_from_nbt};
+use zenith_world::nbt::parse_snbt;
 
 fn describe(enchantments: &Enchantments, levels: &[(Arc<str>, u32)]) -> String {
     let mut rows: Vec<_> = levels

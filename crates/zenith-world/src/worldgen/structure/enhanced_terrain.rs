@@ -9,12 +9,12 @@ use super::{
     start::{Piece, StructureStart},
 };
 use crate::worldgen::DecodeError;
+use serde_json::Value;
+use std::sync::Arc;
 use zenith_core::{
     density::{KernelJunction, KernelPiece, StructureBounds, TerrainKernel},
     position::ChunkPos,
 };
-use serde_json::Value;
-use std::sync::Arc;
 
 /// One adaptation: the kernel, and how a piece's box is moved, padded or
 /// cut to a band before the kernel measures from it.

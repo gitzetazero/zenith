@@ -1,10 +1,10 @@
 //! Control-socket block commands for scripted tests: `setblock`, `fill`,
 //! `getblock` and `container` (list or put items in a block entity).
 use super::Game;
-use zenith_client::{Result, items::ItemStack};
-use zenith_world::{chunk::BlockState, registry::BlockStateId};
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
+use zenith_client::{Result, items::ItemStack};
+use zenith_world::{chunk::BlockState, registry::BlockStateId};
 
 pub(super) const HELP: &[&str] = &[
     "setblock X Y Z BLOCK[props]    set a block with neighbour updates",

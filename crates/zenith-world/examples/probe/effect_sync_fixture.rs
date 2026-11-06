@@ -1,11 +1,3 @@
-use zenith_world::{
-    active_effects::ActiveEffects,
-    effect_particles::{Catalog, EffectValue, Particle},
-    effect_sync::{self as sync, EffectSyncWorld, Presence},
-    java_hash_map::JavaKey,
-    status_effect::{Details, EffectInstance},
-    synced_values::{DataError, DataValue, Observer, SyncedValues},
-};
 use serde_json::Value;
 use std::{
     cmp::Ordering,
@@ -13,6 +5,14 @@ use std::{
     io::{self, Write},
     path::Path,
     sync::Arc,
+};
+use zenith_world::{
+    active_effects::ActiveEffects,
+    effect_particles::{Catalog, EffectValue, Particle},
+    effect_sync::{self as sync, EffectSyncWorld, Presence},
+    java_hash_map::JavaKey,
+    status_effect::{Details, EffectInstance},
+    synced_values::{DataError, DataValue, Observer, SyncedValues},
 };
 type Result<T, E = &'static str> = std::result::Result<T, E>;
 #[derive(Clone)]

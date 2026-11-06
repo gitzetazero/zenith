@@ -17,9 +17,9 @@ use crate::{
     heightmap::HeightmapType,
     worldgen::{DecodeError, block_feature::FeatureBlockBindings},
 };
+use serde_json::Value;
 use zenith_core::position::ChunkPos;
 use zenith_core::random::RandomSource;
-use serde_json::Value;
 
 /// StructurePlacement: how the height is found.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

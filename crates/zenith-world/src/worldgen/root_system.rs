@@ -15,8 +15,8 @@ use super::{
     vegetation::{PlacedDecoder, PlacedPlacer},
 };
 use crate::registry::BlockStateId;
-use zenith_core::{geometry::Direction, random::RandomSource};
 use std::{collections::BTreeSet, sync::Arc};
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 fn query<E>(error: PlacementQueryError) -> FeatureExecutionError<E> {
     FeatureExecutionError::Query(error)

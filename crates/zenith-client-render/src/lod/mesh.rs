@@ -5,10 +5,10 @@ use crate::{
     mesher::{OPAQUE_LAYER, SectionMesh, TerrainVertex, fluid_face},
     streaming::WorkerContext,
 };
+use std::collections::BTreeMap;
 use zenith_assets::model::Direction;
 use zenith_core::position::BlockPos;
 use zenith_world::registry::BlockStateId;
-use std::collections::BTreeMap;
 
 const CELLS: usize = 16;
 

@@ -3,14 +3,14 @@
 //! `filter`, `unstitch` and `paletted_permutations` sources run in order
 //! against the resource tree; a later source replaces an earlier sprite of
 //! the same id and a filter removes the matching ones.
-use zenith_assets::palette::apply_palette;
-use zenith_client_core::pattern::Pattern;
 use serde_json::Value;
 use std::{
     collections::BTreeMap,
     fs,
     path::{Path, PathBuf},
 };
+use zenith_assets::palette::apply_palette;
+use zenith_client_core::pattern::Pattern;
 
 /// One region of an `unstitch` source, in units of the divisors.
 #[derive(Clone, Debug, PartialEq)]

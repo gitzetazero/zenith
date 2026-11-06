@@ -28,9 +28,9 @@ use crate::{
         structure::{BlockInfo, StructureResources},
     },
 };
-use zenith_core::geometry::Direction;
 use serde_json::Value;
 use std::{collections::BTreeSet, sync::Arc};
+use zenith_core::geometry::Direction;
 
 /// Blocks whose `defaultDestroyTime` is negative in 26.3 (unbreakable):
 /// forced pillars go through every block but these.

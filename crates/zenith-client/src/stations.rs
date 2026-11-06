@@ -8,10 +8,10 @@ use crate::{
     item_data::{self, Levels},
     items::{ItemStack, Items},
 };
-use zenith_core::random::{LegacyRandom, RandomSource};
-use zenith_world::loot::PackOverlay;
 use serde_json::Value;
 use std::{fs, path::Path, sync::Arc};
+use zenith_core::random::{LegacyRandom, RandomSource};
+use zenith_world::loot::PackOverlay;
 
 /// Everything the workstation menus read, loaded once with the resources.
 pub struct StationData {

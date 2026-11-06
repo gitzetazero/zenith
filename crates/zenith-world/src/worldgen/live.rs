@@ -16,12 +16,12 @@ use super::{
     tags::TagDefinitions,
 };
 use crate::block_placement::BlockPlacementBindings;
-use zenith_core::random::RandomSource;
 use serde_json::Value;
 use std::{
     collections::{BTreeSet, HashMap},
     sync::{Arc, Mutex},
 };
+use zenith_core::random::RandomSource;
 
 type Cache<T> = Mutex<HashMap<String, Option<Arc<T>>>>;
 

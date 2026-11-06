@@ -10,10 +10,10 @@ use super::{
         Tempt, goal_clone,
     },
 };
+use std::f32::consts::PI;
 use zenith_core::geometry::Vec3;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::random::RandomSource;
-use std::f32::consts::PI;
 
 pub const COLORS: [&str; 7] = [
     "white",
@@ -1071,8 +1071,8 @@ mod tests {
     use crate::mobs::Damage;
     use crate::mobs::finalize::base_value;
     use crate::mobs::sensor_scan_tests::kind;
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     fn horse(species: Species) -> Mob {
         let mut kind = crate::mobs::sensor_scan_tests::kind();

@@ -1,8 +1,8 @@
 //! The Statistics screen (`StatsScreen`): General, Items and Mobs tabs over
 //! the player's statistics, with the Done button.
 use super::{Game, Screen};
-use zenith_client::{hud::HudBatch, items::ItemStack, text::Text, ui};
 use std::fmt::Write as _;
+use zenith_client::{hud::HudBatch, items::ItemStack, text::Text, ui};
 
 /// `Stats.CUSTOM` in registration order with its formatter.
 const CUSTOM: &[(&str, Format)] = &[
@@ -417,12 +417,8 @@ impl Game<'_> {
                 // ItemStatisticsList, a ContainerObjectSelectionList: the
                 // header's sort buttons and each row's item.
                 zenith_client::widgets::narratable(|| {
-                    zenith_client::widgets::Narratable::container_list(
-                        rows,
-                        hovered_row,
-                        list_rect,
-                    )
-                    .key(list_key)
+                    zenith_client::widgets::Narratable::container_list(rows, hovered_row, list_rect)
+                        .key(list_key)
                 });
                 // The header row of sort buttons.
                 let y = row_y(0);

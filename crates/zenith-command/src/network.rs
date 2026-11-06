@@ -9,11 +9,11 @@
 //! (another server's or a mod's) gets the type its parser and properties
 //! describe.
 use super::{ArgType, Dispatcher, Node, NodeKind, Suggests};
-use zenith_protocol::packets::play::{ARGUMENT_TYPES, ArgumentProperties, Commands};
 use std::{
     collections::{HashSet, VecDeque},
     sync::{Mutex, OnceLock},
 };
+use zenith_protocol::packets::play::{ARGUMENT_TYPES, ArgumentProperties, Commands};
 
 /// The command id of every executable node of a server's tree: the chat
 /// sends the command, the server runs it.

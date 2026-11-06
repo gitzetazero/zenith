@@ -1,8 +1,8 @@
 //! Zenith: which version to join an older server as, and the one retry when the server names a range.
-use zenith_protocol::adapter::ServerVersion;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
+use zenith_protocol::adapter::ServerVersion;
 
 type Version = (u32, u32, u32);
 

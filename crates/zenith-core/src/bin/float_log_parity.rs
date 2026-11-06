@@ -1,9 +1,9 @@
 //! Binary transport for exhaustive comparison of the compiled float log sampler.
-use zenith_core::density::{DensitySampler, SampleError, SamplerContext, UnaryOp, UnarySampler};
 use std::{
     io::{self, Write},
     sync::Arc,
 };
+use zenith_core::density::{DensitySampler, SampleError, SamplerContext, UnaryOp, UnarySampler};
 
 #[derive(Debug)]
 struct FloatBitsInput;

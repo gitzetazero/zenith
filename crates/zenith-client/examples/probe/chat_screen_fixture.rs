@@ -6,6 +6,9 @@
 //!
 //! usage: chat_screen_fixture RESOURCES REGISTRIES CASES OUTPUT
 use crate::pack_screen_fixture;
+use serde_json::{Value, json};
+use std::{fmt::Write as _, fs, path::PathBuf};
+use winit::keyboard::KeyCode as K;
 use zenith_client::{
     chat::{ChatAbilities, ChatAction, ChatScreen, ChatVisibility, Commands},
     command::vanilla,
@@ -13,9 +16,6 @@ use zenith_client::{
     lang,
     screen_draw::Measure,
 };
-use serde_json::{Value, json};
-use std::{fmt::Write as _, fs, path::PathBuf};
-use winit::keyboard::KeyCode as K;
 #[path = "chat_screen_fixture/registries.rs"]
 mod registries;
 

@@ -4,6 +4,8 @@
 //! `Menu::place_recipe` and prints the oracle's line.
 //!
 //! usage: place_recipe_fixture RESOURCES CASES ORDERS OUTPUT
+use serde_json::Value;
+use std::{fs, path::Path};
 use zenith_client::{
     crafting::Recipes,
     item_data::{canon_stack, parse_stack},
@@ -11,8 +13,6 @@ use zenith_client::{
     menu::{Env, Kind, Menu, place::PostPlace},
 };
 use zenith_world::loot::PackOverlay;
-use serde_json::Value;
-use std::{fs, path::Path};
 
 fn state(menu: &Menu) -> String {
     let slots: Vec<String> = (0..menu.slot_count())

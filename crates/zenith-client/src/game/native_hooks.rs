@@ -994,6 +994,14 @@ use super::{
     native_reload_listeners::NativeReloadListener,
     native_world_draw::NativeWorldDraw,
 };
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::Duration,
+};
+use winit::{event::MouseButton, keyboard::KeyCode};
 use zenith_assets::item_model::StackView;
 use zenith_client::mod_api::{
     self, NativeCamera, NativeCommand, NativeDispensed, NativeLifecycleContext,
@@ -1045,14 +1053,6 @@ use zenith_world::{
     nbt::Compound,
     registry::{BlockRegistry, BlockStateId},
 };
-use std::{
-    collections::HashMap,
-    fs,
-    path::{Path, PathBuf},
-    sync::Arc,
-    time::Duration,
-};
-use winit::{event::MouseButton, keyboard::KeyCode};
 
 pub(super) struct ObservedScreen {
     id: &'static str,
@@ -8739,9 +8739,7 @@ impl GameLevel<'_> {
     /// that draws as a vanilla block does (`isBonemealSuccess`), so the mod's
     /// draws shift vanilla's as a Java mod's would. `None` where this level
     /// isn't the server's copy. API 72.
-    pub(super) fn native_level_random(
-        &mut self,
-    ) -> Option<&mut zenith_core::random::LegacyRandom> {
+    pub(super) fn native_level_random(&mut self) -> Option<&mut zenith_core::random::LegacyRandom> {
         self.native_authoritative.then_some(&mut self.world.random)
     }
 }

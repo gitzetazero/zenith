@@ -5,6 +5,13 @@
 //! Relit columns remesh only where their light changed (#270), and every
 //! mesh still matches the world.
 extern crate zenith_client_lib as zenith_client;
+use std::{
+    collections::{HashMap, HashSet},
+    path::Path,
+    sync::Arc,
+    thread,
+    time::{Duration, Instant},
+};
 use zenith_client::{
     assets::Assets,
     biome::Biomes,
@@ -19,13 +26,6 @@ use zenith_client::{
 };
 use zenith_core::biome::BiomeZoom;
 use zenith_world::registry::BlockStateId;
-use std::{
-    collections::{HashMap, HashSet},
-    path::Path,
-    sync::Arc,
-    thread,
-    time::{Duration, Instant},
-};
 
 fn resources() -> Option<std::path::PathBuf> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))

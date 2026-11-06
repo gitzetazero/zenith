@@ -4,9 +4,9 @@
 //! and the three version headers. The access token goes only into the `sid` cookie (and the
 //! `x-mojangauth` header vanilla adds for the invite-code service); it is never logged, never
 //! put in an error and never sent anywhere else.
-use zenith_core::version;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::time::Duration;
+use zenith_core::version;
 
 /// `RealmsClient.Environment.PRODUCTION`'s base URL.
 pub const DEFAULT_REALMS_HOST: &str = "https://pc.realms.minecraft.net";
@@ -937,8 +937,8 @@ fn undashed(uuid: &str) -> Result<String, RealmsError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_client_render::auth::AuthSession;
     use std::io::{Read, Write};
+    use zenith_client_render::auth::AuthSession;
 
     const TOKEN: &str = "eyJsecret.token.value";
     const UUID: u128 = 0x0123_4567_89ab_cdef_0123_4567_89ab_cdef;

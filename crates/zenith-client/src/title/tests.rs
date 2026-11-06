@@ -1,9 +1,9 @@
 use super::*;
-use zenith_world::nbt::Tag;
 use std::{
     fs,
     sync::atomic::{AtomicUsize, Ordering},
 };
+use zenith_world::nbt::Tag;
 
 struct Fixture {
     root: PathBuf,

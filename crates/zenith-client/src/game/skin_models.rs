@@ -51,8 +51,8 @@ impl SkinModels {
 #[cfg(test)]
 mod tests {
     use super::SkinModels;
-    use zenith_client::mobs::Part;
     use std::sync::Arc;
+    use zenith_client::mobs::Part;
 
     fn part() -> Arc<Part> {
         Arc::new(Part {

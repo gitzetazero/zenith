@@ -6,6 +6,7 @@ use super::{
     Game,
     entity::{Blast, Entity, EntityHandle, with_entity, with_entity_mut},
 };
+use std::{cmp::Ordering, io};
 use zenith_client::{
     Result, blocks::Fluid, collisions::SceneCollisions, items::ItemStack, mobs::Who, text::Text,
 };
@@ -21,7 +22,6 @@ use zenith_world::{
     registry::BlockStateId,
     world_ray::{RayBlockMode, RayFluidMode, RayWorld, clip_world},
 };
-use std::{cmp::Ordering, io};
 
 /// `Level.clip` with `ClipContext.Block.COLLIDER`, no fluids and the
 /// collision context of the entity whose exposure is measured.

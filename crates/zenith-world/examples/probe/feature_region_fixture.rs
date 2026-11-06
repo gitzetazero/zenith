@@ -11,6 +11,13 @@ use zenith_world::worldgen::{
     write_zone::{GenerationWriteZone, UpgradeWriteHeight},
 };
 // Feature chains against a resident multi-chunk region.
+use serde_json::Value;
+use std::{
+    collections::BTreeSet,
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_core::position::ChunkPos;
 use zenith_world::{
     DATA_VERSION,
@@ -24,13 +31,6 @@ use zenith_world::{
         tags::TagDefinitions,
         terrain::{PreLightChunkStage, TerrainBlockStates, TerrainChunk},
     },
-};
-use serde_json::Value;
-use std::{
-    collections::BTreeSet,
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 #[derive(Clone, Copy)]
 struct State {

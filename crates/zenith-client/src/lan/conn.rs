@@ -12,6 +12,16 @@ use super::{
     forwarding,
     io_pool::{self, Session as _},
 };
+use std::{
+    cell::Cell,
+    net::TcpStream,
+    sync::{
+        Arc, Mutex, PoisonError,
+        atomic::{AtomicI32, AtomicI64, AtomicU32, AtomicUsize, Ordering},
+        mpsc::{RecvTimeoutError, Sender, channel},
+    },
+    time::{Duration, Instant},
+};
 use zenith_protocol::{
     PROTOCOL_VERSION,
     connection::{ConnWriter, Connection, Counters},
@@ -22,16 +32,6 @@ use zenith_protocol::{
         handshake, login, play, status,
     },
     text::translatable,
-};
-use std::{
-    cell::Cell,
-    net::TcpStream,
-    sync::{
-        Arc, Mutex, PoisonError,
-        atomic::{AtomicI32, AtomicI64, AtomicU32, AtomicUsize, Ordering},
-        mpsc::{RecvTimeoutError, Sender, channel},
-    },
-    time::{Duration, Instant},
 };
 
 /// ServerCommonPacketListenerImpl.keepConnectionAlive: a keep-alive every 15 s,
@@ -524,10 +524,7 @@ fn serve_connection(
 
 /// The older release a client's handshake states, when this server lets it join
 /// (`horizon-accept-older-clients`): 26.2 only, for now.
-fn older_client(
-    shared: &Shared,
-    protocol: i32,
-) -> Option<zenith_protocol::adapter::ServerVersion> {
+fn older_client(shared: &Shared, protocol: i32) -> Option<zenith_protocol::adapter::ServerVersion> {
     use zenith_protocol::adapter::ServerVersion;
     let version = ServerVersion::from_protocol(protocol)?;
     (shared.config.accept_older_clients && version == ServerVersion::V26_2).then_some(version)
@@ -1079,9 +1076,8 @@ fn login_and_configure(
         let difference = zenith_protocol::mod_list::compare(&server_mods, &client_mods);
         if !difference.is_empty() {
             let text = difference.reason();
-            let reason = zenith_world::nbt::Tag::String(zenith_world::nbt::JavaString::from(
-                text.as_str(),
-            ));
+            let reason =
+                zenith_world::nbt::Tag::String(zenith_world::nbt::JavaString::from(text.as_str()));
             let _ = send(c, cfg::Clientbound::Disconnect(cfg::Disconnect { reason }));
             lost(shared, &format!("{name} ({})", uuid_string(uuid)), &text);
             return Ok(None);

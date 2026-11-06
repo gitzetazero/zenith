@@ -10,8 +10,8 @@ use super::{
 };
 use crate::heightmap::HeightmapType;
 pub use chain::{FeaturePlacementError, FeaturePlacer};
-use zenith_core::random::{InvalidBound, RandomSource};
 use serde_json::value::RawValue;
+use zenith_core::random::{InvalidBound, RandomSource};
 mod context;
 pub use context::{LayerBlock, PlacementContext, PlacementQueryError};
 

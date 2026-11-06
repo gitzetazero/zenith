@@ -3,6 +3,7 @@
 //! memory, written to `<world>/generated/<namespace>/structures/<path>.nbt`),
 //! `StructureBlock.neighborChanged` and `handleSetStructureBlock`.
 use super::{Game, lan::LanHost};
+use std::collections::HashSet;
 use zenith_client::{
     containers::BlockEntity,
     gizmos::{Gizmos, InvisibleBlock},
@@ -20,7 +21,6 @@ use zenith_world::{
     nbt::{self, Compound, Limits, NamedTag, Tag},
     worldgen::structure::{BlockInfo, EntityInfo, StructureTemplate, save_nbt},
 };
-use std::collections::HashSet;
 
 type Pos = (i32, i32, i32);
 

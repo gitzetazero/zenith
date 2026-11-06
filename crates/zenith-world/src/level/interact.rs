@@ -2,12 +2,12 @@
 //! that does not handle the block itself).
 use super::{Behaviours, LevelAccess, LevelEvent, Sim, Ticks, classes::Class, update::below};
 use crate::registry::BlockStateId;
+use std::sync::Arc;
 use zenith_core::{
     geometry::{Direction, Vec3},
     position::BlockPos,
     random::RandomSource,
 };
-use std::sync::Arc;
 
 /// `InteractionResult` as seen by the server.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

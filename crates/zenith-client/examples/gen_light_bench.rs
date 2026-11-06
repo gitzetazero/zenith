@@ -24,6 +24,14 @@
 //! neighbour waits). Sleeping workers don't compete for cores, so this shows
 //! how the pipeline scales to many workers even on a busy machine.
 extern crate zenith_client_lib as zenith_client;
+use std::{
+    hash::{DefaultHasher, Hash, Hasher},
+    path::PathBuf,
+    process::Command,
+    sync::Arc,
+    thread,
+    time::{Duration, Instant},
+};
 use zenith_client::{
     assets::Assets,
     biome::Biomes,
@@ -38,14 +46,6 @@ use zenith_client::{
     world::World,
 };
 use zenith_world::registry::BlockStateId;
-use std::{
-    hash::{DefaultHasher, Hash, Hasher},
-    path::PathBuf,
-    process::Command,
-    sync::Arc,
-    thread,
-    time::{Duration, Instant},
-};
 
 type Error = Box<dyn std::error::Error>;
 

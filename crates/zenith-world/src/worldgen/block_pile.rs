@@ -9,11 +9,11 @@ use super::{
     state_provider::{BlockStateProvider, StateProviderError},
 };
 use crate::registry::BlockStateId;
+use std::{collections::BTreeSet, sync::Arc};
 use zenith_core::{
     geometry::Direction,
     random::{InvalidBound, RandomSource},
 };
-use std::{collections::BTreeSet, sync::Arc};
 
 #[derive(Clone, Debug)]
 pub struct BlockPileFeature {

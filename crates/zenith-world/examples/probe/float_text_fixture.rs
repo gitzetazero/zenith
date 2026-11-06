@@ -1,6 +1,6 @@
 //! Java numeric text, actual SNBT and DataFixer numeric text on the same bits.
-use zenith_world::{datafix::json, nbt::Tag, snbt_text};
 use std::io::Write;
+use zenith_world::{datafix::json, nbt::Tag, snbt_text};
 
 pub fn main() {
     let args: Vec<_> = super::args().collect();

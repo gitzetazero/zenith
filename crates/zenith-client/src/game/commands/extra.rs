@@ -4,6 +4,7 @@
 //! `/fetchprofile`, `/publish`, `/unpublish`, `/debug`, `/jfr` and
 //! `/version`, with vanilla's feedback and failures.
 use super::{Arg, Context, Game, R, Target, err};
+use std::{collections::HashMap, time::Instant};
 use zenith_client::actions::Action;
 use zenith_client::{
     command::CommandError,
@@ -16,7 +17,6 @@ use zenith_protocol::packets::{
     play::{self, Clientbound as C, DialogHolder},
 };
 use zenith_world::nbt::Tag;
-use std::{collections::HashMap, time::Instant};
 
 /// Waypoint.Icon: the locator bar style and colour of a transmitter.
 #[derive(Clone, Debug, PartialEq)]

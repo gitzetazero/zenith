@@ -42,13 +42,6 @@ use crate::{
     heightmap::{HeightmapState, HeightmapType},
     registry::{BlockRegistry, BlockStateId},
 };
-use zenith_core::{
-    biome::{BiomeZoom, obfuscate_seed},
-    density::{DensitySampler, SamplerContext},
-    noise::{DensityVolume, Noise},
-    position::{BlockPos, ChunkPos},
-    random::{LegacyRandom, PositionalRandom, RandomSource, XoroshiroRandom},
-};
 use serde_json::Value;
 use std::{
     any::Any,
@@ -56,6 +49,13 @@ use std::{
     fs, io,
     path::Path,
     sync::{Arc, Mutex, OnceLock},
+};
+use zenith_core::{
+    biome::{BiomeZoom, obfuscate_seed},
+    density::{DensitySampler, SamplerContext},
+    noise::{DensityVolume, Noise},
+    position::{BlockPos, ChunkPos},
+    random::{LegacyRandom, PositionalRandom, RandomSource, XoroshiroRandom},
 };
 
 #[derive(Debug)]

@@ -10,12 +10,12 @@
 //! have now, which are the ones `ServerScoreboard`'s callbacks send.
 use crate::scoreboard::{NumberFormat, RenderType, Scoreboard, component_tag, display_slots};
 use crate::text::COLORS;
+use std::collections::{BTreeMap, BTreeSet};
 use zenith_protocol::packets::play::{
     self, Clientbound as C, ResetScore, SetDisplayObjective, SetObjective, SetPlayerTeam, SetScore,
     TeamParameters,
 };
 use zenith_world::nbt::Tag;
-use std::collections::{BTreeMap, BTreeSet};
 
 type Format = Option<play::NumberFormat>;
 

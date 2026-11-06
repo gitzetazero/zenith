@@ -16,9 +16,9 @@
 
 use super::render::{DYE_NAMES, PROFESSIONS};
 use super::{Mob, MobData, Species};
+use std::sync::atomic::{AtomicBool, Ordering};
 use zenith_optifine::random::{self, Block, Facts, Weather};
 use zenith_optifine::random_textures::RandomTextures;
-use std::sync::atomic::{AtomicBool, Ordering};
 
 /// Where the mob was when the client first saw it.
 #[derive(Clone, Debug)]
@@ -243,8 +243,8 @@ fn size(m: &Mob) -> Option<i32> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     fn mob(species: Species) -> Mob {
         let mut kind = crate::mobs::sensor_scan_tests::kind();

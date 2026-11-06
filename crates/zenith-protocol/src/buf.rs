@@ -2,8 +2,8 @@
 //! VarLong, ByteBufCodecs) and the `Codec` building blocks packets are
 //! composed from, mirroring `StreamCodec.composite`.
 use crate::{Error, Result};
-use zenith_world::nbt::{self, Tag};
 use std::marker::PhantomData;
+use zenith_world::nbt::{self, Tag};
 
 /// Vanilla's default NBT quota for network tags (NbtAccounter.defaultQuota).
 pub const NBT_QUOTA: usize = 2_097_152;

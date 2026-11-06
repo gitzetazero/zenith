@@ -1,13 +1,13 @@
 //! Studio recording commands.
 
 use super::Game;
+use serde_json::{Value, json};
+use std::path::PathBuf;
 use zenith_client::{
     Result,
     studio::{Metadata, generate_recording_filename},
     text::Text,
 };
-use serde_json::{Value, json};
-use std::path::PathBuf;
 
 pub const HELP: &[&str] = &[
     "studio record start [NAME]     start recording clientbound packets into an .mcpr archive",

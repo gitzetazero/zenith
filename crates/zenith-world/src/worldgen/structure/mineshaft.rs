@@ -5,11 +5,11 @@ use super::{
 };
 use crate::nbt::Tag;
 use crate::worldgen::biome::BiomeId;
-use zenith_core::{geometry::Direction, random::RandomSource};
 use std::{
     collections::BTreeSet,
     sync::{Arc, Mutex},
 };
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 /// MineshaftStructure.Type: wood, planks, fence, and the blocks pieces keep.
 #[derive(Clone, Copy, Debug)]

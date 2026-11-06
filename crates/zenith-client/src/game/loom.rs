@@ -3,13 +3,13 @@
 //! selectable patterns, the pattern buttons, quick moves, the result) runs on
 //! the verified engine, `zenith_client::menu`, through `Game::menu_session`.
 use super::{Game, stations::Kind};
+use std::sync::Arc;
 use zenith_client::{
     banner::{self, BannerLayer},
     hud::{HudBatch, Rect, rgba},
     items::ItemStack,
     screen_layout::{self, LoomView, ScreenDraw},
 };
-use std::sync::Arc;
 
 /// Per-menu loom state: `selectablePatterns`, the selected index and the
 /// screen's scroller.

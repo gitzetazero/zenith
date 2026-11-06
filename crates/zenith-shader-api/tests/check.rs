@@ -1,7 +1,7 @@
 //! `check`: the sample pack passes, and each kind of mistake is reported
 //! with the pack's own file and line.
-use zenith_shader_api::{MANIFEST, Pack, Problem, StageKind, check};
 use std::path::Path;
+use zenith_shader_api::{MANIFEST, Pack, Problem, StageKind, check};
 
 fn sample() -> Pack {
     Pack::read(Path::new(concat!(

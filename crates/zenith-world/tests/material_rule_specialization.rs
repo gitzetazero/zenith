@@ -1,3 +1,4 @@
+use std::{collections::BTreeSet, sync::Arc};
 use zenith_core::{
     density::{ConstantSampler, DensitySampler},
     position::BlockPos,
@@ -14,7 +15,6 @@ use zenith_world::{
         },
     },
 };
-use std::{collections::BTreeSet, sync::Arc};
 
 #[derive(Default)]
 struct Queries {

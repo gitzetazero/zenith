@@ -5,6 +5,7 @@
 //! `maps/last_id.dat`, the 128x128 texture in an atlas slot, the two-handed
 //! first-person view and maps in item frames.
 use super::{Game, lan::LanHost};
+use std::collections::HashMap;
 use zenith_client::{
     blocks::{Fluid, MAP_COLORS},
     hud::{HudBatch, MAP_SLOTS, Rect, map_slot_sprite},
@@ -12,7 +13,6 @@ use zenith_client::{
     mesher::Vertex,
 };
 use zenith_world::nbt::Tag;
-use std::collections::HashMap;
 
 /// What a decoration is filed under in `MapItemSavedData.decorations` (a
 /// `LinkedHashMap<String, MapDecoration>`): a player's marker by their
@@ -873,10 +873,7 @@ impl Game<'_> {
     }
     /// `ClientboundMapItemDataPacket.handle`: the server's colours and
     /// decorations for a map (one carried or framed on a server).
-    pub(super) fn remote_map_item_data(
-        &mut self,
-        p: &zenith_protocol::packets::play::MapItemData,
-    ) {
+    pub(super) fn remote_map_item_data(&mut self, p: &zenith_protocol::packets::play::MapItemData) {
         let decorations = p.decorations.as_ref().map(|list| {
             let types = self
                 .remote
@@ -1476,9 +1473,7 @@ impl Game<'_> {
                 .get_mut(&id)
                 .and_then(|m| m.update_packet(id, conn, kind))
             {
-                g.send(&zenith_protocol::packets::play::Clientbound::MapItemData(
-                    p,
-                ));
+                g.send(&zenith_protocol::packets::play::Clientbound::MapItemData(p));
             }
         }
     }
@@ -2017,8 +2012,8 @@ mod tests {
     #[test]
     fn map_on_banner_in_adventure_mode_honours_can_place_on() {
         use crate::game::{Audio, Game, Options, Progress, Settings, load_resources};
-        use zenith_client::{chunk::Chunk, command::args::GameMode};
         use std::sync::Arc;
+        use zenith_client::{chunk::Chunk, command::args::GameMode};
 
         let Some(root) = std::env::var_os("HORIZON_TEST_RESOURCES") else {
             return;

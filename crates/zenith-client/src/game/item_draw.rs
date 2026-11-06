@@ -4,6 +4,8 @@
 //! frames, armour stands). This binds the resolver's host services
 //! (`ItemEnv`) and the special renderers' registries to the game.
 use super::{Dim, Game};
+use serde_json::Value;
+use std::{cell::RefCell, collections::HashMap};
 use zenith_assets::item_model::{
     Components, DisplayContext, GlobalPos, ItemEnv, LevelState, OwnerState, StackView,
 };
@@ -16,8 +18,6 @@ use zenith_client::{
     mesher::Vertex,
 };
 use zenith_core::geometry::{Aabb, Vec3};
-use serde_json::Value;
-use std::{cell::RefCell, collections::HashMap};
 
 /// The game's answers to what the resolver cannot read from the stack.
 pub(super) struct Env<'a, 'g> {

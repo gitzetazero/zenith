@@ -1,7 +1,7 @@
 //! Entity.move ordering around collision, support, landing and movement effects.
 use crate::{movement_emission::MovementEmission, registry::BlockStateId};
-use zenith_core::{geometry::Vec3, position::BlockPos};
 use std::collections::VecDeque;
+use zenith_core::{geometry::Vec3, position::BlockPos};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MoverType {

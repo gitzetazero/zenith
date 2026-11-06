@@ -5,14 +5,6 @@ use crate::{
     lod::{Column, Span, Surface},
     streaming::LodDetail,
 };
-use zenith_world::{
-    heightmap::HeightmapState,
-    registry::BlockStateId,
-    worldgen::{
-        decoration_order::vanilla_order,
-        generator::{GenBlockStates, GeneratorError},
-    },
-};
 use std::{
     collections::VecDeque,
     sync::{
@@ -21,6 +13,14 @@ use std::{
         mpsc,
     },
     thread,
+};
+use zenith_world::{
+    heightmap::HeightmapState,
+    registry::BlockStateId,
+    worldgen::{
+        decoration_order::vanilla_order,
+        generator::{GenBlockStates, GeneratorError},
+    },
 };
 
 mod islands;

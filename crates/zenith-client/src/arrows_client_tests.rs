@@ -1,7 +1,7 @@
 use super::*;
+use std::{collections::BTreeSet, sync::Arc};
 use zenith_core::geometry::{Axis, VoxelShape};
 use zenith_world::{collision::CachedCollisionRegistry, nbt::Tag, registry::BlockRegistry};
-use std::{collections::BTreeSet, sync::Arc};
 fn text(value: &str) -> Tag {
     Tag::String(value.into())
 }

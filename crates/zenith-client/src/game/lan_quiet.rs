@@ -7,8 +7,8 @@
 //! [`PER_TICK`] lines a player a tick, so a mod can't flood a server; each
 //! finished batch is one line in the server's log.
 use super::{Game, lan::LanHost, lan_actions::GuestCommand};
-use zenith_protocol::quiet;
 use std::collections::{HashMap, VecDeque};
+use zenith_protocol::quiet;
 
 /// Lines a player may have waiting at most; a batch past it loses the rest.
 pub(super) const PENDING: usize = 4096;

@@ -11,8 +11,8 @@ use std::sync::mpsc::{self, Sender};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use zenith_bench::{App, Frames, Kind, Report};
 use serde_json::Value;
+use zenith_bench::{App, Frames, Kind, Report};
 
 use crate::control::Request;
 
@@ -187,8 +187,7 @@ fn run(control: &Control, setup: Setup) -> Result<PathBuf, String> {
             gpu.vram_mb = zenith_telemetry::system::vram_mb(&vendor);
         }
     }
-    report.hardware.storage =
-        zenith_telemetry::system::storage(&setup.game_dir).map(str::to_owned);
+    report.hardware.storage = zenith_telemetry::system::storage(&setup.game_dir).map(str::to_owned);
     report.hardware.display = serde_json::from_value(title["display"].clone()).ok();
 
     replace_world(&setup.game_dir)?;

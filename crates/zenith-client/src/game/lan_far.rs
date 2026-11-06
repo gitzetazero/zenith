@@ -4,6 +4,7 @@
 //! The replies come back here and leave with the tick's other packets. A
 //! refused request is answered at once, so the client knows to ask again.
 use super::{Dim, Game, lan::LanHost};
+use std::sync::atomic::Ordering;
 use zenith_client::{
     lan::conn::PlayerSender,
     lod_net::{CHANNEL, Delivery, Job, Verdict},
@@ -12,7 +13,6 @@ use zenith_protocol::{
     packets::{configuration::CustomPayload, play},
     text::translatable,
 };
-use std::sync::atomic::Ordering;
 
 /// Bytes a player's connection may have waiting before far terrain holds its
 /// replies back: a client that reads slowly gets the game's packets first.

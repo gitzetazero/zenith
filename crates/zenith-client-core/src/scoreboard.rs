@@ -7,9 +7,9 @@ use crate::{
     registries::Registries,
     text::{self, Style, Text},
 };
-use zenith_world::nbt::Tag;
 use serde_json::Value;
 use std::collections::BTreeMap;
+use zenith_world::nbt::Tag;
 
 /// A text component in its JSON form (what `ComponentSerialization` holds).
 pub type Comp = Value;

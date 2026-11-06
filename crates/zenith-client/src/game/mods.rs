@@ -2,12 +2,12 @@
 //! assets (`content_root`), and the Mods page's rows. Code mods are native
 //! (`native_hooks.rs`); WebAssembly code mods don't run any more.
 use super::Game;
+use std::path::PathBuf;
 use zenith_client::{
     lang,
     mod_list::{self, Installed},
     text::Text,
 };
-use std::path::PathBuf;
 
 #[derive(Default)]
 pub(super) struct ModsState {
@@ -42,8 +42,7 @@ pub(super) fn register_components(root: &std::path::Path) -> zenith_client::Resu
     if names.is_empty() {
         return Ok(());
     }
-    let path =
-        zenith_protocol::registry::Builtin::find(root).ok_or("registries.json not found")?;
+    let path = zenith_protocol::registry::Builtin::find(root).ok_or("registries.json not found")?;
     let builtin = zenith_protocol::registry::Builtin::load(&path)?;
     let types = builtin
         .get("minecraft:data_component_type")
@@ -206,9 +205,9 @@ fn announced_entry(
     m: &zenith_mods::Manifest,
     path: &std::path::Path,
 ) -> zenith_protocol::mod_list::Entry {
+    use sha2::{Digest, Sha256};
     use zenith_mods::Side;
     use zenith_protocol::mod_list;
-    use sha2::{Digest, Sha256};
     let sha256 = if path.is_file() {
         std::fs::read(path)
             .ok()

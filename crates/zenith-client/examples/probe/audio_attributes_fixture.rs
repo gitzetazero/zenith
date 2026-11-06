@@ -1,10 +1,10 @@
 //! Audio environment attributes from Horizon's `MusicTables` and
 //! `AmbientTables` for `tools/test_audio_attributes_parity.py`:
 //! `audio_attributes_fixture ROOT INPUT OUTPUT`.
+use std::io::Write;
 use zenith_client::ambience::AmbientTables;
 use zenith_client::music::{Music, MusicTables};
 use zenith_client::sound_events::normalize;
-use std::io::Write;
 
 fn music(m: Option<&Music>) -> String {
     m.map_or("-".to_owned(), |m| {

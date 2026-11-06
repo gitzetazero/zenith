@@ -13,9 +13,9 @@ use crate::{
         weighted::WeightedList,
     },
 };
-use zenith_core::random::RandomSource;
 use serde_json::{Value, value::RawValue};
 use std::sync::Arc;
+use zenith_core::random::RandomSource;
 
 fn resources(bindings: &FeatureBlockBindings<'_>) -> Result<Arc<StructureResources>, DecodeError> {
     bindings

@@ -1,16 +1,16 @@
 //! Original JSON block-state codec comparison transport.
 use crate::support::common::tag;
-use zenith_world::{
-    DATA_VERSION,
-    nbt::Tag,
-    registry::{BlockRegistry, BlockStateId, BlockStateJsonCodec},
-};
 use serde_json::Value;
 use std::{
     collections::BTreeSet,
     fs,
     io::{self, Write},
     path::Path,
+};
+use zenith_world::{
+    DATA_VERSION,
+    nbt::Tag,
+    registry::{BlockRegistry, BlockStateId, BlockStateJsonCodec},
 };
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let arg = crate::args().nth(1).expect("private fixture directory");

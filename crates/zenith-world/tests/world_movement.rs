@@ -1,6 +1,7 @@
 //! The candidate budget bounds a scan, never a movement: a movement big enough
 //! to pass the caller's budget is walked in full, as vanilla's uncounted
 //! collision walk does (#6124).
+use std::io;
 use zenith_core::{
     geometry::{Aabb, Vec3, VoxelShape},
     position::{BlockPos, ChunkPos},
@@ -12,7 +13,6 @@ use zenith_world::{
     registry::BlockStateId,
     world_movement::{EntityMovementWorld, MovementRequest, resolve_world_movement},
 };
-use std::io;
 
 /// Open air: every cell is reachable and has no shape, so a scan visits all of
 /// them and the element count is the walk it performed.

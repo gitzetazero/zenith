@@ -9,8 +9,8 @@
 pub use zenith_optifine::cit::{Global, Method};
 
 use crate::cit::read_properties;
-use zenith_optifine::cit::Rule;
 use std::path::Path;
+use zenith_optifine::cit::Rule;
 
 /// The pack's global `cit.properties` under the overlay resource root: the first of
 /// `Global::PATHS` that exists, else the defaults.

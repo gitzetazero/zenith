@@ -1,5 +1,13 @@
 //! Resolve item stacks into render layers for the differential harness
 //! `tools/test_item_model_parity.py`.
+use serde_json::{Value, json};
+use std::{
+    cell::RefCell,
+    collections::BTreeMap,
+    fs::{self, File},
+    io::{BufRead, BufReader, BufWriter, Write},
+    path::{Path, PathBuf},
+};
 use zenith_assets::{
     animation::AnimationMetadata,
     item_bake::{BakedItemModel, SpriteLookup, SpriteMask, bake_item_model},
@@ -8,14 +16,6 @@ use zenith_assets::{
     model::{CuboidModel, Direction},
     palette::{PalettedPermutations, apply_palette},
     resolve::{MISSING_MODEL, ModelLibrary},
-};
-use serde_json::{Value, json};
-use std::{
-    cell::RefCell,
-    collections::BTreeMap,
-    fs::{self, File},
-    io::{BufRead, BufReader, BufWriter, Write},
-    path::{Path, PathBuf},
 };
 
 fn bits(v: f32) -> u32 {

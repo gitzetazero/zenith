@@ -20,14 +20,6 @@ use crate::{
     world::World,
 };
 use glam::{DVec3, Mat4, Quat, Vec3};
-use zenith_core::geometry::{
-    Direction,
-    trig::{self, Mth},
-};
-use zenith_world::{
-    block_render::FaceVisibility,
-    registry::{BlockRegistry, BlockStateId},
-};
 use serde_json::Value;
 use std::{
     collections::{HashMap, HashSet},
@@ -37,6 +29,14 @@ use std::{
         Arc, Mutex, PoisonError, RwLock,
         atomic::{AtomicBool, Ordering},
     },
+};
+use zenith_core::geometry::{
+    Direction,
+    trig::{self, Mth},
+};
+use zenith_world::{
+    block_render::FaceVisibility,
+    registry::{BlockRegistry, BlockStateId},
 };
 
 /// One baked `ModelPart`: initial pose, textured polygons (pixel units,

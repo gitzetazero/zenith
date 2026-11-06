@@ -5,6 +5,7 @@
 //! furnace and TNT variants, saving, and `AbstractMinecartRenderer`'s old
 //! rail-following render with the display block.
 use super::{Game, Hit, InteractTarget, Keys, entity::Entity};
+use std::{collections::HashMap, sync::Arc};
 use zenith_client::actions::Action;
 use zenith_client::entity_rules::EntityRules;
 use zenith_client::{
@@ -23,7 +24,6 @@ use zenith_core::{
     random::RandomSource,
 };
 use zenith_world::registry::BlockStateId;
-use std::{collections::HashMap, sync::Arc};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub(super) enum CartKind {

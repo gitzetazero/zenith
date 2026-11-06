@@ -9,7 +9,6 @@ use crate::{
 };
 pub mod cache;
 mod mesh;
-use zenith_world::registry::BlockStateId;
 use std::{
     collections::VecDeque,
     sync::{
@@ -19,6 +18,7 @@ use std::{
     },
     thread,
 };
+use zenith_world::registry::BlockStateId;
 
 const CELLS: usize = 16;
 const MAX_SAVED: usize = 1024;

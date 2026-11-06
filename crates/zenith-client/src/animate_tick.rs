@@ -11,6 +11,7 @@ use crate::{
     particles::{ParticleEngine, ParticleOptions, ParticleType as T, along_axis},
     world::World,
 };
+use std::{collections::BTreeMap, path::Path};
 use zenith_core::{
     geometry::Axis,
     random::{LegacyRandom, RandomSource},
@@ -20,7 +21,6 @@ use zenith_world::{
     registry::{BlockRegistry, BlockStateId},
     worldgen::tags::TagDefinitions,
 };
-use std::{collections::BTreeMap, path::Path};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Animate {

@@ -110,13 +110,13 @@ pub mod zombie_villager;
 
 use crate::{blocks::BlockFacts, mesher::Vertex, world::World};
 pub use data::MobData;
+use serde_json::Value;
+use std::{collections::HashMap, fs, path::Path, sync::Arc};
 use zenith_core::{
     geometry::{Aabb, Vec3},
     random::{LegacyRandom, RandomSource},
 };
 use zenith_world::block_collision::BlockCollisionRegistry;
-use serde_json::Value;
-use std::{collections::HashMap, fs, path::Path, sync::Arc};
 
 #[derive(Clone, Debug)]
 pub struct Polygon {
@@ -4578,8 +4578,8 @@ mod teams_tests {
 #[cfg(test)]
 pub(crate) mod sensor_scan_tests {
     use super::*;
-    use zenith_core::geometry::Vec3;
     use serde_json::json;
+    use zenith_core::geometry::Vec3;
 
     pub(crate) fn kind() -> Arc<MobType> {
         Arc::new(MobType {

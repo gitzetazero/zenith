@@ -1,133 +1,112 @@
 import json
 import os
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(__file__))
-import check_zenith_intact as ci
 import sync
-from gitutil import commit, git, new_repo, write
+from gitutil import commit, git, write
+from test_port_upstream import fork, upstream_commit
 
-HOOK = "line before\nlet x = 1; // zenith: hook\nline after\n"
-
-
-def setup():
-    """A tiny fork: `up` is Horizon (the base), main is Zenith (prunes, a hook, an own file, merge=ours)."""
-    r = new_repo()
-    write(r, ".gitattributes", "README.md merge=ours\n")
-    write(r, "README.md", "horizon readme\n")
-    write(r, "crates/engine.rs", "fn engine() {}\n")
-    write(r, "crates/hook.rs", "line before\nlet x = 1;\nline after\n")
-    write(r, "crates/zenith-server/main.rs", "fn main() {}\n")
-    members = "".join(f"    {n},\n" for f, n in ci.IDENTIFIERS if f == "Cargo.toml")
-    write(r, "Cargo.toml", "[workspace]\nmembers = [\n" + members + '    "crates/zenith-server",\n]\n')
-    needles = {}
-    for f, n in ci.IDENTIFIERS:
-        needles.setdefault(f, []).append(n)
-    for f, ns in needles.items():
-        if f not in ("Cargo.toml", ".gitattributes"):
-            write(r, f, "\n".join(ns) + "\n")
-    for f in ci.EXTRA_FILES:
-        if f not in ("README.md", ".gitattributes"):
-            write(r, f, "x\n")
-    commit(r, "horizon")
-    git(r, "branch", "up")
-    write(r, "README.md", "zenith readme\n")
-    write(r, "crates/hook.rs", HOOK)
-    write(r, "zenith/own.txt", "own\n")
-    write(r, "ci/zenith-manifest.json", "{}")
-    commit(r, "zenith")
-    git(r, "rm", "-q", "-r", "crates/zenith-server")
-    commit(r, "prune")
-    return r
+CORE = "crates__horizon-core__src__lib.rs"
 
 
-def fake_upstream(r, **files):
-    git(r, "checkout", "-q", "up")
-    for p, t in files.items():
-        if t is None:
-            git(r, "rm", "-q", p.replace("__", "/"))
-        else:
-            write(r, p.replace("__", "/"), t)
-    commit(r, "horizon news")
-    git(r, "checkout", "-q", "main")
+def with_origin(z):
+    """A bare 'GitHub' that Zenith's main was pushed to."""
+    o = tempfile.mkdtemp(prefix="origin")
+    git(o, "init", "-q", "--bare", "-b", "main")
+    git(z, "remote", "add", "origin", o)
+    git(z, "push", "-q", "origin", "main")
+    return o
 
 
-def refresh_manifest(r):
-    m = ci.build(r, "up")
-    write(r, "ci/zenith-manifest.json", json.dumps(m))
-    commit(r, "manifest")
+def tip(repo, ref="main"):
+    return git(repo, "rev-parse", ref).stdout.strip()
 
 
 class SyncTest(unittest.TestCase):
-    def go(self, r):
-        self.out = os.path.join(r, "..", os.path.basename(r) + ".out")
-        rc = sync.merge(r, "up", no_cargo=True, output=self.out)
-        return rc, dict(l.split("=", 1) for l in open(self.out, encoding="utf-8").read().splitlines())
+    def test_all_green_lands_on_main_with_a_normal_push_and_records_the_sha(self):
+        u, z, _ = fork()
+        o = with_origin(z)
+        up = upstream_commit(u, **{CORE: "pub fn core() { new(); }\n"})
+        git(z, "fetch", "-q", "upstream")
+        rc = sync.run_all(z, "upstream/main", remote=o, no_cargo=True, dry=True, gate=lambda *a: 0)
+        self.assertEqual(rc, 0)
+        self.assertEqual(tip(o), tip(z, "HEAD"))
+        self.assertEqual(git(o, "show", "main:ci/upstream-synced.txt").stdout.split()[0], up)
+        self.assertIn("new();", git(o, "show", "main:crates/zenith-core/src/lib.rs").stdout)
+        self.assertEqual(git(o, "branch", "--list", "sync/*").stdout.strip(), "")  # nothing was blocked
 
-    def test_up_to_date_is_a_cheap_exit(self):
-        r = setup()
-        refresh_manifest(r)
-        git(r, "merge", "-q", "--no-edit", "up")
-        rc, out = self.go(r)
-        self.assertEqual((rc, out["outcome"]), (0, "up-to-date"))
+    def test_failed_gate_never_touches_main_and_reports_a_branch(self):
+        u, z, _ = fork()
+        o = with_origin(z)
+        before = tip(o)
+        upstream_commit(u, **{CORE: "pub fn core() { new(); }\n"})
+        git(z, "fetch", "-q", "upstream")
+        rc = sync.run_all(z, "upstream/main", remote=o, no_cargo=True, dry=True, gate=lambda *a: 1)
+        self.assertEqual(rc, 1)
+        self.assertEqual(tip(o), before)
+        branches = git(o, "branch", "--list", "sync/*").stdout.split()
+        self.assertEqual(len(branches), 1)
+        self.assertIn("new();", git(o, "show", f"{branches[0]}:crates/zenith-core/src/lib.rs").stdout)
 
-    def test_clean_engine_change_and_pruned_and_ours_files_are_auto_resolved(self):
-        r = setup()
-        refresh_manifest(r)
-        fake_upstream(r, **{"crates__engine.rs": "fn engine() { new(); }\n", "crates__horizon-server__main.rs": "fn main() { x(); }\n",
-                                                    "README.md": "horizon readme 2\n", "docs__new.md": "new\n"})
-        rc, out = self.go(r)
-        self.assertEqual((rc, out["outcome"]), (0, "merged"))
-        self.assertEqual(len(git(r, "show", "-s", "--format=%P", "HEAD").stdout.split()), 2)  # a real merge commit
-        files = git(r, "ls-files").stdout.split()
-        self.assertNotIn("crates/zenith-server/main.rs", files)
-        self.assertIn("docs/new.md", files)
-        self.assertEqual(open(os.path.join(r, "README.md")).read(), "zenith readme\n")
-        self.assertNotIn("zenith-server", open(os.path.join(r, "Cargo.toml")).read())
+    def test_conflict_never_touches_main_and_reports_the_partial_port(self):
+        u, z, _ = fork()
+        write(z, "crates/zenith-core/src/lib.rs", "pub fn core() { /* hook */ }\n")
+        commit(z, "ours")
+        o = with_origin(z)
+        before = tip(o)
+        upstream_commit(u, **{CORE: "pub fn core() { new(); }\n"})
+        git(z, "fetch", "-q", "upstream")
+        rc = sync.run_all(z, "upstream/main", remote=o, no_cargo=True, dry=True, gate=lambda *a: self.fail("no gate on a conflict"))
+        self.assertEqual(rc, 1)
+        self.assertEqual(tip(o), before)
+        self.assertEqual(len(git(o, "branch", "--list", "sync/*").stdout.split()), 1)
 
-    def test_conflict_around_a_hook_blocks_and_leaves_main_alone(self):
-        r = setup()
-        refresh_manifest(r)
-        before = git(r, "rev-parse", "HEAD").stdout
-        fake_upstream(r, **{"crates__hook.rs": "line before\nlet x = 2;\nline after\n"})
-        rc, out = self.go(r)
-        self.assertEqual((rc, out["outcome"], out["reason"]), (sync.BLOCKED, "blocked", "conflict"))
-        self.assertIn("crates/hook.rs", out["conflicts"])
-        self.assertEqual(git(r, "rev-parse", "HEAD").stdout, before)
-        self.assertEqual(git(r, "status", "--porcelain").stdout.strip(), "")
+    def test_land_refuses_when_main_moved_and_never_forces(self):
+        u, z, _ = fork()
+        o = with_origin(z)
+        upstream_commit(u, **{CORE: "pub fn core() { new(); }\n"})
+        git(z, "fetch", "-q", "upstream")
+        import port_upstream
+        self.assertEqual(port_upstream.port(z, "upstream/main", no_cargo=True), 0)
+        other = tempfile.mkdtemp(prefix="other")  # somebody else pushes to main meanwhile
+        git(other, "clone", "-q", o, other + "/c")
+        write(other + "/c", "elsewhere.txt", "x\n")
+        commit(other + "/c", "elsewhere")
+        git(other + "/c", "push", "-q", "origin", "main")
+        moved = tip(o)
+        self.assertEqual(sync.land(z, o), sync.MOVED)
+        self.assertEqual(tip(o), moved)
 
-    def test_clean_merge_that_drops_a_marker_is_blocked_by_the_intact_check(self):
-        r = setup()
-        refresh_manifest(r)
-        git(r, "checkout", "-q", "-b", "up2")  # Horizon "adopts" our tree and then removes our hook cleanly
-        write(r, "crates/hook.rs", "line before\nline after\n")
-        commit(r, "drop hook")
-        git(r, "checkout", "-q", "main")
-        before = git(r, "rev-parse", "HEAD").stdout
-        rc = sync.merge(r, "up2", no_cargo=True)
-        self.assertEqual(rc, sync.BLOCKED)
-        self.assertEqual(git(r, "rev-parse", "HEAD").stdout, before)
+    def test_land_refuses_a_dirty_tree(self):
+        u, z, _ = fork()
+        o = with_origin(z)
+        write(z, "crates/zenith-core/src/lib.rs", "dirty\n")
+        self.assertEqual(sync.land(z, o), sync.BLOCKED)
 
-    def test_dirty_worktree_is_refused_and_left_alone(self):
-        r = setup()
-        refresh_manifest(r)
-        fake_upstream(r, **{"crates__engine.rs": "fn engine() { new(); }\n"})
-        write(r, "crates/engine.rs", "fn engine() { local(); }\n")
-        rc, out = self.go(r)
-        self.assertEqual((rc, out["reason"]), (sync.BLOCKED, "dirty-worktree"))
-        self.assertIn("local()", open(os.path.join(r, "crates/engine.rs")).read())
+    def test_up_to_date_does_nothing(self):
+        u, z, _ = fork()
+        o = with_origin(z)
+        rc = sync.run_all(z, "upstream/main", remote=o, no_cargo=True, dry=True, gate=lambda *a: self.fail("nothing to check"))
+        self.assertEqual(rc, 0)
+
+    def test_the_gate_includes_a_workspace_build_with_tests(self):
+        names = {n: c for n, c in sync.steps(False)}
+        self.assertEqual(names["cargo check workspace"], ["cargo", "check", "--workspace", "--tests", "--locked"])
+        for needed in ("ci unit tests", "check_zenith_intact", "cargo test protocol", "bridge cargo test", "launch API check"):
+            self.assertIn(needed, names)
 
     def test_release_decision(self):
-        r = setup()
-        up = git(r, "rev-parse", "up").stdout.strip()
-        git(r, "tag", "nightly-source/2026-11-05-aaaaaaa", "up")
+        u, z, base = fork()
+        git(z, "tag", "nightly-source/2026-11-05-aaaaaaa", base)
         pick = json.dumps({"tag": "nightly-source/2026-11-05-aaaaaaa", "release": "nightly"})
-        self.assertTrue(sync.covered(r, up, "nightly-source/2026-11-05-aaaaaaa"))
-        fake_upstream(r, **{"crates__engine.rs": "fn engine2() {}\n"})
-        newer = git(r, "rev-parse", "up").stdout.strip()
-        self.assertFalse(sync.covered(r, newer, "nightly-source/2026-11-05-aaaaaaa"))
-        self.assertEqual(sync.release(r, newer, pick, True), 0)  # pending: prints, dispatches nothing
+        self.assertTrue(sync.covered(z, base, "nightly-source/2026-11-05-aaaaaaa"))
+        newer = upstream_commit(u, **{CORE: "pub fn core2() {}\n"})
+        git(z, "fetch", "-q", "upstream")
+        self.assertFalse(sync.covered(z, newer, "nightly-source/2026-11-05-aaaaaaa"))
+        self.assertEqual(sync.release(z, newer, pick, True), 0)  # pending: prints, dispatches nothing
 
 
 if __name__ == "__main__":

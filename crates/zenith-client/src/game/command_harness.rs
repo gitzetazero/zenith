@@ -12,12 +12,12 @@
 //! through the nether portal it stands in; `falling` counts physical falling
 //! blocks by dimension, block and gravity.
 use super::Game;
-use zenith_client::{Result, text::Text};
 use serde_json::{Value, json};
 use std::{
     path::Path,
     time::{Duration, Instant},
 };
+use zenith_client::{Result, text::Text};
 
 /// A message as `[text, style]` runs with adjacent equal styles merged; the
 /// style lists colour, bold, italic, underlined, strikethrough, obfuscated

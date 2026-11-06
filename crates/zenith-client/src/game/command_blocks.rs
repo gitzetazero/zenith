@@ -3,6 +3,10 @@
 //! through the command system with the block's output, and
 //! `CommandBlockEditScreen` with what `handleSetCommandBlock` does with it.
 use super::{Game, Screen, commands::execute::Source, lan::LanHost};
+use winit::{
+    event::{ElementState, KeyEvent},
+    keyboard::{KeyCode, PhysicalKey},
+};
 use zenith_client::{
     chat::{ChatScreen, Commands},
     command_block::{self, CommandBlock, Mode},
@@ -20,10 +24,6 @@ use zenith_world::{
     level::flags,
     nbt::Tag,
     registry::{BlockRegistry, BlockStateId},
-};
-use winit::{
-    event::{ElementState, KeyEvent},
-    keyboard::{KeyCode, PhysicalKey},
 };
 
 type Pos = (i32, i32, i32);

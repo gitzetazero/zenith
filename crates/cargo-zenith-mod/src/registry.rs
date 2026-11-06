@@ -1,11 +1,11 @@
 //! `cargo horizon-mod registry build|review|check|list`: the registry repository's CI
 //! (`horizon-rust/horizon-mods`, docs/api/mod-index.md). Network-free: the
 //! workflow downloads the files and publishes what this writes.
+use std::path::Path;
 use zenith_mods::index::{
     FILE_HOST,
     registry::{self, Sources},
 };
-use std::path::Path;
 
 /// Where the registry's site is published (its icons).
 const SITE: &str = "https://horizon-rust.github.io/horizon-mods/";

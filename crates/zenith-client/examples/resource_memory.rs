@@ -10,17 +10,17 @@
 //! with `footprint`'s physical footprint, the number the OS charges: RSS also
 //! counts freed pages the allocator marked reusable.
 extern crate zenith_client_lib as zenith_client;
+use std::{
+    alloc::{GlobalAlloc, Layout, System},
+    sync::atomic::{AtomicUsize, Ordering::Relaxed},
+};
+use std::{path::PathBuf, process::Command};
 use zenith_client::{
     assets::Assets, biome::Biomes, blocks::BlockFacts, collisions, crafting::Recipes, items::Items,
     light::LightTables, mesher::MeshTables, models, motion::MotionResources,
     vanillagen::VanillaTerrain,
 };
 use zenith_world::loot::PackOverlay;
-use std::{
-    alloc::{GlobalAlloc, Layout, System},
-    sync::atomic::{AtomicUsize, Ordering::Relaxed},
-};
-use std::{path::PathBuf, process::Command};
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 struct Counting;

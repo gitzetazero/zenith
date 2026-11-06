@@ -3,6 +3,10 @@
 //! thread as soon as the packet arrives, so the frame that handles it in
 //! order only inserts the result (`ClientPacketListener.handleLevelChunkWithLight`).
 use super::Game;
+use std::sync::{
+    Arc,
+    mpsc::{self, TryRecvError},
+};
 use zenith_client::{
     chunk::{
         BIOME_STRATEGY, Chunk, ColumnLayout, Light, Section, block_strategy, known_blocks_only,
@@ -16,10 +20,6 @@ use zenith_protocol::{
     registry::DimensionType,
 };
 use zenith_world::attachments::Holder;
-use std::sync::{
-    Arc,
-    mpsc::{self, TryRecvError},
-};
 
 /// What turning a chunk packet into a client column depends on: the
 /// dimension's height and sky, and the server's biome registry mapped to

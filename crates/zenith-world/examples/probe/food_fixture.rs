@@ -1,11 +1,11 @@
 use crate::support::common::f32_bits;
-use zenith_world::food::{Difficulty, FoodData, FoodWorld};
 use serde_json::Value;
 use std::{
     fs,
     io::{self, Write},
     path::Path,
 };
+use zenith_world::food::{Difficulty, FoodData, FoodWorld};
 fn single(v: &Value) -> f32 {
     f32::from_bits(u32::from_str_radix(v.as_str().unwrap(), 16).unwrap())
 }

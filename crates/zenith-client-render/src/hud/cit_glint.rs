@@ -5,8 +5,8 @@
 //! vanilla's glint's is. Without enchantment rules nothing here is made.
 
 use super::HudVertex;
-use zenith_optifine::cit::{Blend, Factor, Kind, Rule};
 use std::path::Path;
+use zenith_optifine::cit::{Blend, Factor, Kind, Rule};
 
 /// Slots the shader's table holds; rules past it draw no layer (and match no stack).
 pub const MAX_SLOTS: usize = 256;

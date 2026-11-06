@@ -3,8 +3,8 @@
 //! dried ghast's hydration ticks.
 use super::{Dimension, LevelAccess, LevelEvent, Sim, update::below};
 use crate::registry::BlockStateId;
-use zenith_core::{position::BlockPos, random::RandomSource};
 use std::sync::Arc;
+use zenith_core::{position::BlockPos, random::RandomSource};
 
 /// `BlockScanUtils.findBlocks` order: sections by x, z, y; blocks by y, z, x.
 pub(crate) fn box_scan_order(min: BlockPos, max: BlockPos) -> Vec<BlockPos> {

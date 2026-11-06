@@ -7,12 +7,12 @@
 //! these never copies or loses an item. Server menus are in `native_menus.rs`;
 //! maps a mod draws in `native_send_map` below.
 use super::Game;
+use std::path::Path;
 use zenith_client::{
     items::ItemStack,
     lan::{guest::Guest, playerdata},
     save::{Level, read_dat, write_dat},
 };
-use std::path::Path;
 
 /// Which of a player's inventories (`native_inventory`).
 #[allow(dead_code)]

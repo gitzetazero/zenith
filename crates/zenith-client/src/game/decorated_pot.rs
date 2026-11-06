@@ -114,10 +114,8 @@ impl Game<'_> {
                 ("z", Tag::Int(pos[2])),
             ])
         });
-        let loot = zenith_client::structure_blocks::loot_data(
-            &self.options.resources,
-            &self.pack_files(),
-        );
+        let loot =
+            zenith_client::structure_blocks::loot_data(&self.options.resources, &self.pack_files());
         unpack_loot(
             &mut tag,
             loot.as_deref(),

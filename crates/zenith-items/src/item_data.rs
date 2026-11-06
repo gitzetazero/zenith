@@ -2,8 +2,8 @@
 //! (book) enchantments, `repair_cost`, `custom_name`, `potion_contents` and
 //! `trim`, with their NBT form in vanilla's `components` compound.
 use crate::items::ItemStack;
-use zenith_world::nbt::{JavaString, Tag};
 use std::sync::Arc;
+use zenith_world::nbt::{JavaString, Tag};
 
 /// Enchantment id and level, in insertion order.
 pub type Levels = Vec<(Arc<str>, u32)>;
@@ -986,8 +986,7 @@ pub fn decode_components(components: Option<&Tag>) -> (u32, Option<Box<StackData
         return (0, None);
     };
     // NbtOps.getNumberValue supplies a boxed number; Codec.INT truncates its value.
-    let damage =
-        zenith_world::datafix::dynamic::as_int(c.get("minecraft:damage"), 0).max(0) as u32;
+    let damage = zenith_world::datafix::dynamic::as_int(c.get("minecraft:damage"), 0).max(0) as u32;
     let potion = match c.get("minecraft:potion_contents") {
         Some(Tag::String(s)) => Some(Arc::from(s.to_string_lossy().as_str())),
         Some(t) => t

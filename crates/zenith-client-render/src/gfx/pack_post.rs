@@ -1026,8 +1026,8 @@ fn texture_entry_of(
 
 /// `blend.<program>`'s factors as wgpu's, adding both terms.
 fn blend_state(b: zenith_shaders::Blend) -> wgpu::BlendState {
-    use zenith_shaders::Factor as F;
     use wgpu::BlendFactor as W;
+    use zenith_shaders::Factor as F;
     let f = |f| match f {
         F::Zero => W::Zero,
         F::One => W::One,

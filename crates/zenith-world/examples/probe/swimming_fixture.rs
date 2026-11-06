@@ -1,11 +1,11 @@
-use zenith_core::position::BlockPos;
-use zenith_world::swimming::{self, PlayerSwimmingWorld, SwimmingWorld};
 use serde_json::Value;
 use std::{
     fs,
     io::{self, Write},
     path::Path,
 };
+use zenith_core::position::BlockPos;
+use zenith_world::swimming::{self, PlayerSwimmingWorld, SwimmingWorld};
 struct World<'a> {
     f: &'a Value,
     out: &'a mut dyn Write,

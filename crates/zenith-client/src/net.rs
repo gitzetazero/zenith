@@ -8,6 +8,17 @@
 //! encrypts the connection (ClientHandshakePacketListenerImpl.handleHello).
 use crate::auth::AuthSession;
 use crate::studio::{Metadata, RecorderStatus, StudioRecorder};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    sync::{
+        Arc, Mutex,
+        atomic::{AtomicBool, AtomicU32, Ordering},
+        mpsc::{Receiver, Sender, channel},
+    },
+    thread::JoinHandle,
+    time::Duration,
+};
 use zenith_protocol::{
     PROTOCOL_VERSION,
     buf::Reader,
@@ -20,17 +31,6 @@ use zenith_protocol::{
     text::{Language, plain, translatable},
 };
 use zenith_world::nbt::{JavaString, Tag};
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-    sync::{
-        Arc, Mutex,
-        atomic::{AtomicBool, AtomicU32, Ordering},
-        mpsc::{Receiver, Sender, channel},
-    },
-    thread::JoinHandle,
-    time::Duration,
-};
 
 /// `CommonListenerCookie.serverCookies`: cookies the server asked the client
 /// to store (`ClientboundStoreCookiePacket`), answered to
@@ -617,7 +617,9 @@ fn connect_tcp(
 /// `HORIZON_OLDER_SERVERS=0` turns it off.
 pub fn older_servers_enabled() -> bool {
     // zenith: on unless HORIZON_OLDER_SERVERS=0.
-    std::env::var_os("HORIZON_OLDER_SERVERS").is_none_or(|v| v != "0")
+    std::env::var_os("ZENITH_OLDER_SERVERS")
+        .or_else(|| std::env::var_os("HORIZON_OLDER_SERVERS"))
+        .is_none_or(|v| v != "0")
 }
 
 /// The older release a server speaks, by its status ping, when Horizon can translate it; `None` for the
@@ -1541,13 +1543,13 @@ mod tests {
 
     #[test]
     fn studio_recording_drops_packets_with_direct_player_identity_or_private_text() {
-        use zenith_protocol::packets::configuration::{
-            ResourcePackPush, ServerLink, ServerLinkKind, ServerLinks, StoreCookie, Transfer,
-        };
         use play::{
             ChatTypeBound, Clientbound as P, CustomChatCompletions, PlayerInfo, PlayerInfoRemove,
             PlayerInfoUpdate, ResetScore, SetPlayerTeam, SetScore, TrackedWaypoint, WaypointId,
             WaypointTarget,
+        };
+        use zenith_protocol::packets::configuration::{
+            ResourcePackPush, ServerLink, ServerLinkKind, ServerLinks, StoreCookie, Transfer,
         };
 
         let packets = [

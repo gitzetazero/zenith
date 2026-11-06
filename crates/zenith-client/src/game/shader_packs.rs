@@ -11,9 +11,9 @@ use zenith_client::text::Text;
 use zenith_shaders::{BlockIds, Macros, Pack, Properties, dimension_folder_named, load_post};
 
 use super::{Dim, Game};
-use zenith_client::gfx::pack_draw::EntitySpan;
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
+use zenith_client::gfx::pack_draw::EntitySpan;
 
 /// The values the player chose for pack `name`'s options (`shaderpacks/<name>.txt`).
 fn chosen_shader_options(name: &str) -> BTreeMap<String, String> {

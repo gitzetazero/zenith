@@ -6,8 +6,8 @@ presets and Undo). Vanilla's flat list is not shown by any menu; Done and Escape
 Upstream Horizon made this change itself (commit "Settings: each setting in one place, Video Settings
 opens the graphics screen"); Zenith adds the checks and brand below on top of it.
 
-![General page](docs-media/graphics-general.png)
-![Quality page](docs-media/graphics-quality.png)
+![General page](media/zenith/graphics-general.png)
+![Quality page](media/zenith/graphics-quality.png)
 
 ## Every vanilla Video Settings option
 

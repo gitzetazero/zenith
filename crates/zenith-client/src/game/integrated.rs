@@ -14,6 +14,16 @@ use super::{
     lan::{LanSettings, Owner, SyncPreload, preload_sync_data},
     world_loading::{WorldLoader, WorldRequest},
 };
+use std::{
+    net::TcpListener,
+    sync::{
+        Arc, Mutex,
+        atomic::{AtomicBool, AtomicI32, AtomicU16, AtomicU32, Ordering},
+        mpsc::{Receiver, RecvTimeoutError, Sender, channel, sync_channel},
+    },
+    thread::JoinHandle,
+    time::{Duration, Instant},
+};
 use zenith_client::level_loading::{STATUS_RADIUS, Stage};
 use zenith_client::spans::startup;
 use zenith_client::{
@@ -25,16 +35,6 @@ use zenith_client::{
 };
 use zenith_protocol::connection::Pipe;
 use zenith_protocol::{crypto::offline_uuid, text::translatable};
-use std::{
-    net::TcpListener,
-    sync::{
-        Arc, Mutex,
-        atomic::{AtomicBool, AtomicI32, AtomicU16, AtomicU32, Ordering},
-        mpsc::{Receiver, RecvTimeoutError, Sender, channel, sync_channel},
-    },
-    thread::JoinHandle,
-    time::{Duration, Instant},
-};
 
 /// How long the window waits for the server thread to answer a `call`.
 const CALL_TIMEOUT: Duration = Duration::from_secs(10);
@@ -419,13 +419,13 @@ impl Game<'_> {
                 Arc::new(OwnerProfile::new(move || {
                     zenith_client::skins::fetch_own_properties(id)
                         .into_iter()
-                        .map(|(name, value, signature)| {
-                            zenith_protocol::packets::login::Property {
+                        .map(
+                            |(name, value, signature)| zenith_protocol::packets::login::Property {
                                 name,
                                 value,
                                 signature,
-                            }
-                        })
+                            },
+                        )
                         .collect()
                 }))
             }),
@@ -645,10 +645,8 @@ impl Game<'_> {
             *at = now;
         }
         for _ in 0..steps {
-            self.loading_progress = zenith_client::level_loading::smooth(
-                self.loading_progress,
-                view.server_progress(),
-            );
+            self.loading_progress =
+                zenith_client::level_loading::smooth(self.loading_progress, view.server_progress());
         }
     }
 
@@ -990,9 +988,7 @@ impl Game<'_> {
                         conn,
                         &zenith_protocol::packets::play::Clientbound::SystemChat(
                             zenith_protocol::packets::play::SystemChat {
-                                content: zenith_client::lan::data::component_nbt(
-                                    &line.component(),
-                                ),
+                                content: zenith_client::lan::data::component_nbt(&line.component()),
                                 overlay: false,
                             },
                         ),

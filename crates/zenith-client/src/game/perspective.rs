@@ -3,6 +3,11 @@
 //! `getMaxZoom`), and the local player drawn as a model: in third person
 //! and in the inventory (`InventoryScreen.extractEntityInInventoryFollowsMouse`).
 use super::{Game, Screen, native_mob_draw::NativePlayerRender, shoulders::shoulder_variants};
+use std::{
+    io,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+};
 use zenith_client::{
     blocks::BlockFacts,
     camera::{CameraEntity, LivingCamera},
@@ -23,11 +28,6 @@ use zenith_world::{
     entity_obstruction::EntityIdentity,
     registry::BlockStateId,
     world_ray::{RayBlockMode, RayFluidMode, RayWorld, clip_world},
-};
-use std::{
-    io,
-    path::{Path, PathBuf},
-    sync::{Arc, Mutex},
 };
 
 /// `Level.clip` with `ClipContext.Block.VISUAL` and no fluids:

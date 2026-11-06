@@ -3,9 +3,9 @@
 //! server or goes over the network, so the window's game runs it as it follows
 //! a server.
 use super::{Mob, MobEvent, Species, bee};
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::random::RandomSource;
-use std::f32::consts::PI;
 
 /// `Enderman.aiStep`, `Endermite.aiStep` and `Blaze.aiStep` on a client:
 /// two portal particles a tick around endermen and endermites; two large

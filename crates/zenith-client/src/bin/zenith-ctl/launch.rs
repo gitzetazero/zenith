@@ -10,8 +10,8 @@ use std::{
     time::{Duration, Instant},
 };
 
-use zenith_client::logging::{data_dir, game_home};
 use serde_json::{Value, json};
+use zenith_client::logging::{data_dir, game_home};
 
 #[cfg(windows)]
 const CLIENT: &str = "zenith.exe";

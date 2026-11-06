@@ -1,4 +1,3 @@
-use zenith_world::java_hash_map::{CursorError, JavaHashMap, JavaKey};
 use serde_json::Value;
 use std::{
     cmp::Ordering,
@@ -6,6 +5,7 @@ use std::{
     io::{self, Write},
     path::Path,
 };
+use zenith_world::java_hash_map::{CursorError, JavaHashMap, JavaKey};
 #[derive(Clone, Eq, PartialEq)]
 struct Key {
     id: usize,

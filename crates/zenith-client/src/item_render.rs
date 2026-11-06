@@ -19,6 +19,13 @@ use crate::{
     mesher::{CULL_BACK, Vertex},
 };
 use glam::{Mat3, Mat4, Vec3};
+use serde_json::Value;
+use std::{
+    collections::{BTreeMap, HashMap},
+    fs,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+};
 use zenith_assets::{
     animation::AnimationMetadata,
     item_bake::{BakedItemModel, SpriteLookup, SpriteMask, bake_item_model},
@@ -31,13 +38,6 @@ use zenith_assets::{
     resolve::{MISSING_MODEL, ModelLibrary},
 };
 use zenith_world::nbt::Tag;
-use serde_json::Value;
-use std::{
-    collections::{BTreeMap, HashMap},
-    fs,
-    path::{Path, PathBuf},
-    sync::{Arc, Mutex},
-};
 
 /// One quad as submitted for drawing: pose-space corners, atlas UVs, the
 /// transformed unit normal, ARGB colour (tint, `-1` white) and its glint.

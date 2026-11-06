@@ -12,13 +12,13 @@ use super::{
         NativeRecipeStack as RecipeStack, NativeRecipes as Recipes,
     },
 };
+use std::{collections::HashMap, sync::Arc};
 use zenith_client::{
     crafting::{Ingredient, recipe_id},
     items::ItemStack,
     recipe_book::{Category, Display},
     stations::Smithing,
 };
-use std::{collections::HashMap, sync::Arc};
 
 /// The tables, made once, and the recipe book's known displays with the
 /// book's version they are of.

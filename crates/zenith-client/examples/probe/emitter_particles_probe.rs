@@ -2,13 +2,13 @@
 //! Runs tools/test_emitter_particles_parity.py's emitters through
 //! `particles::on_block_faces`, `particles::along_axis` and
 //! `particles::item_use_particles`.
-use zenith_client::{Result, particles};
-use zenith_core::random::{LegacyRandom, RandomSource};
 use serde_json::Value;
 use std::{
     fs::File,
     io::{BufRead, BufReader, BufWriter, Write},
 };
+use zenith_client::{Result, particles};
+use zenith_core::random::{LegacyRandom, RandomSource};
 
 fn d(v: f64) -> String {
     format!("{:016x}", v.to_bits())

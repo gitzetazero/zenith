@@ -11,12 +11,12 @@
 //! module is the pure part: which key does what, the tab order, the slider
 //! rules. `pad_menu.rs` applies it in the game (it shares the controller's
 //! focus), `startup_menu.rs` on the title shown while resources load.
+use winit::keyboard::KeyCode;
 use zenith_client::{
     gamepad::{self, Button, Rect},
     hud::{HudAtlas, HudBatch, rgba},
     widgets::{self, Kind, Target},
 };
-use winit::keyboard::KeyCode;
 
 /// A navigation key, as `Screen.keyPressed` and the widgets read it.
 #[derive(Clone, Copy, Debug, PartialEq)]

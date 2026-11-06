@@ -6,12 +6,12 @@ use super::{
     anim::{Poses, State},
     keyframes::Animation,
 };
+use std::collections::HashMap;
 use zenith_core::{
     geometry::{Aabb, Vec3},
     jmath,
     random::RandomSource,
 };
-use std::collections::HashMap;
 
 // `variant3` is the pose, `variant` the pose the animations last saw,
 // `vector[2]` `soundTick`. AnimState states: idle, shoot, slide, slide back,

@@ -4,13 +4,13 @@
 //! workers do the work; chunks behind the band unload and are saved as any
 //! chunk the players leave.
 use super::{CommandError, Context, Dim, Game, R};
+use std::time::{Duration, Instant};
 use zenith_client::{
     lan::data::component_nbt,
     pregen::{Pregen, Shape},
     text::{self, Text},
 };
 use zenith_protocol::packets::play::{self, Clientbound as C};
-use std::time::{Duration, Instant};
 
 /// How often the progress is reported.
 const REPORT_EVERY: Duration = Duration::from_secs(5);

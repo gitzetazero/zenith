@@ -18,9 +18,6 @@
 use super::event_loop::EventLoopCtl;
 use super::input_trace::{InputOrigin, TraceEvent, TraceKind};
 use super::{Game, Screen};
-use zenith_client::{Result, gamepad::Button, keybinds, text::Text, title::world_management};
-use zenith_core::geometry::Vec3;
-use zenith_telemetry::scrub::Scrubber;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{
@@ -36,6 +33,9 @@ use winit::{
     event::{DeviceId, ElementState, MouseScrollDelta, TouchPhase, WindowEvent},
     window::WindowId,
 };
+use zenith_client::{Result, gamepad::Button, keybinds, text::Text, title::world_management};
+use zenith_core::geometry::Vec3;
+use zenith_telemetry::scrub::Scrubber;
 
 pub(super) const HELP: &[&str] = &[
     "record-start [NAME] [--no-world]  record input, state and the world for a bug repro",

@@ -4,12 +4,12 @@ use crate::{
     compression::invalid,
     registry::BlockStateId,
 };
-use zenith_core::geometry::{ShapeOp, VoxelShape};
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap},
     io,
     sync::Arc,
 };
+use zenith_core::geometry::{ShapeOp, VoxelShape};
 
 #[derive(Clone, Copy, Debug)]
 pub enum SuffocationDefinition {

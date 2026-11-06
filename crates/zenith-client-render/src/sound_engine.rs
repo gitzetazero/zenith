@@ -10,11 +10,11 @@
 //! sound thread keeps up between ticks); a channel's own end is reported by the
 //! backend through `stopped`.
 use crate::sound_events::{INTENTIONALLY_EMPTY, Sentinel, Sound, SoundRegistry};
-use zenith_core::random::LegacyRandom;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
+use zenith_core::random::LegacyRandom;
 
 /// `SoundSource` indices (vanilla order).
 pub const MASTER: usize = 0;

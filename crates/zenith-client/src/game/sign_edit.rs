@@ -6,6 +6,10 @@ use super::{
     commands::{Target, execute::Source},
     lan::LanHost,
 };
+use winit::{
+    event::{ElementState, KeyEvent},
+    keyboard::{KeyCode, PhysicalKey},
+};
 use zenith_client::{
     containers::BlockEntity,
     hud::{HudBatch, rgba},
@@ -14,10 +18,6 @@ use zenith_client::{
     ui::EditBox,
 };
 use zenith_protocol::packets::play::{self, Clientbound as C, Serverbound as S};
-use winit::{
-    event::{ElementState, KeyEvent},
-    keyboard::{KeyCode, PhysicalKey},
-};
 
 pub(super) struct SignEditor {
     pub pos: (i32, i32, i32),
@@ -190,8 +190,8 @@ impl Game<'_> {
     fn sign_click_actions_disabled(&mut self) {
         const KEY: &str = "sign.click_actions_disabled";
         if self.lan_acting.is_some() {
-            let message = zenith_client::text::Text::translate(KEY, &[])
-                .with_color(zenith_client::text::RED);
+            let message =
+                zenith_client::text::Text::translate(KEY, &[]).with_color(zenith_client::text::RED);
             self.guest_packets.push(C::SystemChat(play::SystemChat {
                 content: zenith_client::lan::data::component_nbt(&message.component()),
                 overlay: true,

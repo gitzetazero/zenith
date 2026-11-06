@@ -5,11 +5,11 @@ use super::{
     stronghold::orient_box,
 };
 use crate::registry::BlockStateId;
+use std::sync::Mutex;
 use zenith_core::{
     geometry::Direction,
     random::{LegacyRandom, RandomSource},
 };
-use std::sync::Mutex;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Kind {

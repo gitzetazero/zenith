@@ -1,8 +1,8 @@
 //! Real Game raid creation/wave dispatch with a loaded claimed-bed precondition.
 use super::super::{Audio, Game, Options, Progress, Settings, load_resources};
+use std::sync::Arc;
 use zenith_client::{chunk::Chunk, mobs::Mob, raid::Status};
 use zenith_core::{geometry::Vec3, position::ChunkPos};
-use std::sync::Arc;
 
 #[test]
 #[ignore = "needs prepared resources in HORIZON_TEST_RESOURCES"]

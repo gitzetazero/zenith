@@ -1,15 +1,15 @@
 //! Commands from the control socket (`zenith-ctl`), run on the game thread.
 use super::event_loop::EventLoopCtl;
 use super::{Game, Screen};
-use zenith_client::held::Source;
-use zenith_client::{Result, items::ItemStack};
-use zenith_core::geometry::Vec3;
 use serde_json::{Value, json};
 use std::{
     sync::mpsc::Sender,
     time::{Duration, Instant},
 };
 use winit::{event::MouseButton, keyboard::KeyCode};
+use zenith_client::held::Source;
+use zenith_client::{Result, items::ItemStack};
+use zenith_core::geometry::Vec3;
 
 /// The control protocol's version (`docs/api/stability.md`): before 1.0 an
 /// addition makes the next patch and a breaking change the next line.

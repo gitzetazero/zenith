@@ -1,7 +1,7 @@
 //! Native support tests over an already-selected block support shape. Selecting
 //! that shape from block/world/entity behavior is the caller's responsibility.
-use zenith_core::geometry::{Aabb, Direction, ShapeError, ShapeOp, Vec3, VoxelShape};
 use std::sync::OnceLock;
+use zenith_core::geometry::{Aabb, Direction, ShapeError, ShapeOp, Vec3, VoxelShape};
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SupportType {
     Full,

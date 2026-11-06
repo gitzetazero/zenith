@@ -2,8 +2,8 @@
 use super::{PlacementContext, PlacementError, PlacementModifier, PlacementQueryError};
 use crate::worldgen::anchor::WorldGenerationContext;
 use crate::{heightmap::HeightmapType, worldgen::feature_sort::FeatureIdentity};
-use zenith_core::random::{InvalidBound, RandomSource};
 use std::cell::Cell;
+use zenith_core::random::{InvalidBound, RandomSource};
 
 struct Queries<'a, C> {
     world: &'a mut C,

@@ -1,7 +1,7 @@
 //! Preparing Horizon's resources from the Minecraft files XMCL already downloaded.
 
 use crate::args::LaunchArgs;
-use crate::play::{Stream, hide_console, pump, tool};
+use crate::play::{Stream, hide_console, preparer, pump, tool};
 use serde_json::Value;
 use sha1::{Digest, Sha1};
 use std::path::{Path, PathBuf};
@@ -9,7 +9,7 @@ use std::process::{Command, Stdio};
 
 /// The Minecraft version the build's preparer is pinned to (`zenith-prepare --launch-api`).
 pub fn pinned_minecraft(build: &Path) -> Result<String, String> {
-    let mut cmd = Command::new(tool(build, "zenith-prepare"));
+    let mut cmd = Command::new(preparer(build));
     let out = hide_console(cmd.arg("--launch-api"))
         .stdin(Stdio::null())
         .output()
@@ -24,7 +24,7 @@ pub fn pinned_minecraft(build: &Path) -> Result<String, String> {
 }
 
 pub fn check_cmd(build: &Path, prepared: &Path) -> Command {
-    let mut c = Command::new(tool(build, "zenith-prepare"));
+    let mut c = Command::new(preparer(build));
     c.arg("--check").arg("--output").arg(prepared);
     c
 }
@@ -41,7 +41,7 @@ pub fn prepare_cmd(
 ) -> Command {
     let mc = a.minecraft_root();
     let v = &a.version;
-    let mut c = Command::new(tool(build, "zenith-prepare"));
+    let mut c = Command::new(preparer(build));
     c.arg("--prepare")
         .arg("--root")
         .arg(work)
@@ -176,10 +176,17 @@ pub fn make_work(build: &Path, work: &Path) -> Result<(), String> {
     }
     let _ = std::fs::remove_dir_all(work);
     std::fs::create_dir_all(work).map_err(|e| e.to_string())?;
-    let skip: Vec<PathBuf> = ["zenith", "zenith-client", "zenith-prepare", "zenith-ctl"]
-        .iter()
-        .map(|n| tool(Path::new(""), n))
-        .collect();
+    let skip: Vec<PathBuf> = [
+        "zenith",
+        "zenith-prepare",
+        "zenith-ctl",
+        "horizon-client",
+        "horizon-prepare",
+        "horizon-ctl",
+    ]
+    .iter()
+    .map(|n| tool(Path::new(""), n))
+    .collect();
     for e in std::fs::read_dir(build)
         .map_err(|e| e.to_string())?
         .flatten()

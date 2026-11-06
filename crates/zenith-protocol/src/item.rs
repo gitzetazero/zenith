@@ -6,8 +6,8 @@ use crate::{
     adapter::ids,
     buf::{Codec, Reader, Writer, pack_block_pos, unpack_block_pos},
 };
-use zenith_world::nbt::Tag;
 use std::sync::Arc;
+use zenith_world::nbt::Tag;
 
 #[doc(hidden)]
 pub mod custom;

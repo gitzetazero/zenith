@@ -1,9 +1,9 @@
-use zenith_world::{chunk_status::ChunkStatus, nbt::Tag, worldgen::terrain::PreLightChunkStage};
 use serde_json::Value;
 use std::{
     fs,
     io::{self, Write},
 };
+use zenith_world::{chunk_status::ChunkStatus, nbt::Tag, worldgen::terrain::PreLightChunkStage};
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = crate::args().collect();
     let mut out = io::BufWriter::new(fs::File::create(&args[2])?);

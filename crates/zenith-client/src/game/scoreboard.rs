@@ -3,6 +3,7 @@
 //! entities, the selector options `scores=`, `team=` and `tag=`, the
 //! commands' [`Env`] and the sidebar.
 use super::{Game, chat::PLAYER_NAME, commands::Target};
+use std::collections::{HashMap, HashSet};
 use zenith_client::actions::Action;
 use zenith_client::{
     command::{
@@ -19,7 +20,6 @@ use zenith_client::{
     text::Text,
 };
 use zenith_world::nbt::Tag;
-use std::collections::{HashMap, HashSet};
 
 /// What `ServerPlayer` last recorded for the criteria that follow the player.
 #[derive(Default)]
@@ -117,8 +117,7 @@ impl Game<'_> {
         {
             self.score.board = Scoreboard::unpack(data);
         }
-        self.score.storage =
-            zenith_client::command_storage::CommandStorage::load(&self.world_root);
+        self.score.storage = zenith_client::command_storage::CommandStorage::load(&self.world_root);
         // ServerLevel.getWorldBorder: each dimension's data/minecraft/world_border.dat. Horizon
         // keeps one border, so the overworld's file stands for it; the root file is what
         // older Horizon builds wrote.
@@ -994,16 +993,16 @@ impl Env for GameEnv<'_, '_> {
 #[cfg(test)]
 mod tab_list_tests {
     use super::*;
-    use zenith_client::{
-        lan::{Joined, PlayerSender},
-        tab_list,
-    };
-    use zenith_protocol::packets::configuration::ClientInformation;
     use std::sync::{
         Arc,
         atomic::{AtomicI32, Ordering},
         mpsc,
     };
+    use zenith_client::{
+        lan::{Joined, PlayerSender},
+        tab_list,
+    };
+    use zenith_protocol::packets::configuration::ClientInformation;
 
     fn guest(uuid: u128, name: &str) -> Guest {
         let (tx, _rx) = mpsc::channel();

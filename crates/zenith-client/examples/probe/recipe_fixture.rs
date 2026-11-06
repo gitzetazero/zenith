@@ -3,6 +3,7 @@
 //! per command in the oracle's format.
 //!
 //! usage: recipe_fixture RESOURCES INPUT OUTPUT
+use std::{fs, path::Path};
 use zenith_client::{
     crafting::Recipes,
     enchant::Enchantments,
@@ -11,7 +12,6 @@ use zenith_client::{
     stations::StationRecipes,
 };
 use zenith_world::loot::PackOverlay;
-use std::{fs, path::Path};
 
 pub fn main() -> zenith_client::Result<()> {
     let args: Vec<String> = crate::args().collect();

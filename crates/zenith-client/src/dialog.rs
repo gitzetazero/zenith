@@ -2,8 +2,8 @@
 //! decodes from a `show_dialog` packet, the values its inputs hold, and the
 //! click event an action makes of them (`Action.createAction`).
 use crate::text::Text;
-use zenith_world::nbt::Tag;
 use serde_json::{Value, json};
+use zenith_world::nbt::Tag;
 
 /// `CommonDialogData` and the type's own fields.
 #[derive(Clone, Debug)]

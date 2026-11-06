@@ -1,11 +1,11 @@
 //! Exercise the actual registered leave-block goal and Game event handler.
 use super::{Audio, Game, Options, Progress, Settings, load_resources};
+use std::sync::Arc;
 use zenith_client::{
     chunk::Chunk,
     mobs::{Mob, MobEvent, goals::Cx},
 };
 use zenith_core::{geometry::Vec3, position::ChunkPos, random::LegacyRandom};
-use std::sync::Arc;
 
 #[test]
 #[ignore = "needs prepared resources in HORIZON_TEST_RESOURCES"]

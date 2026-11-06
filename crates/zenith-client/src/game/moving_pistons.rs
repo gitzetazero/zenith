@@ -40,11 +40,7 @@ impl Game<'_> {
             let from = if placed {
                 at
             } else {
-                zenith_core::position::BlockPos::new(
-                    p[0] - step[0],
-                    p[1] - step[1],
-                    p[2] - step[2],
-                )
+                zenith_core::position::BlockPos::new(p[0] - step[0], p[1] - step[1], p[2] - step[2])
             };
             let offset = piston.interpolated_offset(partial);
             let corner = glam::DVec3::new(f64::from(p[0]), f64::from(p[1]), f64::from(p[2]));

@@ -3,16 +3,16 @@
 //! pack) and the tags of every registry, loaded from the prepared resources
 //! (`data/minecraft/...`) and the registries report.
 use crate::chunk::LevelShapes;
-use zenith_protocol::{
-    packets::configuration::{RegistryData, RegistryEntry, RegistryTags, TagEntry, UpdateTags},
-    registry::{Builtin, Dynamic},
-};
-use zenith_world::nbt::{JavaString, Tag};
 use serde_json::Value;
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     path::{Path, PathBuf},
 };
+use zenith_protocol::{
+    packets::configuration::{RegistryData, RegistryEntry, RegistryTags, TagEntry, UpdateTags},
+    registry::{Builtin, Dynamic},
+};
+use zenith_world::nbt::{JavaString, Tag};
 
 /// RegistryDataLoader.SYNCHRONIZED_REGISTRIES, in vanilla's order.
 pub const SYNCHRONIZED: &[&str] = &[

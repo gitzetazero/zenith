@@ -1,4 +1,12 @@
 use crate::support::common::tag;
+use serde_json::Value;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    io::{self, Write},
+    path::Path,
+    sync::Arc,
+};
 use zenith_core::random::{LegacyRandom, RandomSource, WorldgenRandom, XoroshiroRandom};
 use zenith_world::{
     DATA_VERSION,
@@ -18,14 +26,6 @@ use zenith_world::{
         state_provider::{StateProviderBindings, StateProviderCatalog},
         tags::TagDefinitions,
     },
-};
-use serde_json::Value;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    fs,
-    io::{self, Write},
-    path::Path,
-    sync::Arc,
 };
 struct World<'a, W> {
     support: &'a BlockSupportRegistry<'a>,
@@ -94,10 +94,7 @@ impl<W: Write> DynamicCollisionWorld for World<'_, W> {
     }
 }
 impl<W: Write> SurvivalWorld for World<'_, W> {
-    fn fluid_state(
-        &mut self,
-        p: [i32; 3],
-    ) -> Result<zenith_world::fluid::FluidState, Self::Error> {
+    fn fluid_state(&mut self, p: [i32; 3]) -> Result<zenith_world::fluid::FluidState, Self::Error> {
         self.query(&format!("fluid {} {} {}", p[0], p[1], p[2]), 0)?;
         zenith_world::fluid::FluidState::from_block(
             self.support.registry().state(self.fallback).unwrap(),

@@ -18,14 +18,14 @@
 //! new geometry.
 
 use super::{Mob, MobType, Part, Polygon, Species};
-use zenith_optifine::cem::{
-    files::{atlas_name, jem_files, load_jem},
-    model::{Bone, EntityModel, MAX_BYTES},
-};
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap},
     path::Path,
     sync::Arc,
+};
+use zenith_optifine::cem::{
+    files::{atlas_name, jem_files, load_jem},
+    model::{Bone, EntityModel, MAX_BYTES},
 };
 
 /// The CEM models of the enabled packs, by model layer (`zombie#main`).

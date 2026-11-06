@@ -1,8 +1,8 @@
 //! A PROXY protocol line counts only from the load balancers in `proxy_from`.
-use zenith_relay::{Config, Net, Relay};
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
+use zenith_relay::{Config, Net, Relay};
 
 fn whoami(proxy_from: &str) -> String {
     let (_relay, address, _) = Relay::spawn_local(Config {

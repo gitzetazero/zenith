@@ -5,6 +5,10 @@
 //!     cargo run -p zenith-protocol --example protocol_probe -- 127.0.0.1:25565 [seconds] [registries.json]
 //!
 //! Append `--server-protocol 772` to exercise the experimental adapter against a vanilla 1.21.8 server.
+use std::{
+    collections::BTreeMap,
+    time::{Duration, Instant},
+};
 use zenith_protocol::{
     PROTOCOL_VERSION, State,
     buf::{Reader, Writer},
@@ -13,10 +17,6 @@ use zenith_protocol::{
     packets::{Empty, configuration as cfg, handshake, login, play},
     registry::{Builtin, Dynamic, ceil_log2},
     servers::parse_address,
-};
-use std::{
-    collections::BTreeMap,
-    time::{Duration, Instant},
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

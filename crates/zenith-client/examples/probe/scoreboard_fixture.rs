@@ -6,6 +6,8 @@
 //! case's vanilla NBT and packs it again (`vreload`).
 //!
 //! usage: scoreboard_fixture REGISTRIES.json INPUTS OUTPUT [VANILLA_OUTPUT]
+use serde_json::{Map, Value, json};
+use std::{collections::BTreeMap, fs, io::Write};
 use zenith_client::{
     command::Registries,
     scoreboard::{
@@ -14,8 +16,6 @@ use zenith_client::{
     },
 };
 use zenith_world::nbt::{self, NamedTag, Tag};
-use serde_json::{Map, Value, json};
-use std::{collections::BTreeMap, fs, io::Write};
 
 fn canon(tag: &Tag) -> Value {
     match tag {

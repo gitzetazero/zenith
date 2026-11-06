@@ -1,3 +1,10 @@
+use serde_json::Value;
+use std::{
+    cmp::Ordering,
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 use zenith_world::{
     active_effects::{ActiveEffects, EffectHooks},
     effect_notifications::{
@@ -7,13 +14,6 @@ use zenith_world::{
     java_hash_map::JavaKey,
     object_open_set::{CursorError, ObjectKey, ObjectOpenSet},
     status_effect::{BlendState, Details, EffectInstance},
-};
-use serde_json::Value;
-use std::{
-    cmp::Ordering,
-    fs,
-    io::{self, Write},
-    path::Path,
 };
 #[derive(Clone)]
 struct Key {

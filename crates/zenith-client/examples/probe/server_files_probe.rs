@@ -2,6 +2,7 @@
 //! directory the way VanillaServerFilesOracle does (server.properties,
 //! eula.txt, the four user lists and scripted list changes) and prints the
 //! same report. `server_files_probe CASES OUTPUT`.
+use std::{fmt::Write as _, path::Path};
 use zenith_client::server::{
     eula,
     java_properties::now_millis,
@@ -9,7 +10,6 @@ use zenith_client::server::{
     user_lists::{BanEntry, BanList, IpBanList, NameAndId, OpEntry, OpList, WhiteEntry, WhiteList},
 };
 use zenith_protocol::crypto::uuid_string;
-use std::{fmt::Write as _, path::Path};
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = crate::args().skip(1);

@@ -1,7 +1,6 @@
 //! Original synthetic capability regression; no game resources or player world.
 //! Run with fresh HORIZON_HOME, HORIZON_LAUNCHER_HOME, XDG_DATA_HOME and XDG_CONFIG_HOME,
 //! HORIZON_NO_AUDIO=1 and HORIZON_LAUNCHER_NO_SELF_UPDATE=1.
-use zenith_client_render::{gfx::Renderer, graphics::GraphicsApi};
 use std::{io::Write, sync::Arc};
 use winit::{
     application::ApplicationHandler,
@@ -9,6 +8,7 @@ use winit::{
     event_loop::{ActiveEventLoop, EventLoop},
     window::{Window, WindowId},
 };
+use zenith_client_render::{gfx::Renderer, graphics::GraphicsApi};
 
 const VERTEX: &str = "#version 120\nvoid main() { gl_Position = ftransform(); }\n";
 const COLOUR: &str = "#version 120\nvoid main() { gl_FragColor = vec4(1.0); }\n";
@@ -134,13 +134,8 @@ fn fixture(window: Arc<Window>) -> Result<(), Box<dyn std::error::Error>> {
             let mut macros = zenith_shaders::Macros::standard();
             renderer.define_pack_macros(&mut macros);
             let (properties, _) = zenith_shaders::read_properties(&pack, &mut macros);
-            let mut post = zenith_shaders::load_post(
-                &pack,
-                "",
-                &properties,
-                &macros,
-                &renderer.pack_inputs(),
-            );
+            let mut post =
+                zenith_shaders::load_post(&pack, "", &properties, &macros, &renderer.pack_inputs());
             if name == "failed-translation" {
                 assert!(post.shadow_entities.is_none());
                 assert!(post.notes.iter().any(|note| note.contains("skipped")));

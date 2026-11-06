@@ -6,11 +6,11 @@ use crate::{
     nbt::Tag,
     registry::{BlockRegistry, BlockStateId, BlockTable},
 };
-use zenith_core::position::BlockPos;
 use std::{
     collections::{BTreeMap, BTreeSet},
     fmt, io,
 };
+use zenith_core::position::BlockPos;
 
 #[derive(Clone, Copy, Debug)]
 pub struct MovementCoefficients {

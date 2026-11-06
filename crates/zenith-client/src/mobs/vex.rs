@@ -9,9 +9,9 @@ use super::{
         Cx, Float, Goal, HurtByTarget, LookAtPlayer, MOVE, NearestTarget, goal_clone, reduced,
     },
 };
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::{geometry::Vec3, random::RandomSource};
-use std::f32::consts::PI;
 
 // Vex state: `flag` charging, `counter2` the owner's mob id (0 none),
 // `home` the bound origin, `egg_time` the life left (-1 unlimited).

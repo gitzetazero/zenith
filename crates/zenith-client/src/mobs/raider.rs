@@ -793,8 +793,8 @@ mod tests {
     #[test]
     fn a_celebrating_raider_does_not_jump_while_riding() {
         use crate::mobs::world::with_test_world;
-        use zenith_core::random::LegacyRandom;
         use std::sync::Arc;
+        use zenith_core::random::LegacyRandom;
         let _ = with_test_world(&[], |w, _| {
             let jumped = |seed: i64, riding: bool| {
                 let mut k = (*crate::mobs::sensor_scan_tests::kind()).clone();

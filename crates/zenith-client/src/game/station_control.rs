@@ -1,8 +1,8 @@
 //! Control-socket commands for menus and item components, so scripts can
 //! drive the workstation screens (`zenith-ctl click-slot 600`, ...).
 use super::{Game, Screen};
-use zenith_client::{Result, items::ItemStack};
 use serde_json::{Value, json};
+use zenith_client::{Result, items::ItemStack};
 
 pub(super) const HELP: &[&str] = &[
     "xp LEVELS                      add (or remove) experience levels",

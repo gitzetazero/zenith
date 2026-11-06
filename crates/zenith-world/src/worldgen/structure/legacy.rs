@@ -16,12 +16,12 @@ use crate::{
         placement::{PlacementContext, PlacementQueryError},
     },
 };
+use std::sync::{Arc, Mutex};
 use zenith_core::{
     geometry::Direction,
     position::{BlockPos, ChunkPos},
     random::{LegacyRandom, RandomSource, position_seed},
 };
-use std::sync::{Arc, Mutex};
 
 pub type Result<T> = std::result::Result<T, PlacementQueryError>;
 /// Data markers of a placed template: (metadata, absolute position).

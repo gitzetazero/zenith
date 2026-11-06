@@ -14,8 +14,8 @@ use crate::{
     java_hash_map::{JavaHashMap, JavaKey},
     registry::BlockStateId,
 };
-use zenith_core::{geometry::Direction, position::BlockPos, random::RandomSource};
 use std::cmp::Ordering;
+use zenith_core::{geometry::Direction, position::BlockPos, random::RandomSource};
 
 /// `PistonMovingBlockEntity` state, owned by [`Ticks::moving_pistons`].
 #[derive(Clone, Copy, Debug, PartialEq)]

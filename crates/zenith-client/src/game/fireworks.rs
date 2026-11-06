@@ -876,8 +876,7 @@ mod tests {
         );
         assert_eq!(snap.source, 6, "SoundSource.NEUTRAL");
         assert_eq!(snap.except_entity, None, "vanilla excludes no player");
-        let (packet, range) =
-            zenith_client::lan::containers::captured_sound_packet(snap, None, 42);
+        let (packet, range) = zenith_client::lan::containers::captured_sound_packet(snap, None, 42);
         let zenith_protocol::packets::play::Clientbound::SoundEntity(packet) = packet else {
             panic!("a firework lead snap must use the entity-bound packet");
         };

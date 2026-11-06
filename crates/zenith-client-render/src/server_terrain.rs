@@ -17,6 +17,10 @@ use crate::{
     lod::{Column, Span, Spans, Surface, state_kinds, summarize},
     streaming::{LodDetail, LodSampler, LodSource},
 };
+use std::{
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+};
 use zenith_core::position::ChunkPos;
 use zenith_world::{
     DATA_VERSION,
@@ -24,10 +28,6 @@ use zenith_world::{
     nbt::{Limits, NamedTag, Tag},
     region::{ChunkRecord, RegionFile},
     registry::BlockStateId,
-};
-use std::{
-    path::{Path, PathBuf},
-    sync::{Arc, Mutex},
 };
 
 /// Bumped when the summary layout changes; older records are ignored.

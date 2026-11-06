@@ -1,8 +1,8 @@
+use serde_json::{Map, Value, json};
 use zenith_world::{
     item_defaults, loot,
     native_load_hooks::{self, NativeLoadHooks},
 };
-use serde_json::{Map, Value, json};
 
 #[test]
 fn load_hooks_are_noops_before_install_and_use_first_callbacks_after() {

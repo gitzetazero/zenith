@@ -1,10 +1,10 @@
-use zenith_world::damage_immunity::{self, DamageRule, ImmunityTag, ImmunityWorld};
 use serde_json::Value;
 use std::{
     fs,
     io::{self, Write},
     path::Path,
 };
+use zenith_world::damage_immunity::{self, DamageRule, ImmunityTag, ImmunityWorld};
 struct Env<'a> {
     f: &'a Value,
     out: &'a mut dyn Write,

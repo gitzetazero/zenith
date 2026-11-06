@@ -5,6 +5,8 @@
 //! in the oracle's JSON form.
 //!
 //! usage: recipe_book_render_fixture RESOURCES CASES OUTPUT
+use serde_json::{Value, json};
+use std::{fmt::Write as _, fs, path::Path};
 use zenith_client::{
     crafting::Recipes,
     hud::{HudAtlas, HudBatch},
@@ -17,8 +19,6 @@ use zenith_client::{
     },
 };
 use zenith_world::loot::PackOverlay;
-use serde_json::{Value, json};
-use std::{fmt::Write as _, fs, path::Path};
 
 fn runs(r: &[Run]) -> Value {
     Value::Array(

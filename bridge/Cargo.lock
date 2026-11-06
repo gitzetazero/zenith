@@ -146,14 +146,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 
 [[package]]
-name = "horizon-release-sign"
-version = "0.1.0"
-dependencies = [
- "base64",
- "ring",
-]
-
-[[package]]
 name = "icu_collections"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -702,11 +694,19 @@ dependencies = [
 name = "zenith-bridge"
 version = "0.1.0"
 dependencies = [
- "horizon-release-sign",
  "serde_json",
  "sha1",
  "ureq",
+ "zenith-release-sign",
  "zip",
+]
+
+[[package]]
+name = "zenith-release-sign"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "ring",
 ]
 
 [[package]]

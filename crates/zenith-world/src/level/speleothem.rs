@@ -223,12 +223,11 @@ impl<L: LevelAccess + ?Sized> Sim<'_, L> {
         match b.collision_shape(state) {
             None => true,
             Some(shape) => {
-                let column = zenith_core::geometry::VoxelShape::from_box(
-                    zenith_core::geometry::Aabb::new(
+                let column =
+                    zenith_core::geometry::VoxelShape::from_box(zenith_core::geometry::Aabb::new(
                         zenith_core::geometry::Vec3::new(0.375, 0.0, 0.375),
                         zenith_core::geometry::Vec3::new(0.625, 1.0, 0.625),
-                    ),
-                );
+                    ));
                 column.is_ok_and(|column| {
                     !column
                         .join_is_not_empty(shape, zenith_core::geometry::ShapeOp::AND)

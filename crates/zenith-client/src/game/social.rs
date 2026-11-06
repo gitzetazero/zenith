@@ -4,16 +4,16 @@
 //! `social_screen`. Blocking is Mojang's service (`UserApiService.isBlockedPlayer`), which
 //! Horizon does not offer: nobody is blocked, as in vanilla's offline mode.
 use super::{Game, Screen};
+use std::collections::{HashMap, HashSet};
+use winit::{
+    event::{ElementState, KeyEvent},
+    keyboard::{KeyCode, PhysicalKey},
+};
 use zenith_client::{
     social_screen::{self, Action, Entry, Page, SocialView},
     tab_list::TabPlayer,
     text::Text,
     ui::EditBox,
-};
-use std::collections::{HashMap, HashSet};
-use winit::{
-    event::{ElementState, KeyEvent},
-    keyboard::{KeyCode, PhysicalKey},
 };
 
 /// `PlayerSocialManager.hiddenPlayers` and the screen's state.

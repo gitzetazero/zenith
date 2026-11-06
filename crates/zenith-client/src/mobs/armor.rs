@@ -1,7 +1,7 @@
 //! Effective mob armor and toughness at the damage boundary.
 use super::{Mob, Species};
-use zenith_world::attributes::{Definition, Instance, Observer, entity::EntityAttributes};
 use std::convert::Infallible;
+use zenith_world::attributes::{Definition, Instance, Observer, entity::EntityAttributes};
 
 struct Calculation;
 impl Observer for Calculation {
@@ -69,9 +69,9 @@ pub fn values(mob: &Mob) -> (f32, f32) {
 mod tests {
     use super::*;
     use crate::mobs::{Damage, DamageKind};
+    use std::sync::Arc;
     use zenith_core::geometry::Vec3;
     use zenith_world::attributes::entity::Catalog;
-    use std::sync::Arc;
 
     fn pig(armor: f64, toughness: f64) -> Mob {
         let bits = |v: f64| format!("{:016x}", v.to_bits());

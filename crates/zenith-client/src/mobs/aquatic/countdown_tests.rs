@@ -1,6 +1,6 @@
 use super::*;
-use zenith_core::random::LegacyRandom;
 use std::sync::Arc;
+use zenith_core::random::LegacyRandom;
 
 #[test]
 #[ignore = "requires prepared vanilla resources in .local/zenith-client"]

@@ -5,6 +5,7 @@ use super::{
     menu::{self, Menu, NativeMenuEvent, Rules, Slots, View},
 };
 use crate::{containers::BlockEntity, items::ItemStack, world::World};
+use std::collections::HashMap;
 use zenith_core::random::RandomSource;
 use zenith_protocol::{
     item::Hashed,
@@ -14,7 +15,6 @@ use zenith_protocol::{
     },
 };
 use zenith_world::nbt::Tag;
-use std::collections::HashMap;
 
 /// Encode a captured level sound and its broadcast radius without a live hub.
 /// Entity-bound events use the entity packet; ordinary level sounds retain

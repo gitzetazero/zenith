@@ -5,12 +5,12 @@
 //! that draws a dot per waypoint within 60 degrees of the view, with an
 //! arrow when it is above or below the screen.
 use crate::hud_layout::{Blend, GuiDraw};
+use std::{borrow::Cow, collections::HashMap, fs, path::Path};
 use zenith_assets::animation::{AnimationClip, AnimationMetadata};
 use zenith_core::geometry::trig;
 use zenith_protocol::packets::play::{
     TrackedWaypoint, WaypointId, WaypointTarget, waypoint_operation,
 };
-use std::{borrow::Cow, collections::HashMap, fs, path::Path};
 
 /// `WaypointStyle`: the sprites (under `hud/locator_bar_dot/`) from near to far.
 #[derive(Clone, Debug, PartialEq)]

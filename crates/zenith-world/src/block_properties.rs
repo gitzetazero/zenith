@@ -7,12 +7,12 @@ use crate::{
     nbt::Tag,
     registry::{BlockRegistry, BlockStateId, BlockTable},
 };
-use zenith_core::geometry::{Direction, ShapeError, ShapeOp, VoxelShape};
 use std::{
     collections::{BTreeMap, HashMap},
     io,
     sync::Arc,
 };
+use zenith_core::geometry::{Direction, ShapeError, ShapeOp, VoxelShape};
 
 #[derive(Clone, Copy, Debug)]
 pub struct BlockDefinitionProperties {

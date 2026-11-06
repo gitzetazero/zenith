@@ -102,8 +102,7 @@ impl Game<'_> {
     /// The block above `key` is a redstone conductor.
     fn conductor_above(&self, key: (i32, i32, i32)) -> bool {
         let above = self.world.block(key.0, key.1 + 1, key.2);
-        self.res.behaviours().facts(above).flags
-            & zenith_world::level::data::state_flags::CONDUCTOR
+        self.res.behaviours().facts(above).flags & zenith_world::level::data::state_flags::CONDUCTOR
             != 0
     }
     /// `ChestBlock.isChestBlockedAt`: a redstone conductor above the chest or

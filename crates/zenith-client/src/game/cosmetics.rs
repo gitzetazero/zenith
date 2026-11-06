@@ -10,6 +10,10 @@
 mod fx;
 
 use super::Game;
+use std::cell::{Cell, RefCell};
+use std::sync::Arc;
+use std::sync::mpsc::{Receiver, channel};
+use std::time::{Duration, Instant};
 use zenith_client::fast_hash::FxHashMap;
 use zenith_client::mesher::Vertex;
 use zenith_client::mobs::anim::Poses;
@@ -18,10 +22,6 @@ use zenith_cosmetics::follow::Follow;
 use zenith_cosmetics::prefs::{self, Others};
 use zenith_cosmetics::trail::{Budget, Emitter};
 use zenith_cosmetics::{Item, Slot};
-use std::cell::{Cell, RefCell};
-use std::sync::Arc;
-use std::sync::mpsc::{Receiver, channel};
-use std::time::{Duration, Instant};
 
 /// An item as the renderer takes it.
 struct Baked {
@@ -945,8 +945,8 @@ impl Game<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_client::extras::Extras;
     use std::sync::Mutex;
+    use zenith_client::extras::Extras;
 
     /// A name tag style with a 1×1 mark.
     const TAG: &str = r##"{"format": 1, "id": "tag", "slot": "name_tag", "parts": [],

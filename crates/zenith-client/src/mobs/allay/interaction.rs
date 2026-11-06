@@ -63,8 +63,8 @@ pub fn predict(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     fn allay() -> Mob {
         let mut kind = crate::mobs::sensor_scan_tests::kind();

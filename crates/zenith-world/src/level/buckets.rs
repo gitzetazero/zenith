@@ -9,8 +9,8 @@ use crate::{
     fluid::{FluidKind, FluidState},
     registry::BlockStateId,
 };
-use zenith_core::{position::BlockPos, random::RandomSource};
 use std::sync::Arc;
+use zenith_core::{position::BlockPos, random::RandomSource};
 
 /// What a filled bucket empties into the world.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

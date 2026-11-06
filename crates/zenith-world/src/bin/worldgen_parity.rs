@@ -1,4 +1,5 @@
 //! Original transport for version-specific JSON decoding comparisons.
+use std::io::{self, BufRead, Write};
 use zenith_core::{
     density::{
         SamplerContext,
@@ -13,7 +14,6 @@ use zenith_world::worldgen::{
     density::DensityRegistry,
     router::{NoiseRouter, RouterField},
 };
-use std::io::{self, BufRead, Write};
 
 fn bits(value: f32) -> u32 {
     if value.is_nan() {
@@ -340,11 +340,11 @@ fn settings_probe(
     Ok(())
 }
 fn aquifer_probe(line: &str, out: &mut impl Write) -> Result<(), Box<dyn std::error::Error>> {
+    use std::sync::atomic::{AtomicUsize, Ordering};
     use zenith_world::{
         registry::BlockStateId,
         worldgen::aquifer::{DisabledAquifer, FluidPicker, FluidStatus, GlobalFluidPicker},
     };
-    use std::sync::atomic::{AtomicUsize, Ordering};
     #[derive(Debug)]
     struct Counted {
         picker: GlobalFluidPicker,
@@ -388,6 +388,7 @@ fn aquifer_probe(line: &str, out: &mut impl Write) -> Result<(), Box<dyn std::er
     Ok(())
 }
 fn noise_aquifer_probe(line: &str, out: &mut impl Write) -> Result<(), Box<dyn std::error::Error>> {
+    use std::sync::{Arc, Mutex};
     use zenith_core::{
         density::{ConstantSampler, DensitySampler, SampleError},
         random::PositionalRandom,
@@ -399,7 +400,6 @@ fn noise_aquifer_probe(line: &str, out: &mut impl Write) -> Result<(), Box<dyn s
             FluidStatus, GlobalFluidPicker, NoiseBasedAquifer,
         },
     };
-    use std::sync::{Arc, Mutex};
     #[derive(Debug)]
     struct Traced {
         sampler: Arc<dyn DensitySampler>,
@@ -849,11 +849,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             write!(out, "quantized")?;
             for _ in 0..6 {
                 let value = f32::from_bits(u32::from_str_radix(values.next().ok_or("float")?, 16)?);
-                write!(
-                    out,
-                    " {}",
-                    zenith_world::worldgen::climate::quantize(value)
-                )?;
+                write!(out, " {}", zenith_world::worldgen::climate::quantize(value))?;
             }
             writeln!(out)?;
             let value = values.next().ok_or("long")?.parse::<i64>()?;

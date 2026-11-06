@@ -21,15 +21,15 @@ use crate::{
         weighted::WeightedList,
     },
 };
-use zenith_core::{
-    density::{Beardifier, JigsawJunction, RigidPiece, StructureBounds, TerrainAdjustment},
-    position::{BlockPos, ChunkPos},
-    random::{LegacyRandom, PositionalRandom, RandomSource, WorldgenRandom},
-};
 use serde_json::{Value, value::RawValue};
 use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
+};
+use zenith_core::{
+    density::{Beardifier, JigsawJunction, RigidPiece, StructureBounds, TerrainAdjustment},
+    position::{BlockPos, ChunkPos},
+    random::{LegacyRandom, PositionalRandom, RandomSource, WorldgenRandom},
 };
 
 pub const STEPS: [&str; 11] = [

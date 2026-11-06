@@ -480,8 +480,7 @@ mod tests {
 
     #[test]
     fn tcp_refuses_a_wrong_token() {
-        let path =
-            std::env::temp_dir().join(format!("zenith-ctl-bad-{}.json", std::process::id()));
+        let path = std::env::temp_dir().join(format!("zenith-ctl-bad-{}.json", std::process::id()));
         let _server = Server::start(&path).unwrap();
         let (port, _) = read_endpoint(&path).unwrap();
         let mut stream = TcpStream::connect((Ipv4Addr::LOCALHOST, port)).unwrap();

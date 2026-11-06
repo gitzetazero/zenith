@@ -16,6 +16,16 @@
 //! meshes (vertices and visibility) shows that an A/B pair of builds made the
 //! same ones.
 extern crate zenith_client_lib as zenith_client;
+use std::{
+    hash::{DefaultHasher, Hash, Hasher},
+    path::PathBuf,
+    sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    },
+    thread,
+    time::{Duration, Instant},
+};
 use zenith_client::{
     assets::Assets,
     biome::Biomes,
@@ -32,16 +42,6 @@ use zenith_client::{
 };
 use zenith_core::biome::{BiomeZoom, obfuscate_seed};
 use zenith_world::registry::BlockStateId;
-use std::{
-    hash::{DefaultHasher, Hash, Hasher},
-    path::PathBuf,
-    sync::{
-        Arc,
-        atomic::{AtomicUsize, Ordering},
-    },
-    thread,
-    time::{Duration, Instant},
-};
 
 type Error = Box<dyn std::error::Error>;
 

@@ -6,13 +6,13 @@
 //!   `[timestamp_ms: u32 big-endian][packet_length: u32 big-endian][packet_data: VarInt(packet_id) + payload]`
 //! - Optional `markers.json`: timeline markers/chapters.
 
-use zenith_protocol::buf::{Reader, write_varint};
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{self, File, OpenOptions},
     io::{self, BufReader, BufWriter, Read, Write},
     path::{Path, PathBuf},
 };
+use zenith_protocol::buf::{Reader, write_varint};
 
 /// The most `metaData.json` may inflate to: real files are a few hundred bytes.
 const MAX_METADATA_BYTES: u64 = 1 << 20;

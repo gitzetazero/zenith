@@ -4,11 +4,11 @@
 //! it charges).
 use crate::first_person::SwingAnimation;
 use glam::{Mat4, Vec3};
+use std::f32::consts::PI;
 use zenith_core::{
     geometry::{Aabb, Vec3 as Vec3d, trig::Mth},
     jmath::pow,
 };
-use std::f32::consts::PI;
 
 /// `KineticWeapon.Condition`.
 #[derive(Clone, Copy, Debug)]

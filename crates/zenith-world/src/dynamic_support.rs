@@ -1,12 +1,12 @@
 //! Uncached support-shape selection. Block entities are queried through snapshots;
 //! their lifecycle and active moving-piston collision generation are separate.
 use crate::{block_support::SupportType, chunk::BlockState, compression::invalid};
+use std::{io, sync::OnceLock};
 use zenith_core::{
     geometry::{Aabb, Direction, ShapeError, ShapeOp, Vec3, VoxelShape},
     position::BlockPos,
     random::position_seed,
 };
-use std::{io, sync::OnceLock};
 
 pub trait DynamicSupportWorld {
     type Error;

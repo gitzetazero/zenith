@@ -4,17 +4,17 @@
 //! hotbar, health, mount hearts, experience bar and level) and the
 //! overlays handled in `kinds`.
 #![forbid(unsafe_code)]
-use zenith_client::{
-    hud::{HudAtlas, HudBatch},
-    hud_layout::{self, GuiDraw, HealthHud, HealthInputs, HeartKind, HotbarInputs, IDENTITY, Pose},
-    lang,
-    text::Text,
-};
 use serde_json::{Value, json};
 use std::{
     fs,
     io::{BufWriter, Write},
     path::PathBuf,
+};
+use zenith_client::{
+    hud::{HudAtlas, HudBatch},
+    hud_layout::{self, GuiDraw, HealthHud, HealthInputs, HeartKind, HotbarInputs, IDENTITY, Pose},
+    lang,
+    text::Text,
 };
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 #[path = "hud_fixture/kinds.rs"]

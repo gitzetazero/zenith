@@ -17,17 +17,17 @@ use super::{
     creaking::CreakingState, dragon, fireworks, lan::LanHost, lightning, machines, minecarts,
     ominous_item_spawner, persist, raids::Raiding, sculk::SculkState, tnt, trident,
 };
+use std::{
+    collections::HashMap,
+    sync::Arc,
+    time::{Duration, Instant},
+};
 use zenith_client::{
     Result, block_entity_anim::BlockEntityAnims, random_tick_sections::RandomTickSections,
     save::SaveDir, streaming::Streaming, tick_chunk_membership::TickChunkMembership,
     ticket_levels::ChunkTickets, vanillagen::VanillaTerrain, world::World,
 };
 use zenith_world::level::{LevelEvent, Ticks};
-use std::{
-    collections::HashMap,
-    sync::Arc,
-    time::{Duration, Instant},
-};
 
 /// Server ticks a level other than the Overworld stays loaded with no player
 /// in it, before it is saved and closed (vanilla unloads a level's chunks

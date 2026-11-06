@@ -12,8 +12,8 @@ use super::{
     nav::NavKind,
 };
 use crate::blocks::Fluid;
-use zenith_core::{geometry::Vec3, random::RandomSource};
 use std::collections::HashMap;
+use zenith_core::{geometry::Vec3, random::RandomSource};
 
 // Nautilus state: `tame`/`owner`, the saddle, `head` the body armour,
 // `variant` the zombie's variant (0 temperate, 1 warm), `anim_ticks` the

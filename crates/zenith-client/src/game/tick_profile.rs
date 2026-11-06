@@ -2,11 +2,11 @@
 //! a report records, one tick in [`SAMPLE_EVERY`] times every mob's own tick and adds it up by
 //! level and mob type. Off, a mob costs one thread-local read; sampled, two clock reads and a
 //! map update. A mob's riders tick inside its own tick, so they count for it.
-use zenith_client::{fast_hash::FxHashMap, mobs::MobType};
 use std::{
     cell::{Cell, RefCell},
     time::Instant,
 };
+use zenith_client::{fast_hash::FxHashMap, mobs::MobType};
 
 /// One server tick in this many is sampled while a report records.
 pub(super) const SAMPLE_EVERY: usize = 4;

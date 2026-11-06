@@ -2,6 +2,12 @@
 //! `VanillaPortalOracle` cases (an entity in a nether portal, the destination
 //! level's terrain and portals) through `zenith_world::level::portal_travel`
 //! and prints the same result text.
+use serde_json::Value;
+use std::{
+    collections::HashMap,
+    io::{BufRead, Write},
+    path::Path,
+};
 use zenith_core::{
     geometry::{Axis, Vec3},
     position::BlockPos,
@@ -17,12 +23,6 @@ use zenith_world::{
         },
     },
     registry::BlockStateId,
-};
-use serde_json::Value;
-use std::{
-    collections::HashMap,
-    io::{BufRead, Write},
-    path::Path,
 };
 
 struct Cells {

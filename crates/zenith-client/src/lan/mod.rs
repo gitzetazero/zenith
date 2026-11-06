@@ -37,11 +37,6 @@ pub mod tracking;
 pub mod waypoints;
 
 pub use conn::{Holding, PlayerSender, flush_all};
-use zenith_protocol::packets::play;
-use zenith_protocol::{
-    GAME_VERSION, PROTOCOL_VERSION, crypto::uuid_string, packets::configuration::ClientInformation,
-    text::translatable,
-};
 use std::{
     collections::HashMap,
     io,
@@ -53,6 +48,11 @@ use std::{
     },
     thread::JoinHandle,
     time::{Duration, Instant},
+};
+use zenith_protocol::packets::play;
+use zenith_protocol::{
+    GAME_VERSION, PROTOCOL_VERSION, crypto::uuid_string, packets::configuration::ClientInformation,
+    text::translatable,
 };
 
 /// IntegratedServer.MAX_PLAYERS.

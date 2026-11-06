@@ -6,12 +6,12 @@
 
 use super::chunks::ChunkEncoder;
 use crate::{biome::Biomes, fast_hash::FxHashMap, save::SaveDir};
-use zenith_world::registry::BlockRegistry;
 use std::{
     collections::VecDeque,
     sync::{Arc, Mutex, mpsc},
     time::{Duration, Instant},
 };
+use zenith_world::registry::BlockRegistry;
 
 /// Saved chunks being read at once, all players together.
 const ASKED: usize = 32;

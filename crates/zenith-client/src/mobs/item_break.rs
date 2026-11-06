@@ -73,8 +73,8 @@ impl Mob {
 mod tests {
     use super::*;
     use crate::mobs::Species;
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     fn mob(id: &str, species: Species) -> Mob {
         let mut kind = crate::mobs::sensor_scan_tests::kind();

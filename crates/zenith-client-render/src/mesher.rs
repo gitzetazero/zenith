@@ -17,6 +17,10 @@ use crate::{
     graphics::LeafCullingMode,
     models::catalog::BakedFace,
 };
+#[cfg(test)]
+pub(crate) use sides::sort_tinted;
+pub use sides::{Part, Sides, group_parts};
+use std::sync::Arc;
 use zenith_assets::model::Direction as ModelDirection;
 use zenith_core::{
     biome::BiomeZoom, geometry::Direction, position::BlockPos, random::position_seed,
@@ -27,10 +31,6 @@ use zenith_world::{
     fluid::{FluidKind, FluidState},
     registry::BlockStateId,
 };
-#[cfg(test)]
-pub(crate) use sides::sort_tinted;
-pub use sides::{Part, Sides, group_parts};
-use std::sync::Arc;
 
 /// An entity, item and effect vertex (the entity pipelines), with a face
 /// normal for `entity.wgsl`'s directional light.

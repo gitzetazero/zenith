@@ -1894,11 +1894,11 @@ mod initial_history_tests {
         values: &FrameUniforms,
         vertex: &str,
     ) -> [u8; 4] {
+        use std::io::Write;
+        use wgpu::util::DeviceExt;
         use zenith_shaders::{
             GbuffersInputs, Macros, Pack, Target, preprocess, translate_gbuffers,
         };
-        use std::io::Write;
-        use wgpu::util::DeviceExt;
         let mut zip = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
         for (path, source) in [
             ("shaders/gbuffers_line.vsh", vertex),

@@ -21,12 +21,12 @@
 //! `sound_variant` the index in the species' sound variant registry.
 use super::{Mob, Species, farm::Climate, gear, spawning::LocalDifficulty};
 use crate::{enchant::Enchantments, items::Items};
+use serde_json::Value;
+use std::{fs, path::Path, sync::Arc};
 use zenith_core::{
     geometry::Aabb,
     random::{LegacyRandom, RandomSource},
 };
-use serde_json::Value;
-use std::{fs, path::Path, sync::Arc};
 
 /// `EntitySpawnReason`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

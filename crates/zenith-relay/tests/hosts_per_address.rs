@@ -1,11 +1,11 @@
 //! One client address can't take every host slot by registering and
 //! holding its control connections open.
-use zenith_friends::wire::{self, ErrorCode, FromRelay, ToRelay};
-use zenith_relay::{Config, Relay, limits::Rates};
 use std::{
     net::{SocketAddr, TcpStream},
     time::{Duration, Instant},
 };
+use zenith_friends::wire::{self, ErrorCode, FromRelay, ToRelay};
+use zenith_relay::{Config, Relay, limits::Rates};
 
 /// Register as a host: the open control connection, or the refusal.
 fn register(relay: SocketAddr) -> Result<TcpStream, ErrorCode> {

@@ -8,6 +8,7 @@ use super::{
     Dim, Game, Hand, InteractTarget, dispenser, entity_culling::EntityCullDecision,
     native_mob_draw::NativePlayerRender, native_projectiles::Impact, view_vector,
 };
+use std::sync::Arc;
 use zenith_assets::item_model::DisplayContext;
 use zenith_client::actions::Action;
 use zenith_client::{
@@ -36,7 +37,6 @@ use zenith_core::{
     position::BlockPos,
     random::RandomSource,
 };
-use std::sync::Arc;
 
 /// `AbstractArrow.onHitEntity` when `hurtOrSimulate` returned false.
 /// An enderman that teleported (`projectileReceivesSideEffectsOnHit` is
@@ -643,8 +643,7 @@ impl Game<'_> {
         };
         if broke {
             // LivingEntity.onEquippedItemBroken through the level's broadcast.
-            let event =
-                zenith_client::mobs::item_break::equipment_break_event(EquipmentSlot::Body);
+            let event = zenith_client::mobs::item_break::equipment_break_event(EquipmentSlot::Body);
             self.lan_entity_event(id as i32, event, at);
         }
     }
@@ -1643,10 +1642,9 @@ impl Game<'_> {
     ) {
         use zenith_client::mobs::{DamageKind, Who, drops};
         use zenith_world::loot::{LootDamage, LootEntity};
-        let Some(loot) = zenith_client::structure_blocks::loot_data(
-            &self.options.resources,
-            &self.pack_files(),
-        ) else {
+        let Some(loot) =
+            zenith_client::structure_blocks::loot_data(&self.options.resources, &self.pack_files())
+        else {
             return;
         };
         let player = || killer.clone();
@@ -1906,10 +1904,8 @@ impl Game<'_> {
     fn drop_gift_loot(&mut self, mob: u32, table: &'static str, at: [f64; 3]) -> bool {
         use zenith_client::mobs::drops;
         use zenith_world::loot::EntityLootParams;
-        let loot = zenith_client::structure_blocks::loot_data(
-            &self.options.resources,
-            &self.pack_files(),
-        );
+        let loot =
+            zenith_client::structure_blocks::loot_data(&self.options.resources, &self.pack_files());
         let this = self
             .mobs
             .iter()

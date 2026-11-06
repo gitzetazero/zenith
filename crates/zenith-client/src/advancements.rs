@@ -2,13 +2,13 @@
 //! progress (`PlayerAdvancements`) and the predicates criteria test
 //! (`EntityPredicate`, `ItemPredicate`, `LocationPredicate`, the loot
 //! conditions advancements use).
-use zenith_world::lazy_json::LazyJson;
 use serde_json::Value;
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap},
     path::{Path, PathBuf},
     sync::{Arc, Mutex, Weak},
 };
+use zenith_world::lazy_json::LazyJson;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Frame {
@@ -184,8 +184,7 @@ impl Tree {
         // the prepared data file, and read once while a load holds the folder.
         let mut json: BTreeMap<String, Value> = BTreeMap::new();
         for ns in namespaces.flatten() {
-            let Ok(folder) = zenith_world::json_folder::read(&ns.path().join("advancement"))
-            else {
+            let Ok(folder) = zenith_world::json_folder::read(&ns.path().join("advancement")) else {
                 continue;
             };
             let ns = ns.file_name().to_string_lossy().into_owned();

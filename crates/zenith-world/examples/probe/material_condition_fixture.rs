@@ -1,4 +1,12 @@
 //! Original comparison transport for material conditions and cache behavior.
+use serde_json::Value;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    io::{self, Write},
+    path::Path,
+    sync::{Arc, Mutex},
+};
 use zenith_core::{
     density::{ConstantSampler, DensitySampler, SampleError, SamplerContext},
     noise::{DensityVolume, NanRange, Noise},
@@ -22,14 +30,6 @@ use zenith_world::{
     DATA_VERSION,
     nbt::Tag,
     registry::{BlockRegistry, BlockStateId, BlockStateJsonCodec},
-};
-use serde_json::Value;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    fs,
-    io::{self, Write},
-    path::Path,
-    sync::{Arc, Mutex},
 };
 // Canonicalize numeric values as double bits, avoiding differences in JSON
 // number formatting while preserving every encoded int32/double value.

@@ -1,12 +1,12 @@
-use zenith_core::position::{BlockPos, ChunkPos};
-use zenith_world::{
-    block_entities::{ProtoBlockEntities, position_from_tag},
-    nbt::Tag,
-};
 use std::{
     fs,
     io::{self, BufRead, Write},
     str::SplitWhitespace,
+};
+use zenith_core::position::{BlockPos, ChunkPos};
+use zenith_world::{
+    block_entities::{ProtoBlockEntities, position_from_tag},
+    nbt::Tag,
 };
 struct Input<'a>(SplitWhitespace<'a>);
 impl Input<'_> {

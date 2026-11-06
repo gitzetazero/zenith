@@ -48,11 +48,9 @@ fn pack() -> Post {
              }\n    uint u = floatBitsToUint(c[p.x % 4]);\n\
              gl_FragColor = vec4(uvec4(u >> 24u, u >> 16u, u >> 8u, u) & 255u) / 255.0;\n}\n",
     );
-    let pack = zenith_shaders::Pack::from_zip_bytes(
-        "original-packed",
-        zip.finish().unwrap().into_inner(),
-    )
-    .unwrap();
+    let pack =
+        zenith_shaders::Pack::from_zip_bytes("original-packed", zip.finish().unwrap().into_inner())
+            .unwrap();
     let mut macros = zenith_shaders::Macros::standard();
     let (properties, _) = zenith_shaders::read_properties(&pack, &mut macros);
     let post = zenith_shaders::load_post(&pack, "", &properties, &macros, &Default::default());

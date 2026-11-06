@@ -328,9 +328,9 @@ mod tests {
     #[test]
     fn a_trader_does_not_drink_in_the_end() {
         use crate::mobs::world::with_test_world;
+        use std::sync::Arc;
         use zenith_core::geometry::Vec3;
         use zenith_core::random::LegacyRandom;
-        use std::sync::Arc;
         let _ = with_test_world(&[], |w, types| {
             let kind = Arc::new(types.types["minecraft:wandering_trader"].clone());
             let mut m = Mob::new(1, kind, Vec3::new(0.5, 80.0, 0.5), 0.0);

@@ -12,9 +12,9 @@ use super::{
     nav::NavKind,
     path::PathType,
 };
+use std::f32::consts::PI;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::{geometry::Vec3, random::RandomSource};
-use std::f32::consts::PI;
 
 // Guardian state: `flag` an active beam target (DATA_ID_ATTACK_TARGET),
 // `flag2` moving (DATA_ID_MOVING), `counter2` the client attack time.
@@ -365,8 +365,8 @@ pub fn elder_server_ai_step(m: &mut Mob, cx: &mut Cx) {
 mod elder_home_tests {
     use super::*;
     use crate::mobs::world::with_test_world;
-    use zenith_core::random::LegacyRandom;
     use std::sync::Arc;
+    use zenith_core::random::LegacyRandom;
 
     /// `ElderGuardian.customServerAiStep`: with no home yet, `setHomeTo(blockPosition(), 16)`,
     /// the restriction its wandering goals read (`Mob::restricted`); a home it has is kept.

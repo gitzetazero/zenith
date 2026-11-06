@@ -1,7 +1,7 @@
 //! Climate coordinates derived from the six terrain-router climate fields.
+use std::sync::Arc;
 use zenith_core::density::{DensitySampler, SampleError, SamplerContext};
 use zenith_core::noise::DensityVolume;
-use std::sync::Arc;
 mod codec;
 mod index;
 pub use codec::{decode_parameter, decode_parameter_point};

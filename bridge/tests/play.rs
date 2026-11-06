@@ -116,6 +116,9 @@ fn client_cmd_env() {
     let a = args("C:/g", "C:/x/assets", &[]);
     let e = env_of(&client_cmd(Path::new("B"), &a, Path::new("P")));
     for (k, v) in [
+        ("ZENITH_TELEMETRY_URL", "off"),
+        ("ZENITH_NO_HEARTBEAT", "1"),
+        ("ZENITH_COSMETICS", "0"),
         ("HORIZON_TELEMETRY_URL", "off"),
         ("HORIZON_NO_HEARTBEAT", "1"),
         ("HORIZON_COSMETICS", "0"),
@@ -234,7 +237,7 @@ fn fx(name: &str, behavior: Value, extra: &[&str]) -> Fx {
     let build = home.join("builds/test");
     std::fs::create_dir_all(&build).unwrap();
     std::fs::write(home.join("current.txt"), "test").unwrap();
-    for tool in ["zenith-client", "zenith-prepare"] {
+    for tool in ["zenith", "zenith-prepare"] {
         let dest = build.join(format!("{tool}{}", std::env::consts::EXE_SUFFIX));
         std::fs::copy(fake_exe(), dest).unwrap();
     }
@@ -337,7 +340,7 @@ fn first_run_prepares_then_starts_the_game() {
         .expect("prepared");
     assert!(has_flag(prep, "--complete"));
     assert!(f.home.join("server-jars/26.3.jar").is_file());
-    let client = recs.iter().find(|r| r["tool"] == "zenith-client").unwrap();
+    let client = recs.iter().find(|r| r["tool"] == "zenith").unwrap();
     let session: Value = serde_json::from_str(client["stdin"].as_str().unwrap()).unwrap();
     assert_eq!(session["name"], "Alex");
     assert_eq!(session["access_token"], TOKEN);
@@ -416,7 +419,7 @@ fn wrong_minecraft_version_is_refused() {
     assert!(
         !f.records()
             .iter()
-            .any(|r| has_flag(r, "--prepare") || r["tool"] == "zenith-client")
+            .any(|r| has_flag(r, "--prepare") || r["tool"] == "zenith")
     );
 }
 
@@ -445,7 +448,7 @@ fn failed_preparation_does_not_start_the_game() {
     );
     assert_eq!(f.run(owner), 1);
     assert!(f.errors.borrow()[0].contains("boom"), "{:?}", f.errors);
-    assert!(!f.records().iter().any(|r| r["tool"] == "zenith-client"));
+    assert!(!f.records().iter().any(|r| r["tool"] == "zenith"));
 }
 
 #[test]
@@ -560,7 +563,7 @@ fn unreachable_owner_check_with_recent_cache_proceeds() {
         .as_secs();
     std::fs::write(f.home.join("owners.json"), format!("{{\"abc\":{now}}}")).unwrap();
     assert_eq!(f.run(|| OwnerCheck::Unreachable("offline".into())), 0);
-    assert!(f.records().iter().any(|r| r["tool"] == "zenith-client"));
+    assert!(f.records().iter().any(|r| r["tool"] == "zenith"));
 }
 
 #[cfg(windows)]

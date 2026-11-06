@@ -1,6 +1,8 @@
 //! Compare the old two-parse loading path with catalog construction from shared facts.
 //! Run: cargo run -p zenith-client --profile fast --example model_states_bench -- 15
 extern crate zenith_client_lib as zenith_client;
+use serde_json::{Value, json};
+use std::{collections::BTreeMap, fs, hint::black_box, path::PathBuf, time::Instant};
 use zenith_client::{Result, models::StateModels, sprites::Sprites};
 use zenith_core::position::BlockPos;
 use zenith_world::{
@@ -9,8 +11,6 @@ use zenith_world::{
     nbt::Tag,
     registry::{BlockRegistry, BlockStateId},
 };
-use serde_json::{Value, json};
-use std::{collections::BTreeMap, fs, hint::black_box, path::PathBuf, time::Instant};
 
 struct Fixture {
     root: PathBuf,

@@ -19,14 +19,14 @@ use crate::{
     blocks::BlockFacts,
     chunk::{Chunk, ColumnLayout, Light, Section, index},
 };
-use zenith_core::geometry::{Direction, ShapeOp, VoxelShape};
-use zenith_world::registry::{BlockRegistry, BlockStateId};
 use std::{
     cell::RefCell,
     collections::{HashMap, VecDeque},
     path::Path,
     sync::Arc,
 };
+use zenith_core::geometry::{Direction, ShapeOp, VoxelShape};
+use zenith_world::registry::{BlockRegistry, BlockStateId};
 
 const W: usize = 48;
 /// Face ID 0: empty occlusion face; 1: the full square.

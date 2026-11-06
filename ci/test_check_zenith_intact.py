@@ -24,7 +24,7 @@ class IntactTest(unittest.TestCase):
         for f, needles in NEEDLES.items():
             write(r, f, "\n".join(needles) + "\n")
         write(r, "crates/a.rs", "fn a() {} // zenith: one\nfn b() {} // zenith: two\n")
-        write(r, "zenith/own.py", "own\n")
+        write(r, "ci/own.py", "own\n")
         commit(r, "ours")
         self.m = c.build(r, "up")
         return r
@@ -32,13 +32,13 @@ class IntactTest(unittest.TestCase):
     def test_intact_tree_passes_and_manifest_content(self):
         r = self.repo()
         self.assertEqual(self.m["markers"]["crates/a.rs"], 2)
-        self.assertIn("zenith/own.py", self.m["own_files"])
+        self.assertIn("ci/own.py", self.m["own_files"])
         self.assertEqual(c.check(r, self.m), [])
         json.dumps(self.m)
 
     def test_deleted_own_file_trips(self):
         r = self.repo()
-        os.remove(os.path.join(r, "zenith/own.py"))
+        os.remove(os.path.join(r, "ci/own.py"))
         self.assertTrue(any("own file is gone" in b for b in c.check(r, self.m)))
 
     def test_removed_marker_region_trips(self):

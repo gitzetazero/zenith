@@ -3,6 +3,7 @@
 //! --example save_batch_bench`. Add `-- --nbt` to also time serialization.
 //! Exact NBT equality is always validated. No GPU, compression or disk I/O timed.
 extern crate zenith_client_lib as zenith_client;
+use std::{collections::HashMap, hint::black_box, sync::Arc, time::Instant};
 use zenith_client::{
     biome::Biomes,
     chunk::{Chunk, block_strategy},
@@ -16,7 +17,6 @@ use zenith_world::{
     nbt::{self, Limits, Tag},
     registry::BlockRegistry,
 };
-use std::{collections::HashMap, hint::black_box, sync::Arc, time::Instant};
 
 type Entities = HashMap<(i32, i32, i32), BlockEntity>;
 type Names = HashMap<(i32, i32, i32), String>;

@@ -2,10 +2,10 @@
 //! registry, routes `BoneMealItem.useOn` through the behaviour library, and
 //! crops a growing plant's head with shears (`ShearsItem.useOn`).
 use super::Game;
+use std::sync::Arc;
 use zenith_client::{Result, items::ItemStack, vanillagen};
 use zenith_core::{geometry::Direction, position::BlockPos};
 use zenith_world::{level::classes::Class, worldgen::live::LiveFeatures};
-use std::sync::Arc;
 
 impl Game<'_> {
     /// Load the configured/placed feature registry used by saplings, fungi

@@ -45,17 +45,17 @@ use crate::{
     heightmap::{HeightmapState, HeightmapType},
     registry::BlockStateId,
 };
-use zenith_core::random::{WorldgenRandom, XoroshiroRandom};
-use zenith_core::{
-    biome::obfuscate_seed,
-    geometry::{Axis, Direction, VoxelShape},
-    position::{BlockPos, ChunkPos},
-};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
+};
+use zenith_core::random::{WorldgenRandom, XoroshiroRandom};
+use zenith_core::{
+    biome::obfuscate_seed,
+    geometry::{Axis, Direction, VoxelShape},
+    position::{BlockPos, ChunkPos},
 };
 
 pub(super) struct Decoration {

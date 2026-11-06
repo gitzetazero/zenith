@@ -9,8 +9,8 @@ use super::{
     },
 };
 use crate::block_placement::{BlockPlacement, BlockPlacementBindings, BlockPlacementError};
-use zenith_core::random::RandomSource;
 use std::sync::Arc;
+use zenith_core::random::RandomSource;
 
 /// Immutable state providers and placement transitions share one registry.
 #[derive(Clone, Debug)]

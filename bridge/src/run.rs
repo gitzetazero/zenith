@@ -8,9 +8,9 @@ use crate::prepare::{
     check_cmd, ensure_index_alias, ensure_server_jar, make_work, pinned_minecraft, prepare_cmd,
     run_prepare,
 };
-use zenith_release_sign::PublicKey;
 use std::path::PathBuf;
 use std::process::Stdio;
+use zenith_release_sign::PublicKey;
 
 pub type Fetch = Box<dyn Fn(&str) -> Result<Option<Vec<u8>>, String>>;
 /// Minecraft's client entry point in the arguments XMCL passes.

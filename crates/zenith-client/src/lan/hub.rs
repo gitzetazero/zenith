@@ -18,6 +18,7 @@ use crate::{
     items::ItemStack,
     world::World,
 };
+use std::sync::{Arc, Mutex, atomic::Ordering};
 use zenith_core::{
     geometry::{Aabb, ShapeOp, Vec3, VoxelShape},
     random::LegacyRandom,
@@ -36,7 +37,6 @@ use zenith_world::{
     nbt::{JavaString, Tag},
     world_movement::in_range_of_ground,
 };
-use std::sync::{Arc, Mutex, atomic::Ordering};
 
 /// GameEvent types (ClientboundGameEventPacket).
 pub mod chat;

@@ -317,9 +317,9 @@ fn unpi(i: usize) -> (i32, i32, i32) {
 mod tests {
     use super::*;
     use crate::{blocks::RenderShape, graphics::LeafCullingMode};
+    use std::time::Instant;
     use zenith_core::geometry::Direction;
     use zenith_world::fluid::FluidState;
-    use std::time::Instant;
 
     fn info(leaves: bool, opaque: bool) -> Info {
         Info {

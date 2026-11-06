@@ -11,9 +11,9 @@ use crate::{
     lod::{Column, Span, Surface},
     vanillagen::VanillaTerrain,
 };
+use std::{collections::VecDeque, sync::Arc};
 use zenith_core::position::ChunkPos;
 use zenith_world::registry::BlockStateId;
-use std::{collections::VecDeque, sync::Arc};
 
 /// A cell is drawn as a whole column; past this width a 4–6 block island would
 /// be a slab. At 8 blocks a whole island is about one cell, which is enough at

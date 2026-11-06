@@ -1,9 +1,9 @@
 //! Seeded, bolt-local lightning meshes retained until their last active bolt disappears.
 use crate::{gfx::upload::Uploads, mesher::Vertex};
 use glam::DVec3;
-use zenith_core::random::{LegacyRandom, RandomSource};
 use std::collections::HashMap;
 use wgpu::util::DeviceExt;
+use zenith_core::random::{LegacyRandom, RandomSource};
 
 /// A bolt's render state. Simulation lifetime and flashes stay in the game.
 #[derive(Clone, Copy)]

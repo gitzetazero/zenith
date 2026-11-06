@@ -1,11 +1,11 @@
 //! The save screen freezes simulation, but keeps pumping window events while
 //! snapshots are prepared in small batches and the region workers drain.
 use super::{Game, loading_frame};
-use zenith_client::{Result, hud::HudBatch};
 use std::{
     collections::{HashSet, VecDeque},
     time::{Duration, Instant},
 };
+use zenith_client::{Result, hud::HudBatch};
 
 pub(super) struct ClosingSave {
     pub quit: bool,

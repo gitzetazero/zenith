@@ -4,14 +4,14 @@
 //!
 //! usage: spawn_origin <client resource directory> <seed>...
 use crate::support::common::tag;
+use serde_json::Value;
+use std::{fs, path::Path};
 use zenith_world::{
     DATA_VERSION,
     nbt::Tag,
     registry::BlockRegistry,
     worldgen::generator::{GeneratorData, OverworldGenerator},
 };
-use serde_json::Value;
-use std::{fs, path::Path};
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 

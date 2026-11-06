@@ -15,12 +15,6 @@
 //! The loaders need no mod code, vanilla state ids never move, and with no
 //! content mod the root is the base root itself.
 use crate::{Result, blocks::MAP_COLORS};
-use zenith_core::geometry::{Aabb, Axis, ShapeOp, Vec3, VoxelShape};
-use zenith_mods::content::{
-    Block, BlockShapes, Content, CreativeTab, EntityType, MenuType, MobEffect, Rarity,
-    StateProperty,
-};
-use zenith_world::nbt::{self, Compound, JavaString, Limits, Tag};
 use serde::{Deserialize, Serialize, de};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -28,6 +22,12 @@ use std::{
     ops::Range,
     path::{Path, PathBuf},
 };
+use zenith_core::geometry::{Aabb, Axis, ShapeOp, Vec3, VoxelShape};
+use zenith_mods::content::{
+    Block, BlockShapes, Content, CreativeTab, EntityType, MenuType, MobEffect, Rarity,
+    StateProperty,
+};
+use zenith_world::nbt::{self, Compound, JavaString, Limits, Tag};
 
 /// A content mod to put in the root: its id and content.
 pub struct ContentMod {

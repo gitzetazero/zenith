@@ -1,13 +1,13 @@
 //! Stateful 26.3 underground fluid and pressure selection.
 use super::{AquiferField, AquiferSamplers, FluidPicker, FluidStatus};
 use crate::registry::{BlockRegistry, BlockStateId};
+use std::collections::HashMap;
 use zenith_core::{
     density::{SampleError, SamplerContext},
     noise::{DensityError, DensityVolume},
     position::{BlockPos, ChunkPos},
     random::{PositionalRandom, RandomSource},
 };
-use std::collections::HashMap;
 
 const WAY_BELOW_MIN_Y: i32 = -32512;
 const FLOWING_UPDATE_SIMILARITY: f64 = 1.0 - 44.0 / 25.0;
@@ -755,8 +755,8 @@ mod tests {
     use super::*;
     use crate::nbt::Tag;
     use crate::worldgen::aquifer::GlobalFluidPicker;
-    use zenith_core::{density::DensitySampler, random::LegacyPositionalRandom};
     use std::sync::Arc;
+    use zenith_core::{density::DensitySampler, random::LegacyPositionalRandom};
 
     /// States as `(name, level)`; each name's first state is its default.
     fn registry(states: &[(&str, &str)]) -> BlockRegistry {

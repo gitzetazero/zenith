@@ -3,6 +3,7 @@ use super::{
     Dim, Game,
     commands::{R, Target, err},
 };
+use std::collections::{HashMap, HashSet};
 use zenith_client::{
     boss_overlay,
     bossbar::{self, BossBars},
@@ -16,7 +17,6 @@ use zenith_client::{
 use zenith_core::random::RandomSource;
 use zenith_protocol::packets::play::{self, BossAction, Clientbound as C};
 use zenith_world::{identifier::Identifier, java_hash_map::JavaHashMap, nbt::Tag};
-use std::collections::{HashMap, HashSet};
 
 #[derive(Default)]
 pub(super) struct BossState {

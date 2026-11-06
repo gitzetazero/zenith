@@ -2,8 +2,8 @@
 //! remain separate work; this module does not yet cover every provider.
 use super::weighted::WeightedList;
 use super::{DecodeError, Object, density::identifier, integer, number_text, required};
-use zenith_core::random::{InvalidBound, RandomSource};
 use serde_json::value::RawValue;
+use zenith_core::random::{InvalidBound, RandomSource};
 
 #[derive(Clone, Debug)]
 pub enum FloatProvider {

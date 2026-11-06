@@ -3,10 +3,10 @@
 //! --resources PATH --world OverlayProbe --creative --world-frames 120`.
 //! Every world frame turns the camera 90 degrees; GUI callbacks assert that
 //! Host::camera already sees that frame. A magenta square stays above menus/F1.
+use std::sync::atomic::{AtomicU32, Ordering};
 use zenith_client::mod_api::{
     CameraPoseEvent, GuiRenderPostEvent, Hooks, Host, HudEvent, ScreenRenderPostEvent,
 };
-use std::sync::atomic::{AtomicU32, Ordering};
 
 struct Probe {
     frame: AtomicU32,

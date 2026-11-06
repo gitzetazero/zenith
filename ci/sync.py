@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """The logic of .github/workflows/zenith-sync.yml, runnable locally.
 
-  sync.py merge   --upstream-ref REF [--output FILE] [--no-cargo]
-        Merges REF into the current branch with a real merge commit (never a rebase). Prunes (prune.py), lets
-        merge=ours and Cargo.toml/Cargo.lock be resolved, then runs the intact check. Prints key=value lines
-        (also appended to --output): outcome=up-to-date|merged|blocked, reason, commit, upstream, short, conflicts.
-        Exit 0 for up-to-date and merged, 10 for blocked. A blocked run leaves the branch as it was.
-  sync.py checks  [--no-cargo]                     the build/test gate; prints failed=<step> and exits 1 on failure
+Zenith is a hard fork (other crate, binary and folder names), so Horizon's work arrives as translated patches
+(ci/port_upstream.py), never as a git merge.
+
+  sync.py port    --upstream-ref REF [--output FILE] [--no-cargo]    translate and apply Horizon's new commits (port_upstream.py)
+  sync.py checks  [--no-cargo]        the strict gate: build + tests; prints failed=<step> and exits 1 on failure
+  sync.py land    [--remote URL]      push HEAD to main (a normal push, never forced); exit 11 when main moved meanwhile
   sync.py report  --reason R --commit SHA [--conflicts LIST] [--dry-run]
         Pushes SHA as branch sync/<date>-<short>, opens or updates its PR and opens or updates ONE issue labelled `sync`
-  sync.py resolved [--dry-run]                     closes the open `sync` issue after a successful sync
+  sync.py resolved [--dry-run]        closes the open `sync` issue and the old sync/* pull requests
   sync.py release --upstream SHA [--pick-json J] [--dry-run]
         Dispatches zenith-release only when SHA is covered by the newest Horizon nightly; else says it is pending
+  sync.py run     --upstream-ref REF [--remote URL] [--no-cargo] [--dry-run]
+        port -> checks -> land (all green) or report (anything else): the whole weekly job in one command
 """
 import argparse
 import datetime
@@ -22,10 +24,10 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import check_zenith_intact  # noqa: E402
-import prune  # noqa: E402
+import port_upstream  # noqa: E402
 
 BLOCKED = 10
+MOVED = 11  # main moved while the checks ran: nothing is lost, the next run starts again from the new main
 ISSUE_TITLE = "Sync blocked: conflict with upstream"
 LABEL = "sync"
 
@@ -51,71 +53,6 @@ def emit(pairs, output):
                 f.write(line + "\n")
 
 
-def unmerged(repo):
-    return sorted(set(git(repo, "diff", "--name-only", "--diff-filter=U").stdout.split("\n")) - {""})
-
-
-def resolve_generated(repo):
-    """Cargo.toml: take Horizon's (prune takes our crates out again). Cargo.lock: take Horizon's (cargo rewrites it)."""
-    for f in ("Cargo.toml", "Cargo.lock"):
-        if f in unmerged(repo):
-            git(repo, "checkout", "--theirs", "--", f)
-            git(repo, "add", f)
-
-
-def regenerate_lock(repo):
-    run(["cargo", "metadata", "--format-version", "1"], cwd=repo)  # no --locked: drops what pruning removed
-    git(repo, "add", "Cargo.lock")
-
-
-def merge(repo, ref, no_cargo=False, output=None):
-    upstream = rev(repo, ref)
-    base = {"upstream": upstream, "short": upstream[:7]}
-    if git(repo, "merge-base", "--is-ancestor", upstream, "HEAD", check=False).returncode == 0:
-        emit({"outcome": "up-to-date", **base}, output)
-        return 0
-    head = rev(repo, "HEAD")
-    if git(repo, "status", "--porcelain", "--untracked-files=no").stdout.strip():
-        # the blocked paths below `reset --hard`: never run on a tree with work in it
-        emit({"outcome": "blocked", "reason": "dirty-worktree", "commit": upstream, "conflicts": "uncommitted changes", **base}, output)
-        return BLOCKED
-    git(repo, "config", "merge.ours.driver", "true")  # README.md & co: merge=ours in .gitattributes
-    git(repo, "config", "user.name", "zenith-sync")
-    git(repo, "config", "user.email", "zenith-sync@users.noreply.github.com")
-    started = git(repo, "merge", "--no-commit", "--no-ff", upstream, check=False)
-    if git(repo, "rev-parse", "-q", "--verify", "MERGE_HEAD", check=False).returncode != 0:
-        # git refused to start the merge (dirty tree, no identity...): never commit the tree as a fake "merge"
-        git(repo, "reset", "--hard", head)
-        why = (started.stderr or started.stdout).strip().replace(chr(10), " ")[:300]
-        emit({"outcome": "blocked", "reason": "merge-not-started", "commit": upstream, "conflicts": why, **base}, output)
-        return BLOCKED
-    resolve_generated(repo)
-    prune.prune(repo, os.path.join(HERE, "prune-paths.txt"))  # also removes pruned files the merge brought in
-    left = unmerged(repo)
-    if left:
-        git(repo, "merge", "--abort", check=False)
-        git(repo, "reset", "--hard", head)
-        emit({"outcome": "blocked", "reason": "conflict", "commit": upstream, "conflicts": ",".join(left), **base}, output)
-        return BLOCKED
-    if not no_cargo:
-        regenerate_lock(repo)
-    git(repo, "add", "-A")
-    git(repo, "commit", "-q", "-m", f"Merge horizon-rust/horizon main ({base['short']}) into main")
-    merged = rev(repo, "HEAD")
-    if git(repo, "merge-base", "--is-ancestor", upstream, merged, check=False).returncode != 0:
-        git(repo, "reset", "--hard", head)
-        emit({"outcome": "blocked", "reason": "upstream-not-merged", "commit": merged, **base}, output)
-        return BLOCKED
-    with open(os.path.join(repo, "ci/zenith-manifest.json"), encoding="utf-8") as f:
-        bad = check_zenith_intact.check(repo, json.load(f))
-    if bad:
-        git(repo, "reset", "--hard", head)
-        emit({"outcome": "blocked", "reason": "intact", "commit": merged, "conflicts": " | ".join(bad), **base}, output)
-        return BLOCKED
-    emit({"outcome": "merged", "commit": merged, **base}, output)
-    return 0
-
-
 def steps(no_cargo):
     py = sys.executable
     s = [("ci unit tests", [py, "-m", "unittest", "discover", "-s", "ci"]),
@@ -126,7 +63,8 @@ def steps(no_cargo):
         bridge = ["--manifest-path", "bridge/Cargo.toml"]
         exe = ".exe" if os.name == "nt" else ""
         s += [("cargo fmt", ["cargo", "fmt", "--all", "--check"]),
-              # `cargo build client` below compiles the game once; a workspace-wide clippy would compile everything again.
+              # the strict part of the gate: every crate and every test target must compile (nothing that fails to build lands)
+              ("cargo check workspace", ["cargo", "check", "--workspace", "--tests", "--locked"]),
               ("cargo test protocol", ["cargo", "test", "-p", "zenith-protocol", "--locked"]),
               ("bridge cargo fmt", ["cargo", "fmt", *bridge, "--check"]),
               ("bridge cargo clippy", ["cargo", "clippy", *bridge, "--all-targets", "--locked", "--", "-D", "warnings"]),
@@ -175,27 +113,27 @@ class Gh:
         return ""
 
 
-def report(repo, reason, commit, conflicts, dry):
+def report(repo, reason, commit, conflicts, dry, remote=None):
     short = os.environ.get("UPSTREAM_SHA", commit)[:7]
     branch = f"sync/{today()}-{short}"
     assert branch.startswith("sync/")  # the only branch this script ever force-pushes
     gh = Gh(dry)
-    what = ("Horizon's main as it is: merge it into main and resolve the conflicts" if reason == "conflict"
-            else "the merge that failed")
-    lines = [f"Merging Horizon's `main` ({short}) into Zenith's `main` was blocked: **{reason}**.", ""]
+    what = ("what applied of the translated patch, with `*.rej` files for what did not: finish it by hand" if reason == "conflict"
+            else "the port that failed the gate")
+    lines = [f"Porting Horizon's `main` ({short}) into Zenith's `main` was blocked: **{reason}**.", ""]
     if conflicts:
         lines += ["Details:", ""] + [f"- `{c}`" for c in conflicts] + [""]
     lines += [f"Branch `{branch}` holds {what}.",
-              "`main` is untouched and stays behind Horizon until this is resolved (docs/ZENITH.md, section Sync).", ""]
+              "`main` is untouched and stays behind Horizon until this is resolved (docs/ZENITH.md, section Sync with Horizon).", ""]
     tmp = os.path.join(os.environ.get("RUNNER_TEMP", os.environ.get("TEMP", "/tmp")), "sync-body.md")
     with open(tmp, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    plain = f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}.git"
-    if dry:
+    plain = remote or f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}.git"
+    if dry and not remote:
         print(f"DRY-RUN: git push -f {plain} {commit}:refs/heads/{branch}")
     else:
         token = os.environ.get("GH_TOKEN") or ""
-        url = plain.replace("https://", f"https://x-access-token:{token}@") if token else plain
+        url = plain.replace("https://", f"https://x-access-token:{token}@") if token and plain.startswith("https://") else plain
         git(repo, "push", "-f", url, f"{commit}:refs/heads/{branch}")
     title = f"sync: Horizon main {short} ({reason})"
     prs = json.loads(gh("pr", "list", "--head", branch, "--state", "open", "--json", "number") or "[]")
@@ -257,13 +195,65 @@ def release(repo, upstream, pick_json, dry):
     return 0
 
 
+def land(repo, remote=None):
+    """Pushes HEAD to main with a normal push. Refuses a dirty tree and a HEAD that does not contain the remote main (so it can
+    never overwrite anything); MOVED when main advanced meanwhile."""
+    url = remote or f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}.git"
+    token = os.environ.get("GH_TOKEN") or ""
+    if token and url.startswith("https://"):
+        url = url.replace("https://", f"https://x-access-token:{token}@")
+    if git(repo, "status", "--porcelain", "--untracked-files=no").stdout.strip():
+        print("land refused: uncommitted changes")
+        return BLOCKED
+    git(repo, "fetch", "-q", url, "main")
+    if git(repo, "merge-base", "--is-ancestor", "FETCH_HEAD", "HEAD", check=False).returncode != 0:
+        print("land: main moved while the checks ran; the next scheduled run starts again from the new main")
+        return MOVED
+    pushed = git(repo, "push", url, "HEAD:refs/heads/main", check=False)  # no --force, ever
+    if pushed.returncode != 0:
+        print(f"land: push refused ({pushed.stderr.strip()[:200]}); the next scheduled run retries")
+        return MOVED
+    print(f"landed {rev(repo, 'HEAD')[:7]} on main")
+    return 0
+
+
+def run_all(repo, ref, remote=None, no_cargo=False, dry=False, gate=None):
+    """The whole job: port, then the strict gate; all green lands on main and closes the sync issue/PRs; anything else reports."""
+    import tempfile
+    out = os.path.join(tempfile.mkdtemp(prefix="sync"), "out")
+    open(out, "w").close()
+    port_upstream.port(repo, ref, no_cargo=no_cargo, output=out)
+    with open(out, encoding="utf-8") as f:
+        got = dict(line.split("=", 1) for line in f.read().splitlines() if "=" in line)
+    if got["outcome"] == "up-to-date":
+        return 0
+    if got["outcome"] == "blocked":
+        report(repo, got["reason"], got["commit"], [c for c in got.get("conflicts", "").replace(" | ", ",").split(",") if c], dry, remote)
+        return 1
+    ported = got["commit"]
+    if (gate or checks)(repo, no_cargo) != 0:
+        report(repo, "checks", ported, ["the strict gate failed (see the run log)"], dry, remote)
+        return 1
+    rc = land(repo, remote)
+    if rc == 0:
+        resolved(dry)
+    return 0 if rc in (0, MOVED) else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
-    m = sub.add_parser("merge")
+    m = sub.add_parser("port")
     m.add_argument("--upstream-ref", default="upstream/main")
     m.add_argument("--output")
     m.add_argument("--no-cargo", action="store_true")
+    ld = sub.add_parser("land")
+    ld.add_argument("--remote")
+    ru = sub.add_parser("run")
+    ru.add_argument("--upstream-ref", default="upstream/main")
+    ru.add_argument("--remote")
+    ru.add_argument("--no-cargo", action="store_true")
+    ru.add_argument("--dry-run", action="store_true")
     c = sub.add_parser("checks")
     c.add_argument("--no-cargo", action="store_true")
     r = sub.add_parser("report")
@@ -277,12 +267,16 @@ def main():
     e.add_argument("--upstream", required=True)
     e.add_argument("--pick-json")
     e.add_argument("--dry-run", action="store_true")
-    for p in (m, c, r, s, e):
+    for p in (m, c, r, s, e, ld, ru):
         p.add_argument("--repo", default=".")
     a = ap.parse_args()
     repo = os.path.abspath(a.repo)
-    if a.cmd == "merge":
-        return merge(repo, a.upstream_ref, a.no_cargo, a.output)
+    if a.cmd == "port":
+        return port_upstream.port(repo, a.upstream_ref, None, a.no_cargo, a.output)
+    if a.cmd == "land":
+        return land(repo, a.remote)
+    if a.cmd == "run":
+        return run_all(repo, a.upstream_ref, a.remote, a.no_cargo, a.dry_run)
     if a.cmd == "checks":
         return checks(repo, a.no_cargo)
     if a.cmd == "report":

@@ -3,8 +3,8 @@
 //! The option screens live in `options_ui`.
 use crate::keybinds::KeyBinds;
 use crate::options_file::{OptionsFile, V};
-use zenith_protocol::packets::configuration::ClientInformation;
 use std::{fs, path::Path};
+use zenith_protocol::packets::configuration::ClientInformation;
 
 pub use zenith_client_core::sound_source::SOUND_SOURCES;
 

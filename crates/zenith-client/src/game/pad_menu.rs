@@ -20,6 +20,13 @@ use super::{
     Game, Screen,
     key_focus::{self, Act},
 };
+use std::time::Instant;
+use winit::{
+    dpi::PhysicalPosition,
+    event::{DeviceId, ElementState, MouseButton, MouseScrollDelta, TouchPhase, WindowEvent},
+    keyboard::KeyCode,
+    window::WindowId,
+};
 use zenith_client::actions::Action;
 use zenith_client::{
     Result,
@@ -32,13 +39,6 @@ use zenith_client::{
     widgets::{self, Kind, Target},
 };
 use zenith_client_input::snap;
-use std::time::Instant;
-use winit::{
-    dpi::PhysicalPosition,
-    event::{DeviceId, ElementState, MouseButton, MouseScrollDelta, TouchPhase, WindowEvent},
-    keyboard::KeyCode,
-    window::WindowId,
-};
 
 /// How far the stick must lean to step focus.
 const STICK_STEP: f32 = 0.55;
@@ -689,17 +689,10 @@ impl Game<'_> {
     /// pad's only way to send Shift or Ctrl, so it can't fall out of step
     /// with what the keyboard sends.
     fn pad_with_modifier<T>(&mut self, key: KeyCode, f: impl FnOnce(&mut Self) -> T) -> T {
-        let held = zenith_client_input::modifiers::hold(
-            &mut self.modifiers,
-            &mut self.physical_keys,
-            key,
-        );
+        let held =
+            zenith_client_input::modifiers::hold(&mut self.modifiers, &mut self.physical_keys, key);
         let result = f(self);
-        zenith_client_input::modifiers::restore(
-            &mut self.modifiers,
-            &mut self.physical_keys,
-            held,
-        );
+        zenith_client_input::modifiers::restore(&mut self.modifiers, &mut self.physical_keys, held);
         result
     }
 

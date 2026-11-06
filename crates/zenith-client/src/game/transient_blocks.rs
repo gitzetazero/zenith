@@ -3,12 +3,12 @@
 //! that holds it has been rebuilt (a landed falling block would otherwise
 //! leave a gap between the entity going and the mesh catching up).
 use super::Game;
-use zenith_client::mesher::Vertex;
-use zenith_world::registry::BlockStateId;
 use std::{
     collections::{HashMap, VecDeque},
     time::{Duration, Instant},
 };
+use zenith_client::mesher::Vertex;
+use zenith_world::registry::BlockStateId;
 
 /// `TransientBlock.DEFAULT_TIME_TO_LIVE`, in seconds.
 const DEFAULT_TIME_TO_LIVE: f64 = 1.0;

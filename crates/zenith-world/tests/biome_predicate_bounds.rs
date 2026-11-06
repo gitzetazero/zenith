@@ -1,5 +1,5 @@
-use zenith_world::worldgen::{biome::BiomeId, biome_predicate::BiomePredicateBindings};
 use std::collections::BTreeMap;
+use zenith_world::worldgen::{biome::BiomeId, biome_predicate::BiomePredicateBindings};
 #[test]
 fn biome_registry_identity_and_holder_set_bounds() {
     let names = BTreeMap::from([

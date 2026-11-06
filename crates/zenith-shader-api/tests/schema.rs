@@ -1,6 +1,6 @@
 //! Schema 1 of `horizon-shaders.toml` and the `.hshader` package.
-use zenith_shader_api::{MANIFEST, Manifest, OptionKind, Pack, PageItem};
 use std::{collections::BTreeMap, path::Path};
+use zenith_shader_api::{MANIFEST, Manifest, OptionKind, Pack, PageItem};
 
 fn sample_dir() -> &'static Path {
     Path::new(concat!(

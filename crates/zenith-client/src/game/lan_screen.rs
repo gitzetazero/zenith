@@ -6,6 +6,7 @@
 //! Restrictions opens RestrictionsScreen.
 //! Parity reference: https://mcsrc.dev/2/26.3/net/minecraft/client/gui/screens/WorldOptionsScreen
 use super::{Game, Screen, integrated::ServerOptions, lan::LanSettings};
+use winit::{event::KeyEvent, keyboard::PhysicalKey};
 use zenith_client::{
     font::Font,
     game_rules_screen::{Exit, RulesScreen},
@@ -15,7 +16,6 @@ use zenith_client::{
     widgets::{self, Narratable, join_for_narration},
 };
 use zenith_protocol::packets::play::{self, Serverbound as S};
-use winit::{event::KeyEvent, keyboard::PhysicalKey};
 
 pub(super) struct WorldOptions {
     remote: bool,

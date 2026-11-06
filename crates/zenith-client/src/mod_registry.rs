@@ -11,10 +11,10 @@
 //! game needs. Everything here blocks: the game runs it on a worker
 //! (`game/mod_browser.rs`).
 use crate::mod_browser::Listing;
-use zenith_mods::index::{self, Index, Kind, Project, Trust, Version};
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+use zenith_mods::index::{self, Index, Kind, Project, Trust, Version};
 
 /// Where the registry publishes its index (the launcher's `INDEX_URL`).
 pub const INDEX_URL: &str = "https://horizon-rust.github.io/horizon-mods/index.json";

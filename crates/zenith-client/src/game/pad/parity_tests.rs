@@ -2,14 +2,14 @@
 //! What needs a renderer (inventory slots, screenshots) is covered by tools/pad_parity_e2e.py.
 
 use super::super::{Audio, Game, Options, Progress, Screen, Settings, load_resources};
+use winit::event::MouseButton;
+use winit::keyboard::KeyCode;
 use zenith_client::actions::Action;
 use zenith_client::command::args::GameMode;
 use zenith_client::gamepad::{Button, PadState};
 use zenith_client::held::Source;
 use zenith_client::motion::PlayerMotion;
 use zenith_core::geometry::Vec3;
-use winit::event::MouseButton;
-use winit::keyboard::KeyCode;
 
 /// A game at play with no world: input reaches the mappings, as in `Screen::Playing`.
 fn playing(test: impl FnOnce(&mut Game)) {

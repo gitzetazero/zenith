@@ -1,15 +1,13 @@
 //! The release steps as release.yml runs them: `sums`, tools/ci/sign_release.sh (OpenSSL), `verify`.
-use zenith_release_sign::{SIGNATURE, SIGNATURE_V2, SUMS, SigningKey, trusted_keys};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+use zenith_release_sign::{SIGNATURE, SIGNATURE_V2, SUMS, SigningKey, trusted_keys};
 
 const TAG: &str = "v2026.10.19";
 
 fn folder(name: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "zenith-release-sign-{name}-{}",
-        std::process::id()
-    ));
+    let dir =
+        std::env::temp_dir().join(format!("zenith-release-sign-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     std::fs::write(dir.join("horizon-linux-x86_64.tar.gz"), b"linux build").unwrap();

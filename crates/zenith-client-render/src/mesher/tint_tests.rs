@@ -6,8 +6,7 @@ fn biomes() -> Biomes {
     let root = std::env::var_os("HORIZON_MESH_TEST_RESOURCES")
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|| {
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../.local/zenith-client/26.3")
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/zenith-client/26.3")
         });
     Biomes::load(&root).unwrap()
 }

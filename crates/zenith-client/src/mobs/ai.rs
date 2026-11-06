@@ -4476,8 +4476,8 @@ mod in_wall_tests {
 #[cfg(test)]
 mod burn_and_rose_tests {
     use super::*;
-    use zenith_world::registry::BlockRegistry;
     use std::sync::Arc;
+    use zenith_world::registry::BlockRegistry;
 
     fn build_with(block: &'static str) -> impl FnOnce(&mut crate::world::World, &BlockRegistry) {
         move |world, registry| {
@@ -4558,8 +4558,8 @@ mod burn_and_rose_tests {
 mod wither_block_slowdown_tests {
     use super::*;
     use crate::mobs::world::with_built_test_world;
-    use zenith_world::registry::BlockRegistry;
     use std::sync::Arc;
+    use zenith_world::registry::BlockRegistry;
 
     fn build_with(block: &'static str) -> impl FnOnce(&mut crate::world::World, &BlockRegistry) {
         move |world, registry| {

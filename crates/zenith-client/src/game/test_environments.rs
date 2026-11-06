@@ -3,8 +3,8 @@
 //! all of them), set up when the batch starts and torn down after it. The
 //! definitions are the data pack's `test_environment` entries, or inline.
 use super::Game;
-use zenith_client::gamerules::{self, Value};
 use serde_json::Value as Json;
+use zenith_client::gamerules::{self, Value};
 
 /// `Weather.Type`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

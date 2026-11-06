@@ -485,9 +485,7 @@ impl Game<'_> {
             }
             "minecraft:item_display" => {
                 // DATA_ITEM_STACK and DATA_ITEM_DISPLAY_ID (`ItemDisplayContext`).
-                let item = tag
-                    .get("item")
-                    .and_then(zenith_client::save::item_from_nbt);
+                let item = tag.get("item").and_then(zenith_client::save::item_from_nbt);
                 let context = match tag.get("item_display") {
                     Some(Tag::String(s)) => match s.to_string_lossy().as_str() {
                         "thirdperson_lefthand" => 1,

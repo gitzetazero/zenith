@@ -31,9 +31,6 @@ use super::{
     pad::{PadId, PadRouter},
     start_game,
 };
-use zenith_client::gamepad::Button;
-use zenith_client::split_layout::{self as layout, MAX_PLAYERS, Placement, Spot, View};
-use zenith_client::{Result, gfx::compositor::Compositor, widgets};
 use std::{
     cell::RefCell,
     path::{Path, PathBuf},
@@ -48,6 +45,9 @@ use winit::{
     monitor::MonitorHandle,
     window::WindowId,
 };
+use zenith_client::gamepad::Button;
+use zenith_client::split_layout::{self as layout, MAX_PLAYERS, Placement, Spot, View};
+use zenith_client::{Result, gfx::compositor::Compositor, widgets};
 
 mod frames;
 mod hud;
@@ -879,10 +879,7 @@ impl Game<'_> {
         let mut released = self
             .keys
             .release_source(zenith_client::held::Source::Keyboard);
-        released.extend(
-            self.keys
-                .release_source(zenith_client::held::Source::Agent),
-        );
+        released.extend(self.keys.release_source(zenith_client::held::Source::Agent));
         for key in released {
             if let Err(e) = self.mapped_key(
                 key,

@@ -4,6 +4,13 @@
 //! oracle's order and format.
 //!
 //! usage: raid_fixture RESOURCES INPUT OUTPUT
+use std::{
+    cell::RefCell,
+    collections::{BTreeMap, HashMap, HashSet},
+    fmt::Write as _,
+    fs,
+    path::Path,
+};
 use zenith_client::{
     assets::Assets,
     blocks::BlockFacts,
@@ -21,13 +28,6 @@ use zenith_client::{
 use zenith_core::random::{LegacyRandom, RandomSource};
 use zenith_world::loot::PackOverlay;
 use zenith_world::{chunk::BlockState, nbt::Tag, registry::BlockStateId};
-use std::{
-    cell::RefCell,
-    collections::{BTreeMap, HashMap, HashSet},
-    fmt::Write as _,
-    fs,
-    path::Path,
-};
 
 #[derive(Clone, Copy)]
 struct Bx([i32; 6]);

@@ -4,8 +4,8 @@
 //! when the player turned Agent Control on, and never under No AI (`zenith_core::no_ai`).
 //! Turning either switch in the game opens or closes it at once.
 use super::Game;
-use zenith_client::{Result, control};
 use std::path::PathBuf;
+use zenith_client::{Result, control};
 
 impl Game<'_> {
     /// The endpoint: the one the command line gave, else the default zenith-ctl looks for.

@@ -5,6 +5,13 @@
 //! headless world, ticking in `ServerLevel.tick`'s order, and prints what
 //! changed after every tick in the format of `VanillaSculkOracle`.
 use super::{Game, dispense_fixture};
+use std::{
+    collections::{BTreeMap, HashMap, HashSet},
+    fmt::Write as _,
+    io::Write as _,
+    sync::Arc,
+};
+use winit::keyboard::KeyCode;
 use zenith_client::{
     Result,
     chunk::{Chunk, MIN_Y},
@@ -21,13 +28,6 @@ use zenith_core::{
     random::LegacyRandom,
 };
 use zenith_world::{chunk::BlockState, level::Ticks, registry::BlockStateId};
-use std::{
-    collections::{BTreeMap, HashMap, HashSet},
-    fmt::Write as _,
-    io::Write as _,
-    sync::Arc,
-};
-use winit::keyboard::KeyCode;
 
 struct MobSpec {
     kind: String,
@@ -365,10 +365,9 @@ impl Game<'_> {
                 .rules
                 .set(rule, zenith_client::gamerules::Value::Bool(value));
         }
-        self.ui.rules.set(
-            "random_tick_speed",
-            zenith_client::gamerules::Value::Int(0),
-        );
+        self.ui
+            .rules
+            .set("random_tick_speed", zenith_client::gamerules::Value::Int(0));
         use zenith_world::food::Difficulty;
         let difficulty = match s.difficulty.as_str() {
             "peaceful" => Difficulty::Peaceful,

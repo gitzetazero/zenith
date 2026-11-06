@@ -337,11 +337,7 @@ impl Game<'_> {
             }
             self.remove_test_barriers(pos);
             // level.destroyBlock(pos, false)
-            self.set_test_block_state(
-                pos,
-                "minecraft:air",
-                zenith_world::level::flags::UPDATE_ALL,
-            );
+            self.set_test_block_state(pos, "minecraft:air", zenith_world::level::flags::UPDATE_ALL);
         }
         if tests.is_empty() {
             return Err(err("commands.test.clear.error.no_tests", &[]));

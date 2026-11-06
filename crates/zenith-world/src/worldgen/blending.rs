@@ -3,13 +3,13 @@
 //! save), so a world upgraded from before 1.18 meets its old terrain without
 //! a seam.
 use super::biome::BiomeId;
+use std::sync::Arc;
 use zenith_core::{
     density::{DensityBlender, DensitySampler, SampleError, SamplerContext},
     noise::{DensityVolume, Noise, NormalNoise},
     position::ChunkPos,
     random::XoroshiroRandom,
 };
-use std::sync::Arc;
 
 const QUARTS_PER_SECTION: i32 = 4;
 const MAX_INSIDE: i32 = QUARTS_PER_SECTION - 1;

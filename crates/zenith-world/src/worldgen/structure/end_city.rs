@@ -6,8 +6,8 @@ use super::{
     processor::ProcessorList,
 };
 use crate::nbt::{Compound, Tag};
-use zenith_core::{geometry::Direction, random::RandomSource};
 use std::sync::Arc;
+use zenith_core::{geometry::Direction, random::RandomSource};
 
 const MAX_GEN_DEPTH: i32 = 8;
 const TOWER_BRIDGES: [(Rotation, [i32; 3]); 4] = [

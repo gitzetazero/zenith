@@ -7,14 +7,14 @@ use super::{
     update::{HORIZONTAL, above, below, rel},
 };
 use crate::{fluid::FluidKind, registry::BlockStateId};
+use std::rc::Rc;
+use std::sync::Arc;
 use zenith_core::{
     geometry::Direction,
     position::{BlockPos, ChunkPos},
     random::RandomSource,
     ticks::TickTypeId,
 };
-use std::rc::Rc;
-use std::sync::Arc;
 
 impl<L: LevelAccess + ?Sized> Sim<'_, L> {
     fn rand_int(&mut self, bound: i32) -> i32 {

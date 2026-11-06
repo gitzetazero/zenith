@@ -1,9 +1,9 @@
 //! The depth and reach bounds `JigsawStructure`'s codec puts on a structure.
 //! A structure carrying others is not registered by vanilla, so it must not
 //! place pieces here either.
-use zenith_world::worldgen::structure::start::{StructureKind, StructureRegistry};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
+use zenith_world::worldgen::structure::start::{StructureKind, StructureRegistry};
 
 fn kind(fields: Value) -> StructureKind {
     let mut structure = json!({

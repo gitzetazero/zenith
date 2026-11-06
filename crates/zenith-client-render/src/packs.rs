@@ -6,13 +6,13 @@
 mod cache;
 use crate::text::Style;
 use crate::{text::Text, zip::Zip};
-pub use zenith_client_core::pattern;
 use pattern::Pattern;
 use std::{
     collections::{BTreeMap, BTreeSet},
     fs, io,
     path::{Path, PathBuf},
 };
+pub use zenith_client_core::pattern;
 
 /// SharedConstants resource pack format of 26.3 (major, minor).
 pub const RESOURCE_FORMAT: (i64, i64) = zenith_core::version::RESOURCE_PACK_FORMAT;

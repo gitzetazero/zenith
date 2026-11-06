@@ -1,5 +1,13 @@
 //! Original transport for complete surface-stage chunk comparison.
 use crate::support::common::tag;
+use serde_json::Value;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    io::{self, Write},
+    path::Path,
+    sync::{Arc, Mutex},
+};
 use zenith_core::{
     biome::{BiomeZoom, obfuscate_seed},
     carving::CarvingMask,
@@ -38,14 +46,6 @@ use zenith_world::{
         tags::TagDefinitions,
         terrain::{TerrainAquifer, TerrainBlockStates, TerrainChunk, fill_noise},
     },
-};
-use serde_json::Value;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    fs,
-    io::{self, Write},
-    path::Path,
-    sync::{Arc, Mutex},
 };
 #[derive(Clone, Copy)]
 struct State {

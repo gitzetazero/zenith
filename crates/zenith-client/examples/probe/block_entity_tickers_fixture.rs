@@ -1,11 +1,11 @@
 //! The Rust side of tools/test_block_entity_tickers_parity.py: the ops of
 //! `VanillaBlockEntityTickerOracle` on `BlockEntities`, as `World` drives it
 //! (a state write calls `state_changed`), printing the tick order.
+use std::collections::HashMap;
 use zenith_client::{
     block_entities::{BlockEntities, Pos, Ticking},
     containers::BlockEntity,
 };
-use std::collections::HashMap;
 
 /// State ids of the fixture: 0 air, 1 a block whose block entity ticks, 2 a
 /// jukebox without a record, 3 a block entity that never ticks (a chest).

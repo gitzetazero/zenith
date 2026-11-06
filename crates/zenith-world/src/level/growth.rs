@@ -3,8 +3,8 @@
 //! through [`LiveFeatures`].
 use super::{Behaviours, LevelAccess, LevelEvent, Sim, feature_world::LevelFeatureWorld, flags};
 use crate::{registry::BlockStateId, worldgen::live::LiveFeatures};
-use zenith_core::{position::BlockPos, random::RandomSource};
 use std::sync::{Arc, OnceLock};
+use zenith_core::{position::BlockPos, random::RandomSource};
 
 /// Runtime extensions of [`Behaviours`] that depend on the worldgen bundle.
 #[derive(Default)]

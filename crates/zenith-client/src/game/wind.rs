@@ -3,6 +3,7 @@
 //! `TRIGGER_BLOCK`: no damage, only knockback and the blocks that react).
 use super::Game;
 use super::entity::{Blast, Entity as _, for_each_entity_mut};
+use std::collections::BTreeSet;
 use zenith_client::advancements::EntityView;
 use zenith_client::join_seq::Joined as _;
 use zenith_client::{
@@ -17,7 +18,6 @@ use zenith_core::{
     random::RandomSource,
 };
 use zenith_world::level::PlayerContext;
-use std::collections::BTreeSet;
 
 /// `WindCharge.RADIUS` and the knockback multiplier of its damage calculator.
 const PLAYER_RADIUS: f32 = 1.2;

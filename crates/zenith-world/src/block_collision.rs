@@ -10,8 +10,8 @@ use crate::{
     powder_snow_collision::{PowderSnowWorld, powder_snow_collision_shape},
     registry::{BlockRegistry, BlockStateId},
 };
-use zenith_core::geometry::{Aabb, Axis, Direction, Vec3, VoxelShape};
 use std::{collections::HashMap, io, sync::Arc};
+use zenith_core::geometry::{Aabb, Axis, Direction, Vec3, VoxelShape};
 
 #[derive(Clone, Copy, Debug)]
 pub struct ShulkerCollisionState {

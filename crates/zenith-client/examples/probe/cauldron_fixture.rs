@@ -2,6 +2,8 @@
 //! case per line and prints "result TAB events TAB inventory".
 //!
 //! usage: cauldron_fixture RESOURCES INPUT OUTPUT
+use serde_json::Value;
+use std::{fs, path::Path};
 use zenith_client::{
     cauldron::{Outcome, Player, interact, removes_dye},
     crafting::Recipes,
@@ -11,8 +13,6 @@ use zenith_client::{
 };
 use zenith_world::chunk::BlockState;
 use zenith_world::loot::PackOverlay;
-use serde_json::Value;
-use std::{fs, path::Path};
 
 struct Stand<'a> {
     menu: Menu,

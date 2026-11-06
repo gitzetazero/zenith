@@ -7,7 +7,6 @@
 //! connection stays on one thread, so its bytes keep their order. The
 //! integrated server's own player, over an in-memory pipe, is served the same
 //! way: the pipe tells the thread when bytes arrive.
-use zenith_protocol::connection::{ConnReader, ConnWriter, Pipe, Socket};
 use mio::{Events, Interest, Poll, Registry, Token, Waker};
 use std::{
     io::{ErrorKind, Read, Write},
@@ -17,6 +16,7 @@ use std::{
     },
     time::{Duration, Instant},
 };
+use zenith_protocol::connection::{ConnReader, ConnWriter, Pipe, Socket};
 
 /// Packets queued for one client beyond this many bytes disconnect it.
 pub(super) const MAX_PENDING: usize = 96 << 20;
@@ -639,8 +639,8 @@ impl Conn {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zenith_protocol::connection::Connection;
     use std::sync::mpsc::{Receiver, Sender, channel};
+    use zenith_protocol::connection::Connection;
 
     #[derive(Debug, PartialEq)]
     enum Seen {

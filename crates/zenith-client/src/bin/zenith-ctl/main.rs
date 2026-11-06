@@ -14,8 +14,8 @@ use std::{
     time::{Duration, Instant},
 };
 
-use zenith_client::control::Stream;
 use serde_json::{Value, json};
+use zenith_client::control::Stream;
 
 /// Exit statuses.
 const GAME_ERROR: u8 = 1;

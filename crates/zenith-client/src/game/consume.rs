@@ -3,19 +3,17 @@
 //! fruit) for the local player. The level random stands in for the player's
 //! own, as for every other player draw.
 use super::{Dim, Game};
+use std::convert::Infallible;
 use zenith_client::{
     items::{ConsumeEffect, ItemInfo, ItemStack},
     mobs::Who,
     particles::{ParticleOptions, ParticleType},
 };
-use zenith_core::{
-    geometry::Vec3, position::BlockPos, random::LegacyRandom, random::RandomSource,
-};
+use zenith_core::{geometry::Vec3, position::BlockPos, random::LegacyRandom, random::RandomSource};
 use zenith_world::{
     consumable::{Consumable, EmissionWorld, UseAnimation},
     teleport_consume::{TeleportConsume, TeleportConsumeWorld},
 };
-use std::convert::Infallible;
 
 type ItemConsumable = Consumable<String, ConsumeEffect>;
 

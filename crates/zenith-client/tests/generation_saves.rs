@@ -4,6 +4,13 @@
 //! decoration wrote to are saved rather than generated again without those
 //! writes. Bastions lost whole chunks of pieces this way.
 extern crate zenith_client_lib as zenith_client;
+use std::{
+    collections::HashMap,
+    path::Path,
+    sync::{Arc, Mutex},
+    thread,
+    time::{Duration, Instant},
+};
 use zenith_client::{
     assets::Assets,
     biome::Biomes,
@@ -16,13 +23,6 @@ use zenith_client::{
     world::World,
 };
 use zenith_world::registry::BlockStateId;
-use std::{
-    collections::HashMap,
-    path::Path,
-    sync::{Arc, Mutex},
-    thread,
-    time::{Duration, Instant},
-};
 
 fn resources() -> Option<std::path::PathBuf> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))

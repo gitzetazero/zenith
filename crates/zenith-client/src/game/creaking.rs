@@ -2,6 +2,7 @@
 //! ticks each heart (spawning, letting go of and bleeding for its creaking)
 //! and this applies what it reports to the world, the mobs and the speakers.
 use super::{Game, creatures::seen};
+use std::{collections::HashMap, sync::Arc};
 use zenith_client::{
     Result,
     chunk_map::{ChunkMap, ChunkMembershipDelta},
@@ -18,7 +19,6 @@ use zenith_core::{
     random::{LegacyRandom, RandomSource},
 };
 use zenith_world::registry::BlockStateId;
-use std::{collections::HashMap, sync::Arc};
 
 type Pos = (i32, i32, i32);
 
@@ -434,8 +434,8 @@ impl CreakingState {
 #[cfg(test)]
 mod tests {
     use super::CreakingState;
-    use zenith_client::{chunk::Chunk, chunk_map::ChunkMap};
     use std::sync::Arc;
+    use zenith_client::{chunk::Chunk, chunk_map::ChunkMap};
 
     fn add(chunks: &mut ChunkMap, key: (i32, i32)) {
         chunks.insert(key, Arc::new(Chunk::empty(key.0, key.1)));

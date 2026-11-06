@@ -1,15 +1,15 @@
 #![forbid(unsafe_code)]
 //! Runs tools/test_container_screen_parity.py's screens and mouse events
 //! through `zenith_client::container_screen`.
-use zenith_client::{
-    Result,
-    container_screen::{Book, Button, Clicks, Image, Release, Target, clicked_outside},
-    menu::Input,
-};
 use serde_json::Value;
 use std::{
     fs::File,
     io::{BufRead, BufReader, BufWriter, Write},
+};
+use zenith_client::{
+    Result,
+    container_screen::{Book, Button, Clicks, Image, Release, Target, clicked_outside},
+    menu::Input,
 };
 
 fn input_name(input: Input) -> &'static str {

@@ -3,9 +3,9 @@
 //! jockeys, strider jockeys, zombie horsemen) and the skeleton horse trap.
 //! Saving riders under `Passengers` lives in `persist.rs`.
 use super::Game;
+use std::collections::HashMap;
 use zenith_client::mobs::{Species, riders};
 use zenith_core::{geometry::Vec3, random::RandomSource};
-use std::collections::HashMap;
 
 /// The mobs riding each vehicle, by the vehicle's id: their indices, in the mobs' order.
 pub(super) type Riders = HashMap<u32, Vec<usize>>;

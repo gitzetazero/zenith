@@ -7,6 +7,7 @@
 //! Speed's `location_changed` and `tick` effects and the
 //! `minecraft:location_changed` disk effect (frost walker).
 use super::Game;
+use serde_json::Value;
 use zenith_client::{
     enchant::{EffectContext, Enchantments, level_value},
     items::ItemStack,
@@ -15,7 +16,6 @@ use zenith_client::{
 };
 use zenith_core::{position::BlockPos, random::RandomSource};
 use zenith_world::{fluid::FluidKind, level::LevelAccess, registry::BlockStateId};
-use serde_json::Value;
 
 /// Where Mending found a damaged item (`EnchantedItemInUse.inSlot`).
 #[derive(Clone, Copy)]

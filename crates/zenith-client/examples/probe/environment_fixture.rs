@@ -3,11 +3,11 @@
 //! thunder biome" lines and prints the sampled sky state as JSON lines.
 //!
 //! usage: environment_fixture RESOURCES INPUT OUTPUT
+use std::{collections::HashMap, fmt::Write as _, fs, path::Path};
 use zenith_client::{
     biome::Biomes,
     environment::{Environment, apply_weather},
 };
-use std::{collections::HashMap, fmt::Write as _, fs, path::Path};
 
 pub fn main() -> zenith_client::Result<()> {
     let args: Vec<String> = crate::args().collect();

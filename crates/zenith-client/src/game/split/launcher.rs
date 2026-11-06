@@ -1,6 +1,6 @@
 //! Microsoft sessions handed over by the launcher; offline split profiles belong to the instance.
-use zenith_client::auth::AuthSession;
 use std::sync::Arc;
+use zenith_client::auth::AuthSession;
 
 /// The launcher's other signed-in accounts (`HORIZON_ACCOUNT_SESSIONS`: name, uuid and a session
 /// file each), for splitscreen players to sign in with: read at start beside `--session-file`

@@ -10,12 +10,12 @@
 //! `global_varb.*` every entity shares, and `render.*`, which nothing reads back yet.
 
 use super::{Mob, Part, anim::Poses, anim::State};
-use zenith_optifine::cem::expr::{Expr, compile};
 use std::{
     cell::{Cell, RefCell},
     collections::HashMap,
     sync::{Mutex, MutexGuard, PoisonError},
 };
+use zenith_optifine::cem::expr::{Expr, compile};
 
 /// The model variables of a part, in slot order.
 const PART_VARS: [&str; 11] = [

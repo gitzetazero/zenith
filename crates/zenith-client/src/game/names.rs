@@ -951,10 +951,10 @@ pub(super) struct TagStyle {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
     use zenith_client::mobs::{Anim, Brain, MobType, Part, Species};
     use zenith_client::pose::Pose;
     use zenith_core::geometry::Vec3;
-    use std::sync::Arc;
 
     fn tag_font() -> HudAtlas {
         static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);

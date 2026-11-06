@@ -4,6 +4,7 @@
 //! sent, never the type's other defaults.
 use super::Game;
 use super::commands::Target;
+use std::sync::Arc;
 use zenith_client::{
     effects,
     lan::attributes::{add_modifier, generic_syncable, instance, operation_named},
@@ -13,7 +14,6 @@ use zenith_client::{
     },
 };
 use zenith_protocol::packets::play::{AttributeModifier, AttributeSnapshot};
-use std::sync::Arc;
 
 /// `EquipmentSlotGroup.test`: whether a modifier's slot group covers a slot.
 /// For one snapshot of the mobs, each type's movement speed: its synced

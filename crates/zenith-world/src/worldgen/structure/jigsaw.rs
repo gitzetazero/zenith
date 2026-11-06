@@ -13,17 +13,17 @@ use crate::{
         placement::{PlacementContext, PlacementQueryError},
     },
 };
-use zenith_core::{
-    geometry::Direction,
-    position::BlockPos,
-    random::{LegacyRandom, RandomSource, position_seed},
-};
 use serde_json::Value;
 use std::{
     cell::RefCell,
     collections::{BTreeMap, BTreeSet, HashMap, VecDeque},
     rc::Rc,
     sync::{Arc, Mutex, OnceLock, RwLock},
+};
+use zenith_core::{
+    geometry::Direction,
+    position::BlockPos,
+    random::{LegacyRandom, RandomSource, position_seed},
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

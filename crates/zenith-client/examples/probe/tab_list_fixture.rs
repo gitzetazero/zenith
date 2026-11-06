@@ -5,6 +5,12 @@
 //! runs, faces as skin blits), each face's skin chosen by
 //! `zenith_client::skins` from the profile's `textures` property.
 #![forbid(unsafe_code)]
+use serde_json::{Value, json};
+use std::{
+    fs,
+    io::{BufWriter, Write},
+    path::PathBuf,
+};
 use zenith_client::{
     component,
     hud::HudAtlas,
@@ -14,12 +20,6 @@ use zenith_client::{
     skins,
     tab_list::{self, TabInputs, TabList, TabPlayer},
     text::Text,
-};
-use serde_json::{Value, json};
-use std::{
-    fs,
-    io::{BufWriter, Write},
-    path::PathBuf,
 };
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

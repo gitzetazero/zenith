@@ -6,6 +6,8 @@
 //! line per piece in placement order (jigsaw pieces: the element's template
 //! location; other pieces: `-` for element, rotation and position).
 use crate::support::common::tag;
+use serde_json::Value;
+use std::{fs, path::Path};
 use zenith_core::position::ChunkPos;
 use zenith_world::{
     DATA_VERSION,
@@ -16,8 +18,6 @@ use zenith_world::{
         structure::{Rotation, jigsaw::PoolElement, start::Piece},
     },
 };
-use serde_json::Value;
-use std::{fs, path::Path};
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 

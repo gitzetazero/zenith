@@ -11,11 +11,11 @@ use super::{
     },
     native_panel::{Layout, Owner, browser_stack, inside},
 };
+use std::time::Instant;
 use zenith_client::{
     hud::{HudBatch, rgba},
     items::ItemStack,
 };
-use std::time::Instant;
 
 const SLOT: f32 = 18.0;
 /// The title row's height, and the gap under each recipe.

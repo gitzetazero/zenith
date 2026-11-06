@@ -1,14 +1,14 @@
 //! Parsed resource models for one startup or resource-pack reload.
 use crate::Result;
-use zenith_assets::{
-    model::CuboidModel,
-    resolve::{AssetReader, ModelLibrary},
-};
 use std::{
     collections::BTreeMap,
     fs,
     path::{Path, PathBuf},
     sync::Arc,
+};
+use zenith_assets::{
+    model::CuboidModel,
+    resolve::{AssetReader, ModelLibrary},
 };
 
 #[derive(Default)]

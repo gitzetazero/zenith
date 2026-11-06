@@ -3,11 +3,11 @@ use super::{
     feature_sort::{FeatureIdentity, FeatureSortError, StepFeatureData, build_features_per_step},
     placement::FeaturePlacer,
 };
+use std::collections::{BTreeMap, BTreeSet};
 use zenith_core::{
     position::ChunkPos,
     random::{WorldgenRandom, XoroshiroRandom},
 };
-use std::collections::{BTreeMap, BTreeSet};
 
 pub use super::biome::BiomeId as DecorationBiome;
 

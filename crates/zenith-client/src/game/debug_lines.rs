@@ -5,6 +5,7 @@
 //! lines (`ServerDebug`); on another server they show what vanilla shows
 //! there, nothing or `??`.
 use super::Game;
+use std::collections::{HashMap, HashSet};
 use zenith_client::{
     debug_entries::ENTRIES, debug_overlay as overlay, debug_overlay::Displayer, java_text,
 };
@@ -12,7 +13,6 @@ use zenith_world::{
     heightmap::{HeightmapState, HeightmapType},
     worldgen::terrain::TerrainBlockStates,
 };
-use std::collections::{HashMap, HashSet};
 
 /// `DebugEntryLookingAt.RANGE`.
 const LOOKING_AT_RANGE: f64 = 20.0;

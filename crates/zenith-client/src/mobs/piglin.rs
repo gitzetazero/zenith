@@ -10,9 +10,9 @@ use super::{
         RandomLookAround, Stroll, TARGET, TargetState, goal_clone, target_continue,
     },
 };
+use std::f32::consts::PI;
 use zenith_core::geometry::{Vec3, trig::Mth};
 use zenith_core::random::{LegacyRandom, RandomSource};
-use std::f32::consts::PI;
 
 /// `PiglinAi.ADMIRE_DURATION`.
 pub const ADMIRE: i32 = 119;
@@ -2253,8 +2253,8 @@ mod hurt_broadcast_tests {
 mod crossbow_tests {
     use super::*;
     use crate::mobs::sensor_scan_tests::kind;
-    use zenith_core::geometry::Vec3;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     fn piglin() -> Mob {
         let mut kind = kind();
@@ -2374,8 +2374,8 @@ mod brute_home_tests {
     use super::*;
     use crate::mobs::sensor_scan_tests::kind;
     use crate::mobs::world::with_built_test_world;
-    use zenith_world::registry::BlockRegistry;
     use std::sync::Arc;
+    use zenith_world::registry::BlockRegistry;
 
     fn brute(at: Vec3, home: Option<[i32; 3]>) -> Mob {
         let mut kind = kind();

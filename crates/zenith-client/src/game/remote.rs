@@ -8,6 +8,12 @@
 //! everything else.
 use super::remote_chunks::{ChunkDecoder, ChunkFormat, Next};
 use super::{Dim, Game, Mining, Screen};
+use std::{
+    collections::{HashMap, VecDeque},
+    sync::Arc,
+    time::{Duration, Instant},
+};
+use winit::{event::MouseButton, keyboard::KeyCode};
 use zenith_client::actions::Action;
 use zenith_client::first_person::{Hand, SwingAnimation};
 use zenith_client::{
@@ -50,12 +56,6 @@ use zenith_world::{
     registry::BlockStateId,
     stepped_interpolation::{Path, PosRot, Start, SteppedInterpolation},
 };
-use std::{
-    collections::{HashMap, VecDeque},
-    sync::Arc,
-    time::{Duration, Instant},
-};
-use winit::{event::MouseButton, keyboard::KeyCode};
 
 type BuiltinCache = Vec<(std::path::PathBuf, Arc<Builtin>)>;
 static BUILTIN: std::sync::Mutex<BuiltinCache> = std::sync::Mutex::new(Vec::new());
@@ -945,22 +945,14 @@ impl Game<'_> {
             .settings
             .client_information(client_view_distance(self.settings.render_distance));
         if local.is_none() && !self.options.split_guest {
-            zenith_client::crash::set_detail(
-                "Server",
-                zenith_client::net::shown_address(address),
-            );
+            zenith_client::crash::set_detail("Server", zenith_client::net::shown_address(address));
         }
         // A signed-in account always plays under its own name; a splitscreen player signs in
         // with its own account when it picked one.
         let auth = self.auth();
         let name = auth.as_ref().map_or(name, |a| a.name.as_str());
         let user = auth.as_ref().map_or_else(
-            || {
-                (
-                    name.to_owned(),
-                    zenith_protocol::crypto::offline_uuid(name),
-                )
-            },
+            || (name.to_owned(), zenith_protocol::crypto::offline_uuid(name)),
             |a| (a.name.clone(), a.uuid),
         );
         self.server_packs_connect(local.is_none().then_some(address), user);
@@ -1617,9 +1609,8 @@ impl Game<'_> {
             .duration_since(std::time::UNIX_EPOCH)
             .map_or(0, |d| d.as_millis() as i64);
         let expired = now
-            > timestamp.saturating_add(
-                zenith_protocol::secure_chat::EXPIRES_AFTER_SERVER + 2 * 60 * 1000,
-            );
+            > timestamp
+                .saturating_add(zenith_protocol::secure_chat::EXPIRES_AFTER_SERVER + 2 * 60 * 1000);
         if !signed || expired {
             return ChatTrust::NotSecure;
         }
@@ -3734,8 +3725,7 @@ impl Game<'_> {
                             }
                             (2, Value::OptText(name)) => {
                                 let text = name.as_ref().map(zenith_client::entity_nbt::name_text);
-                                m.custom_name =
-                                    text.as_ref().map(zenith_client::text::Text::plain);
+                                m.custom_name = text.as_ref().map(zenith_client::text::Text::plain);
                                 m.custom_name_text = text;
                             }
                             (2, Value::Text(name)) => {
@@ -4307,8 +4297,7 @@ impl Game<'_> {
                 }
                 // LivingEntity.handleEntityEvent 47 to 52, 65 and 68: an
                 // equipped item broke (onEquippedItemBroken).
-                if let Some(slot) = zenith_client::mobs::item_break::equipment_break_slot(p.event)
-                {
+                if let Some(slot) = zenith_client::mobs::item_break::equipment_break_slot(p.event) {
                     self.remote_equipment_break(p.id, slot);
                 }
                 // EntityEvent.DEATH: start the death animation.
@@ -8460,11 +8449,7 @@ impl Game<'_> {
         };
         self.with_level(|b, level, _| {
             let mut level = DryLevel::new(level);
-            match b.place_block(
-                &mut level,
-                &mut zenith_world::level::Ticks::default(),
-                &ctx,
-            ) {
+            match b.place_block(&mut level, &mut zenith_world::level::Ticks::default(), &ctx) {
                 zenith_world::level::PlaceOutcome::Placed { pos, .. } => {
                     Some((pos, level.changed.into_iter().collect()))
                 }
@@ -11436,8 +11421,8 @@ mod tests {
     #[test]
     fn chat_is_narrated_with_its_chat_types_narration_decoration() {
         use super::{Decoration, chat_type_decorate, play};
-        use zenith_world::nbt::{JavaString, Tag, parse_snbt};
         use serde_json::json;
+        use zenith_world::nbt::{JavaString, Tag, parse_snbt};
         let bound = play::ChatTypeBound {
             chat_type: 0,
             name: Tag::String(JavaString::from("Steve")),
@@ -11487,8 +11472,8 @@ mod tests {
     /// arrives takes the entry once it comes.
     #[test]
     fn a_player_entity_keeps_the_skin_its_entry_gave() {
-        use zenith_client::skins::Textures;
         use std::collections::HashMap;
+        use zenith_client::skins::Textures;
         let npc = Textures {
             skin: Some("http://textures.minecraft.net/texture/npc".into()),
             signed: true,

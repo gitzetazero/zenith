@@ -2,6 +2,10 @@
 //! chunks are old (`IOWorker.isOldChunkAround`), their `blending_data`, border
 //! columns (`BlendingData.calculateData`) and the biomes they keep.
 use crate::{biome::Biomes, chunk::Chunk, save::SaveDir};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex, OnceLock},
+};
 use zenith_core::position::ChunkPos;
 use zenith_world::{
     nbt::Tag,
@@ -12,10 +16,6 @@ use zenith_world::{
         blending::{BlendingData, Direction8, OldChunk, OldWorld, Sides},
         generator::GeneratorData,
     },
-};
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex, OnceLock},
 };
 
 /// A level's saved chunks that an older version generated.

@@ -1,11 +1,11 @@
 //! What splitscreen draws over a player's view: its badge, questions answered with the pad and
 //! notices.
 use super::*;
+use std::time::Duration;
 use zenith_client::controller_notice::{NoticeSlot, panel};
 use zenith_client::gamepad::Button;
 use zenith_client::hud::{HudBatch, rgba};
 use zenith_client::pad_glyph;
-use std::time::Duration;
 
 /// What splitscreen draws over a player's view (`Game::split_hud`): its corner badge (who, for a
 /// moment, with why), a question its controller answers, and notices nobody has to answer.

@@ -8,10 +8,10 @@ use super::{
         Tempt, goal_clone,
     },
 };
+use std::collections::HashMap;
 use zenith_core::geometry::trig::Mth;
 use zenith_core::geometry::{Aabb, Vec3};
 use zenith_core::random::RandomSource;
-use std::collections::HashMap;
 
 // Camel state: `egg_time` the mob age of the last pose change (it may be
 // negative: a camel finalized at age 0 stood up 53 ticks "ago"),
@@ -481,9 +481,9 @@ mod tests {
     use super::*;
     use crate::mobs::{Anim, Brain, Flags, MobType, Part, Species};
     use crate::mobs::{leash::Holder, world::with_test_world};
-    use zenith_core::geometry::Vec3;
     use serde_json::json;
     use std::sync::Arc;
+    use zenith_core::geometry::Vec3;
 
     /// `Camel.getPassengerAttachmentPoint`: the second of two passengers sits
     /// 0.7 behind the middle, 0.5 ahead for the driver, 0.2 more for an animal.
@@ -675,8 +675,7 @@ mod tests {
         assert_eq!(pose_time(&m), 5);
         // No tag: standing.
         let (tag, _) =
-            zenith_world::nbt::parse_snbt("{id:\"minecraft:camel\",Pos:[0.0d,0.0d,0.0d]}")
-                .unwrap();
+            zenith_world::nbt::parse_snbt("{id:\"minecraft:camel\",Pos:[0.0d,0.0d,0.0d]}").unwrap();
         let mut m = crate::entity_nbt::mob_from_nbt(&tag, &types, 2, None).unwrap();
         finish_load(&mut m, 5000);
         assert!(!refuse_to_move(&m));

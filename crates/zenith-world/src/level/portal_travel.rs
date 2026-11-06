@@ -7,11 +7,11 @@ use crate::{
     java_hash_map::{JavaHashMap, JavaKey},
     registry::BlockStateId,
 };
+use std::cmp::Ordering;
 use zenith_core::{
     geometry::{Aabb, Axis, Direction, ShapeOp, Vec3, VoxelShape},
     position::BlockPos,
 };
-use std::cmp::Ordering;
 
 /// `BlockUtil.FoundRectangle`: the low corner and the sizes along the two axes.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

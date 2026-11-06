@@ -1,10 +1,10 @@
-use zenith_world::component_patch::{ComponentMap, Patch, Prototype};
 use serde_json::Value as Json;
 use std::{
     fs,
     io::{self, Write},
     path::Path,
 };
+use zenith_world::component_patch::{ComponentMap, Patch, Prototype};
 #[derive(Clone, Debug, PartialEq)]
 enum Value {
     Int(i32),

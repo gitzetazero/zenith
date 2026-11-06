@@ -5,6 +5,7 @@
 use super::Game;
 use super::native_world_columns::NativeColumnBlocks as ColumnBlocks;
 use super::native_world_edit::{NativeBlockEdit as BlockEdit, NativeHeightmap as Heightmap};
+use std::sync::Arc;
 use zenith_client::{
     block_edit::Run,
     chunk::ColumnLayout,
@@ -16,7 +17,6 @@ use zenith_client::{
 use zenith_world::{
     heightmap::HeightmapType, registry::BlockStateId, worldgen::terrain::TerrainBlockStates,
 };
-use std::sync::Arc;
 
 /// A change `World::edit_runs` reported: position, previous and new state.
 type Tracked = ((i32, i32, i32), u32, u32);

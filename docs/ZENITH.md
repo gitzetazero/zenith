@@ -72,7 +72,7 @@ Edit `ci/prune-paths.txt` (directory prefixes end in `/`, `!` keeps). Run `pytho
 ## What Zenith changes in the game
 
 - On-screen name "Zenith" and none of Horizon's servers.
-- Server version translator, on by default, with a per-server selector (`crates/zenith-client/src/zenith_versions.rs`). It comes from Horizon PR #8718, which is still a draft. See [`docs/SERVERS.md`](docs/SERVERS.md).
+- Server version translator, on by default, with a per-server selector (`crates/zenith-client/src/zenith_versions.rs`). It comes from Horizon PR #8718, which is still a draft. See [`docs/SERVERS.md`](SERVERS.md).
 - Bridge and launcher (`bridge`, `launcher`): checks the account owns the game, installs the signed builds and starts the client.
 - Client only: see "Repository layout". The one edit in Horizon's files for this is the `TOOLS` list in `xtask/src/main.rs` (marked `// zenith:`).
 
