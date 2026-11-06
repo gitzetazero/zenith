@@ -5,11 +5,15 @@ run-name: zenith-release ${{ inputs.date }}
 # The exporters (our own classes only, no Mojang code) are taken from a Horizon Release instead of compiled here.
 # Not affiliated with Mojang or Microsoft. Set the repository variable ZENITH_AUTOPUBLISH to `off` to stop it.
 #
+# What a release holds:
+#   nightly-<date>  (the repository's "latest", what players download): ONLY Zenith-Launcher-Setup-x64.exe and
+#                   Zenith-Launcher-Portable-x64.zip, with their SHA-256 in the notes. The launcher bundles the bridge.
+#   nightly         (the signed game channel the launcher and the game fetch from, not for download): the Windows game
+#                   zip, zenith-build.txt, SHA256SUMS and SHA256SUMS.sig (Ed25519, RELEASE_SIGNING_KEY).
 # Publish ordering (the old `nightly` is never deleted, so launchers always find a release):
-#   1. a DRAFT nightly-<date> gets the two launcher files (the game files go to `nightly`; they used to be here: the two game archives, the bridge exe, the build stamp, the
-#      launcher installer and portable zip, SHA256SUMS and its signature); its file list is checked (a leftover draft or an unfinished dated release from an earlier
-#      attempt is removed first);
-#   2. `nightly` is updated in place: the signed files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
+#   1. a DRAFT nightly-<date> gets the two launcher files; its file list is checked (a leftover draft or an
+#      unfinished dated release from an earlier attempt is removed first);
+#   2. `nightly` is updated in place: the game files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
 #      window a launcher finds sums that do not match the signature or the archives and fails closed; then its
 #      tag moves to this commit and its title changes; its assets are downloaded and verified again;
 #   3. only then is nightly-<date> published. Its existence means "done", so the gate lets a retry through while
@@ -145,9 +149,6 @@ jobs:
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
         with:
           shared-key: zenith-${{ matrix.name }}
-      - name: ALSA and udev headers
-        if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libasound2-dev libudev-dev
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: exporters
@@ -160,10 +161,7 @@ jobs:
           cargo run --locked -p xtask -- package "$BIN/horizon-client${{ matrix.exe }}" "dist/${{ matrix.dir }}"
           cd dist
           rm -f "${{ matrix.asset }}"
-          case "${{ matrix.asset }}" in
-            *.tar.gz) tar czf "${{ matrix.asset }}" "${{ matrix.dir }}" ;;
-            *) 7z a -tzip "${{ matrix.asset }}" "${{ matrix.dir }}" > /dev/null ;;
-          esac
+          7z a -tzip "${{ matrix.asset }}" "${{ matrix.dir }}" > /dev/null
           ls -l "${{ matrix.asset }}"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -217,9 +215,6 @@ jobs:
       run:
         shell: bash
         working-directory: zenith/launcher
-    env:
-      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
-      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -328,7 +323,7 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: dist
-          pattern: '{horizon-*,zenith-bridge-*,Zenith-Launcher-*}'
+          pattern: '{horizon-*,Zenith-Launcher-*}'
           merge-multiple: true
       # The stamp tells launchers which commit this is and when it was built; being signed with the rest,
       # the bridge uses it to refuse a downgrade.
@@ -365,7 +360,7 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: dist
-          pattern: '{horizon-*,zenith-bridge-*,Zenith-Launcher-*,signature}'
+          pattern: '{horizon-*,Zenith-Launcher-*,signature}'
           merge-multiple: true
       - name: The signature, checked as the bridge checks it
         run: |
