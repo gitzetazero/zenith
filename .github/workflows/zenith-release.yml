@@ -374,3 +374,15 @@ jobs:
           DATE: ${{ inputs.date }}
           SHA: ${{ github.sha }}
         run: bash ci/zenith_publish.sh
+      # The job token cannot update a tag whose new history touches .github/workflows (HTTP 403), so the two tags
+      # follow this commit with the sync token (contents + workflows), which only this step sees.
+      - name: Move the tags to this commit
+        env:
+          GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
+          DATE: ${{ inputs.date }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for tag in nightly "nightly-$DATE"; do
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/$tag" -f sha="$SHA" -F force=true --jq .ref
+          done

@@ -82,11 +82,8 @@ for file in "${launcher[@]}"; do
   gh api -X POST "https://uploads.github.com/repos/$repo/releases/$id/assets?name=$(basename "$file")"     -H "Content-Type: application/octet-stream" --input "$file" > /dev/null
 done
 [[ "$(assets_of "$id")" == "$want_launcher" ]] || { echo "::error::the draft's files are not the launcher installer and portable zip"; exit 1; }
-# The token cannot delete tags (403), so a tag left by an earlier attempt is moved instead; a new one is made
-# from target_commitish when the release goes public.
-if gh api "repos/$repo/git/ref/tags/$dated" > /dev/null 2>&1; then
-  gh api -X PATCH "repos/$repo/git/refs/tags/$dated" -f sha="$SHA" -F force=true > /dev/null
-fi
+# Tags are moved by the workflow's own step afterwards (with the sync token): the job token is refused (HTTP 403)
+# when a tag update points at history that touches .github/workflows.
 
 step "2. nightly (the game channel)"
 nightly=$(release_id nightly)
@@ -98,7 +95,6 @@ if [[ -n "$nightly" ]]; then
   gh release upload nightly --clobber -R "$repo" "${channel[@]}"
   gh release upload nightly --clobber -R "$repo" dist/SHA256SUMS
   gh release upload nightly --clobber -R "$repo" dist/SHA256SUMS.sig
-  gh api -X PATCH "repos/$repo/git/refs/tags/nightly" -f sha="$SHA" -F force=true > /dev/null
   gh api -X PATCH "repos/$repo/releases/$nightly" -f name="$channel_title" -F body=@notes-channel.md -F prerelease=false -f make_latest=false > /dev/null
 else
   gh release create nightly --latest=false --target "$SHA" --title "$channel_title" --notes-file notes-channel.md     "${channel[@]}" dist/SHA256SUMS dist/SHA256SUMS.sig
