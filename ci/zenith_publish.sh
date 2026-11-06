@@ -18,6 +18,7 @@
 #      (`nightly` is a normal release too but never "latest"). Its existence means "done", so the gate lets a retry
 #      through while it is missing or `nightly` is older than the date.
 set -euo pipefail
+trap 'echo "::error::publish failed at line $LINENO: $BASH_COMMAND"' ERR
 repo=$GITHUB_REPOSITORY
 dated="nightly-$DATE"
 title="Zenith $DATE · ${SHA:0:7}"
