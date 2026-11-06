@@ -98,7 +98,7 @@ python -m unittest discover zenith/ci                # sync, prune, intact and l
 python zenith/ci/check_links.py                      # relative links in our markdown
 ```
 
-Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` and the moving `nightly` release (`zenith/ci/zenith_publish.sh`). The installer is built with `zenith/launcher-interim/build.sh` (see the script header).
+Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` (the launcher installer and portable zip only: what players download) and the moving `nightly` release (the signed game channel the launcher and game fetch from) (`zenith/ci/zenith_publish.sh`). The installer is built with `zenith/launcher-interim/build.sh` (see the script header).
 
 Binary and variable names are still Horizon's: `horizon-client`, `horizon-prepare`, `HORIZON_HOME`, `HORIZON_OLDER_SERVERS`, etc.
 

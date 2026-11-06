@@ -6,7 +6,7 @@ run-name: zenith-release ${{ inputs.date }}
 # Not affiliated with Mojang or Microsoft. Set the repository variable ZENITH_AUTOPUBLISH to `off` to stop it.
 #
 # Publish ordering (the old `nightly` is never deleted, so launchers always find a release):
-#   1. a DRAFT nightly-<date> gets all eight files (the two game archives, the bridge exe, the build stamp, the
+#   1. a DRAFT nightly-<date> gets the two launcher files (the game files go to `nightly`; they used to be here: the two game archives, the bridge exe, the build stamp, the
 #      launcher installer and portable zip, SHA256SUMS and its signature); its file list is checked (a leftover draft or an unfinished dated release from an earlier
 #      attempt is removed first);
 #   2. `nightly` is updated in place: the six signed files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
@@ -319,8 +319,7 @@ jobs:
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
         run: >
           bash tools/ci/sign_release.sh nightly dist/horizon-linux-x86_64.tar.gz dist/horizon-windows-x64.zip
-          dist/zenith-bridge-windows-x64.exe dist/zenith-build.txt dist/Zenith-Launcher-Setup-x64.exe
-          dist/Zenith-Launcher-Portable-x64.zip
+          dist/zenith-bridge-windows-x64.exe dist/zenith-build.txt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: signature
@@ -348,7 +347,10 @@ jobs:
           pattern: '{horizon-*,zenith-bridge-*,Zenith-Launcher-*,signature}'
           merge-multiple: true
       - name: The signature, checked as the bridge checks it
-        run: cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" dist
+        run: |
+          # Only the game channel is signed; the launcher installer goes into the dated release on its own.
+          mkdir signed && cp dist/horizon-* dist/zenith-bridge-* dist/zenith-build.txt dist/SHA256SUMS* signed/
+          cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" signed
       - name: Publish (zenith/ci/zenith_publish.sh, ordering in the header)
         env:
           GH_TOKEN: ${{ github.token }}
