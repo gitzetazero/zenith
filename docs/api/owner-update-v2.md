@@ -46,7 +46,7 @@ owner-update-v2\n<id>\n<version>\n<sha256>\n<file>\n<submitter>\n<submitter_id>
    `owner_ids`, `key`, `kind`, `repo` and the page fields are identical (the service already only signs such updates;
    check again, since the pull request branch can be pushed to after it opened).
 6. **The file.** `staging` holds `<sha256>.<extension>` and its SHA-256 is `sha256`; the usual CI checks
-   (`cargo horizon-mod registry check`, the trial run, a signature when the entry has a `key`) pass at the head
+   (`cargo zenith-mod registry check`, the trial run, a signature when the entry has a `key`) pass at the head
    that is merged.
 7. **The head merged is the head checked.** Merge with the head SHA the checks ran on (`gh pr merge --match-head-commit
    <sha>`), so a push between check and merge can't slip in.
@@ -61,7 +61,7 @@ decide by ID.
 ## Order of deployment
 
 1. In the registry repository: update `scripts/owner_update.py` and the workflow to the checks above, accepting v2
-   only; deploy the CI's `cargo horizon-mod` from a Horizon commit that knows `owner_ids` (older ones refuse the field).
+   only; deploy the CI's `cargo zenith-mod` from a Horizon commit that knows `owner_ids` (older ones refuse the field).
 2. Once a maintainer has read `tools/registry_backfill_owner_ids.py`, run it on a checkout (dry run, then `--write`)
    and merge its pull request by hand.
 3. Deploy the submission service with this change. Until step 1 is live, its v2 trailers fail verification and the

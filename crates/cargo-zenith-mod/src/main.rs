@@ -1,4 +1,4 @@
-//! `cargo horizon-mod`: make Horizon content mods (`docs/modpacks.md`): blocks,
+//! `cargo zenith-mod`: make Horizon content mods (`docs/modpacks.md`): blocks,
 //! items, data and assets, no code. Code mods are native (docs/native-mods.md).
 //!
 //! - `new <path> [--name "Name"]`: a content mod from the template; with
@@ -20,9 +20,9 @@ use std::{
 };
 
 fn main() -> ExitCode {
-    // Cargo runs `cargo-zenith-mod horizon-mod <args>`.
+    // Cargo runs `cargo-zenith-mod zenith-mod <args>`.
     let mut args: Vec<String> = std::env::args().skip(1).collect();
-    if args.first().is_some_and(|a| a == "horizon-mod") {
+    if args.first().is_some_and(|a| a == "zenith-mod" || a == "horizon-mod") {
         args.remove(0);
     }
     let result = match args.first().map(String::as_str) {
@@ -33,7 +33,7 @@ fn main() -> ExitCode {
         Some("run") => run(&args[1..]),
         Some("check") => check(&args[1..]),
         Some("registry") => registry::main(&args[1..]),
-        _ => Err("usage: cargo horizon-mod new <path> [--name \"Name\"] [--template content|native [--horizon <commit>]] | build | run [--game <zenith-client>] [-- <game args>] | check <file> [--kind <kind>] [--key <public key> --signature <file.minisig>] [--json] | registry build|review|check|list".into()),
+        _ => Err("usage: cargo zenith-mod new <path> [--name \"Name\"] [--template content|native [--horizon <commit>]] | build | run [--game <zenith-client>] [-- <game args>] | check <file> [--kind <kind>] [--key <public key> --signature <file.minisig>] [--json] | registry build|review|check|list".into()),
     };
     match result {
         Ok(()) => ExitCode::SUCCESS,
@@ -54,7 +54,7 @@ fn new(args: &[String]) -> Result<(), String> {
     let path = args
         .first()
         .filter(|a| !a.starts_with("--"))
-        .ok_or("cargo horizon-mod new <path>")?;
+        .ok_or("cargo zenith-mod new <path>")?;
     let dir = Path::new(path);
     if dir.exists() {
         return Err(format!("{} already exists", dir.display()));
@@ -132,7 +132,7 @@ fn new(args: &[String]) -> Result<(), String> {
         Manifest::parse(&std::fs::read_to_string(dir.join(MANIFEST)).map_err(|e| e.to_string())?)?;
     Content::read(dir, &manifest)?;
     println!(
-        "Created {} (mod id {id}). Next: cd {path} && cargo horizon-mod run",
+        "Created {} (mod id {id}). Next: cd {path} && cargo zenith-mod run",
         dir.display()
     );
     Ok(())
@@ -242,7 +242,7 @@ fn check(args: &[String]) -> Result<(), String> {
     let file = args
         .first()
         .filter(|a| !a.starts_with("--"))
-        .ok_or("cargo horizon-mod check <file>")?;
+        .ok_or("cargo zenith-mod check <file>")?;
     let path = Path::new(file);
     let kind = match flag(args, "--kind") {
         Some(k) => zenith_mods::index::Kind::from(k.to_string()),

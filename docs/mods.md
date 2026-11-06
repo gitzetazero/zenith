@@ -41,11 +41,11 @@ Benchmarks (`--benchmark`) never load mods.
 cargo binstall --git https://github.com/horizon-rust/horizon cargo-zenith-mod
 # Or build it from source, without cargo-binstall:
 cargo install --git https://github.com/horizon-rust/horizon cargo-zenith-mod
-cargo horizon-mod new my-mod        # a content mod: manifest, one block with its model, loot and recipe
+cargo zenith-mod new my-mod        # a content mod: manifest, one block with its model, loot and recipe
 cd my-mod
-cargo horizon-mod run               # build my-mod.hmod, then start the game with it turned on
-cargo horizon-mod build             # only build: target/horizon-mod/my_mod.hmod
-cargo horizon-mod check target/horizon-mod/my_mod.hmod   # the registry's checks; --json for JSON
+cargo zenith-mod run               # build my-mod.hmod, then start the game with it turned on
+cargo zenith-mod build             # only build: target/horizon-mod/my_mod.hmod
+cargo zenith-mod check target/horizon-mod/my_mod.hmod   # the registry's checks; --json for JSON
 ```
 
 - `new <path> [--name "Name"]` writes the template. `--template native [--horizon <commit>]` writes a native trait
@@ -228,7 +228,7 @@ can set a registered type with a JSON value, such as `"sample:charge": {"charge"
 JSON values become NBT values. Values must fit the network NBT limits and
 round-trip through saved NBT; negative zero is not supported. A key such as
 `"!sample:charge": {}` removes the template's default. Unknown types fail when Horizon builds the content root;
-`cargo horizon-mod check` cannot check native registrations.
+`cargo zenith-mod check` cannot check native registrations.
 
 `crafting_remainder` names what the item leaves in the crafting grid when a
 recipe uses it, as a milk bucket leaves a bucket (vanilla's
@@ -499,7 +499,7 @@ once, when it is listed; its later releases are checked by machine, not read by 
 [playhorizon.dev/mods](https://playhorizon.dev/mods) and in the launcher (Mods, then **Horizon** beside Modrinth),
 which checks every file before it installs it.
 
-1. Run `cargo horizon-mod check` on the file (above): the registry runs the same checks.
+1. Run `cargo zenith-mod check` on the file (above): the registry runs the same checks.
 2. Put the source in a public GitHub repository, under a licence that lets players run it. A native mod's `.hnmod` is
    its source.
 3. Publish a **GitHub release** in it with the file as an asset (`.hmod`, `.hnmod`, `.hpack`, `.hshader`, or a resource

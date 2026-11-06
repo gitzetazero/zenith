@@ -40,7 +40,7 @@ _GAME = _G + r"(?:game/)?"
 AREAS = [
     ("launcher", "Changes the launcher", r"^launcher/"),
     ("mods", "Area: mods, mod SDK, modpack porting",
-     r"^crates/(?:horizon-mod|cargo-zenith-mod|zenith-port-pack)|" + _GAME
+     r"^crates/(?:zenith-mod|cargo-zenith-mod|zenith-port-pack)|" + _GAME
      + r"(?:mods|mod_content|mod_list|native_\w+)\.rs$|^docs/(?:mods|native-mods|modpacks)"),
     ("worldgen", "Area: world generation", r"^crates/zenith-world/src/worldgen/|/vanillagen\.rs$"),
     ("mobs", "Area: mobs, their AI, spawning and models",

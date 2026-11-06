@@ -193,13 +193,13 @@ Unknown keys in an entry are refused. Its CI runs `cargo-zenith-mod` (`crates/ca
 
 | Command | What it does |
 | --- | --- |
-| `cargo horizon-mod check <file> [--json]` | A submission's checks: its kind's (above) and its signature with `--key` and `--signature`. It runs no mod's code: a native mod's source is read by the reviewers when it is listed. |
-| `cargo horizon-mod registry check <base> <head> --files <dir>` | `check` on each hosted file `head` lists and `base` doesn't: a pull request's new files. |
-| `cargo horizon-mod registry list <checkout>` | `<sha256> <id> <version> <file>` per hosted version: the files to download. |
-| `cargo horizon-mod registry build <checkout> --files <dir> --out index.json` | Reads every entry, its hosted files (`<dir>/<sha256>`) and `versions/<id>.json`, lists every problem, and writes the index (`--release`, ending in `/`, defaults to the repository's releases, for hosted versions). |
-| `cargo horizon-mod registry release <checkout> <id> <file> --tag T --published D [--notes F] [--signature F] [--game G]` | The checks of a submission, then the version a release of the project's repository is, as the index lists it (JSON). |
-| `cargo horizon-mod registry page <checkout> <id> <horizon-registry.toml>` | The repository's page file, checked against its entry (JSON). |
-| `cargo horizon-mod registry review <base> <head> --author <login>` | A pull request's changes: a published file never changes and is never removed (take it down in `revoked.toml`), a kind never changes; changes by a non-owner and to owners, keys or the repository are pointed out for the reviewers. |
+| `cargo zenith-mod check <file> [--json]` | A submission's checks: its kind's (above) and its signature with `--key` and `--signature`. It runs no mod's code: a native mod's source is read by the reviewers when it is listed. |
+| `cargo zenith-mod registry check <base> <head> --files <dir>` | `check` on each hosted file `head` lists and `base` doesn't: a pull request's new files. |
+| `cargo zenith-mod registry list <checkout>` | `<sha256> <id> <version> <file>` per hosted version: the files to download. |
+| `cargo zenith-mod registry build <checkout> --files <dir> --out index.json` | Reads every entry, its hosted files (`<dir>/<sha256>`) and `versions/<id>.json`, lists every problem, and writes the index (`--release`, ending in `/`, defaults to the repository's releases, for hosted versions). |
+| `cargo zenith-mod registry release <checkout> <id> <file> --tag T --published D [--notes F] [--signature F] [--game G]` | The checks of a submission, then the version a release of the project's repository is, as the index lists it (JSON). |
+| `cargo zenith-mod registry page <checkout> <id> <horizon-registry.toml>` | The repository's page file, checked against its entry (JSON). |
+| `cargo zenith-mod registry review <base> <head> --author <login>` | A pull request's changes: a published file never changes and is never removed (take it down in `revoked.toml`), a kind never changes; changes by a non-owner and to owners, keys or the repository are pointed out for the reviewers. |
 
 How the repository runs (its workflows are in `.github/workflows/`):
 

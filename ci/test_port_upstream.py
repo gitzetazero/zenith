@@ -130,6 +130,7 @@ class PortTest(unittest.TestCase):
         self.assertEqual(r('"horizon-mods/a.hmod" horizon-mods = { path = "../horizon-mods" }'),
                          '"horizon-mods/a.hmod" zenith-mods = { path = "../zenith-mods" }')
         self.assertEqual(r("horizon-shaders.toml crates/horizon-shaders"), "horizon-shaders.toml crates/zenith-shaders")
+        self.assertEqual(r("[dependencies]\\nhorizon-core = {}"), "[dependencies]\\nzenith-core = {}")  # inside a string literal
         self.assertEqual(rename_map.map_path("mods/horizon/src/x"), "java/horizon/src/x")
         self.assertEqual(rename_map.map_path("packaging/icons/horizon.ico"), "packaging/icons/zenith.ico")
 

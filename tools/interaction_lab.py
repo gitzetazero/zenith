@@ -50,7 +50,7 @@ def cargo_example(package, example, *args, profile=None):
     command = ['cargo', 'run', '-q', '-j3']
     if profile:
         command += ['--profile', profile]
-    probe = package.removeprefix('horizon-') + '_probe'  # each crate's probe example: client_probe, world_probe
+    probe = package.removeprefix('zenith-') + '_probe'  # each crate's probe example: client_probe, world_probe
     if package == 'zenith-client':
         package = 'zenith-client-lib'
     command += ['-p', package, '--example', probe, '--', example, *map(str, args)]

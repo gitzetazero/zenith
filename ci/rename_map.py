@@ -22,7 +22,7 @@ for _n in CRATES + BINS:
     MAP[_n] = _n.replace("horizon", "zenith")
     MAP[_n.replace("-", "_")] = MAP[_n].replace("-", "_")
 _NAMES = "|".join(re.escape(k) for k in sorted(MAP, key=len, reverse=True))
-_RX = re.compile(r"(?<![A-Za-z0-9_-])(" + _NAMES + r")(?![A-Za-z0-9_])")
+_RX = re.compile(r"(?:(?<![A-Za-z0-9_-])|(?<=\\n))(" + _NAMES + r")(?![A-Za-z0-9_])")
 _URL = re.compile(r"(https?://|github\.com/|horizon-rust/)\S*$")
 # The game executable (a file name, not the package): becomes `zenith`.
 _EXE = [(re.compile(r"CARGO_BIN_EXE_horizon-client"), "CARGO_BIN_EXE_zenith"),
@@ -30,7 +30,8 @@ _EXE = [(re.compile(r"CARGO_BIN_EXE_horizon-client"), "CARGO_BIN_EXE_zenith"),
         (re.compile(r"horizon-client(?=\{EXE\}|\.exe)"), "zenith"),
         (re.compile(r"(--bin )horizon-client\b"), r"\1zenith"),
         (re.compile(r"(CARGO_BIN_EXE_)(horizon-[a-z-]+)"), lambda m: m.group(1) + MAP.get(m.group(2), m.group(2)))]
-_LAYOUT = [(re.compile(r"(?<![\w-])mods/horizon\b"), "java/horizon"),
+_LAYOUT = [(re.compile(r"cargo horizon-mod"), "cargo zenith-mod"),
+           (re.compile(r"(?<![\w-])mods/horizon\b"), "java/horizon"),
            (re.compile(r"horizon\.(ico|icns)\b"), r"zenith.\1"),
            (re.compile(r"(apps/)horizon\.(png|svg)"), r"\1zenith.\2"),
            (re.compile(r"horizon(-launcher)?\.desktop"), r"zenith\1.desktop")]

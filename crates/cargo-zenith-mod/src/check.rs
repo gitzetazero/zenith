@@ -1,4 +1,4 @@
-//! `cargo horizon-mod check <file>`: what the registry checks of a submission,
+//! `cargo zenith-mod check <file>`: what the registry checks of a submission,
 //! run anywhere: its kind's own checks (docs/api/mod-index.md), its signature
 //! when given a key, and for a `.hmod` that it is content only.
 use serde_json::{Value, json};

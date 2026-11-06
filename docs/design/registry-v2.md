@@ -88,7 +88,7 @@ and show the kind's list as filters.
 
 ## Rollout
 
-The `cargo horizon-mod` pinned by horizon-mods (`HORIZON_REV`) refuses unknown entry fields (#9688), so:
+The `cargo zenith-mod` pinned by horizon-mods (`HORIZON_REV`) refuses unknown entry fields (#9688), so:
 
 1. horizon: the new fields as optional (serde defaults), the two kinds, the checks of what is present, the category
    lists and docs/api/mod-index.md. Nothing is required yet.

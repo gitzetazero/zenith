@@ -1,73 +1,86 @@
 # Maintainer guide
 
-This guide is for people who maintain or contribute to the code. If you only want to play, read the [README](README.md).
+This guide is for people who maintain or contribute to the code. If you only want to play, read the [README](../README.md).
 
 ## How the fork works
 
-Zenith comes from [Horizon](https://github.com/horizon-rust/horizon) (Minecraft in Rust, MIT licence). Zenith adds a layer on top and receives Horizon's work by merging. Rules:
+Zenith comes from [Horizon](https://github.com/horizon-rust/horizon) (Minecraft in Rust, MIT licence) and is now a **hard fork**: it has its own names and its own layout, and it takes Horizon's work as translated patches, once a week. Rules:
 
-1. **Do not rename internals.** Crates, paths, internal binaries and `HORIZON_*` variables stay as they are. Renaming them would conflict on every sync.
-2. **Our own code goes in `zenith/`**, with its own Cargo workspace where it is Rust (the bridge), so Horizon's `Cargo.toml` and `Cargo.lock` stay untouched. In Horizon's files only small hooks fit, marked `// zenith:`, with no reformatting.
+1. **Zenith names.** Crates are `zenith-*` (`crates/zenith-core`, `zenith-world`...), the game is the binary `zenith`, the tools are `zenith-ctl`, `zenith-prepare` and `zenith-release-sign`. Rust code says `zenith_core::...`. What stays Horizon's on purpose is listed under "What keeps Horizon's name".
+2. **Our own code has its own folders** at the root: `launcher/`, `bridge/` (its own Cargo workspace, so the root `Cargo.lock` is not involved), `branding/`, `ci/`. Changes inside the engine crates are small and marked `// zenith:` where they are hooks, so a ported Horizon patch keeps applying.
 3. **Look upstream first.** Before fixing something, check with `gh pr list -R horizon-rust/horizon --search` that Horizon is not already doing it.
-4. **Send generic work to Horizon.** It shrinks the difference between the two.
+4. **Send generic work to Horizon.** It shrinks the difference between the two, and makes the weekly port apply cleanly.
 5. **Inherited safety:** `tools/check_public_tree.py` must pass, no Mojang file is ever committed, and every test run uses temporary folders for `HORIZON_HOME` and `HORIZON_LAUNCHER_HOME`.
 
 ## Repository layout
 
 ```
-README.md  docs/ZENITH.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  SECURITY.md  CODE_OF_CONDUCT.md   (GitHub expects these in the root)
-Cargo.toml  Cargo.lock  .gitattributes  native-hooks.json  research-lock.json
-crates/        Horizon's engine and client crates (+ a few Zenith files marked `zenith:` or named zenith_*)
-xtask/         Horizon's build tasks (one marked edit: the TOOLS list)
-tests/ tools/ mods/ third_party/ docs/ packaging/   Horizon's, kept because the client, `zenith-prepare` (exporters in mods/, tools/native-hook-fragments) and `xtask package`/`icons` build from them; `third_party/` carries the patched wgpu-hal, naga and mimalloc
-.github/       zenith-sync.yml, zenith-release.yml, issue and PR templates (ours); CODEOWNERS and friends (Horizon's)
-zenith/
-  README.md          player guide (install, update, uninstall)
-  SERVERS.md         server versions and how the translator picks one
-  bridge/            the bridge (own workspace): ownership check, signed installs, launch
-  launcher/          Zenith Launcher: our fork of XMCL (Electron + Vue, MIT, credits kept), a self-contained pnpm workspace
-  branding/          logo, palette, banners, icons and the tools that regenerate them
-  ci/                sync, prune, intact check, link check, release publisher and their tests
+README.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  SECURITY.md  CODE_OF_CONDUCT.md   (GitHub and licences expect these in the root)
+Cargo.toml  Cargo.lock  clippy.toml  .gitattributes  .gitignore
+native-hooks.json  research-lock.json   read by crates through a path from the repository root (see below)
+AGENTS.md  CLAUDE.md                    instructions for coding agents
+crates/        the game and its libraries, all zenith-* (the client is crates/zenith-client, binary `zenith`)
+xtask/         build tasks: `package` (the game folder), `icons`, `tokens`
+launcher/      Zenith Launcher: our fork of XMCL (Electron + Vue, MIT, credits kept), a self-contained pnpm workspace
+bridge/        the bridge (own workspace): ownership check, signed installs, preparing resources, launch
+branding/      logo, palette, banners, icons and the tools that regenerate them
+ci/            sync (port_upstream.py, rename_map.py, sync.py), the intact check, the link check, the release publisher and their tests
+docs/          documentation: this guide, PLAYER-GUIDE.md, SERVERS.md, GRAPHICS-SETTINGS.md, media/zenith/ (ours) and Horizon's engine documentation
+tests/ tools/  Horizon's Python harnesses and scripts, kept because `xtask`, `zenith-prepare` and the parity tooling use them (tools/ci holds Horizon's CI helpers; ours are in ci/)
+java/          the Java oracles and exporters `zenith-prepare` compiles against the player's own Minecraft (was mods/horizon)
+packaging/     icons (zenith.ico, zenith.icns, hicolor/) and the files `xtask package` copies
+third_party/   patched wgpu-hal, naga and mimalloc (Cargo `[patch]`)
+.github/       zenith-sync.yml, zenith-release.yml, issue and PR templates
 ```
+
+Why two JSON files stay in the root: `zenith-mod-api-gen`'s build script, the client (`include_str!`) and `zenith-prepare` read `native-hooks.json` and `research-lock.json` through the repository root, and `zenith-prepare` finds its root as the nearest folder with `research-lock.json` (in a release folder it sits next to the executable). Moving them means changing that contract. `java/` is not called `exporters/` because `exporters/` is where the release build puts the compiled bundle (it is git-ignored).
 
 | Ownership | Paths |
 |---|---|
-| **Ours** (Horizon does not have them, no conflict possible) | `docs/ZENITH.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `zenith/**`, `docs/superpowers/**`, `.github/ISSUE_TEMPLATE/**`, `.github/PULL_REQUEST_TEMPLATE/**`, `.github/workflows/zenith-*.yml`, `crates/zenith-client/src/zenith_versions.rs`, `crates/zenith-client-core/src/zenith_brand.rs`, `crates/zenith-client/assets/zenith/**`, the translator files under `crates/zenith-protocol/src/adapter/` |
-| **Ours, but Horizon has the file too** (`merge=ours` in `.gitattributes`) | `README.md`, `CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE/config.yml` |
-| **Horizon's, with a small Zenith edit** (`// zenith:` markers) | a dozen files under `crates/` and `xtask/src/main.rs` (the list is in `ci/zenith-manifest.json`) |
-| **Inherited and kept as they are** | everything else: `crates/**`, `tests/`, `tools/`, `docs/` (except pruned files), `AGENTS.md`, `CLAUDE.md`, `THIRD_PARTY_NOTICES.md`... They describe Horizon's project |
-| **Pruned** (Zenith never uses them; deleted and kept deleted by the sync) | the dedicated server and bots, Horizon's Rust launcher, the telemetry server, the mod registry service, historical `benchmarks/`, Horizon's planning board (`roadmap/`, `ROADMAP.md`), the screenshots in `docs/media/` (except `docs/media/brand/`) and Horizon's CI workflows. The list is `ci/prune-paths.txt` |
+| **Ours** | `docs/ZENITH.md`, `docs/PLAYER-GUIDE.md`, `docs/SERVERS.md`, `docs/GRAPHICS-SETTINGS.md`, `docs/media/zenith/`, `docs/superpowers/`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `launcher/`, `bridge/`, `branding/`, `ci/`, `.github/`, `crates/zenith-client/src/zenith_versions.rs`, `crates/zenith-client-core/src/zenith_brand.rs`, `crates/zenith-client/assets/zenith/`, the translator files under `crates/zenith-protocol/src/adapter/` |
+| **Ours, though Horizon has the file too** (`merge=ours` in `.gitattributes`; the port skips Horizon's changes to them) | `README.md`, `CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE/config.yml` |
+| **Horizon's, with a small Zenith edit** (`// zenith:` markers) | a few dozen places under `crates/` and `xtask/src/main.rs` (the list is `ci/zenith-manifest.json`) |
+| **Inherited and kept as they are** | everything else: `crates/**`, `tests/`, `tools/`, `docs/`, `AGENTS.md`... They describe Horizon's project, in Zenith's names |
+| **Not carried** (Zenith never uses them; the port drops every Horizon change to them) | the dedicated server and bots, Horizon's own Rust launcher (`launcher/` in Horizon's tree), the telemetry server, the mod registry service, historical `benchmarks/`, Horizon's planning board and the screenshots in `docs/media/` (except `docs/media/brand/`) and its CI workflows. The list is `ci/prune-paths.txt`, in **Horizon's** names and layout |
 
-Zenith is client-only: the integrated single-player server lives inside `zenith-client`, so `zenith-server` and `zenith-bots` are not needed to build or test the client. A crate that a client crate depends on is never pruned (`zenith-server-files`, `zenith-mcp`, `zenith-bench`... stay).
+Zenith is client-only: the integrated single-player server lives inside `zenith-client`, so the dedicated server is not needed to build or test the client.
+
+### What keeps Horizon's name (on purpose)
+
+These are protocols, file formats and attribution, not names, and renaming them would break compatibility or hide where the code comes from:
+
+- the wire-protocol client brand `"horizon"` used to negotiate extensions with Horizon servers, and the friends protocol labels (`"horizon-friends ..."`);
+- language and resource keys `horizon.*` and the folder `crates/zenith-client/assets/horizon/`;
+- file formats and folders that players' files or other programs read: the game's mod folder `horizon-mods/` and its list `horizon-mods.txt` (and `overrides/horizon-mods` in modpacks), `horizon-shaders.toml` (shader pack manifest), `horizon-prepare.json`, `.horizon-mod-data`, `horizon-graphics.txt`, `horizon-extras.txt`;
+- environment variables `HORIZON_*`. The four the bridge sets have `ZENITH_*` names accepted first (`ZENITH_TELEMETRY_URL`, `ZENITH_NO_HEARTBEAT`, `ZENITH_COSMETICS`, `ZENITH_OLDER_SERVERS`) with the `HORIZON_*` name as a fallback; the rest (`HORIZON_HOME`, `HORIZON_TEST_RESOURCES`...) are unchanged;
+- Horizon's release asset names and its signing key: `horizon-windows-x64.zip` (the game zip the bridge downloads from our `nightly` release; renaming it would break installed launchers), `horizon-linux-x86_64.tar.gz` (the exporters are taken from Horizon's release), `crates/zenith-release-sign/release-keys.txt` and the signed message `horizon release <tag>`;
+- upstream links and attribution: "Built on Horizon" in the README, `LICENSE` and `THIRD_PARTY_NOTICES.md` keep Horizon's copyright.
 
 ## Sync with Horizon
 
-The workflow `zenith-sync` (`.github/workflows/zenith-sync.yml`) runs **every 6 hours** (`7 */6 * * *`; it was hourly, which cost too much compute) or by hand. The goal: `main` stays level with Horizon's `main` (GitHub's "N commits behind" stays at 0) and **never loses anything of ours**. All the logic is in `ci/sync.py`, so you can run it locally.
+The workflow `zenith-sync` (`.github/workflows/zenith-sync.yml`) runs **every Monday at 03:07 UTC** (`7 3 * * 1`) or by hand, and is fully automatic. Because crates, binaries and folders have other names, git cannot merge Horizon's branch; the work is done by translating Horizon's patches. All the logic is in `ci/`, so you can run it locally (`python ci/sync.py run --upstream-ref upstream/main --dry-run` after `git remote add upstream https://github.com/horizon-rust/horizon.git` and a fetch).
 
-1. `git fetch upstream main`. If Horizon's tip is already in `main`, the run ends green at once.
-2. Otherwise it merges the tip with a **real merge commit** (no rebase, never a force push to `main`), so every commit of ours stays in the history.
-3. Automatic conflict handling, in this order:
-   - `ci/prune.py` deletes what is in `prune-paths.txt` (this settles modify/delete conflicts on pruned files and drops pruned files that Horizon adds, such as new workflows) and removes pruned crates from the root `Cargo.toml`;
-   - files marked `merge=ours` in `.gitattributes` keep our side;
-   - `Cargo.toml` and `Cargo.lock` take Horizon's side, then pruning and `cargo metadata` bring them back to our crate set;
-   - any **other** conflict blocks the sync.
-4. `ci/check_zenith_intact.py` compares the merged tree with `ci/zenith-manifest.json`: every Zenith-own file still exists, no Horizon file has fewer `// zenith:` markers than before, and the key identifiers are still there (`zenith_versions`, `zenith_brand`, older servers on by default, cosmetics `ON_BY_DEFAULT` false, the telemetry endpoint test, the workspace members). This is what catches a merge that is clean for git but silently drops our work. When you change Zenith's own work on purpose, run `python ci/check_zenith_intact.py --update` and commit the manifest.
-5. Checks (`sync.py checks`): the ci unit tests, `check_public_tree.py`, `check_links.py`, `cargo fmt`, `cargo clippy -D warnings` on the whole (pruned) workspace, `cargo test -p zenith-protocol`, the bridge's fmt/clippy/tests, the client build and `check_launch_api.py`.
-6. All green: the merge commit is pushed to `main` (a normal push; if `main` moved meanwhile the next scheduled run retries) and any open `sync` issue is closed.
+1. `ci/upstream-synced.txt` holds the last Horizon commit ported. If Horizon's `main` is that commit, the run ends green at once.
+2. `ci/port_upstream.py` takes the diff from that commit to Horizon's tip and **translates** it (`ci/rename_map.py`): paths (`crates/horizon-core` becomes `crates/zenith-core`, `mods/horizon` becomes `java/horizon`, icon names...) and text (`horizon_core::` becomes `zenith_core::`, `-p horizon-client` becomes `-p zenith-client`, `target/release/horizon-client` becomes `target/release/zenith`), leaving the names above that stay Horizon's and upstream URLs alone. It **drops** the changes to what Zenith does not carry (`ci/prune-paths.txt`), to the files Zenith owns although Horizon has them (`merge=ours`), to our folders and to `Cargo.lock` (regenerated with `cargo metadata`). Then it applies the patch with `git apply`, writes the new SHA in `ci/upstream-synced.txt` and commits.
+3. **The strict gate** (`ci/sync.py checks`): the `ci/` unit tests, `check_zenith_intact.py` (every Zenith-own file exists, no file has fewer `// zenith:` markers, the key identifiers are there), `check_public_tree.py`, `check_links.py`, `cargo fmt --check`, `cargo check --workspace --tests --locked`, `cargo test -p zenith-protocol`, the bridge's fmt/clippy/tests, the client build and `check_launch_api.py`. Anything red means nothing is pushed.
+4. **All green:** `ci/sync.py land` pushes the ported commit to `main` with a normal push (never forced; it refuses if the commit does not contain the current `main`, and the next run starts again from the new `main`), and the open `sync` issue and the old `sync/*` pull requests close.
+5. **A patch that does not apply, or a red gate:** `main` is not touched. The attempt goes to a branch `sync/<date>-<short>` (for a patch that does not apply, with what applied plus `*.rej` files for the rest), a pull request is opened or updated, **one** issue titled "Sync blocked: conflict with upstream" with the label `sync` is opened or commented on, and the run ends red. `main` then stays behind Horizon until a person (or an agent) finishes the port: check out the branch, resolve the `*.rej` files by hand keeping both sides' intent, make `ci/sync.py checks` green, update `ci/upstream-synced.txt` if the branch does not, and push to `main`.
 
-**When it is blocked** (a conflict, the intact check or a failed check) `main` is not touched. The attempt goes to a branch `sync/<date>-<short>`, a pull request is opened (or updated), **one** issue titled "Sync blocked: conflict with upstream" with the label `sync` is opened (or commented on), and the run ends red. `main` then stays behind Horizon until a person (or an agent) resolves it: merge `upstream/main` locally, fix the conflicts keeping both sides' intent, run the checks and push. The next scheduled run closes the issue.
+The policy is honest: this is a best-effort weekly attempt. A Horizon change that touches code we edited, a new crate that needs a rename rule, or a new `horizon-*` name that must stay Horizon's (add it to `ci/rename_map.py`, with a test) will block it; the report names the files. Nothing is lost, and the next run after a manual fix continues from the recorded SHA.
 
 ### Releases and the nightly rule
 
-The sync merges continuously, but a **game build is published only from a commit whose Horizon part is covered by a Horizon nightly**: Zenith's release reuses the `exporters/` of a Horizon nightly Release, and if the code moved on, those classes could mismatch (unverified). After a successful push (or when already level) the sync dispatches `zenith-release` only if the merged Horizon commit is an ancestor of (or equal to) the commit of the newest `nightly-source/*` tag (`git merge-base --is-ancestor`). Otherwise the job summary says "release pending: waiting for the next Horizon nightly". The release gate still allows at most one release per UTC day (`force` publishes again), and the repository variable `ZENITH_AUTOPUBLISH=off` stops publishing. Consequence to know: while Horizon commits land faster than its nightlies, Zenith's `main` is level but the published nightly lags.
+The sync lands continuously, but a **game build is published only from a commit whose Horizon part is covered by a Horizon nightly**: Zenith's release reuses the `exporters/` of a Horizon nightly Release, and if the code moved on, those classes could mismatch (unverified). After a landed port (or when already level) the sync dispatches `zenith-release` only if the ported Horizon commit is an ancestor of (or equal to) the commit of the newest `nightly-source/*` tag (`git merge-base --is-ancestor`). Otherwise the job summary says "release pending: waiting for the next Horizon nightly". The release gate still allows at most one release per UTC day (`force` publishes again), and the repository variable `ZENITH_AUTOPUBLISH=off` stops publishing.
 
 ### Files Horizon also has
 
-`.gitattributes` marks `README.md`, `CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/config.yml` with `merge=ours` and the workflow enables the driver (`git config merge.ours.driver true`). If you add an own file that Horizon also has, mark it the same way and add it to `EXTRA_FILES` in `ci/check_zenith_intact.py`.
+`.gitattributes` marks `README.md`, `CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/config.yml` with `merge=ours`; the port reads that list to skip Horizon's changes to them. If you add an own file that Horizon also has, mark it the same way and add it to `EXTRA_FILES` in `ci/check_zenith_intact.py`.
 
-### Pruning more (or less)
+### Not carrying more (or less)
 
-Edit `ci/prune-paths.txt` (directory prefixes end in `/`, `!` keeps). Run `python ci/prune.py`, then `cargo metadata` and the checks, and commit. Never prune a path that a client crate, `xtask` or the bridge builds from (check with `cargo metadata`).
+Edit `ci/prune-paths.txt` (Horizon's names; directory prefixes end in `/`, `!` keeps). It only affects future ports. Never list a path that a client crate, `xtask` or the bridge builds from.
+
+After changing Zenith's own work on purpose run `python ci/check_zenith_intact.py --update` and commit the manifest.
 
 ## What Zenith changes in the game
 
@@ -82,25 +95,26 @@ It was merged from commit `cc3ee16e4664eeced430dc05d68074602d79ba63` of branch `
 
 ```sh
 git fetch https://github.com/TheApple05/horizon.git feature/older-servers-1.21.8
-git merge --no-ff FETCH_HEAD
+git merge --no-ff FETCH_HEAD   # only from before the hard fork; now port it by hand
 ```
 
-When Horizon merges the PR, the sync may conflict in `crates/zenith-protocol/src/adapter*`, `item.rs` and `tools/generate_registry_id_adapter.py`: resolve by taking Horizon's version. When merging, `..BEFORE_26_1` was added by hand in 1.21.8 and `dropped_components: &[]` in `v1_21_8_ids.rs`, and `item.rs` only keeps the component patch without an active adapter.
+When Horizon merges the PR, the weekly port may not apply in `crates/zenith-protocol/src/adapter*`, `item.rs` and `tools/generate_registry_id_adapter.py`: resolve by taking Horizon's version. When merging, `..BEFORE_26_1` was added by hand in 1.21.8 and `dropped_components: &[]` in `v1_21_8_ids.rs`, and `item.rs` only keeps the component patch without an active adapter.
 
 ## Build, test and publish
 
 ```sh
 cargo build --release -p zenith-client              # the game
+cargo check --workspace --tests --locked          # everything compiles, tests included
 cargo test -p zenith-protocol -p zenith-client     # protocol and version selector
 cd bridge && cargo test                       # the bridge (another workspace)
 python tools/check_public_tree.py                    # public tree check
-python -m unittest discover ci                # sync, prune, intact and link checks
+python -m unittest discover -s ci             # port, sync, intact and link checks
 python ci/check_links.py                      # relative links in our markdown
 ```
 
 Publish: the `zenith-release` workflow (`workflow_dispatch`, with the UTC date) builds `main`, signs `SHA256SUMS` and publishes `nightly-<date>` (the launcher installer and portable zip only: what players download) and the moving `nightly` release (the signed game channel the launcher and game fetch from) (`ci/zenith_publish.sh`). The installer and portable are built by the `launcher` job from `launcher` (typecheck, tests, electron-builder, a check of `app.asar`), with the bridge built in the same run bundled inside; the portable exe is published zipped.
 
-Binary and variable names are still Horizon's: `zenith-client`, `zenith-prepare`, `HORIZON_HOME`, `HORIZON_OLDER_SERVERS`, etc.
+Names: the game is `zenith` (package `zenith-client`), the tools are `zenith-ctl` and `zenith-prepare`; most environment variables are still `HORIZON_*` (see "What keeps Horizon's name").
 
 ## Tests that fail on purpose or are known
 

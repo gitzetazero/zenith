@@ -1,4 +1,4 @@
-//! `cargo horizon-mod registry build|review|check|list`: the registry repository's CI
+//! `cargo zenith-mod registry build|review|check|list`: the registry repository's CI
 //! (`horizon-rust/horizon-mods`, docs/api/mod-index.md). Network-free: the
 //! workflow downloads the files and publishes what this writes.
 use std::path::Path;
@@ -10,12 +10,12 @@ use zenith_mods::index::{
 /// Where the registry's site is published (its icons).
 const SITE: &str = "https://horizon-rust.github.io/horizon-mods/";
 
-const USAGE: &str = "usage: cargo horizon-mod registry build <checkout> --files <dir> --out <index.json> [--release <url>] [--site <url>] [--generated <time>]
-       cargo horizon-mod registry review <base checkout> <head checkout> --author <login> [--json]
-       cargo horizon-mod registry check <base checkout> <head checkout> --files <dir>
-       cargo horizon-mod registry list <checkout>
-       cargo horizon-mod registry release <checkout> <id> <file> --tag <tag> --published <YYYY-MM-DD> [--notes <file>] [--signature <file>] [--game <version>]
-       cargo horizon-mod registry page <checkout> <id> <horizon-registry.toml>";
+const USAGE: &str = "usage: cargo zenith-mod registry build <checkout> --files <dir> --out <index.json> [--release <url>] [--site <url>] [--generated <time>]
+       cargo zenith-mod registry review <base checkout> <head checkout> --author <login> [--json]
+       cargo zenith-mod registry check <base checkout> <head checkout> --files <dir>
+       cargo zenith-mod registry list <checkout>
+       cargo zenith-mod registry release <checkout> <id> <file> --tag <tag> --published <YYYY-MM-DD> [--notes <file>] [--signature <file>] [--game <version>]
+       cargo zenith-mod registry page <checkout> <id> <horizon-registry.toml>";
 
 fn flag<'a>(args: &'a [String], name: &str) -> Option<&'a str> {
     super::flag(args, name)

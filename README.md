@@ -65,7 +65,7 @@ cargo run --release -p zenith-prepare -- --prepare --server-jar ~/Downloads/serv
 cargo run --release -p zenith-client
 ```
 
-Prepared files end up in `.local/`, which git ignores: do not commit or share them. Internal names (`zenith-client`, `HORIZON_*`) were deliberately not changed; see [`docs/ZENITH.md`](docs/ZENITH.md).
+Prepared files end up in `.local/`, which git ignores: do not commit or share them. Crates and binaries are named `zenith-*` (the game is `zenith`); a few protocol, file-format and `HORIZON_*` environment names stay Horizon's on purpose, see [`docs/ZENITH.md`](docs/ZENITH.md).
 
 ## Known problems
 
@@ -87,7 +87,7 @@ Anything else? [Open an issue](https://github.com/gitzetazero/zenith/issues/new/
 
 ## Credits and licence
 
-Zenith is a fork of [Horizon](https://github.com/horizon-rust/horizon). Thanks to the Horizon team and its contributors: the engine is their work, and Zenith receives their improvements by syncing. If you like what they do, support them.
+Zenith is a fork of [Horizon](https://github.com/horizon-rust/horizon). Thanks to the Horizon team and its contributors: the engine is their work, and Zenith receives their improvements through a weekly, translated port. If you like what they do, support them.
 
 The code is [MIT](LICENSE). The original copyright notices are kept in the licence file, next to those of Zenith's contributors. Dependencies keep their licences ([notices](THIRD_PARTY_NOTICES.md)).
 

@@ -589,7 +589,7 @@ class WorkspaceManifestTests(unittest.TestCase):
             return parity.workspace_only_manifests(set(head) | set(base), "base")
 
     def test_a_crate_split_is_left_out(self):
-        command = '[package]\nname = "zenith-command"\n\n[dependencies]\nserde = "1"\nhorizon-core = { path = "../zenith-core" }\n'
+        command = '[package]\nname = "zenith-command"\n\n[dependencies]\nserde = "1"\nzenith-core = { path = "../zenith-core" }\n'
         client = self.CLIENT + 'zenith-command = { path = "../zenith-command" }\n'
         lock = self.LOCK.replace('[[package]]\nname = "serde"', '[[package]]\nname = "zenith-command"\nversion = "0.1.0"\n\n'
                                  '[[package]]\nname = "serde"')
@@ -610,7 +610,7 @@ class WorkspaceManifestTests(unittest.TestCase):
 
     def test_a_feature_of_a_workspace_crate_counts_through_its_sources(self):
         items = '[package]\nname = "zenith-items"\n\n[features]\ntest-support = []\n'
-        client = self.CLIENT + '\n[dev-dependencies]\nhorizon-items = { path = "../zenith-items", features = ["test-support"] }\n'
+        client = self.CLIENT + '\n[dev-dependencies]\nzenith-items = { path = "../zenith-items", features = ["test-support"] }\n'
         head = {"crates/zenith-items/Cargo.toml": items, "crates/zenith-client/Cargo.toml": client,
                 "crates/zenith-items/src/lib.rs": '#[cfg(feature = "test-support")]\npub fn for_tests() {}\n'}
         base = {"crates/zenith-client/Cargo.toml": self.CLIENT}

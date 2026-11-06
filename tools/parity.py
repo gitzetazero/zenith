@@ -1308,7 +1308,7 @@ def trace_main(output, script, arguments):
 SHARED_INPUTS = {"research-lock.json", "Cargo.lock"}
 # Manifest sections that say what a crate is and where its targets are, not what it builds with.
 MANIFEST_SECTION_KEPT = re.compile(r"\[\[?(?:package|lib|bin|example|test|bench|lints|badges)\b[^\]]*\]\]?$")
-WORKSPACE_CRATE = r"(horizon[\w-]*|cargo-zenith-mod|xtask)"
+WORKSPACE_CRATE = r"(zenith[\w-]*|cargo-zenith-mod|xtask)"
 # A workspace crate named as a dependency (by path, or from the workspace's own table) without choosing its features,
 # or listed as a member.
 WORKSPACE_LINE = re.compile(WORKSPACE_CRATE + r'\s*=\s*(?:\{(?![^}]*\bfeatures\b)[^}]*\b(?:path|workspace)\s*=[^}]*\}|true)'

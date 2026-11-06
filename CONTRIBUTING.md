@@ -25,7 +25,7 @@ python -m unittest discover ci
 - **Nothing from Mojang in the repository.** No classes, no assets, no jars. Zenith prepares the game from the copy each person has.
 - **Original code or code under a compatible licence.** If you copy or build on code from another project, say which, with a link and its licence (MIT, BSD, Apache-2.0, ISC, zlib, 0BSD, Unlicense or CC0).
 - **Small changes.** One change per pull request. Do not reformat files you do not touch.
-- **New Zenith work goes in `zenith/`.** In the rest of the code, only small hooks marked `// zenith:`. Internal names (`zenith-client`, `HORIZON_*`) are not renamed. The reason and the other rules are in [`docs/ZENITH.md`](docs/ZENITH.md).
+- **New Zenith work goes in its own folder** (`launcher/`, `bridge/`, `branding/`, `ci/`). In the engine crates, keep edits small and mark hooks `// zenith:` so Horizon's weekly changes still apply. Crates and binaries are `zenith-*`; a few `horizon`/`HORIZON_*` names stay on purpose. The reason and the other rules are in [`docs/ZENITH.md`](docs/ZENITH.md).
 - **Honest documentation.** Say what is tested and what is not. Do not state performance figures you cannot back up.
 
 ## Sending a change

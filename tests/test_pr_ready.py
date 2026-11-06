@@ -32,7 +32,7 @@ class PrReadyTests(unittest.TestCase):
     def test_paths_map_to_the_crates_that_own_them(self):
         self.assertEqual(pr_ready.touched_crates({"crates/zenith-core/src/jmath.rs", "crates/zenith-client/build.rs",
                                                   "xtask/src/main.rs", "tools/parity.py"}, PACKAGES),
-                         ["zenith-client", "zenith-core", "xtask"])
+                         ["xtask", "zenith-client", "zenith-core"])
         self.assertEqual(pr_ready.touched_crates({"crates/zenith-core/README.md"}, PACKAGES), [])
         # The generated stylesheet is checked by zenith-theme's tests.
         self.assertEqual(pr_ready.touched_crates({"crates/zenith-theme/tokens.css"}, PACKAGES), ["zenith-theme"])

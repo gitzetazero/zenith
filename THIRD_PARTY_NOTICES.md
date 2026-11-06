@@ -30,31 +30,31 @@ x86/x64 instead of the POPCNT instruction, which CPUs before Nehalem lack (#7264
 
 ## Pixelify Sans
 
-`crates/horizon-theme/fonts/PixelifySans-*.ttf` is [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans)
+`crates/zenith-theme/fonts/PixelifySans-*.ttf` is [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans)
 by The Pixelify Sans Project Authors, licensed under the SIL Open Font License 1.1
-(`crates/horizon-theme/fonts/OFL-PixelifySans.txt`).
+(`crates/zenith-theme/fonts/OFL-PixelifySans.txt`).
 
 ## Pixelarticons
 
-`crates/horizon-theme/icons/pixel/*.svg` are icons from
+`crates/zenith-theme/icons/pixel/*.svg` are icons from
 [Pixelarticons](https://github.com/halfmage/pixelarticons) by Gerrit Halfmann, under the MIT
-license (`crates/horizon-theme/icons/pixel/LICENSE-pixelarticons.txt`). `star.svg` is Horizon's own, drawn on
+license (`crates/zenith-theme/icons/pixel/LICENSE-pixelarticons.txt`). `star.svg` is Horizon's own, drawn on
 the same grid.
 
 ## Hugeicons
 
-`crates/horizon-theme/icons/glass/*.svg` are icons from the free set of
+`crates/zenith-theme/icons/glass/*.svg` are icons from the free set of
 [Hugeicons](https://github.com/hugeicons/hugeicons) (`@hugeicons/core-free-icons` 4.4.0), under
-the MIT license (`crates/horizon-theme/icons/glass/LICENSE-hugeicons.txt`), exported with a 1.6
+the MIT license (`crates/zenith-theme/icons/glass/LICENSE-hugeicons.txt`), exported with a 1.6
 stroke in `currentColor`.
 
-`crates/horizon-theme/icons/glass/discord.svg` is Discord's logo as drawn by
+`crates/zenith-theme/icons/glass/discord.svg` is Discord's logo as drawn by
 [Simple Icons](https://github.com/simple-icons/simple-icons) 13.21.0 (CC0 1.0). The logo is Discord's
 trademark, used only on the button that opens Horizon's Discord server.
 
 ## AMD FidelityFX SDK (FSR 3.1 frame generation)
 
-`crates/horizon-client-render/src/gfx/frame_gen/optical_flow.wgsl` and `interpolation.wgsl` are
+`crates/zenith-client-render/src/gfx/frame_gen/optical_flow.wgsl` and `interpolation.wgsl` are
 ports to WGSL of the optical flow and frame interpolation shaders of the
 [AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) 1.1.4
 (`sdk/include/FidelityFX/gpu/{opticalflow,frameinterpolation}`, at commit
@@ -92,7 +92,7 @@ and its logo are trademarks of the Microsoft group of companies; Horizon is not 
 
 ## CIT Resewn
 
-`crates/horizon-optifine/src/cit.rs` and `crates/horizon-client-render/src/cit.rs` follow the
+`crates/zenith-optifine/src/cit.rs` and `crates/zenith-client-render/src/cit.rs` follow the
 condition semantics of [CIT Resewn Continuation](https://github.com/EthanVisagie/CIT-Resewn-Continuation-1.21.11)
 (at `b792f9a`), a continuation of [CIT Resewn](https://github.com/SHsuperCM/CITResewn) by SHsuperCM: the
 1.21 component paths, enchantment levels, percent damage, text matching and rule ordering. It is
@@ -117,7 +117,7 @@ licensed under the MIT license:
 
 ## FusionExamples
 
-The tile tables in `crates/horizon-optifine/src/fusion/layout.rs` were read off the connecting
+The tile tables in `crates/zenith-optifine/src/fusion/layout.rs` were read off the connecting
 texture templates (`templates/template <layout>.png`) of
 [FusionExamples](https://github.com/SuperMartijn642/FusionExamples) (at `8c9c56e`), which is
 licensed under the MIT license:
@@ -141,7 +141,7 @@ licensed under the MIT license:
 
 ## BlueMap
 
-`crates/horizon-client-render/src/bluemap.rs` reads the lowres tiles of a server's
+`crates/zenith-client-render/src/bluemap.rs` reads the lowres tiles of a server's
 [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap) web map. It follows three of BlueMap's files:
 `core/src/main/java/de/bluecolored/bluemap/core/map/lowres/LowresLayer.java` (`saveTile`) for the
 tiles' pixel layout, `common/webapp/src/js/util/Utils.js` (`pathFromCoords`) for their paths, and
@@ -173,8 +173,8 @@ BlueMap is licensed under the MIT license:
 
 ## JOML
 
-`crates/horizon-client-render/src/camera.rs` (`joml::Mat4::rotation`, `invert_orthonormal`) and
-`crates/horizon-client-render/src/gfx/pack_uniforms.rs` (`invert_generic`, `invert_affine`, the
+`crates/zenith-client-render/src/camera.rs` (`joml::Mat4::rotation`, `invert_orthonormal`) and
+`crates/zenith-client-render/src/gfx/pack_uniforms.rs` (`invert_generic`, `invert_affine`, the
 formulas of `pack_projection` and `shadow_ortho`) adapt the float arithmetic of
 `Matrix4f.rotation(Quaternionfc)`, `invertOrthonormal`, `invertGenericNonThis`, `invertAffine`,
 `setPerspective` and `setOrtho` from

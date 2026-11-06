@@ -97,7 +97,7 @@ pub struct Page {
 
 /// What the registry keeps of a repository between runs (`versions/<id>.json`, on the registry's
 /// `versions` branch): the page last read, and every release version that passed its checks, as
-/// the index lists it. Written by `cargo horizon-mod registry release|page`, read by [`build`].
+/// the index lists it. Written by `cargo zenith-mod registry release|page`, read by [`build`].
 #[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct Cache {
