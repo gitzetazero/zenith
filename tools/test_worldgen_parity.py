@@ -304,12 +304,12 @@ def main():
         return {"minecraft:"+name[len(prefix):-5]:text for name,text in resources.items()}
     bundle = build/"registries.json"
     named_settings = named(settings,"noise_settings")
-    source = lab.ROOT/"mods/horizon/src/test/java/dev/horizonlab/parity/VanillaWorldgenOracle.java"
+    source = lab.ROOT/"java/horizon/src/test/java/dev/horizonlab/parity/VanillaWorldgenOracle.java"
     exporter = source.with_name("VanillaBiomeExport.java")
     tag_exporter = source.with_name("VanillaTagExport.java")
     sources = [source,exporter,tag_exporter,Path(__file__),lab.ROOT/"tools/test_rust_parity.py",lab.ROOT/"tools/lab.py",
-               *sorted((lab.ROOT/"crates/horizon-core").rglob("*.rs")),*sorted((lab.ROOT/"crates/horizon-world").rglob("*.rs")),
-               lab.ROOT/"crates/horizon-core/Cargo.toml",lab.ROOT/"crates/horizon-world/Cargo.toml",lab.ROOT/"Cargo.toml",lab.ROOT/"Cargo.lock"]
+               *sorted((lab.ROOT/"crates/zenith-core").rglob("*.rs")),*sorted((lab.ROOT/"crates/zenith-world").rglob("*.rs")),
+               lab.ROOT/"crates/zenith-core/Cargo.toml",lab.ROOT/"crates/zenith-world/Cargo.toml",lab.ROOT/"Cargo.toml",lab.ROOT/"Cargo.lock"]
     tested_sources = base.source_hashes(sources)
     classes = build/"classes"
     classes.mkdir(exist_ok=True)
@@ -355,9 +355,9 @@ def main():
     inputs.write_text("\n".join(commands)+"\n",encoding="utf-8")
     fixture_paths = [bundle,inputs,*preset_files.values(),*tag_export_files.values()]
     tested_fixtures = base.source_hashes(fixture_paths)
-    base.run(["cargo","build","--release","--bin","horizon-worldgen-parity"])
+    base.run(["cargo","build","--release","--bin","zenith-worldgen-parity"])
     metadata = json.loads(subprocess.check_output(["cargo","metadata","--no-deps","--format-version","1"],cwd=lab.ROOT,text=True))
-    binary = Path(metadata["target_directory"])/"release"/("horizon-worldgen-parity.exe" if os.name == "nt" else "horizon-worldgen-parity")
+    binary = Path(metadata["target_directory"])/"release"/("zenith-worldgen-parity.exe" if os.name == "nt" else "zenith-worldgen-parity")
     candidate = build/"rust.txt"
     with inputs.open("rb") as stdin,candidate.open("wb") as stdout: base.run([str(binary)],stdin=stdin,stdout=stdout)
     injected_failures = Counter()

@@ -307,9 +307,9 @@ def main():
     checkpoint_path=build/'run-state.json'
     if args.prepare:lab.prepare()
     lock,jars,libraries=base.verify_artifacts()
-    oracle=lab.ROOT/'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaStateProviderOracle.java'
+    oracle=lab.ROOT/'java/horizon/src/test/java/dev/horizonlab/parity/VanillaStateProviderOracle.java'
     helpers=[oracle.with_name(name+'.java') for name in ['VanillaBlockStateCodecOracle','VanillaHeightmapOracle','VanillaMaterialConditionOracle','VanillaBiomeTemperatureOracle','VanillaAnchorOracle','VanillaBlockPropertiesOracle','VanillaBlockSupportOracle','VanillaBlockSurvivalOracle','VanillaCollisionOracle']]
-    sources=[oracle,*helpers,lab.ROOT/'tools/test_block_survival_parity.py',lab.ROOT/'tools/test_biome_temperature_parity.py',lab.ROOT/'tools/test_material_condition_parity.py',lab.ROOT/'tools/test_worldgen_parity.py',Path(__file__),lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/horizon-core/Cargo.toml',lab.ROOT/'crates/horizon-world/Cargo.toml',*sorted((lab.ROOT/'crates/horizon-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/horizon-world/src').rglob('*.rs')),lab.ROOT/'crates/horizon-world/examples/probe/state_provider_fixture.rs']
+    sources=[oracle,*helpers,lab.ROOT/'tools/test_block_survival_parity.py',lab.ROOT/'tools/test_biome_temperature_parity.py',lab.ROOT/'tools/test_material_condition_parity.py',lab.ROOT/'tools/test_worldgen_parity.py',Path(__file__),lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/zenith-core/Cargo.toml',lab.ROOT/'crates/zenith-world/Cargo.toml',*sorted((lab.ROOT/'crates/zenith-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/zenith-world/src').rglob('*.rs')),lab.ROOT/'crates/zenith-world/examples/probe/state_provider_fixture.rs']
     tested_sources=base.source_hashes(sources)
     environment={'minecraft':lock['minecraft']['version'],'manifest_sha1':lock['minecraft']['manifest_sha1'],'platform':platform.platform(),'java':subprocess.check_output(['java','--version'],text=True).splitlines()[0],'rustc':subprocess.check_output(['rustc','--version'],text=True).strip(),'dependencies':{str(path):lab.digest(path,'sha256') for path in [*jars.values(),*libraries]}}
     checkpoint=survival.load_checkpoint(checkpoint_path,tested_sources,environment) if args.resume else None
@@ -339,7 +339,7 @@ def main():
         biome_tags['horizon:ordered']='{"values":["minecraft:plains","minecraft:desert","minecraft:plains"]}'
         for name,data in [('biomes',biomes),('biome_tags',biome_tags)]:
             (build/(name+'.json')).write_text(json.dumps(data,separators=(',',':')),encoding='utf-8')
-        run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'mods/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle,*helpers],'compile-java')
+        run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'java/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle,*helpers],'compile-java')
         run(['java','-Xmx512M','-cp',os.pathsep.join([str(classes),str(jars['server']),dependency_path]),'dev.horizonlab.parity.VanillaBlockPropertiesOracle','export',build],'properties-export')
         run(['java','-Xmx512M','-cp',os.pathsep.join([str(classes),str(jars['server']),dependency_path]),'dev.horizonlab.parity.VanillaBlockSupportOracle','export',build],'support-export')
         run(['java','-Xmx512M','-cp',os.pathsep.join([str(classes),str(jars['server']),dependency_path]),'dev.horizonlab.parity.VanillaBlockSurvivalOracle','definitions',build],'survival-export')
@@ -371,7 +371,7 @@ def main():
                 output.write(json.dumps(fixture,separators=(',',':'))+'\n')
                 fixture_count+=1;requested_samples+=len(fixture['states'])*fixture['repeats']*2
         fixture_paths=[inputs,build/'survival-extra-definitions.json',build/'survival-placement-classes.json',build/'survival-support-tags.json',build/'survival-classes.json',build/'survival-rules.json',build/'cached-support.nbt',build/'support-cached-states.json',build/'block-properties.nbt',build/'cached-collision.nbt',build/'biomes.json',build/'biome_tags.json',build/'fluid-tags.json',build/'catalog.json',build/'providers.json',build/'tags.json',build/'facts-client.json',build/'facts-server.json'];tested_fixtures=base.source_hashes(fixture_paths)
-        run(['cargo','build','--release','-p','horizon-world','--example','world_probe'],'compile-rust')
+        run(['cargo','build','--release','-p','zenith-world','--example','world_probe'],'compile-rust')
         metadata=json.loads(subprocess.check_output(['cargo','metadata','--no-deps','--format-version','1'],cwd=lab.ROOT,text=True))
         binary=Path(metadata['target_directory'])/'release/examples'/('world_probe.exe' if os.name=='nt' else 'world_probe')
         counts={'block_states':len(facts['states']),'blocks':len(facts['defaults']),'integer_properties':len(facts['integers']),'codec_inputs':fixture_count,'provider_types':10,'named_providers':len(catalog_resources),'rule_predicate_types':16,'survival_supported_blocks':len(survival_rules),'survival_supported_states':sum(s['id'] in survival_rules for s in facts['states']),'support_cached_states':len(support_states),'support_dynamic_states':len(facts['states'])-len(support_states),'biomes':len(biomes),'biome_tag_files':len(biome_tags),'fluid_tag_files':len(fluid_tags),'bundled_provider_definitions':len(provider_resources),'block_tag_files':len(tags),'requested_samples':requested_samples}

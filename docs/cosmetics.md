@@ -17,7 +17,7 @@ that change the look are off by default). The settings below change both.
 - **A setting hides them**: other players' cosmetics, and your own.
 - **Zero cost when none is in view**, and a vertex budget per item.
 
-## The item format (`crates/horizon-cosmetics`)
+## The item format (`crates/zenith-cosmetics`)
 
 One JSON file per item. Coordinates are model pixels (1/16 block) in the player model's space:
 y points down, as in vanilla's `ModelPart`s and Blockbench's "Modded Entity" models.
@@ -124,7 +124,7 @@ Their limits, on top of the vertices, texture and parts above:
 | Aura reach | 14 pixels sideways from the feet's middle; 6 pixels up at the feet, 30 around the body; 1 below | it frames the player without hiding anyone near them |
 | Aura opacity | 0.6 at the feet, 0.35 around the body | a player inside one is as easy to see and hit |
 
-## Emotes (`horizon_cosmetics::Emote`)
+## Emotes (`zenith_cosmetics::Emote`)
 
 An emote is an item of the `emote` slot: a short animation of the player model, owned like any
 item, never worn in a slot. Its `emote` block keyframes the bones; its `parts`, if any, are props
@@ -190,9 +190,9 @@ props; `Playing` is an emote someone plays (its start, its cancel) and gives its
   ends it goes back to first person, unless you changed the view meanwhile. From a third person
   view it stays as it is.
 - **Visual only**: it changes nothing of the game; the game server receives nothing and sees a
-  player standing still. `horizon-ctl emote [ID|stop]` plays one as the wheel does.
+  player standing still. `zenith-ctl emote [ID|stop]` plays one as the wheel does.
 
-### Others' emotes (`horizon_cosmetics::Feed`)
+### Others' emotes (`zenith_cosmetics::Feed`)
 
 Vanilla servers stay untouched: emotes travel through the cosmetics service only.
 
@@ -221,7 +221,7 @@ Vanilla servers stay untouched: emotes travel through the cosmetics service only
   0.41 µs per emoting player and frame, about 1 µs for one that turns its root (Victory Hop,
   Harvest Jig); 30 players emoting at once stay under 35 µs a frame.
 
-## What other players wear (`horizon_cosmetics::Cosmetics`)
+## What other players wear (`zenith_cosmetics::Cosmetics`)
 
 The game asks Horizon's cosmetics service (HTTPS, JSON) what the players in view wear, and draws
 from its answers. The frame never waits on the network: it reads a cache, and a thread of its own
@@ -245,7 +245,7 @@ does the asking.
 ## Horizon players' mark
 
 Like Lunar Client's: Horizon players see Horizon's mark (two white bars over a violet line,
-`horizon_cosmetics::mark`) before the names of other Horizon players, above their heads (both
+`zenith_cosmetics::mark`) before the names of other Horizon players, above their heads (both
 views, and your own with *Own name tag*) and in the player list, after the head. Nothing changes on
 the wire to Minecraft servers: which players use Horizon comes from the cosmetics service, in the
 same cached `/v1/worn` answers as what they wear (no request of its own, nothing per frame).
@@ -269,17 +269,17 @@ same cached `/v1/worn` answers as what they wear (no request of its own, nothing
 
 ## In the game
 
-- **The flag**: `horizon_cosmetics::ON_BY_DEFAULT` is `true`. `HORIZON_COSMETICS=0` turns
+- **The flag**: `zenith_cosmetics::ON_BY_DEFAULT` is `true`. `HORIZON_COSMETICS=0` turns
   everything off for one run (no thread, no request, no setting, no drawing), `=1` on;
   `HORIZON_COSMETICS_API=<url>` points the game at another service, and
   `HORIZON_COSMETICS_LOCAL=<folder>` reads items from a folder instead: every player and every
   mannequin wears its first item of each slot, and every mannequin plays the folder's first
   emote over and over (the art and the bench, without the network).
 - **Settings** (Extras, under "Cosmetics", shown only with the flag on), the same three as the
-  launcher's Wardrobe (`horizon_cosmetics::prefs`, lines of `horizon-extras.txt`):
+  launcher's Wardrobe (`zenith_cosmetics::prefs`, lines of `horizon-extras.txt`):
   - *My cosmetics: Shown / Hidden* is the account's (`PUT /v1/visible`): hidden, every Horizon
     player sees you without them, you included. The game signs in for that one call the way the
-    launcher does (`horizon_cosmetics::account`, Mojang's `join` with the player's session) and
+    launcher does (`zenith_cosmetics::account`, Mojang's `join` with the player's session) and
     notes what the service confirmed in `cosmetics-visible.txt`; offline it tries again after 15 s,
     doubling to 10 minutes, until the service takes it. An unchanged switch sends nothing.
   - *Other players' cosmetics: Shown → Name tags only → Hidden*. Hidden, the game asks for nothing
@@ -289,7 +289,7 @@ same cached `/v1/worn` answers as what they wear (no request of its own, nothing
     The button shows that value; pressing it writes the line, which then wins. Hidden, nothing of
     theirs is drawn, yet with *Horizon logos* on the game still asks the same `/v1/worn` batch who
     plays Horizon.
-  - **Ownership** (`horizon_cosmetics::account::owns`): once a run, in a world, the game signs in
+  - **Ownership** (`zenith_cosmetics::account::owns`): once a run, in a world, the game signs in
     as for *My cosmetics* and reads `GET /v1/me`; an account whose `owned` list has anything owns
     one. The answer is kept per account in `cosmetics-owned.txt` (beside `cosmetics-visible.txt`;
     the launcher's Wardrobe writes it too) and used at the next start until the service answers.
@@ -343,7 +343,7 @@ same cached `/v1/worn` answers as what they wear (no request of its own, nothing
   - Trails and auras of every player go in one see-through span after the players (shader packs
     see it as `minecraft:player`, translucent). Others' are hidden by *Hide other players' trails
     and auras*, and with every other cosmetic by *Name tags only* and *Hidden*.
-- **Cost of companions, trails and auras**: the work of `horizon-cosmetics` per frame
+- **Cost of companions, trails and auras**: the work of `zenith-cosmetics` per frame
   (`examples/fx_bench.rs`, items at the format's limits: a 504-vertex companion and aura and the
   densest trail; release build on an i7-7500U) is 3.6 µs for 1 wearer in view, 58 µs for 16 and
   189 µs for 64 (trails stop growing at the 512-particle budget). The game spends more: posing,
@@ -355,7 +355,7 @@ same cached `/v1/worn` answers as what they wear (no request of its own, nothing
   does no cosmetics work beyond that. The bench scene `stress_avatars` (300 mannequins, 20×15)
   measures the cost with `HORIZON_COSMETICS=1 HORIZON_COSMETICS_LOCAL=…` against the same run off.
 
-## The live view (`horizon_cosmetics::preview`, `horizon_cosmetics::viewer`)
+## The live view (`zenith_cosmetics::preview`, `zenith_cosmetics::viewer`)
 
 The launcher shows items on the player's own skin without the game: `preview::render` draws the
 player model (vanilla's `PlayerModel` boxes on a 64×64 skin, wide or slim arms, the outer layers
@@ -433,7 +433,7 @@ page stays hidden.
   only the launcher can prove the account with Mojang. **Your purchases** lists the account's orders (date, item, price, state, order number).
 - **Three switches**: *Show my cosmetics* (the account's, on the service: off, everyone sees you
   without them), *Hide other players' cosmetics* and *Hide other players' trails and auras* (off by
-  default). The last two are lines of the game's `horizon-extras.txt` (`horizon_cosmetics::prefs`:
+  default). The last two are lines of the game's `horizon-extras.txt` (`zenith_cosmetics::prefs`:
   `cosmeticsOthers` = `shown`, `name_tags` or `hidden`, `cosmeticsHideFx`), the same ones the
   game's settings change. With no `cosmeticsOthers` line, *Hide other players' cosmetics* shows
   what the game does: on unless the account owns something. Each answer of the service also

@@ -3,7 +3,7 @@
 Status: proposal, in use for new hooks: they take the names, sides and catalog fields below. Checked against `native-hooks.json` on main
 (427 hooks, `NATIVE_HOOKS_API` 409) on 5 November 2026.
 
-Native mods hook empty functions in `crates/horizon-client/src/game/native_hooks.rs`, listed by name in
+Native mods hook empty functions in `crates/zenith-client/src/game/native_hooks.rs`, listed by name in
 `native-hooks.json` ([native-mods.md](native-mods.md)). So far each hook was designed on its own, and open PRs
 number their API versions over each other. This proposes one
 reference for every new hook point: the NeoForge 26.3 event that does the same thing.
@@ -13,7 +13,7 @@ Why NeoForge:
 - Its events already answer the questions each of our hooks asks again: where exactly it fires, on which side,
   what it can cancel, what it is handed.
 - Mod authors know them. A Java mod's `@SubscribeEvent` methods map to hook names, which helps porting by
-  hand. [horizon-port-pack](modpacks.md) may suggest mappings for a human to review, not translate listeners
+  hand. [zenith-port-pack](modpacks.md) may suggest mappings for a human to review, not translate listeners
   automatically.
 
 What we take is event names and their documented contracts, from NeoForge's public user documentation
@@ -60,7 +60,7 @@ Each `native-hooks.json` entry gains three optional fields:
 {
   "name": "server_tick_pre",
   "version": 1,
-  "target": "horizon_client::game::native_hooks::Game<'_>::native_server_tick_pre",
+  "target": "zenith_client::game::native_hooks::Game<'_>::native_server_tick_pre",
   "neoforge": "ServerTickEvent.Pre",
   "side": "server",
   "cancellable": false

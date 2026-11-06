@@ -1,7 +1,7 @@
 # Compiled density evaluation
 
 Horizon targets the repository-pinned Minecraft Java Edition **26.3**. The
-`horizon_core::density` module implements selected compiled samplers and an initial
+`zenith_core::density` module implements selected compiled samplers and an initial
 integrated graph compiler. Complete graph coverage and terrain generation remain pending.
 
 Implemented samplers:

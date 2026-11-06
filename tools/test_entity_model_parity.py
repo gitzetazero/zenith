@@ -371,7 +371,7 @@ def main():
             lines.append(f'{layer} {cls}|{json.dumps(case)}')
     inputs = build / 'inputs.txt'; inputs.write_text('\n'.join(lines) + '\n')
     classes = build / 'classes'; classes.mkdir(exist_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaEntityAnimOracle.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaEntityAnimOracle.java'
     dependencies = os.pathsep.join(map(str, [jars['client'], *libraries]))
     def run(command, name):
         with (build / (name + '.log')).open('w') as log:
@@ -381,7 +381,7 @@ def main():
     run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-cp', dependencies, '-d', classes, oracle], 'compile-java')
     run(['java', '-Xmx1G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaEntityAnimOracle',
          inputs, build / 'vanilla.jsonl', jars['client']], 'vanilla')
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe', '--',
          'entity_anim_fixture', resources, build / 'vanilla.jsonl', build / 'rust.jsonl'], 'rust')
     vanilla = [json.loads(l) for l in (build / 'vanilla.jsonl').read_text().splitlines()]
     rust = [json.loads(l) for l in (build / 'rust.jsonl').read_text().splitlines()]

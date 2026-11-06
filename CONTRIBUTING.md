@@ -14,10 +14,10 @@ Thank you for wanting to help! This guide is short.
 The build commands are in the [README](README.md#build-from-source). To test:
 
 ```sh
-cargo test -p horizon-protocol -p horizon-client
-cd zenith/bridge && cargo test
+cargo test -p zenith-protocol -p zenith-client
+cd bridge && cargo test
 python tools/check_public_tree.py
-python -m unittest discover zenith/ci
+python -m unittest discover ci
 ```
 
 ## Code rules
@@ -25,7 +25,7 @@ python -m unittest discover zenith/ci
 - **Nothing from Mojang in the repository.** No classes, no assets, no jars. Zenith prepares the game from the copy each person has.
 - **Original code or code under a compatible licence.** If you copy or build on code from another project, say which, with a link and its licence (MIT, BSD, Apache-2.0, ISC, zlib, 0BSD, Unlicense or CC0).
 - **Small changes.** One change per pull request. Do not reformat files you do not touch.
-- **New Zenith work goes in `zenith/`.** In the rest of the code, only small hooks marked `// zenith:`. Internal names (`horizon-client`, `HORIZON_*`) are not renamed. The reason and the other rules are in [`ZENITH.md`](ZENITH.md).
+- **New Zenith work goes in `zenith/`.** In the rest of the code, only small hooks marked `// zenith:`. Internal names (`zenith-client`, `HORIZON_*`) are not renamed. The reason and the other rules are in [`docs/ZENITH.md`](docs/ZENITH.md).
 - **Honest documentation.** Say what is tested and what is not. Do not state performance figures you cannot back up.
 
 ## Sending a change

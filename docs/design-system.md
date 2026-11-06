@@ -5,10 +5,10 @@ vanilla has no screen for (the on-screen keyboard a controller types with). Ever
 and the HUD are not part of it: they are vanilla's, because parity is the point of the game, and
 Horizon's own settings are pages built from vanilla's widgets, the way mods add theirs.
 
-The tokens live in one place, `crates/horizon-theme`. The launcher (`launcher/src/theme.rs`)
-and the game (`crates/horizon-client/src/ui_theme.rs`) read them as Rust constants, and the
+The tokens live in one place, `crates/zenith-theme`. The launcher (`launcher/src/theme.rs`)
+and the game (`crates/zenith-client/src/ui_theme.rs`) read them as Rust constants, and the
 website reads them as CSS custom properties generated from the same crate
-(`cargo run -p xtask -- tokens` writes `crates/horizon-theme/tokens.css`, which the website's build
+(`cargo run -p xtask -- tokens` writes `crates/zenith-theme/tokens.css`, which the website's build
 reads from main; a test fails when the file is out of date). Change a value in the crate and all three follow.
 
 ## Where it comes from
@@ -38,7 +38,7 @@ almost nothing but type. What we take from it is its restraint rather than its c
 
 Cool, slightly blue neutrals in two appearances with the same restraint, and Horizon's violet.
 Every text colour passes WCAG AA (4.5:1) on every background it is used on; the tests in
-`horizon-theme` check each pair in both palettes.
+`zenith-theme` check each pair in both palettes.
 
 | Token        | Light     | Dark      | Use |
 |--------------|-----------|-----------|-----|
@@ -154,7 +154,7 @@ Geist (400, 500, 600) and Geist Mono (400), bundled under the SIL Open Font Lice
 
 A blocky, Minecraft-like look in Horizon's purple, for the website, the redesigned launcher and
 the game's graphics settings screen:
-Minecraft's inventory rather than a document. Its colours are `horizon_theme::Blocks`
+Minecraft's inventory rather than a document. Its colours are `zenith_theme::Blocks`
 (`BLOCKS_LIGHT`, `BLOCKS_DARK`), which `tokens.css` carries under the same names as before plus
 `--panel`, `--raised`, `--button`, `--well`, `--bevel`, `--lip`, `--outline` and the `--face`
 of the main action. The game's other menus keep `LIGHT` and `DARK`.
@@ -194,7 +194,7 @@ than Pixelify. Hover and focus are vanilla's white edge.
   the mark, hills and square trees (a sunset in dark, a dawn in light). The launcher bakes them in
   `launcher/src/art.rs` at the window's scale so each texel covers whole device pixels; the website
   draws them in its `scripts/art.mjs`.
-- **Icons**: Pixelarticons (MIT), 24 unit pixel SVGs in `crates/horizon-theme/icons/pixel/`, tinted
+- **Icons**: Pixelarticons (MIT), 24 unit pixel SVGs in `crates/zenith-theme/icons/pixel/`, tinted
   with the text colour.
 - **Contrast**: every text colour meets WCAG AA (4.5:1) on the panels, the page and the lightest
   stone shade in both palettes (`blocks_text_meets_wcag_aa_in_both_appearances`).
@@ -202,7 +202,7 @@ than Pixelify. Hover and focus are vanilla's white edge.
 ## Night
 
 The launcher's look from 0.3: a pixel night sky that turns to a sunset at the horizon, with the
-content on top. Its tokens are `horizon_theme::night` (`NIGHT`, and `DAWN` for players who pick
+content on top. Its tokens are `zenith_theme::night` (`NIGHT`, and `DAWN` for players who pick
 Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 
 - **The sky is the brand, the content is the UI.** The sky, the stepped sun, the banded clouds and
@@ -311,7 +311,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 The launcher's next look, designed by Anthony S. (dezer-x) as a web mockup: playhorizon.dev/launcher,
 source in horizon-site `app/launcher/` and `components/launcher/`. The launcher ports it one to one,
 screen by screen, replacing Night where they differ; the mockup is the reference for every size,
-colour, state and motion. Its tokens are `horizon_theme::glass`; `tokens.css` carries the colours
+colour, state and motion. Its tokens are `zenith_theme::glass`; `tokens.css` carries the colours
 as `--glass-*`.
 
 - **The scene is the background**: a pixel sunset over three ridges with trees, clouds, stars, a
@@ -341,7 +341,7 @@ as `--glass-*`.
   at the optical size a browser picks for them: `Bricolage Grotesque Display` (56) and
   `Bricolage Grotesque Heading` (28), cut by `tools/bake_bricolage.py`.
 - **Icons**: Hugeicons' free set (MIT), the ones the mockup uses, stroked 1.6 in the text colour
-  (`crates/horizon-theme/icons/glass/`, served as `icons/glass/<name>.svg`).
+  (`crates/zenith-theme/icons/glass/`, served as `icons/glass/<name>.svg`).
 
 ## The mark
 

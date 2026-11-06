@@ -155,7 +155,7 @@ def main():
     if args.prepare:
         lab.prepare()
     lock, jars, libraries = base.verify_artifacts()
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaCommandExecOracle.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaCommandExecOracle.java'
     classes = build / 'classes'
     classes.mkdir(exist_ok=True)
     dependency_path = os.pathsep.join(map(str, libraries))
@@ -387,9 +387,9 @@ def main():
     if args.binary:
         binary = args.binary.resolve(strict=True)
     else:
-        run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], 'compile-rust', cwd=lab.ROOT)
+        run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client', '--bin', 'zenith-client'], 'compile-rust', cwd=lab.ROOT)
         metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
-        binary = Path(metadata['target_directory']) / 'fast' / ('horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+        binary = Path(metadata['target_directory']) / 'fast' / ('zenith.exe' if os.name == 'nt' else 'zenith-client')
     rust_dir = build / 'rust'
     shutil.rmtree(rust_dir, ignore_errors=True)
     rust_dir.mkdir()

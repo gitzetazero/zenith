@@ -1,6 +1,6 @@
 # Structure terrain-adaptation density
 
-`horizon_core::density::Beardifier` implements the pinned Java Edition **26.3**
+`zenith_core::density::Beardifier` implements the pinned Java Edition **26.3**
 structure-density sampler from supplied ordered rigid pieces, jigsaw junctions
 and an affected bounding box. It supports `NONE`, `BURY`, `BEARD_THIN`, `BEARD_BOX`
 and `ENCAPSULATE` adjustments. Live structure discovery, filtering and placement

@@ -10,7 +10,7 @@ on a stand-in client level, then per scripted step applies the block event
 extractRenderState, printing the fields, the level calls the tick made
 (neighbour updates, entity pushes/queries, sounds, particles) and the render
 state. `examples/probe/block_entity_anim_fixture` replays the steps through
-`horizon_client::block_entity_anim` and derives the render state from the
+`zenith_client::block_entity_anim` and derives the render state from the
 `BlockAnim` Horizon's renderer reads. Lines must match exactly (floats as bits).
 
   test_block_entity_anim_parity.py [--filter SUBSTRING] [--detail N]
@@ -27,7 +27,7 @@ try:
 except ImportError:
     import lab, test_rust_parity as base, test_model_baking_parity as baking
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity'
 HORIZONTAL = ['north', 'south', 'west', 'east']
 ALL = ['down', 'up'] + HORIZONTAL
 FRAME = ['minecraft:prismarine', 'minecraft:prismarine_bricks', 'minecraft:sea_lantern', 'minecraft:dark_prismarine']
@@ -279,7 +279,7 @@ def main():
          *(PARITY / f'{n}.java' for n in ('ParityData', 'VanillaBlockEntityAnimOracle'))], 'compile-java')
     run(['java', '-Xmx2G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaBlockEntityAnimOracle',
          inputs, build / 'vanilla.txt'], 'vanilla')
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe', '--',
          'block_entity_anim_fixture', resources, inputs, build / 'rust.txt'], 'rust')
 
     def split(path):

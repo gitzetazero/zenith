@@ -1,7 +1,7 @@
 # What the registry's `owner-update` workflow must check (trailer v2)
 
 The registry repository (horizon-rust/horizon-mods) merges an owner's update on its own when the pull request carries
-an `owner-update` trailer that the submission service (`crates/horizon-mod-registry`, `update_trailer`) signed with
+an `owner-update` trailer that the submission service (`crates/zenith-mod-registry`, `update_trailer`) signed with
 `REGISTRY_UPDATE_KEY`. Its workflow and `scripts/owner_update.py` live in that repository, not here. Since owner IDs,
 the trailer is v2, and the workflow must check all of the following before it merges. Any check that fails leaves the
 pull request to a reviewer (remove the label, comment why); it never merges partly.

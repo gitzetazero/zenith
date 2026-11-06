@@ -19,10 +19,10 @@ def main():
     build.mkdir(parents=True, exist_ok=True)
     report = build / 'report.json'
     report.unlink(missing_ok=True)
-    paths = ['crates/horizon-client/src/entity_nbt.rs',
-             'crates/horizon-client/src/game/creatures.rs',
-             'crates/horizon-client/examples/probe/conversion_tags_fixture.rs',
-             'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaConversionTagsOracle.java',
+    paths = ['crates/zenith-client/src/entity_nbt.rs',
+             'crates/zenith-client/src/game/creatures.rs',
+             'crates/zenith-client/examples/probe/conversion_tags_fixture.rs',
+             'java/horizon/src/test/java/dev/horizonlab/parity/VanillaConversionTagsOracle.java',
              'tools/test_conversion_tags_parity.py']
     sources = [lab.ROOT / p for p in paths]
     hashes = base.source_hashes(sources)
@@ -36,7 +36,7 @@ def main():
         libraries, lock['minecraft']['java_major'])
     h.java_run(build, classes, dependencies, 'VanillaConversionTagsOracle',
                [inputs, build / 'vanilla.txt'], 'vanilla')
-    h.run_logged(['cargo', 'build', '--locked', '-p', 'horizon-client-lib',
+    h.run_logged(['cargo', 'build', '--locked', '-p', 'zenith-client-lib',
                   '--example', 'client_probe'], build, 'build-rust',
                  env=dict(os.environ, CARGO_BUILD_JOBS='2'))
     metadata = json.loads(subprocess.check_output(

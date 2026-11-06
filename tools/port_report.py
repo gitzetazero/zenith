@@ -30,19 +30,19 @@ PROTOCOL = "net/minecraft/network/protocol/"
 DATAFIX = "net/minecraft/util/datafix/"
 # Generated tables, what makes them stale, and how to regenerate them (docs/version-ports.md, "Regenerate").
 GENERATORS = [
-    ("crates/horizon-core/src/version.rs", "python3 tools/gen_version_consts.py", lambda d: bool(d["facts"])),
-    ("crates/horizon-protocol/src/ids.rs", "python3 tools/generate_packet_ids.py",
+    ("crates/zenith-core/src/version.rs", "python3 tools/gen_version_consts.py", lambda d: bool(d["facts"])),
+    ("crates/zenith-protocol/src/ids.rs", "python3 tools/generate_packet_ids.py",
      lambda d: bool(d["packets"])),
-    ("crates/horizon-client/src/lan/tracking.rs", "python3 tools/generate_entity_tracking.py",
+    ("crates/zenith-client/src/lan/tracking.rs", "python3 tools/generate_entity_tracking.py",
      lambda d: "minecraft:entity_type" in d["registries"]["changed"]
      or "net/minecraft/world/entity/EntityType" in d["classes"]["changed"]),
-    ("crates/horizon-client/src/lan/command_suggestions.rs", "python3 tools/generate_command_suggestions.py",
+    ("crates/zenith-client/src/lan/command_suggestions.rs", "python3 tools/generate_command_suggestions.py",
      lambda d: bool(d["commands"]["added"] or d["commands"]["removed"] or d["commands"]["changed"])),
-    ("crates/horizon-client/src/lan/command_order.rs", "python3 tools/generate_lan_command_order.py",
+    ("crates/zenith-client/src/lan/command_order.rs", "python3 tools/generate_lan_command_order.py",
      lambda d: bool(d["commands"]["added"] or d["commands"]["removed"])),
-    ("crates/horizon-command/src/vanilla_order.rs", "python3 tools/generate_command_order.py",
+    ("crates/zenith-command/src/vanilla_order.rs", "python3 tools/generate_command_order.py",
      lambda d: bool(d["commands"]["added"] or d["commands"]["removed"])),
-    ("crates/horizon-world/src/datafix/block_state_data.txt", "python3 tools/gen_block_state_data.py",
+    ("crates/zenith-world/src/datafix/block_state_data.txt", "python3 tools/gen_block_state_data.py",
      lambda d: "net/minecraft/util/datafix/fixes/BlockStateData" in d["classes"]["changed"]),
 ]
 # Registries whose new entries are new things to port.
@@ -121,7 +121,7 @@ def blocking_items(diff, mapping, pinned_facts, root, regen=None):
         counts = ", ".join(f"{flow} +{len(c['added'])} -{len(c['removed'])} ~{len(c['renumbered'])}"
                            for flow, c in diff["packets"].items())
         items.append(item(1, "protocol", f"Protocol: packets {counts}",
-                          files=sorted(set(files_naming(constants, root)) | {"crates/horizon-protocol/src/ids.rs"}),
+                          files=sorted(set(files_naming(constants, root)) | {"crates/zenith-protocol/src/ids.rs"}),
                           details={"packets": diff["packets"], "classes": packets}))
     if "world_version" in diff["facts"]:
         classes = diff["classes"]
@@ -247,13 +247,13 @@ def content_items(diff, mapping):
 
 
 def harness_items(ran, items, new):
-    """Rank 1 when horizon-prepare fails on NEW (its exporters no longer compile, or a format broke); rank 2 for
+    """Rank 1 when zenith-prepare fails on NEW (its exporters no longer compile, or a format broke); rank 2 for
     each newly failing harness that no code item names, so none is lost."""
     found = []
     prepared = ran["prepare"]
     if prepared["status"] != "ok":
         what = "its exporters no longer compile" if prepared.get("compile_errors") else "it fails"
-        found.append(item(1, "prepare-failed", f"horizon-prepare on {new}: {what}", files=["crates/horizon-prepare"],
+        found.append(item(1, "prepare-failed", f"zenith-prepare on {new}: {what}", files=["crates/zenith-prepare"],
                           error=prepared["error"], compile_errors=prepared.get("compile_errors", [])))
     named = {h for i in items for h in i.get("failed", [])}
     for harness, entry in ran["harnesses"].items():

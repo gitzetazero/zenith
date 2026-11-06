@@ -6,12 +6,12 @@ tunes it. LAN worlds and single player don't filter.
 
 ## What happens
 
-- A refused text reaches nobody, the log's chat lines and horizon-server's `chat` events included. The
+- A refused text reaches nobody, the log's chat lines and zenith-server's `chat` events included. The
   sender reads, in red: "That message wasn't sent: slurs aren't allowed here." (a sign is left as it was, a
   book stays unsigned, an anvil keeps the name it had).
 - `logs/chat-filter.log` keeps one line per refused text, with its original wording, for operators:
   `2026-10-31T18:05:39Z <name> <uuid> chat hit 2 muted: <text>`. The console only says who and what
-  followed; horizon-server's event stream gets a `chat_filtered` event (`place`, `hit`, `action`), never
+  followed; zenith-server's event stream gets a `chat_filtered` event (`place`, `hit`, `action`), never
   the text.
 - Escalation, counted per player: the 2nd hit within 10 minutes mutes them for 10 minutes (no chat, no
   message commands); the 3rd bans them for 24 hours (banned-players.json, with the date it ends). Time spent
@@ -49,11 +49,11 @@ words_file = ""         # your own list, relative to the server's folder; "": th
 log = "logs/chat-filter.log"
 ```
 
-horizon-server checks the section before every start, and the game reads it from the same file.
+zenith-server checks the section before every start, and the game reads it from the same file.
 
 ## The list
 
-The built-in list is `crates/horizon-chat-filter/data/slurs.txt`; a `words_file` replaces it and uses the
+The built-in list is `crates/zenith-chat-filter/data/slurs.txt`; a `words_file` replaces it and uses the
 same format, explained at its top: `word` matches inside longer words, `=word` only whole words, `~word`
 also spread over several words, `!word` never matches (`!word*`: any word starting so).
 
@@ -65,5 +65,5 @@ in an entry must be doubled in the text, so Niger and Nigeria pass, and so do "s
 
 Keep the list to slurs: insults that aren't slurs are the moderators' to handle.
 
-Code: `crates/horizon-chat-filter` (settings, matcher, escalation, mutes), `lan/hub/chat_filter.rs` (the
+Code: `crates/zenith-chat-filter` (settings, matcher, escalation, mutes), `lan/hub/chat_filter.rs` (the
 check before the server relays a text), `game/chat_filter.rs` (log, events, bans, the mute commands).

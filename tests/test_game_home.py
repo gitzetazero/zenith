@@ -2,7 +2,7 @@
 
 The game logs into HORIZON_HOME and falls back to the player's own game folder when it is unset, so every
 spawn goes through lab.game_env, which sets fresh scratch folders. This test fails for a script in tools/
-that starts the game (or horizon-ctl, the launcher or the dedicated server) without it."""
+that starts the game (or zenith-ctl, the launcher or the dedicated server) without it."""
 
 import ast
 import os
@@ -17,8 +17,8 @@ TOOLS = Path(lab.ROOT) / "tools"
 
 # Strings that mean "this script starts the game": a binary a harness runs, or the audio switch every game run sets.
 SPAWN_MARKERS = {
-    "HORIZON_NO_AUDIO", "horizon-ctl", "horizon-ctl.exe", "horizon-server", "horizon-server.exe",
-    "horizon-client.exe", "release/horizon-client", "fast/horizon-client", "debug/horizon-client",
+    "HORIZON_NO_AUDIO", "zenith-ctl", "zenith-ctl.exe", "zenith-server", "zenith-server.exe",
+    "zenith.exe", "release/zenith", "fast/zenith", "debug/zenith",
 }
 
 # Scripts that mention those strings without starting a game themselves, and why.

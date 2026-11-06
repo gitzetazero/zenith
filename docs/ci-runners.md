@@ -11,7 +11,7 @@ we have to the max") every job that can runs on our own machines, and GitHub's p
 | `playhorizon-light-1`…`-12` | playhorizon (partner's server, 8 vCPU) | `horizon-light`, `playhorizon-light` | The bots that run main's own scripts: `pr labels`, `overlap note`, `cancel-on-close`, `claim command`, `triage command`, `mojang republish`, `nightly build`'s `answer`, and `checks`' `parity-scope` |
 | `playhorizon-ci-1`, `playhorizon-ci-2` | playhorizon | `playhorizon-ci` | Nothing routed since 2026-11-03 (they took `checks` of this repository's own pull requests with the old `SELF_HOSTED_CI=all`) |
 | `playhorizon-horizon`, `ludodesktop-horizon`, `ludodesktop-parity-2` | playhorizon, ludodesktop | `horizon-game` | Parity ([release-flow.md](release-flow.md#the-parity-job)) |
-| `ludovics-mac-mini*` | Mac mini | `horizon-game`, `horizon-parity-main`, `horizon-release`, `horizon-nightly` | Parity, parity-main, macOS builds, releases |
+| `ludovics-mac-mini*` | Mac mini | `horizon-game`, `zenith-parity-main`, `horizon-release`, `horizon-nightly` | Parity, parity-main, macOS builds, releases |
 
 The desktop's runners are declared in the maintainer's NixOS configuration (his private fleet repository,
 `nixos/ludodesktop/horizon-runner.nix`), not installed from here; playhorizon's by `tools/ci/checks-runners.sh`.

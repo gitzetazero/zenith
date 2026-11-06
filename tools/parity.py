@@ -391,8 +391,8 @@ def impl_targets(header, text, workspace):
 def narrow_rust_sources(sources, scope):
     """Drop the workspace Rust sources a harness's declared PARITY_RUST_SCOPE proves it can't reach.
 
-    The scope lists source prefixes (crates/horizon-world/src/nbt.rs,
-    crates/horizon-world/src/datafix/). It applies only if it is closed: no
+    The scope lists source prefixes (crates/zenith-world/src/nbt.rs,
+    crates/zenith-world/src/datafix/). It applies only if it is closed: no
     file in it names a module, crate item or macro outside it (crate::,
     super::, other workspace crates), declares a module it doesn't cover, or
     includes source; and no file outside it implements anything for a type
@@ -486,7 +486,7 @@ PROBE_SOURCE = re.compile(r"/examples/probe/(?:(support)/)?(\w+)\.rs$")
 # Each crate's probe example (crates/<crate>/examples/probe) and its target name. Until 2026-10-24 they were all
 # `probe`, and Cargo copies every crate's examples into one <profile>/examples/: a harness could run the binary
 # another harness had just copied there.
-PROBE_TARGETS = {"horizon-client": "client_probe", "horizon-protocol": "protocol_probe", "horizon-world": "world_probe"}
+PROBE_TARGETS = {"zenith-client": "client_probe", "zenith-protocol": "protocol_probe", "zenith-world": "world_probe"}
 OLD_PROBE_SOURCE = re.compile(r"crates/([\w-]+)/examples/probe[/.]")
 
 
@@ -649,10 +649,10 @@ def prebuild_commands(artifacts, packages=None):
         kind, name, profile, selection, examples = artifact
         owner = (packages or {}).get((kind, name))
         selected = [value for flag, value in zip(selection, selection[1:]) if flag == "-p"]
-        if not name and kind in ("bins", "examples") and "horizon-client" in selected \
-                and "horizon-client-lib" in (packages or {}).values():
+        if not name and kind in ("bins", "examples") and "zenith-client" in selected \
+                and "zenith-client-lib" in (packages or {}).values():
             # Broad records predate the client package split too.
-            owner = "horizon-client-lib"
+            owner = "zenith-client-lib"
         if owner and selected and owner not in selected:
             # A recorded target may have moved packages; retain its feature flags and old selections.
             selection = [*selection, "-p", owner]
@@ -1308,7 +1308,7 @@ def trace_main(output, script, arguments):
 SHARED_INPUTS = {"research-lock.json", "Cargo.lock"}
 # Manifest sections that say what a crate is and where its targets are, not what it builds with.
 MANIFEST_SECTION_KEPT = re.compile(r"\[\[?(?:package|lib|bin|example|test|bench|lints|badges)\b[^\]]*\]\]?$")
-WORKSPACE_CRATE = r"(horizon[\w-]*|cargo-horizon-mod|xtask)"
+WORKSPACE_CRATE = r"(horizon[\w-]*|cargo-zenith-mod|xtask)"
 # A workspace crate named as a dependency (by path, or from the workspace's own table) without choosing its features,
 # or listed as a member.
 WORKSPACE_LINE = re.compile(WORKSPACE_CRATE + r'\s*=\s*(?:\{(?![^}]*\bfeatures\b)[^}]*\b(?:path|workspace)\s*=[^}]*\}|true)'
@@ -1426,7 +1426,7 @@ def canonical_dependency_path(path: str) -> str:
 
 def changed_harnesses(found, records, ref):
     """Harnesses new or changed since the merge base of HEAD and ref: their script, or a dependency of theirs that is
-    an oracle (Java under mods/horizon/src/test) or a probe (a crate's example or binary), changed or was added."""
+    an oracle (Java under java/horizon/src/test) or a probe (a crate's example or binary), changed or was added."""
     changed = changed_files(ref)
     if changed is None:
         print(f"note: no merge base with {ref}; the flake check repeats nothing", flush=True)
@@ -1435,7 +1435,7 @@ def changed_harnesses(found, records, ref):
     for name, script in found.items():
         dependencies = map(canonical_dependency_path, records.get(name, {}).get("dependencies", []))
         specific = [path.split(KEEP)[0] for path in dependencies
-                    if path.startswith("mods/horizon/src/test/") or "/examples/" in path or "/src/bin/" in path]
+                    if path.startswith("java/horizon/src/test/") or "/examples/" in path or "/src/bin/" in path]
         if Path(script).relative_to(ROOT).as_posix() in changed or any(path in changed for path in specific):
             found_changed.add(name)
     return found_changed

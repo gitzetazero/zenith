@@ -18,7 +18,7 @@ Rust function with its line span.
 python3 tools/port_ledger.py build                                   # about 20 s; again after pulling
 python3 tools/port_ledger.py where KineticWeapon.damageEntities       # its ports, callees, callers, gaps
 python3 tools/port_ledger.py where ShulkerBulletRenderer              # every method of a class, with status
-python3 tools/port_ledger.py what crates/horizon-client/src/game/spear.rs:150
+python3 tools/port_ledger.py what crates/zenith-client/src/game/spear.rs:150
 python3 tools/port_ledger.py class IronGolem                          # method by method: where, or missing
 python3 tools/port_ledger.py issue 3123                               # a GitHub issue (or the report's text)
 python3 tools/port_ledger.py check --base origin/main                 # what this branch touches
@@ -107,8 +107,8 @@ file per batch, tab-separated:
 
 ```
 Class.method	verdict	where	note
-XoroshiroRandomSource.nextInt	port	crates/horizon-core/src/random.rs::XoroshiroRandom::next_int_bound	bounded form
-ArmadilloAi.initIdleActivity	inline	crates/horizon-client/src/mobs/armadillo.rs::register	gap: no AnimalMakeLove, so armadillos never breed
+XoroshiroRandomSource.nextInt	port	crates/zenith-core/src/random.rs::XoroshiroRandom::next_int_bound	bounded form
+ArmadilloAi.initIdleActivity	inline	crates/zenith-client/src/mobs/armadillo.rs::register	gap: no AnimalMakeLove, so armadillos never breed
 MushroomCow.addAdditionalSaveData	missing		Type is not saved: a mooshroom turned brown by lightning loads red
 NoiseRouterData	skip:data		a class row covers the class's methods without a row of their own
 ```
@@ -126,7 +126,7 @@ directory, so several people can check their own rows at once.
 ## Parity harness coverage
 
 A mapped method says where the port is, not that it behaves like vanilla; the parity harnesses check that
-(`tools/test_*_parity.py`: a vanilla oracle in `mods/horizon/src/test/java/dev/horizonlab/parity/` and a Rust
+(`tools/test_*_parity.py`: a vanilla oracle in `java/horizon/src/test/java/dev/horizonlab/parity/` and a Rust
 fixture or probe under `crates/*/examples/` run on the same inputs). The ledger links them: a harness covers a
 ported method when its fixture reaches the port and the vanilla side is in reach (the oracle calls into the
 method, or the harness or oracle names its class). `where` lists a method's harnesses, and

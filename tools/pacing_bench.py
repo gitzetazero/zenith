@@ -37,7 +37,7 @@ First-use costs (pipelines compiled in the frame) block the render thread in the
 shader compiler: the frame's wall time grows, its CPU time hardly. The driver's shader cache hides them
 after the first run on a machine: give the game a resources folder whose shaders differ to see them cold.
 
-One game per render distance, from a fresh world (seed 1234, creative), driven over horizon-ctl.
+One game per render distance, from a fresh world (seed 1234, creative), driven over zenith-ctl.
 The game runs with HORIZON_SPIKES so each slow frame logs its timed spans; the report keeps the
 slowest frames' span lines next to each scenario's figures.
 
@@ -426,7 +426,7 @@ def launch(args, distance, tag):
         options.write_text(text.replace("enableVsync:false\n", "enableVsync:true\n"))
     sock = Path("/tmp") / f"horizon-pacing-{os.getpid()}{tag}.sock"
     sock.unlink(missing_ok=True)
-    client = Path(args.build).resolve() / "horizon-client"
+    client = Path(args.build).resolve() / "zenith"
     command = [str(client), "--resources", str(Path(args.resources).resolve()), "--control-socket", str(sock),
                "--no-pause", "--weather", "clear", "--time", "6000"]
     if args.size:
@@ -460,7 +460,7 @@ def dedicated_server(args, distance, directory):
     (directory / "server.properties").write_text("".join(f"{k}={v}\n" for k, v in properties.items()),
                                                  encoding="iso-8859-1")
     (directory / "eula.txt").write_text("eula=true\n")
-    binary = Path(args.build).resolve() / "horizon-client"
+    binary = Path(args.build).resolve() / "zenith"
     server = Server([binary, "--resources", Path(args.resources).resolve(), "--dedicated", "--nogui"],
                     directory, "server")
     server.wait_for(r"Done \(", 900)
@@ -563,7 +563,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--label", default="horizon")
     parser.add_argument("--build", default=str(lab.ROOT / "target/fast"))
-    parser.add_argument("--resources", default=str(lab.ROOT / ".local/horizon-client/26.3"))
+    parser.add_argument("--resources", default=str(lab.ROOT / ".local/zenith-client/26.3"))
     parser.add_argument("--distances", default="32")
     parser.add_argument("--scenarios", default=",".join(SCENARIOS))
     parser.add_argument("--timeout", type=float, default=600)

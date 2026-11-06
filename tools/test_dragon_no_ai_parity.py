@@ -132,12 +132,12 @@ def main():
     if args.binary:
         binary = args.binary.resolve(strict=True)
     else:
-        subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client',
-                        '--bin', 'horizon-client'], cwd=lab.ROOT, check=True)
+        subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client',
+                        '--bin', 'zenith-client'], cwd=lab.ROOT, check=True)
         metadata = json.loads(subprocess.check_output(
             ['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
         binary = Path(metadata['target_directory']) / 'fast' / (
-            'horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+            'zenith.exe' if os.name == 'nt' else 'zenith-client')
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
     cp = os.pathsep.join(map(str, [jars['server'], *libraries]))
@@ -145,7 +145,7 @@ def main():
                 'horizon': [binary, '--resources', lab.RESOURCES.resolve(), '--dedicated', '--nogui']}
     classes = out / 'classes'
     classes.mkdir(exist_ok=True)
-    source = lab.ROOT / 'mods/horizon/src/test/java'
+    source = lab.ROOT / 'java/horizon/src/test/java'
     subprocess.run(['javac', '--release', str(lock['minecraft']['java_major']), '-proc:none',
                     '-sourcepath', source, '-cp', cp, '-d', classes,
                     source / 'dev/horizonlab/parity/VanillaProtocolClient.java'], check=True)

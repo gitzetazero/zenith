@@ -55,10 +55,10 @@ One saved fixture holds 100 cows on a 10×10 grid with 1.1-block spacing (`NoAI`
 The resource-backed test can be repeated with your own prepared resources:
 
 ```sh
-HORIZON_RESOURCES=/path/to/prepared/26.3 cargo test --profile fast -p horizon-client-lib --lib shadows::tests::
+HORIZON_RESOURCES=/path/to/prepared/26.3 cargo test --profile fast -p zenith-client-lib --lib shadows::tests::
 ```
 
-To reproduce FPS measurements, build the baseline and candidate with the same optimized profile, create the fixtures above through `horizon-ctl command`, save once and copy that save for each launch. Keep all game/home directories isolated as described in `AGENTS.md`. Use `options-set entityShadows true`, select `improvedTransparency` identically in both builds, and collect `bench 8` after warmup. For image comparisons use frozen time and the separate single-display fixture, rather than overlapping model surfaces.
+To reproduce FPS measurements, build the baseline and candidate with the same optimized profile, create the fixtures above through `zenith-ctl command`, save once and copy that save for each launch. Keep all game/home directories isolated as described in `AGENTS.md`. Use `options-set entityShadows true`, select `improvedTransparency` identically in both builds, and collect `bench 8` after warmup. For image comparisons use frozen time and the separate single-display fixture, rather than overlapping model surfaces.
 
 A follow-up compatibility run registered one native trait mod through `entry::main_with`.
 Its camera hook asserted that the mod was loaded and observed the camera without changing it.

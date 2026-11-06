@@ -6,8 +6,8 @@ Horizon's registry lists what is made for Horizon and reviewed: content mods (`.
 [horizon-rust/horizon-mods](https://github.com/horizon-rust/horizon-mods) that links its GitHub repository; its versions are
 the repository's GitHub releases, read and checked by the registry's CI with no pull request and no review per version. The launcher and the
 website read one file, `index.json`, which that repository's CI builds. The Rust types and every check below are
-`horizon_mods::index` and `horizon_mods::modpack` (feature `index`); the sample is
-`crates/horizon-mods/tests/index/index-v1.json`, read by the tests with the files it lists.
+`zenith_mods::index` and `zenith_mods::modpack` (feature `index`); the sample is
+`crates/zenith-mods/tests/index/index-v1.json`, read by the tests with the files it lists.
 
 Level: preview ([stability.md](stability.md)). Schema 1.
 
@@ -42,7 +42,7 @@ Level: preview ([stability.md](stability.md)). Schema 1.
 | `owners` | GitHub logins allowed to publish updates. |
 | `license`, `source` | An SPDX expression and an `https://` address of the source code: both required. |
 | `icon` | `https://`, optional. |
-| `categories` | 1 to 3 of the kind's list (`horizon_mods::index::page::categories`, [the lists](../design/registry-v2.md#categories)). |
+| `categories` | 1 to 3 of the kind's list (`zenith_mods::index::page::categories`, [the lists](../design/registry-v2.md#categories)). |
 | `tags` | Free-form: at most 10, each `[a-z0-9][a-z0-9-]{0,23}`, nothing about gambling. Optional. |
 | `screenshots` | `https://` addresses of PNG or JPEG images, in order, at most 8. Optional. |
 | `key` | The author's [minisign](https://jedisct1.github.io/minisign/) public key. When set, every version must be signed with it; an update signed with another key is refused. Absent: the project is unsigned and the launcher says so. |
@@ -72,7 +72,7 @@ changing what one means, makes schema 2.
    level when the entry lists one, and its
    content's fence ([mods.md](../mods.md#content-mods-api-02)); a native mod's `horizon-native.json` and
    `horizon-mixin.toml` (id, version, the pinned Horizon and horizon-mixins revisions); a modpack's manifest (id, version, format, game,
-   mods); a resource pack's `pack.mcmeta`; a shader pack's `horizon_shader_api::check` and manifest (id, version,
+   mods); a resource pack's `pack.mcmeta`; a shader pack's `zenith_shader_api::check` and manifest (id, version,
    shader API).
 4. A kind this build can't install is refused with "this Horizon can't install a … yet".
 
@@ -109,7 +109,7 @@ them into the profile's game folder.
 pull request), checked, reviewed and pinned by SHA-256 in `[[versions]]`. Entries listed before 2026-11-05 may still
 name a `repo` whose releases are read as below; new ones may not (`registry review` refuses them). What an entry can't vouch for is read from the file by the kind's own
 check (`index::inspect`): a mod's API, side and capabilities, a modpack's mods, the size. Types and rules:
-`horizon_mods::index::registry`.
+`zenith_mods::index::registry`.
 
 ```toml
 id = "coords_hud"                # the file's name, and the manifest's id
@@ -178,7 +178,7 @@ repository, its source, the page, the owners), and again if its `repo`, owners o
 checked automatically, not reviewed by a person**; `revoked.toml` takes a bad one down. A signing `key` makes a stolen
 repository or account useless for publishing an update.
 
-The submission form's service (`crates/horizon-mod-registry`) lists a new project: it signs the creator in with GitHub,
+The submission form's service (`crates/zenith-mod-registry`) lists a new project: it signs the creator in with GitHub,
 reads the repository's address and the page, and opens the pull request. It no longer takes updates for a project listed
 with a `repo`: "publish a GitHub release in <repo>". Projects without a `repo` can still be updated through the form
 (it uploads the file to the repository's `staging` release as `<sha256>.<extension>` and opens a pull request; an
@@ -189,7 +189,7 @@ a reviewer: [owner-update-v2.md](owner-update-v2.md)). An owner may turn a `mod`
 making its `submit/<id>-<version>` branch can be sent again: the same account's retry starts that branch again from
 `main` while it has no open pull request; anyone else's is refused.
 
-Unknown keys in an entry are refused. Its CI runs `cargo-horizon-mod` (`crates/cargo-horizon-mod`):
+Unknown keys in an entry are refused. Its CI runs `cargo-zenith-mod` (`crates/cargo-zenith-mod`):
 
 | Command | What it does |
 | --- | --- |
@@ -205,7 +205,7 @@ How the repository runs (its workflows are in `.github/workflows/`):
 
 - **A pull request** (`check.yml`) runs `registry review`, downloads each new hosted file from the `staging` prerelease,
   runs `registry check` on it and builds the index it would publish; the report is the run's summary. The tool is
-  `cargo-horizon-mod` from Horizon at the commit in the repository variable `HORIZON_REV`.
+  `cargo-zenith-mod` from Horizon at the commit in the repository variable `HORIZON_REV`.
 - **Every hour, and on a push to `main`** (`publish.yml`): read the new releases of every entry with a `repo` as above and
   keep the result on the `versions` branch, make each new hosted version a release `<id>-<version>`, and deploy
   `index.json` and `icons/` to GitHub Pages: `https://horizon-rust.github.io/horizon-mods/index.json`, served with
@@ -219,8 +219,8 @@ How the repository runs (its workflows are in `.github/workflows/`):
 Kinds open to submissions: `mod` (content only), `native-mod`, `modpack`, `resourcepack`, `shader`, `shaderpack`,
 `datapack`. A data pack is a zip with `pack.mcmeta` (a `pack` object) and a `data/` folder; its facts' `api` is its pack
 format. A `shaderpack` is a zip with a `shaders/` folder, listed only by its author under a licence that allows
-redistribution (the reviewer checks both); Horizon loads it with `horizon-shaders`. A Horizon shader pack (`.hshader`) passes
-`horizon_shader_api::check`, the check the game runs before it loads one (`horizon-shader check`, [shaders.md](../shaders.md)):
+redistribution (the reviewer checks both); Horizon loads it with `zenith-shaders`. A Horizon shader pack (`.hshader`) passes
+`zenith_shader_api::check`, the check the game runs before it loads one (`zenith-shader check`, [shaders.md](../shaders.md)):
 every stage validated by naga and translated for Vulkan, Metal and DirectX 12; its manifest's id, version and shader
 API line are its facts. A new kind gets its own check before it opens.
 
@@ -233,5 +233,5 @@ API line are its facts. A new kind gets its own check before it opens.
 - 2026-10-30: an entry names its GitHub repository (`repo`) and its versions are the repository's releases, read by the registry's CI; `file.url` may be a release asset of that repository. The index's schema is unchanged.
 - 2026-10-26: `projects[].downloads`, GitHub's download counts of a project's files, refreshed every hour.
 - 2026-10-26: the launcher installs `shader` files into `shaderpacks/`; the sample index lists one (`glow`).
-- 2026-10-25: `shader` opens, checked by `horizon_shader_api::check`; its files are `.hshader`.
+- 2026-10-25: `shader` opens, checked by `zenith_shader_api::check`; its files are `.hshader`.
 - Schema 1 (2026-10-24): kinds `mod`, `modpack`, `resourcepack`, `shader`; `.hpack` format 1.

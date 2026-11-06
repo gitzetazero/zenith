@@ -2,7 +2,7 @@
 
 <!-- Generated from launcher/src/cli.rs by cli_tools::markdown(); a test fails when this file is out of date. Update it with: HORIZON_WRITE_DOCS=1 cargo test --manifest-path launcher/Cargo.toml the_launcher_reference -->
 
-Every command of `horizon-launcher`, and the tool `horizon-launcher mcp` offers for it. A tool's arguments are the command's, in snake_case. A tool runs the command with `--json` and returns what it printed. The tools that change the player's things for good need `confirm: true`. The tools that send something or reach other people say "only when the player asks". The game's own tools, `game_*`, are in [horizon-ctl-commands.md](horizon-ctl-commands.md). With No AI on, `mcp` and `agent-config` are hidden and refuse; every other command stays. See [agent-control.md](agent-control.md#no-ai).
+Every command of `horizon-launcher`, and the tool `horizon-launcher mcp` offers for it. A tool's arguments are the command's, in snake_case. A tool runs the command with `--json` and returns what it printed. The tools that change the player's things for good need `confirm: true`. The tools that send something or reach other people say "only when the player asks". The game's own tools, `game_*`, are in [zenith-ctl-commands.md](zenith-ctl-commands.md). With No AI on, `mcp` and `agent-config` are hidden and refuse; every other command stays. See [agent-control.md](agent-control.md#no-ai).
 
 ## `horizon-launcher completions`
 
@@ -46,11 +46,11 @@ MCP: `remove`, needs `confirm: true`.
 
 ## `horizon-launcher import-build`
 
-Install a game program you have, such as a horizon-client built on your fork's Actions, as its own version on an installed release or Nightly's game files, and select it. Nothing signed it: it runs with your rights, and updates never replace it.
+Install a game program you have, such as a zenith-client built on your fork's Actions, as its own version on an installed release or Nightly's game files, and select it. Nothing signed it: it runs with your rights, and updates never replace it.
 
     horizon-launcher import-build <PATH>
 
-- `PATH`: The program (horizon-client, horizon-client.exe on Windows), or a zip holding it
+- `PATH`: The program (zenith-client, zenith.exe on Windows), or a zip holding it
 - `--trust-unsigned`: You picked this build yourself and trust it with full access to this computer
 
 MCP: none: the player's switch.
@@ -1017,7 +1017,7 @@ MCP: `servers_set_up`.
 
 ## `horizon-launcher servers run`
 
-Run a horizon-server command on a server, for example: servers run "My server" -- status.
+Run a zenith-server command on a server, for example: servers run "My server" -- status.
 
     horizon-launcher servers run <SERVER> -- <ARGS>...
 
@@ -1057,7 +1057,7 @@ MCP: none: it prints how to connect a client to `mcp`.
 
 ## `horizon-launcher no-ai`
 
-Show or set No AI: on hides and turns off every AI feature (the companion, agent control, horizon-ctl and both MCP servers); off, the default, makes them available.
+Show or set No AI: on hides and turns off every AI feature (the companion, agent control, zenith-ctl and both MCP servers); off, the default, makes them available.
 
     horizon-launcher no-ai [STATE]
 

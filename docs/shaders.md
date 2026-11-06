@@ -9,20 +9,20 @@ Horizon's own format.
 
 | Part | Where | State |
 |---|---|---|
-| Format, stages, check | `crates/horizon-shader-api` | API 0.1, experimental |
-| Authoring tool | `horizon-shader` (same crate) | `new`, `check`, `pack` |
-| Templates | `crates/horizon-shader-api/templates/` | post, sky, material |
-| Example pack | `crates/horizon-shader-api/packs/golden_hour` | a warm sky and two post passes |
+| Format, stages, check | `crates/zenith-shader-api` | API 0.1, experimental |
+| Authoring tool | `zenith-shader` (same crate) | `new`, `check`, `pack` |
+| Templates | `crates/zenith-shader-api/templates/` | post, sky, material |
+| Example pack | `crates/zenith-shader-api/packs/golden_hour` | a warm sky and two post passes |
 | In the game: every stage | Options > Video Settings > Shaders > Shader Packs | sky, material, post passes, hot reload |
 | The registry and the launcher | `shader` kind ([api/mod-index.md](api/mod-index.md)); the Mods page's Shader packs tab | checked, then installed into `shaderpacks/` |
 
 ## Quick start
 
 ```sh
-cargo install --path crates/horizon-shader-api      # or: cargo run -p horizon-shader-api --bin horizon-shader -- <command>
-horizon-shader new my_pack --template post          # also: --template sky, --template material; --name "My Pack"
-horizon-shader check my_pack                        # what the game, the launcher and the registry will check
-horizon-shader pack my_pack                         # check, then write my_pack-0.1.0.hshader beside the folder
+cargo install --path crates/zenith-shader-api      # or: cargo run -p zenith-shader-api --bin zenith-shader -- <command>
+zenith-shader new my_pack --template post          # also: --template sky, --template material; --name "My Pack"
+zenith-shader check my_pack                        # what the game, the launcher and the registry will check
+zenith-shader pack my_pack                         # check, then write my_pack-0.1.0.hshader beside the folder
 ```
 
 `check` prints each stage with its cost, and the pack's SHA-256:

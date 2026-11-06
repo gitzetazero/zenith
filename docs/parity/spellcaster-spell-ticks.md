@@ -56,7 +56,7 @@ bytecode, binary hashes, manifests and rejected attempts are retained locally in
 
 ## Resource-free regression
 
-`cargo test -p horizon-client-lib --lib spell_ticks_nbt_tests` exercises the real
+`cargo test -p zenith-client-lib --lib spell_ticks_nbt_tests` exercises the real
 Mob NBT decode/save functions with fresh modeled mobs, absent/positive/zero/negative
 inputs, no raw output source, mutated counters, stale raw counters and an unrelated
 raw field. The same tests fail on unchanged production because the writer omits
@@ -101,9 +101,9 @@ Canonical fresh Java reference SHA256: `0dddee526379b2e5cddf155788265013a76f4684
 Run with prepared local26.3 resources and a built Game:
 
 ```sh
-python3 tools/test_spell_ticks_parity.py --binary target/fast/horizon-client --work-dir .local/spell-ticks
+python3 tools/test_spell_ticks_parity.py --binary target/fast/zenith --work-dir .local/spell-ticks
 # Keep the complete compounds and absolute-clock diagnostics:
-python3 tools/test_spell_ticks_parity.py --binary target/fast/horizon-client --work-dir .local/spell-ticks-full --full-diagnostic
+python3 tools/test_spell_ticks_parity.py --binary target/fast/zenith --work-dir .local/spell-ticks-full --full-diagnostic
 ```
 
 ## Required local checks

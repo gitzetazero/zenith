@@ -99,8 +99,8 @@ jobs:
           # Every file Horizon's SHA256SUMS lists, plus SHA256SUMS and its signature. The key file in this repo is
           # Horizon's (release-keys.txt); the signed message names the release's own tag, as launchers check it.
           gh release download "$RELEASE" -R horizon-rust/horizon -D "$dl"
-          cargo run --locked --quiet -p horizon-release-sign -- verify --tag "$RELEASE" \
-            --key "$(cat crates/horizon-release-sign/release-keys.txt)" "$dl"
+          cargo run --locked --quiet -p zenith-release-sign -- verify --tag "$RELEASE" \
+            --key "$(cat crates/zenith-release-sign/release-keys.txt)" "$dl"
           awk '{ sub(/^\*/, "", $2); print $2 }' "$dl/SHA256SUMS" | grep -qx 'horizon-linux-x86_64.tar.gz' \
             || { echo "::error::the signed sums do not list horizon-linux-x86_64.tar.gz"; exit 1; }
           gzip -dc < "$dl/horizon-linux-x86_64.tar.gz" | tar x --strip-components=1 horizon-linux-x86_64/exporters
@@ -153,12 +153,12 @@ jobs:
         with:
           name: exporters
           path: exporters
-      - name: Build the client, horizon-ctl and horizon-prepare (no dedicated server)
-        run: cargo build --release --locked -p horizon-client -p horizon-client-lib --bin horizon-client --bin horizon-ctl -p horizon-prepare --bin horizon-prepare
+      - name: Build the client, zenith-ctl and zenith-prepare (no dedicated server)
+        run: cargo build --release --locked -p zenith-client -p zenith-client-lib --bin zenith --bin zenith-ctl -p zenith-prepare --bin zenith-prepare
       - name: Package
         run: |
           set -euo pipefail
-          cargo run --locked -p xtask -- package "$BIN/horizon-client${{ matrix.exe }}" "dist/${{ matrix.dir }}"
+          cargo run --locked -p xtask -- package "$BIN/zenith-client${{ matrix.exe }}" "dist/${{ matrix.dir }}"
           cd dist
           rm -f "${{ matrix.asset }}"
           7z a -tzip "${{ matrix.asset }}" "${{ matrix.dir }}" > /dev/null
@@ -187,14 +187,14 @@ jobs:
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
         with:
-          workspaces: zenith/bridge
+          workspaces: bridge
           shared-key: zenith-bridge
       - name: Build the bridge (its own workspace)
         run: |
           set -euo pipefail
-          cargo build --release --locked --manifest-path zenith/bridge/Cargo.toml
+          cargo build --release --locked --manifest-path bridge/Cargo.toml
           mkdir -p dist
-          cp zenith/bridge/target/release/zenith-bridge.exe dist/zenith-bridge-windows-x64.exe
+          cp bridge/target/release/zenith-bridge.exe dist/zenith-bridge-windows-x64.exe
           ls -l dist
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -203,7 +203,7 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-  # Zenith Launcher (zenith/launcher, our fork of XMCL by Voxelum, MIT): typecheck, tests, build, app.asar check, with the
+  # Zenith Launcher (launcher, our fork of XMCL by Voxelum, MIT): typecheck, tests, build, app.asar check, with the
   # bridge built above bundled as an extra resource. The portable exe is zipped so the public file name stays
   # Zenith-Launcher-Portable-x64.zip. No secrets; ZENITH_MSA_CLIENT_ID / ZENITH_DISCORD_CLIENT_ID are optional repository variables.
   launcher:
@@ -214,19 +214,19 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: zenith/launcher
+        working-directory: launcher
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
         with:
-          package_json_file: zenith/launcher/package.json
+          package_json_file: launcher/package.json
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: zenith/launcher/pnpm-lock.yaml
+          cache-dependency-path: launcher/pnpm-lock.yaml
       - name: Python build helpers for node-gyp
         run: python -m pip install --user packaging setuptools
       - name: Install
@@ -234,7 +234,7 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: zenith-bridge-windows-x64.exe
-          path: zenith/launcher/xmcl-electron-app/build/zenith
+          path: launcher/xmcl-electron-app/build/zenith
       - name: Typecheck (runtime API, runtime, Electron app, UI)
         run: pnpm run check
       - name: Unit tests of the Zenith changes
@@ -271,17 +271,17 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: Zenith-Launcher-Setup-x64.exe
-          path: zenith/launcher/out/Zenith-Launcher-Setup-x64.exe
+          path: launcher/out/Zenith-Launcher-Setup-x64.exe
           if-no-files-found: error
           retention-days: 3
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: Zenith-Launcher-Portable-x64.zip
-          path: zenith/launcher/out/Zenith-Launcher-Portable-x64.zip
+          path: launcher/out/Zenith-Launcher-Portable-x64.zip
           if-no-files-found: error
           retention-days: 3
 
-  # A release cannot be signed with a failing bridge: fmt, clippy and tests of zenith/bridge gate `sign`.
+  # A release cannot be signed with a failing bridge: fmt, clippy and tests of bridge gate `sign`.
   bridge-tests:
     needs: gate
     if: needs.gate.outputs.go == 'true'
@@ -299,14 +299,14 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
         with:
-          workspaces: zenith/bridge
+          workspaces: bridge
           shared-key: zenith-bridge-tests
       - name: fmt, clippy and tests of the bridge
         run: |
           set -euo pipefail
-          cargo fmt --manifest-path zenith/bridge/Cargo.toml --check
-          cargo clippy --manifest-path zenith/bridge/Cargo.toml --all-targets --locked -- -D warnings
-          cargo test --manifest-path zenith/bridge/Cargo.toml --locked
+          cargo fmt --manifest-path bridge/Cargo.toml --check
+          cargo clippy --manifest-path bridge/Cargo.toml --all-targets --locked -- -D warnings
+          cargo test --manifest-path bridge/Cargo.toml --locked
 
   sign:
     needs: [gate, build, bridge, bridge-tests, launcher]
@@ -366,10 +366,10 @@ jobs:
         run: |
           # Only the game channel is signed; the launcher installer goes into the dated release on its own.
           mkdir signed && cp dist/horizon-* dist/zenith-build.txt dist/SHA256SUMS* signed/
-          cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < zenith/bridge/zenith-release-keys.txt)" signed
-      - name: Publish (zenith/ci/zenith_publish.sh, ordering in the header)
+          cargo run --locked --quiet -p zenith-release-sign -- verify --tag nightly --key "$(tr -d '\r\n' < bridge/zenith-release-keys.txt)" signed
+      - name: Publish (ci/zenith_publish.sh, ordering in the header)
         env:
           GH_TOKEN: ${{ github.token }}
           DATE: ${{ inputs.date }}
           SHA: ${{ github.sha }}
-        run: bash zenith/ci/zenith_publish.sh
+        run: bash ci/zenith_publish.sh

@@ -3,7 +3,7 @@
 
 Java (VanillaEntityDeathLootOracle) builds the real victim, killer and damage
 source on a stand-in ServerLevel and runs LivingEntity.die's drop step; Rust
-(entity_death_loot_fixture) runs horizon_client::mobs::drops on the same cases.
+(entity_death_loot_fixture) runs zenith_client::mobs::drops on the same cases.
 Every living entity type with a loot table is killed by a player with and
 without looting, by nothing, on fire, with a smelting weapon, as a baby, with
 luck and with worn equipment, plus each table's special conditions (sheep
@@ -130,10 +130,10 @@ def main():
     resources = lab.RESOURCES
     tables = resources / 'data/minecraft/loot_table/entities'
     types = sorted('minecraft:' + p.stem for p in tables.glob('*.json') if p.stem not in SKIPPED)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaEntityDeathLootOracle.java'
-    sources = [oracle, Path(__file__), lab.ROOT / 'crates/horizon-client/examples/probe/entity_death_loot_fixture.rs',
-               lab.ROOT / 'crates/horizon-client/src/mobs/drops.rs', lab.ROOT / 'crates/horizon-client/src/mobs/enderman.rs',
-               lab.ROOT / 'crates/horizon-world/src/loot.rs']
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaEntityDeathLootOracle.java'
+    sources = [oracle, Path(__file__), lab.ROOT / 'crates/zenith-client/examples/probe/entity_death_loot_fixture.rs',
+               lab.ROOT / 'crates/zenith-client/src/mobs/drops.rs', lab.ROOT / 'crates/zenith-client/src/mobs/enderman.rs',
+               lab.ROOT / 'crates/zenith-world/src/loot.rs']
     tested = base.source_hashes(sources)
     inputs = build / 'inputs.txt'
     cases = corpus(types)
@@ -145,11 +145,11 @@ def main():
     def run(command, name):
         with (build / (name + '.log')).open('w', encoding='utf-8') as log:
             base.run(list(map(str, command)), stdout=log, stderr=subprocess.STDOUT)
-    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath', str(lab.ROOT / 'mods/horizon/src/test/java'),
+    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath', str(lab.ROOT / 'java/horizon/src/test/java'),
          '-cp', str(jars['server']) + os.pathsep + deps, '-d', classes, oracle], 'compile-java')
     run(['java', '-Xmx2G', '-cp', os.pathsep.join([str(classes), str(jars['server']), deps]),
          'dev.horizonlab.parity.VanillaEntityDeathLootOracle', inputs, build / 'server.txt'], 'server')
-    run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe'], 'compile-rust')
+    run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe'], 'compile-rust')
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
     binary = Path(metadata['target_directory']) / 'fast/examples/client_probe'
     run([binary, 'entity_death_loot_fixture', resources, inputs, build / 'rust.txt'], 'rust')

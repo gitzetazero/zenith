@@ -1,6 +1,6 @@
 # Windows allocator experiments
 
-The normal client already uses mimalloc through `horizon_threads::Allocator`,
+The normal client already uses mimalloc through `zenith_threads::Allocator`,
 including its startup configuration and memory-release behavior. It does not
 request Windows Segment Heap. An off-by-default Cargo feature allows a separate
 experiment with the Win32 heap used by native libraries:
@@ -18,11 +18,11 @@ mimalloc. No frame-rate improvement is guaranteed.
 
 ```sh
 # Current mimalloc baseline, then add Segment Heap. Keep the same profile.
-cargo build --profile fast -p horizon-client --bin horizon-client
-cargo build --profile fast -p horizon-client --bin horizon-client --features windows-segment-heap
+cargo build --profile fast -p zenith-client --bin zenith
+cargo build --profile fast -p zenith-client --bin zenith --features windows-segment-heap
 # Older commands still build, but these repeat the two variants above.
-cargo build --profile fast -p horizon-client --bin horizon-client --features windows-mimalloc
-cargo build --profile fast -p horizon-client --bin horizon-client --features windows-segment-heap,windows-mimalloc
+cargo build --profile fast -p zenith-client --bin zenith --features windows-mimalloc
+cargo build --profile fast -p zenith-client --bin zenith --features windows-segment-heap,windows-mimalloc
 ```
 
 Copy each executable to a separate experiment directory before building the next
@@ -44,7 +44,7 @@ On Windows, extract the manifest from a built executable using the Windows SDK's
 `mt.exe` (PowerShell syntax):
 
 ```powershell
-mt.exe '-inputresource:target/fast/horizon-client.exe;#1' '-out:client.manifest'
+mt.exe '-inputresource:target/fast/zenith.exe;#1' '-out:client.manifest'
 mt.exe -manifest client.manifest -validate_manifest
 ```
 

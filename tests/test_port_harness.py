@@ -4,7 +4,7 @@ import unittest
 
 from tools import port_harness as harness
 
-JAVAC = """/x/mods/horizon/src/test/java/dev/horizonlab/parity/ParityData.java:45: error: cannot find symbol
+JAVAC = """/x/java/horizon/src/test/java/dev/horizonlab/parity/ParityData.java:45: error: cannot find symbol
   symbol:   variable WORLD
   location: class RegistryLayer
 1 error
@@ -72,7 +72,7 @@ class AssetTests(unittest.TestCase):
             harness.own_reports(root)
             self.assertFalse(reports.exists() or reports.is_symlink())
             self.assertTrue((store / "minecraft").is_dir())
-            reports.mkdir()  # its own reports, from an earlier horizon-prepare, stay
+            reports.mkdir()  # its own reports, from an earlier zenith-prepare, stay
             harness.own_reports(root)
             self.assertTrue(reports.is_dir())
 

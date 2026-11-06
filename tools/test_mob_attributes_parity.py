@@ -52,7 +52,7 @@ def main():
     if args.prepare:
         lab.prepare()
     lock, jars, libraries = base.verify_artifacts()
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaMobAttributesOracle.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaMobAttributesOracle.java'
     classes = build / 'classes'
     classes.mkdir(exist_ok=True)
     deps = os.pathsep.join(map(str, libraries))
@@ -62,7 +62,7 @@ def main():
             subprocess.run(list(map(str, cmd)), cwd=lab.ROOT, check=True, timeout=3600, stdout=log, stderr=subprocess.STDOUT)
     run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-cp', str(jars['server']) + os.pathsep + deps, '-d', classes, oracle], 'compile-java')
     run(['java', '-Xmx1G', '-cp', os.pathsep.join([str(classes), str(jars['server']), deps]), 'dev.horizonlab.parity.VanillaMobAttributesOracle', build / 'vanilla.txt'], 'java')
-    run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe'], 'compile-rust')
+    run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe'], 'compile-rust')
     binary = lab.cargo_target() / 'fast/examples/client_probe'
     resources = lab.RESOURCES
     run([binary, 'mob_attributes_fixture', resources, build / 'rust.txt'], 'rust')

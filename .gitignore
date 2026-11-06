@@ -14,7 +14,7 @@
 /run/
 /logs/
 /dist/
-/mods/horizon/build/
+/java/horizon/build/
 /saves/
 /backups/
 /tools/logs/

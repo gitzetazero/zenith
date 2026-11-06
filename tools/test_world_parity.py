@@ -41,9 +41,9 @@ def main():
     base = Path(tempfile.mkdtemp(prefix="run-", dir=directory))
     classes = base / "classes"
     classes.mkdir()
-    oracle = lab.ROOT / "mods/horizon/src/test/java/dev/horizonlab/parity/VanillaWorldOracle.java"
-    sources = [oracle, Path(__file__).resolve(), lab.ROOT / "tools/test_rust_parity.py", lab.ROOT / "Cargo.toml", lab.ROOT / "Cargo.lock", lab.ROOT / "crates/horizon-world/Cargo.toml",
-               *sorted((lab.ROOT / "crates/horizon-world").rglob("*.rs")), *sorted((lab.ROOT / "crates/horizon-core/src").rglob("*.rs"))]
+    oracle = lab.ROOT / "java/horizon/src/test/java/dev/horizonlab/parity/VanillaWorldOracle.java"
+    sources = [oracle, Path(__file__).resolve(), lab.ROOT / "tools/test_rust_parity.py", lab.ROOT / "Cargo.toml", lab.ROOT / "Cargo.lock", lab.ROOT / "crates/zenith-world/Cargo.toml",
+               *sorted((lab.ROOT / "crates/zenith-world").rglob("*.rs")), *sorted((lab.ROOT / "crates/zenith-core/src").rglob("*.rs"))]
     tested_sources = test_rust_parity.source_hashes(sources)
     dependency_path = os.pathsep.join(map(str, libraries))
     run(["javac", "--release", "25", "-proc:none", "-cp", os.pathsep.join([str(jars["server"]), dependency_path]), "-d", classes, oracle], base / "compile-java.log")
@@ -54,11 +54,11 @@ def main():
 
     print("Generating vanilla world-data fixtures...", flush=True)
     print(java("server", "generate").split("HORIZON_WORLD_GENERATED")[-1].strip(), flush=True)
-    run(["cargo", "build", "--release", "-p", "horizon-world", "--bin", "horizon-world", "--example", "world_probe"], base / "compile-rust.log")
+    run(["cargo", "build", "--release", "-p", "zenith-world", "--bin", "zenith-world", "--example", "world_probe"], base / "compile-rust.log")
     metadata = json.loads(run(["cargo", "metadata", "--no-deps", "--format-version", "1"]))
     target = Path(metadata["target_directory"]) / "release"
     suffix = ".exe" if os.name == "nt" else ""
-    binary = target / ("horizon-world" + suffix)
+    binary = target / ("zenith-world" + suffix)
     run([target / "examples" / ("world_probe" + suffix), "world_fixture", base], base / "rust-fixture.log")
     for network in [False, True]:
         kind = "network" if network else "nbt"

@@ -280,16 +280,16 @@ def main():
     commands = list(corpus())
     inputs = base / "inputs.txt"
     inputs.write_text("\n".join(commands) + "\n", encoding="utf-8")
-    oracle = lab.ROOT / "mods/horizon/src/test/java/dev/horizonlab/parity/VanillaGeometryOracle.java"
-    sources = [oracle, Path(__file__).resolve(), lab.ROOT / "tools/test_rust_parity.py", lab.ROOT / "Cargo.toml", lab.ROOT / "Cargo.lock", lab.ROOT / "crates/horizon-core/Cargo.toml", *sorted((lab.ROOT / "crates/horizon-core/src").rglob("*.rs"))]
+    oracle = lab.ROOT / "java/horizon/src/test/java/dev/horizonlab/parity/VanillaGeometryOracle.java"
+    sources = [oracle, Path(__file__).resolve(), lab.ROOT / "tools/test_rust_parity.py", lab.ROOT / "Cargo.toml", lab.ROOT / "Cargo.lock", lab.ROOT / "crates/zenith-core/Cargo.toml", *sorted((lab.ROOT / "crates/zenith-core/src").rglob("*.rs"))]
     tested_sources = test_rust_parity.source_hashes(sources)
     classes = base / "classes"
     classes.mkdir()
     dependency_path = os.pathsep.join(map(str, libraries))
     test_rust_parity.run(["javac", "--release", "25", "-proc:none", "-cp", os.pathsep.join([str(jars["server"]), dependency_path]), "-d", str(classes), str(oracle)])
-    test_rust_parity.run(["cargo", "build", "--release", "--bin", "horizon-geometry-parity"])
+    test_rust_parity.run(["cargo", "build", "--release", "--bin", "zenith-geometry-parity"])
     metadata = json.loads(subprocess.check_output(["cargo", "metadata", "--no-deps", "--format-version", "1"], cwd=lab.ROOT, text=True))
-    binary = Path(metadata["target_directory"]) / "release" / ("horizon-geometry-parity.exe" if os.name == "nt" else "horizon-geometry-parity")
+    binary = Path(metadata["target_directory"]) / "release" / ("zenith-geometry-parity.exe" if os.name == "nt" else "zenith-geometry-parity")
     candidate = base / "rust.txt"
     with inputs.open("rb") as stdin, candidate.open("wb") as stdout:
         test_rust_parity.run([str(binary)], stdin=stdin, stdout=stdout)

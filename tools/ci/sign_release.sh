@@ -4,7 +4,7 @@
 # for every key set in RELEASE_SIGNING_KEY and RELEASE_SIGNING_KEY_NEXT (base64 PKCS#8, the `release`
 # environment's secrets). The job that runs this holds the private keys, so it runs nothing from the repository
 # but this file, which calls only the runner's sha256sum and OpenSSL; the publish job then checks the result
-# with horizon-release-sign, as launchers do.
+# with zenith-release-sign, as launchers do.
 # EPHEMERAL=yes (dry runs) signs with a throwaway key instead and writes its public key to ephemeral.pub.
 # ALSO_FOR=<tag> (Nightlies) signs the same SHA256SUMS a second time, for "horizon release <ALSO_FOR>\n", into
 # SHA256SUMS.v2.sig, with the same key(s): the Nightly's own version (nightly-<date>-<commit>), which current

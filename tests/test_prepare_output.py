@@ -41,7 +41,7 @@ class PrepareOutputTests(unittest.TestCase):
             'horizon-data.bin': b'data',
             'horizon-data.bin.123.tmp': b'half',
             'horizon-prepare.json': b'{"output_version": 1}',
-            '.horizon-prepare.lock': b'',
+            '.zenith-prepare.lock': b'',
         }
         with tempfile.TemporaryDirectory() as tmp:
             first = prepare_output.digest(self.preparation(Path(tmp) / 'a', a))

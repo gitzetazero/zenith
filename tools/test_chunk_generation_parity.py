@@ -41,7 +41,7 @@ REGRESSIONS = [
     (-1860902098141295193, 'the_nether', '-1,6,3,9', 'bastion_remnant across 20 chunks (#249)'),
 ]
 RESOURCES = lab.RESOURCES
-ORACLE = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaChunkGenerationOracle.java'
+ORACLE = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaChunkGenerationOracle.java'
 
 
 def build_dir():
@@ -75,7 +75,7 @@ class Oracle:
 
 
 def rust_binary():
-    subprocess.run(['cargo', 'build', '--release', '-q', '-p', 'horizon-world', '--example', 'world_probe'], check=True, cwd=lab.ROOT)
+    subprocess.run(['cargo', 'build', '--release', '-q', '-p', 'zenith-world', '--example', 'world_probe'], check=True, cwd=lab.ROOT)
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
     return Path(metadata['target_directory']) / 'release/examples/world_probe'
 

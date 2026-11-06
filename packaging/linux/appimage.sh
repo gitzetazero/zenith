@@ -31,11 +31,11 @@ cp "$binary" "$appdir/usr/bin/horizon-launcher"
 chmod 755 "$appdir/usr/bin/horizon-launcher"
 
 # Both places: AppRun's, and the one desktop environments read once the image is unpacked.
-cp "$here/horizon-launcher.desktop" "$appdir/horizon-launcher.desktop"
-cp "$here/horizon-launcher.desktop" "$appdir/usr/share/applications/horizon-launcher.desktop"
+cp "$here/zenith-launcher.desktop" "$appdir/zenith-launcher.desktop"
+cp "$here/zenith-launcher.desktop" "$appdir/usr/share/applications/zenith-launcher.desktop"
 cp -R "$here/../icons/hicolor/." "$appdir/usr/share/icons/hicolor/"
-cp "$here/../icons/hicolor/512x512/apps/horizon.png" "$appdir/horizon.png"
-ln -s horizon.png "$appdir/.DirIcon"
+cp "$here/../icons/hicolor/512x512/apps/zenith.png" "$appdir/zenith.png"
+ln -s zenith.png "$appdir/.DirIcon"
 
 # Runs the packaged binary. It finds the packaged libraries through its own run path (set below),
 # not LD_LIBRARY_PATH, which every program it starts (the game, a browser, a file manager) would
@@ -133,9 +133,9 @@ got=$("$out/$name" --appimage-extract-and-run --version)
 data=$work/data
 HORIZON_LAUNCHER_HOME=$work/home XDG_DATA_HOME=$data \
   "$out/$name" --appimage-extract-and-run desktop-entry > /dev/null
-grep -Fq "Exec=\"$out/$name\"" "$data/applications/horizon-launcher.desktop" || {
+grep -Fq "Exec=\"$out/$name\"" "$data/applications/zenith-launcher.desktop" || {
   echo "error: the menu entry does not start $out/$name" >&2
-  cat "$data/applications/horizon-launcher.desktop" >&2
+  cat "$data/applications/zenith-launcher.desktop" >&2
   exit 1
 }
 

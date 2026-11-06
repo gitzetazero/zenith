@@ -169,19 +169,19 @@ def main():
     commands = list(corpus())
     inputs = build / "inputs.txt"
     inputs.write_text("\n".join(commands) + "\n", encoding="utf-8")
-    source = lab.ROOT / "mods/horizon/src/test/java/dev/horizonlab/parity/VanillaCoreOracle.java"
-    sources = [source, Path(__file__), *sorted((lab.ROOT / "crates/horizon-core").rglob("*.rs")),
-               lab.ROOT / "crates/horizon-core/Cargo.toml", lab.ROOT / "Cargo.toml", lab.ROOT / "Cargo.lock"]
+    source = lab.ROOT / "java/horizon/src/test/java/dev/horizonlab/parity/VanillaCoreOracle.java"
+    sources = [source, Path(__file__), *sorted((lab.ROOT / "crates/zenith-core").rglob("*.rs")),
+               lab.ROOT / "crates/zenith-core/Cargo.toml", lab.ROOT / "Cargo.toml", lab.ROOT / "Cargo.lock"]
     tested_sources = source_hashes(sources)
     classes = build / "classes"
     classes.mkdir(exist_ok=True)
     dependency_path = os.pathsep.join(map(str, libraries))
     run(["javac", "--release", str(lock["minecraft"]["java_major"]), "-proc:none",
          "-cp", os.pathsep.join([str(jars["server"]), dependency_path]), "-d", str(classes), str(source)])
-    run(["cargo", "build", "--release", "--bin", "horizon-parity"])
+    run(["cargo", "build", "--release", "--bin", "zenith-parity"])
     # Ask Cargo for its artifact path so custom target directories work too.
     metadata = json.loads(subprocess.check_output(["cargo", "metadata", "--no-deps", "--format-version", "1"], cwd=lab.ROOT, text=True))
-    binary = Path(metadata["target_directory"]) / "release" / ("horizon-parity.exe" if os.name == "nt" else "horizon-parity")
+    binary = Path(metadata["target_directory"]) / "release" / ("zenith-parity.exe" if os.name == "nt" else "zenith-parity")
     candidate = build / "rust.txt"
     with inputs.open("rb") as stdin, candidate.open("wb") as stdout:
         run([str(binary)], stdin=stdin, stdout=stdout)

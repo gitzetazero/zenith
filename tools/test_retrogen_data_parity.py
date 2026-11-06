@@ -37,16 +37,16 @@ def main():
     report_path=build/'report.json';report_path.unlink(missing_ok=True)
     if args.prepare:lab.prepare()
     lock,jars,libraries=base.verify_artifacts()
-    oracle=lab.ROOT/'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaRetrogenDataOracle.java'
-    sources=[oracle,Path(__file__),lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/horizon-core/Cargo.toml',lab.ROOT/'crates/horizon-world/Cargo.toml',*sorted((lab.ROOT/'crates/horizon-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/horizon-world/src').rglob('*.rs')),lab.ROOT/'crates/horizon-world/examples/probe/retrogen_data_fixture.rs']
+    oracle=lab.ROOT/'java/horizon/src/test/java/dev/horizonlab/parity/VanillaRetrogenDataOracle.java'
+    sources=[oracle,Path(__file__),lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/zenith-core/Cargo.toml',lab.ROOT/'crates/zenith-world/Cargo.toml',*sorted((lab.ROOT/'crates/zenith-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/zenith-world/src').rglob('*.rs')),lab.ROOT/'crates/zenith-world/examples/probe/retrogen_data_fixture.rs']
     tested_sources=base.source_hashes(sources)
     commands=list(corpus());inputs=build/'inputs.txt';inputs.write_text('\n'.join(json.dumps(command) for command in commands)+'\n')
     tested_fixtures=base.source_hashes([inputs]);classes=build/'classes';classes.mkdir(exist_ok=True)
     def run(command,name):
         with (build/(name+'.log')).open('w') as log:subprocess.run(list(map(str,command)),cwd=lab.ROOT,check=True,timeout=3600,stdout=log,stderr=subprocess.STDOUT)
     dependencies=os.pathsep.join(map(str,libraries))
-    run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'mods/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependencies,'-d',classes,oracle],'compile-java')
-    run(['cargo','build','--release','-p','horizon-world','--example','world_probe'],'compile-rust')
+    run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'java/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependencies,'-d',classes,oracle],'compile-java')
+    run(['cargo','build','--release','-p','zenith-world','--example','world_probe'],'compile-rust')
     metadata=json.loads(subprocess.check_output(['cargo','metadata','--no-deps','--format-version','1'],cwd=lab.ROOT,text=True))
     binary=Path(metadata['target_directory'])/'release/examples'/('world_probe.exe' if os.name=='nt' else 'world_probe')
     run([binary,'retrogen_data_fixture',inputs,build/'rust.txt'],'rust')

@@ -1,11 +1,11 @@
 # Server API
 
-What a host, a panel or a bot can do with a Horizon server: the `horizon-server` commands, `server.toml` and the
+What a host, a panel or a bot can do with a Horizon server: the `zenith-server` commands, `server.toml` and the
 control API. How to host: [hosting.md](../hosting.md); the design: [server.md](../server.md).
 
 ## Overview
 
-`horizon-server` sets up a server folder, runs the game as a dedicated server under a supervisor (restarts on a crash,
+`zenith-server` sets up a server folder, runs the game as a dedicated server under a supervisor (restarts on a crash,
 backups on a schedule, updates with a rollback), and lets other programs manage it through a local HTTP API with a
 token. The web panel uses that API, and so can a moderation bot: players, kick, ban and pardon (by name or
 address), op and deop, the whitelist, and metrics as Prometheus text.
@@ -18,17 +18,17 @@ address), op and deop, the whitelist, and metrics as Prometheus text.
 
 ## Guide
 
-1. `horizon-server init` in an empty folder, then `horizon-server start` ([hosting.md](../hosting.md)).
-2. From a script: `horizon-server status --json`, `horizon-server cmd say hi`, `horizon-server backup`. By hand:
-   `horizon-server console` attaches to the running server (live log, status header, command line).
+1. `zenith-server init` in an empty folder, then `zenith-server start` ([hosting.md](../hosting.md)).
+2. From a script: `zenith-server status --json`, `zenith-server cmd say hi`, `zenith-server backup`. By hand:
+   `zenith-server console` attaches to the running server (live log, status header, command line).
    When the game is stopped, the supervisor and API remain available: `POST /api/v1/start` (or
-   `horizon-server start`) starts it again.
-   From an AI agent: `horizon-server --dir /srv/minecraft mcp` is an MCP server on stdio with a tool per endpoint
+   `zenith-server start`) starts it again.
+   From an AI agent: `zenith-server --dir /srv/minecraft mcp` is an MCP server on stdio with a tool per endpoint
    (`players`, `ban`, `events`, `set_config`...); add it to the agent's MCP servers, run as the server's user.
 3. From a program: read `.horizon/api.json` (address and token), then `GET /api/v1/status` with
    `Authorization: Bearer <token>`. A program that runs elsewhere or keeps its settings (a Discord bot) uses a
    fixed address and token: `[api] bind` and `[api] token` in `server.toml` ([hosting.md](../hosting.md#a-bot-or-a-tool-of-your-own)).
-4. Moderate: `horizon-server players`, `horizon-server ban NAME [REASON]`, or `POST /api/v1/players/ban`. An
+4. Moderate: `zenith-server players`, `zenith-server ban NAME [REASON]`, or `POST /api/v1/players/ban`. An
    action runs vanilla's console command on the running game, so it kicks, logs and saves `banned-players.json`
    exactly as an operator's `/ban` does; the CLI also edits the vanilla list directly while stopped. The reply
    says whether anything `changed` and has the console's lines.
@@ -47,7 +47,7 @@ address), op and deop, the whitelist, and metrics as Prometheus text.
 
 ## Reference
 
-[server-reference.md](server-reference.md), generated from `horizon-server`'s source: the help text, every
+[server-reference.md](server-reference.md), generated from `zenith-server`'s source: the help text, every
 `server.toml` key with its default and the `server.properties` key it writes, and every endpoint.
 
 ## Examples

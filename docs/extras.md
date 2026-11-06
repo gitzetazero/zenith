@@ -9,17 +9,17 @@ again restores vanilla's behaviour completely.
 
 | Part | Code |
 |---|---|
-| Settings, parsing and saving | `crates/horizon-client-render/src/extras.rs` |
+| Settings, parsing and saving | `crates/zenith-client-render/src/extras.rs` |
 | FPS and click counters (for native mods) | `extras.rs` (pure logic, unit tested) |
-| Dynamic lights: item glow, nearest sources | `crates/horizon-client-render/src/dynamic_light.rs` (unit tested), `game/dynamic_lights.rs`, `terrain.wgsl` and `entity.wgsl` (`dynamic_block_light`) |
-| HUD drawing (a native mod's minimap, corner stacking) | `crates/horizon-client/src/extras_hud.rs` |
-| Minimap colours, tiles and image (for the Minimap native mod) | `crates/horizon-client-render/src/minimap.rs` |
-| Reconnect policy and backoff | `crates/horizon-client/src/reconnect.rs` |
-| Game glue (input hooks, per-frame update) | `crates/horizon-client/src/game/extras.rs` |
-| Mouse Tweaks-style controls, sort buttons | `crates/horizon-client/src/game/tweaks.rs` |
-| Sort order and its clicks | `crates/horizon-client/src/inv_sort.rs` (pure, unit tested) |
-| The music page's rows, and the pools it filters | `options_ui.rs` (`Page::Music`), `crates/horizon-client/src/music.rs` (`track_groups`, `MusicManager::set_off`), `sound_events.rs` (`sound_except`) |
-| Cosmetics (show mine, show others'), off with their flag | `extras.rs`, `crates/horizon-client/src/game/cosmetics.rs` ([cosmetics.md](cosmetics.md)) |
+| Dynamic lights: item glow, nearest sources | `crates/zenith-client-render/src/dynamic_light.rs` (unit tested), `game/dynamic_lights.rs`, `terrain.wgsl` and `entity.wgsl` (`dynamic_block_light`) |
+| HUD drawing (a native mod's minimap, corner stacking) | `crates/zenith-client/src/extras_hud.rs` |
+| Minimap colours, tiles and image (for the Minimap native mod) | `crates/zenith-client-render/src/minimap.rs` |
+| Reconnect policy and backoff | `crates/zenith-client/src/reconnect.rs` |
+| Game glue (input hooks, per-frame update) | `crates/zenith-client/src/game/extras.rs` |
+| Mouse Tweaks-style controls, sort buttons | `crates/zenith-client/src/game/tweaks.rs` |
+| Sort order and its clicks | `crates/zenith-client/src/inv_sort.rs` (pure, unit tested) |
+| The music page's rows, and the pools it filters | `options_ui.rs` (`Page::Music`), `crates/zenith-client/src/music.rs` (`track_groups`, `MusicManager::set_off`), `sound_events.rs` (`sound_except`) |
+| Cosmetics (show mine, show others'), off with their flag | `extras.rs`, `crates/zenith-client/src/game/cosmetics.rs` ([cosmetics.md](cosmetics.md)) |
 | The settings page | `options_ui.rs` (`Page::Extras`): **Options → Horizon Settings... → Extras...**; fullbright, dynamic lights and hiding block-break particles change the picture, so they are on the graphics screen's Quality page instead (`graphics_ui.rs`, **Options → Video Settings...**) |
 
 The settings are grouped by extra, under a header each, two buttons to a row as
@@ -76,7 +76,7 @@ The **FPS counter**, **Keystrokes**, **Zoom** and the **Minimap** are official n
 horizon-rust/horizon-mods under `native/<name>/`, [mods.md](mods.md#horizons-official-mods)), with the same look and
 options. Players install them from the launcher's Mods page, and the launcher builds them into the game
 ([native-mods.md](native-mods.md)). The game keeps
-the hook points they use (`crates/horizon-client/src/game/native_hooks.rs`), and `horizon-extras.txt` keeps the old
+the hook points they use (`crates/zenith-client/src/game/native_hooks.rs`), and `horizon-extras.txt` keeps the old
 keys and `movedToMods`. The Extras page keeps a **Zoom** row: the mod's switch and Settings button when
 it is built in, else a note saying to install it from the Mods page.
 

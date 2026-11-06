@@ -1,0 +1,17 @@
+[package]
+name = "zenith-bridge"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+description = "XMCL pre-launch command that starts Horizon instead of Java"
+
+# Own workspace: the fork's root workspace (Horizon's) must stay untouched.
+[workspace]
+
+[dependencies]
+zenith-release-sign = { path = "../crates/zenith-release-sign" }
+serde_json = "1"
+sha1 = "0.10"
+ureq = { version = "2", features = ["json", "tls"], default-features = false }
+zip = { version = "7", default-features = false, features = ["deflate"] }

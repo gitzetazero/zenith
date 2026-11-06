@@ -51,9 +51,9 @@ the old adapter (shared count3 instead of2) and passes with the adapter fix.
 Run with prepared local resources and an explicit binary:
 
 ```sh
-python3 tools/test_mob_local_sound_parity.py --binary /path/to/horizon-client \
+python3 tools/test_mob_local_sound_parity.py --binary /path/to/zenith-client \
   --work-dir .local/local-sound-reference --reference-only
-python3 tools/test_mob_local_sound_parity.py --binary /path/to/horizon-client \
+python3 tools/test_mob_local_sound_parity.py --binary /path/to/zenith-client \
   --work-dir .local/local-sound-native --reference-dir .local/local-sound-reference
 ```
 

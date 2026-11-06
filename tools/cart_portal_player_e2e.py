@@ -181,9 +181,9 @@ def compile_bot(build):
     shutil.rmtree(classes, ignore_errors=True)
     classes.mkdir()
     dependencies = lab_path(jars['server'], libraries)
-    sources = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaProtocolClient.java'
+    sources = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaProtocolClient.java'
     subprocess.run(['javac', '--release', str(lock['minecraft']['java_major']), '-proc:none', '-nowarn', '-sourcepath',
-                    lab.ROOT / 'mods/horizon/src/test/java', '-cp', dependencies, '-d', classes, sources],
+                    lab.ROOT / 'java/horizon/src/test/java', '-cp', dependencies, '-d', classes, sources],
                    cwd=lab.ROOT, check=True, capture_output=True)
     return dependencies, classes
 
@@ -207,12 +207,12 @@ def main():
     build.mkdir(parents=True, exist_ok=True)
     dependencies, classes = compile_bot(build)
     vanilla_server = ['java', '-Xmx2g', '-Duser.timezone=UTC', '-cp', dependencies, 'net.minecraft.server.Main', 'nogui']
-    horizon_server = [args.bin_dir.resolve() / 'horizon-client', '--resources', lab.RESOURCES, '--dedicated', '--nogui']
+    zenith_server = [args.bin_dir.resolve() / 'zenith-client', '--resources', lab.RESOURCES, '--dedicated', '--nogui']
     client = ['java', '-Xmx1g', '-Duser.timezone=UTC', '-cp', str(classes) + os.pathsep + dependencies,
               'dev.horizonlab.parity.VanillaProtocolClient']
     world = generate_world(vanilla_server, build)
     results = {}
-    for label, command in (('vanilla', vanilla_server), ('horizon', horizon_server)):
+    for label, command in (('vanilla', vanilla_server), ('horizon', zenith_server)):
         if label in (args.side or ['vanilla', 'horizon']):
             results[label] = run_side(label, command, client, build, world, args.vehicle, out)
             print(f'{label}: table {out / (label + ".table")}, client {out / (label + "-ride.txt")}')

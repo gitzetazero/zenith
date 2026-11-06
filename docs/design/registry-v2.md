@@ -13,8 +13,8 @@ the launcher installs each one, the category lists and the rollout. The format i
 | `native-mod` | `.hnmod` | Native source mod | bundle + pins (today) | the native build; rebuilt after an update |
 | `modpack` | `.hpack` | Registry mods played together | manifest + its mods in the index (today) | its own profile |
 | `resourcepack` | `.zip` | `pack.mcmeta` + `assets/` | plain paths + `pack.mcmeta` (today) | `resourcepacks/<file>` |
-| `shader` | `.hshader` | Horizon's WGSL shader pack | `horizon_shader_api::check` (today) | `shaderpacks/<file>` |
-| `shaderpack` | `.zip` | **new**: a `shaders/`-folder pack (the OptiFine/Iris format Horizon loads with `horizon-shaders`) | plain paths, a `shaders/` folder at the root | `shaderpacks/<file>` |
+| `shader` | `.hshader` | Horizon's WGSL shader pack | `zenith_shader_api::check` (today) | `shaderpacks/<file>` |
+| `shaderpack` | `.zip` | **new**: a `shaders/`-folder pack (the OptiFine/Iris format Horizon loads with `zenith-shaders`) | plain paths, a `shaders/` folder at the root | `shaderpacks/<file>` |
 | `datapack` | `.zip` | **new**: `pack.mcmeta` + `data/` | plain paths, `pack.mcmeta` with a `pack` object, a `data/` folder; its pack format | a world the player picks: `<world>/datapacks/<file>` |
 
 - Why a separate `shaderpack` kind rather than `.zip` files under `shader`: launchers already released check every
@@ -61,7 +61,7 @@ One fixed list per kind, Modrinth's, minus `cursed`:
   colored-lighting, foliage, path-tracing, pbr, reflections, shadows (features); potato, low, medium, high,
   screenshot (performance).
 
-They live in `horizon_mods::index::categories(kind)`; the site and the launcher read them from the index's projects
+They live in `zenith_mods::index::categories(kind)`; the site and the launcher read them from the index's projects
 and show the kind's list as filters.
 
 ## Submitting and editing

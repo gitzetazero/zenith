@@ -4,7 +4,7 @@ How a change gets from a pull request to players: the checks a pull request pass
 automatic releases that follow. Releases are automatic and frequent so the latest Horizon is always playable.
 Since 2026-10-28 Horizon ships only the **Nightly** (Ludovic's decision; the Team proposed it): the batch train builds
 a Nightly instead of a `vX.Y.Z` release, it is published once its smoke test passed and no `release-blocker` is open,
-and every launcher and `horizon-server update` install it ([Nightly only](#nightly-only)).
+and every launcher and `zenith-server update` install it ([Nightly only](#nightly-only)).
 
 ## Pull request checks
 
@@ -55,14 +55,14 @@ alone, with a warning. The check is still reported on the head.
    the machine has it.
 2. `tools/ci/vanilla-data.sh` links `.local/` to the runner's copy of the vanilla data, cloned once from
    `~/code/horizon-parity/shared-local` into `~/.actions-runners/horizon/_work/horizon/shared-local`, and
-   prepares `.local/horizon-client` with the pull request's own `horizon-prepare` once per preparer version
-   (its sources, the exporters in `mods/horizon/src/test/java` and `research-lock.json`). The game's sounds, which
+   prepares `.local/zenith-client` with the pull request's own `zenith-prepare` once per preparer version
+   (its sources, the exporters in `java/horizon/src/test/java` and `research-lock.json`). The game's sounds, which
    depend only on the Minecraft version, are kept once in `shared-local/sounds/<version>/` (copied from a folder
-   `horizon-prepare sounds` made from the maintainer's own game; the Mac mini has no official launcher of its own)
+   `zenith-prepare sounds` made from the maintainer's own game; the Mac mini has no official launcher of its own)
    and cloned into each preparation (not linked: vanilla's packs refuse symbolic links), for the audio harnesses.
-   `tools/prepare_output.py check` then compares what was prepared with `crates/horizon-prepare/output-versions.txt`:
+   `tools/prepare_output.py check` then compares what was prepared with `crates/zenith-prepare/output-versions.txt`:
    launchers keep a player's prepared resources across releases whose preparer declares the same `OUTPUT_VERSION`
-   (`crates/horizon-prepare/src/lib.rs`), so a change to the prepared files fails here until it bumps the number
+   (`crates/zenith-prepare/src/lib.rs`), so a change to the prepared files fails here until it bumps the number
    and appends the new digest (the error gives both lines).
 3. `tools/parity.py --changed <base sha>` picks the harnesses whose traced dependencies (their script, Python
    modules, Java oracles and every Rust source their probes compile) changed since the merge base, plus any
@@ -75,7 +75,7 @@ Failed harnesses' logs are uploaded as the `parity-logs` artifact.
 different results on macOS for a reason that is not a Horizon bug (the reason is printed). `parity.py` skips it on
 other platforms unless it is named on the command line. Today it holds only `save_roundtrip` (it needs `vscreen`):
 `options`, `chunk_generation`, `world_border_render` and `mob_ai`, which once differed on macOS through the
-platform's libm, pass on the Mac mini since `horizon_core::jmath` computes what HotSpot computes (checked
+platform's libm, pass on the Mac mini since `zenith_core::jmath` computes what HotSpot computes (checked
 2026-10-14).
 
 **Pull requests from forks** never run code on the Mac mini by themselves. A maintainer who has read the change
@@ -145,7 +145,7 @@ paths, `lan_e2e`, a screenshot for anything visible) before it merges. Risky mea
 
 - it changes what is saved or loaded (`save.rs`, `entity_nbt.rs`, `block_entity_nbt.rs`, `region.rs`, `datafix/`):
   a bug there damages players' worlds;
-- the network or the server thread: `horizon-protocol`, `net.rs`, `remote*.rs`, `lan/`, `lan*.rs`,
+- the network or the server thread: `zenith-protocol`, `net.rs`, `remote*.rs`, `lan/`, `lan*.rs`,
   `integrated.rs`, `levels.rs`, `dedicated*`;
 - world generation (`worldgen/`): seeds must keep generating the same terrain;
 - the launcher's installs and updates, or the mod runtime;
@@ -187,7 +187,7 @@ which runs them on main a batch of merges at a time, on the Mac mini's runner:
   also starts when a parity-main run finishes. A forced run (`force=true`) doesn't wait for parity-main.
 
 A pull request still runs its own parity job when it changes a harness script, an oracle
-(`mods/horizon/src/test/`), a probe (`crates/*/examples/`, `game/*_fixture.rs`, `game/*_harness.rs`), the runner
+(`java/horizon/src/test/`), a probe (`crates/*/examples/`, `game/*_fixture.rs`, `game/*_harness.rs`), the runner
 (`tools/parity*.py`, `tools/lab.py`, `tools/parity_hosts.json`, `parity*.yml`), or carries the `run-parity` label
 (`run-parity.yml` runs it when the label is added).
 
@@ -221,8 +221,8 @@ flowchart LR
 commits) since the commit the published Nightly was built on:
 
 - A pull request counts when it changed what players run: `crates/` (not `examples/`, `tests/`, `benches/`),
-  `xtask/`, `packaging/`, `Cargo.toml`, `Cargo.lock`, `research-lock.json`, or an exporter `horizon-prepare`
-  compiles (the `mods/horizon/src/test/java/dev/horizonlab/parity/*.java` files its sources name). Markdown never
+  `xtask/`, `packaging/`, `Cargo.toml`, `Cargo.lock`, `research-lock.json`, or an exporter `zenith-prepare`
+  compiles (the `java/horizon/src/test/java/dev/horizonlab/parity/*.java` files its sources name). Markdown never
   counts.
 - It goes in batches, so players get a few Nightlies a day rather than one per merge: once 5 pull requests count
   and the newest of them merged at least 5 minutes ago (a wave of merges becomes one Nightly), or once the oldest has
@@ -250,7 +250,7 @@ keep a working build until they update themselves. `.github/release-line.txt` st
   instance stays. Worlds are in the game's folder, never in a version's, so nothing touches them. The "Nightly
   builds" setting is gone. The last week's Nightlies (`nightly-<date>`) and the old releases stay on the Versions
   page.
-- **Servers** (#3331): `horizon-server update`, `install.sh` and `install.ps1` follow the Nightly the same way.
+- **Servers** (#3331): `zenith-server update`, `install.sh` and `install.ps1` follow the Nightly the same way.
 - **Kira** posts each Nightly in #releases; the bug template asks for the version the game shows.
 - **Everyone gets the reviewers' picks.** A Nightly is main plus the pull requests the trusted reviewers picked
   ([below](#trusted-reviewers-pick-the-nightlys-pull-requests)), so a pick reaches every player with the next
@@ -277,13 +277,13 @@ the notes.
 | --- | --- | --- |
 | `horizon-linux-x86_64.tar.gz` | GitHub `ubuntu-22.04` (an older glibc, so it runs on any recent distribution) | the standard loader and libraries only (`tools/check_imports.py`) |
 | `horizon-linux-musl-x86_64.tar.gz` | Alpine 3.22 in Docker on GitHub `ubuntu-22.04`, targeting `x86_64-unknown-linux-musl` | musl loader and libraries only (`tools/check_imports.py --musl`), CPU baseline and every program's startup checked inside Alpine |
-| `horizon-server-linux-x86_64.tar.gz` | the same Linux job, after the client archive: `horizon-server`, `horizon-prepare` and the game built with `--no-default-features` as `horizon-engine` (docs/server.md) | as above, and neither `libasound.so.2` nor `libudev.so.1` (`tools/check_imports.py --server`) |
+| `zenith-server-linux-x86_64.tar.gz` | the same Linux job, after the client archive: `zenith-server`, `zenith-prepare` and the game built with `--no-default-features` as `horizon-engine` (docs/server.md) | as above, and neither `libasound.so.2` nor `libudev.so.1` (`tools/check_imports.py --server`) |
 | `horizon-windows-x64.zip` | GitHub `windows-latest`, C runtime linked in | system DLLs only (`tools/check_imports.py`); PE machine is x64 |
 | `horizon-windows-arm64.zip` | GitHub `windows-11-vs2026-arm`, built for `aarch64-pc-windows-msvc`, C runtime linked in | system DLLs only (`tools/check_imports.py`); PE machine is ARM64 and binaries start on the native runner |
 | `horizon-macos-arm64.zip` | The Mac mini's runner (`vars.MAC_RUNNER=macos-latest` sends it to GitHub) | system libraries only (`otool -L`); a 1500-frame offscreen run of a new world (about 12 s; 300 frames end before the world has loaded) with resources prepared from the runner's own Minecraft (`--offscreen --world smoke --frames 1500 --smoke-report`: frames drawn, chunks generated and meshed, a player, no error) |
 | `horizon-macos-x64.zip` | The same runner, cross-built for `x86_64-apple-darwin` (#1161) | as `horizon-macos-arm64.zip`, every program and the 1500-frame run under Rosetta 2; only the arm64 build's `smoke-test.json` is published |
 
-Each builds `horizon-client`, `horizon-ctl`, `horizon-prepare` and `horizon-server` in release mode, checks they
+Each builds `zenith-client`, `zenith-ctl`, `zenith-prepare` and `zenith-server` in release mode, checks they
 exist, verifies Windows PE architectures, checks the `--help` and `--version` entry points, packages the folder with
 `cargo run -p xtask -- package` and archives it. The
 GitHub jobs keep their Cargo caches (`Swatinem/rust-cache`); the Mac mini keeps its `target/`. Only the Mac
@@ -294,9 +294,9 @@ The musl archive is an optional manual download for musl-based Linux desktops; s
 standard glibc archive. The musl client and tools keep audio and controllers enabled and link musl dynamically
 (`-C target-feature=-crt-static`) to load graphics and window libraries at runtime. A failed musl build does
 not block other platforms: signing and publication omit the missing archive with a warning. The dedicated
-server archive remains glibc; the bundled musl `horizon-server` refuses automatic updates to glibc archives.
+server archive remains glibc; the bundled musl `zenith-server` refuses automatic updates to glibc archives.
 
-Musl gameplay parity is not yet validated. On x86-64, `horizon-core::jmath` uses the platform libm for several
+Musl gameplay parity is not yet validated. On x86-64, `zenith-core::jmath` uses the platform libm for several
 functions, so musl may round differently from glibc or HotSpot. Values near a simulation threshold could
 therefore change world generation or mob behaviour for the same seed. This build has no musl parity results;
 CLI startup checks do not establish gameplay parity. Before merging the platform support, record a successful
@@ -336,18 +336,18 @@ so a signed list can't be reused under another tag.
   runs, which sign with a throwaway key). No code from the repository runs beside the key, so no pull request
   can read it by changing what a build compiles; the key is in no file, no log and no password vault, and nobody
   needs to read it.
-- The publish job then checks the signature the way launchers do (`horizon-release-sign verify --publishing`,
-  crates/horizon-release-sign), against the public keys built in from
-  `crates/horizon-release-sign/release-keys.txt`. While that file lists no key, releases go out with SHA256SUMS
+- The publish job then checks the signature the way launchers do (`zenith-release-sign verify --publishing`,
+  crates/zenith-release-sign), against the public keys built in from
+  `crates/zenith-release-sign/release-keys.txt`. While that file lists no key, releases go out with SHA256SUMS
   alone and a warning (today's releases keep working). Once it lists one, a missing secret or a key it doesn't
   list fails the release before anything is published, instead of publishing something launchers would refuse.
-- Making the key: `tools/ci/new_release_key.sh` pipes a new key from `horizon-release-sign keygen` straight into
+- Making the key: `tools/ci/new_release_key.sh` pipes a new key from `zenith-release-sign keygen` straight into
   `gh secret set RELEASE_SIGNING_KEY --env release` and prints only the public key, which then goes into
   release-keys.txt by pull request.
 
-**Releases from before signing.** The launcher and `horizon-server update` install only signed releases, with
+**Releases from before signing.** The launcher and `zenith-server update` install only signed releases, with
 one exception, so a player or a server can still go back to an older version: every release published before
-signing began has its archives' SHA-256 pinned in `crates/horizon-release-sign/legacy-releases.txt`, built into
+signing began has its archives' SHA-256 pinned in `crates/zenith-release-sign/legacy-releases.txt`, built into
 both. Those releases install only with exactly those files, whatever GitHub serves for them later. The file was
 written once by `tools/ci/legacy_releases.py` from the SHA-256s GitHub computed at upload; it lists no signed
 release and never changes again (`--check` says whether it is complete).
@@ -390,13 +390,13 @@ open `release-blocker`. The reviewers' `/nightly` and the 20:17 UTC build still 
 To stop the next Nightlies while a problem is fixed, label an issue about it `release-blocker`. The way out is
 forward: revert the pull request (or `/nightly remove` a pick), label the revert `release-now`, and a fixed Nightly
 is out as soon as main's checks and parity-main pass. Meanwhile a player can pick an earlier build on the launcher's
-Versions page (the last week's `nightly-<date>`, or a `vX.Y.Z`), and `horizon-server update --version <tag>` does
+Versions page (the last week's `nightly-<date>`, or a `vX.Y.Z`), and `zenith-server update --version <tag>` does
 the same for a server.
 
 ## Launcher releases
 
 `.github/workflows/launcher.yml` releases the launcher the same way. It starts on a push to main that changes
-`launcher/`, `crates/horizon-prepare/` or `crates/horizon-theme/` (what the launcher builds in), every hour at :47,
+`launcher/`, `crates/zenith-prepare/` or `crates/zenith-theme/` (what the launcher builds in), every hour at :47,
 and by hand; pushes to `launcher` and `launcher-*` branches only build.
 
 - `tools/release_train.py decide --kind launcher` counts the pull requests merged since the last published
@@ -421,7 +421,7 @@ and by hand; pushes to `launcher` and `launcher-*` branches only build.
   arguments it opens the per-user setup (`launcher/src/installer.rs`) instead of Home, and
   `horizon-launcher.exe uninstall` removes it again. Both files are in the release's signed `SHA256SUMS`.
 
-Making a launcher release GitHub's latest instead would break servers: every `horizon-server` already installed,
+Making a launcher release GitHub's latest instead would break servers: every `zenith-server` already installed,
 `install.sh` and `install.ps1` ask for `releases/latest` and expect the game's archives there, and a server that
 can't update can't fetch the fix either. So the game release stays the latest, and it sends people to the launcher
 (#1647): its notes open with a "Want to play? Download the Horizon launcher" block (`PLAYERS` in
@@ -552,13 +552,13 @@ comment on any issue or pull request (`.github/workflows/nightly-command.yml`, `
   merge with a read-only token that isn't kept in the checkout and no secrets; the runner's Developer ID keychain
   stays locked. `sign` is the only job with the key, and checks out only main's `tools/ci/sign_release.sh`, which
   hashes the archives with the runner's `sha256sum` and signs with its OpenSSL: it never runs what `build` made.
-  `publish` runs main's `horizon-release-sign`, never the archives. Nothing a nightly's build leaves reaches a
+  `publish` runs main's `zenith-release-sign`, never the archives. Nothing a nightly's build leaves reaches a
   release either: `game-build.yml`'s `trusted` input is true only for `release.yml`. An untrusted build runs its
   macOS jobs on the Mac mini's nightly runner (`horizon-nightly`, its own so a nightly never waits behind pull
   requests' parity queue; same machine and trust as the `horizon-game` runner), never the release runner
   (`MAC_RUNNER`), and its Rust cache has its own key and is never saved. A trusted build doesn't use the machine's
   shared sccache, which pull requests' jobs write (`HORIZON_NO_SCCACHE`, `tools/ci/runner-env.sh`).
-- **Players.** Every launcher and `horizon-server update` install the `nightly` pre-release
+- **Players.** Every launcher and `zenith-server update` install the `nightly` pre-release
   ([Nightly only](#nightly-only)). It is never GitHub's latest: the last `vX.Y.Z` stays that, for launchers,
   servers and `install.sh` from before the switch.
 

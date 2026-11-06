@@ -40,14 +40,14 @@ def main():
     sources = [Path(__file__), lab.ROOT / 'tools/lab.py', lab.ROOT / 'tools/oracle_harness.py',
                lab.ROOT / 'tools/test_rust_parity.py', lab.ROOT / 'tools/integration_env.py',
                lab.ROOT / 'Cargo.toml', lab.ROOT / 'Cargo.lock',
-               lab.ROOT / 'crates/horizon-client/src/mobs/shulker.rs',
-               lab.ROOT / 'crates/horizon-client/src/mobs/shulker_space_tests.rs',
-               lab.ROOT / 'crates/horizon-client-render/src/collisions.rs',
-               lab.ROOT / 'crates/horizon-world/src/block_collision.rs',
-               lab.ROOT / 'crates/horizon-world/src/collision_context.rs',
-               lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaShulkerSpaceOracle.java',
-               lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaBlockUpdateOracle.java',
-               lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/ParityData.java']
+               lab.ROOT / 'crates/zenith-client/src/mobs/shulker.rs',
+               lab.ROOT / 'crates/zenith-client/src/mobs/shulker_space_tests.rs',
+               lab.ROOT / 'crates/zenith-client-render/src/collisions.rs',
+               lab.ROOT / 'crates/zenith-world/src/block_collision.rs',
+               lab.ROOT / 'crates/zenith-world/src/collision_context.rs',
+               lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaShulkerSpaceOracle.java',
+               lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaBlockUpdateOracle.java',
+               lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/ParityData.java']
     hashes = base.source_hashes(sources)
     rows = list(cases())
     inputs = build / 'inputs.txt'
@@ -60,7 +60,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix='horizon-shulker-space-parity-') as scratch:
         env = integration_env.game_environment(os.environ, scratch)
         env.update(HORIZON_SHULKER_SPACE_INPUT=str(inputs), HORIZON_SHULKER_SPACE_OUTPUT=str(build / 'rust.txt'))
-        harness.run_logged(['cargo', 'test', '--locked', '-p', 'horizon-client-lib', '--lib',
+        harness.run_logged(['cargo', 'test', '--locked', '-p', 'zenith-client-lib', '--lib',
                             'mobs::shulker::space_tests::shulker_space_parity_fixture',
                             '--', '--exact', '--ignored'], build, 'rust', env=env)
     matched = harness.compare(build / 'client.txt', build / 'rust.txt', len(rows))

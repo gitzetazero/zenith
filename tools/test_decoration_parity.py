@@ -64,8 +64,8 @@ def main():
     lock,jars,libraries=base.verify_artifacts()
     resources=sort.biome_features(jars['server'])
     if len(resources)!=67 or resources!=sort.biome_features(jars['client']):raise ValueError('pinned biome feature resources differ')
-    oracle=lab.ROOT/'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaDecorationOracle.java';helper=oracle.with_name('VanillaPlacementOracle.java')
-    sources=[oracle,helper,Path(__file__),lab.ROOT/'tools/test_feature_sort_parity.py',lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/horizon-core/Cargo.toml',lab.ROOT/'crates/horizon-world/Cargo.toml',*sorted((lab.ROOT/'crates/horizon-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/horizon-world/src').rglob('*.rs')),lab.ROOT/'crates/horizon-world/examples/probe/decoration_fixture.rs']
+    oracle=lab.ROOT/'java/horizon/src/test/java/dev/horizonlab/parity/VanillaDecorationOracle.java';helper=oracle.with_name('VanillaPlacementOracle.java')
+    sources=[oracle,helper,Path(__file__),lab.ROOT/'tools/test_feature_sort_parity.py',lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/zenith-core/Cargo.toml',lab.ROOT/'crates/zenith-world/Cargo.toml',*sorted((lab.ROOT/'crates/zenith-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/zenith-world/src').rglob('*.rs')),lab.ROOT/'crates/zenith-world/examples/probe/decoration_fixture.rs']
     tested_sources=base.source_hashes(sources)
     fixtures=list(corpus(resources));inputs=build/'inputs.txt';inputs.write_text(''.join(json.dumps(f,separators=(',',':'))+'\n' for f in fixtures),encoding='utf-8')
     resource_path=build/'biome-features.json';resource_path.write_text(json.dumps(resources,separators=(',',':')),encoding='utf-8')
@@ -74,8 +74,8 @@ def main():
     def run(command,name):
         with (build/(name+'.log')).open('w',encoding='utf-8') as log:base.run(list(map(str,command)),stdout=log,stderr=subprocess.STDOUT)
     dependency_path=os.pathsep.join(map(str,libraries))
-    run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'mods/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle,helper],'compile-java')
-    run(['cargo','build','--release','-p','horizon-world','--example','world_probe'],'compile-rust')
+    run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'java/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle,helper],'compile-java')
+    run(['cargo','build','--release','-p','zenith-world','--example','world_probe'],'compile-rust')
     metadata=json.loads(subprocess.check_output(['cargo','metadata','--no-deps','--format-version','1'],cwd=lab.ROOT,text=True))
     binary=Path(metadata['target_directory'])/'release/examples'/('world_probe.exe' if os.name=='nt' else 'world_probe')
     run([binary,'decoration_fixture',build],'rust');references=[]

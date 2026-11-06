@@ -265,7 +265,7 @@ How the game loads them, without touching vanilla's path:
   when its Java original ships them so (`namespaces = ["kaisyn", "towns_and_towers"]` for Towns
   and Towers, mod id `t_and_t`; docs/mods.md). No namespace has two owners: a mod whose id or
   listed namespace another mod that is on already owns is left out, with both named in the log.
-  `horizon-port-pack` avoids that inside a pack: a namespace two carried mods both claim (YUNG's
+  `zenith-port-pack` avoids that inside a pack: a namespace two carried mods both claim (YUNG's
   structure mods all ship files under `yungsapi`, the namespace of YUNG's API, whose own jar isn't
   carried) is left to none of them, and its files stay outside. The launcher applies the game's
   rule before it starts a pack (`pipeline::loadable`) and lists what it left off.
@@ -296,9 +296,9 @@ How the game loads them, without touching vanilla's path:
 - Not in 0.2: worlds opened without a mod they used (vanilla turns unknown blocks into air; we
   will ask first), vanilla ids redefined by a mod (refused).
 
-## The pipeline: `horizon-port-pack`
+## The pipeline: `zenith-port-pack`
 
-A Rust tool in this repo (`crates/horizon-port-pack`, a CLI the launcher also calls), modelled
+A Rust tool in this repo (`crates/zenith-port-pack`, a CLI the launcher also calls), modelled
 on the version-port pipeline (`tools/version_port.py`: detect, diff, regen, harnesses, report,
 publish). Each step reads and writes files in a work directory, so it can be rerun, resumed and
 inspected:
@@ -322,14 +322,14 @@ them all for what a player's machine can port (content mods of the data tier), a
 launcher's "Import modpack" does:
 
 ```
-cargo run -p horizon-port-pack -- import ~/Downloads/pack.mrpack ~/.horizon/ports/pack
-cargo run -p horizon-port-pack -- inventory ~/.horizon/ports/pack     # --offline reuses modrinth.json
-cargo run -p horizon-port-pack -- fetch ~/.horizon/ports/pack         # the portable mods' jars, or name them
+cargo run -p zenith-port-pack -- import ~/Downloads/pack.mrpack ~/.horizon/ports/pack
+cargo run -p zenith-port-pack -- inventory ~/.horizon/ports/pack     # --offline reuses modrinth.json
+cargo run -p zenith-port-pack -- fetch ~/.horizon/ports/pack         # the portable mods' jars, or name them
 #   --from <folder>: copy the player's own jars (an installed instance, a downloads folder)
-cargo run -p horizon-port-pack -- carry ~/.horizon/ports/pack         # content mods with a jar, or name them
+cargo run -p zenith-port-pack -- carry ~/.horizon/ports/pack         # content mods with a jar, or name them
 #   --resources <prepared root>: only templates Horizon's tables have
-cargo run -p horizon-port-pack -- report ~/.horizon/ports/pack        # coverage.json and coverage.md
-cargo run -p horizon-port-pack -- port ~/Downloads/pack.zip ~/.horizon/ports/pack [--from <folder>] [--resources <root>]
+cargo run -p zenith-port-pack -- report ~/.horizon/ports/pack        # coverage.json and coverage.md
+cargo run -p zenith-port-pack -- port ~/Downloads/pack.zip ~/.horizon/ports/pack [--from <folder>] [--resources <root>]
 ```
 
 ### Resource packs from an imported modpack
@@ -520,7 +520,7 @@ Two cases the oracle fills in:
     radius; their spreads keep a minimum distance from the world origin and away from other
     sets (named by a structure set tag). Carry writes these under `horizon:start_checks`,
     `horizon:min_distance_from_world_origin` and `horizon:exclusion_zone`; the game runs them
-    (`horizon-world`'s `structure/start_checks.rs`). Vanilla data has none of the keys. Moog's
+    (`zenith-world`'s `structure/start_checks.rs`). Vanilla data has none of the keys. Moog's
     also spreads its structures 1.65 times as far apart as its files say, which carry now
     applies. MVS went from 829 starts to 90 in a 128×128-chunk square (seed 1234): 294 from the
     spacing, the rest from the start checks.
@@ -542,7 +542,7 @@ Two cases the oracle fills in:
     template has them); 1,427 processors of 146 types in ATM10's mods, the most common
     `lithostitched:block_swap`, Formations' `biome_replacements` and Repurposed Structures'
     pillar, fluid and void processors.
-  - **Spawner processors** carried as data (`horizon-port-pack/src/processors.rs`). Most
+  - **Spawner processors** carried as data (`zenith-port-pack/src/processors.rs`). Most
     chests in the mods' templates already name their loot table; what the Java processors add
     is the spawners' mobs. Moog's and Repurposed Structures' spawner randomizing processors
     become `horizon:spawner_mobs` (a weighted mob per spawner, picked with the placement's
@@ -737,7 +737,7 @@ Two cases the oracle fills in:
     template per start at a height found in the noise columns under its corners and centre: on
     the surface, on water or lava, or in a cave (on its floor, under its ceiling, buried in
     stone, on a lava lake). Carry writes its `formations:simple` as the game's
-    `horizon:formations` (`horizon-world`'s `structure/formations.rs`, which reads the blocks
+    `horizon:formations` (`zenith-world`'s `structure/formations.rs`, which reads the blocks
     of ChunkGenerator.getBaseColumn through the structure context) and its pool element as
     vanilla's with its `ground_level` under `horizon:ground_level`. In chunks -64..63 that adds
     39 Overworld and 672 Nether starts at seed 1234 (51 and 643 at seed 2), and leaves every
@@ -813,12 +813,12 @@ through the step-4 upgrader and compares only the mod's own ids and effects.
 
 ```
 python3 tools/neoforge_oracle.py export --jars <mods> --deps <their libraries> --out <work>/oracle/facts.json
-cargo run -p horizon-port-pack -- carry <work> --resources .local/horizon-client/26.3
+cargo run -p zenith-port-pack -- carry <work> --resources .local/zenith-client/26.3
 python3 tools/mod_port_harness.py --work <work>      # or --jars/--deps to export first
 ```
 
 - `tools/neoforge_oracle.py` installs a NeoForge server (21.1.259, ATM10's) under
-  `.local/neoforge-oracle/`, builds the exporter mod in `mods/horizon/src/neoforge-oracle/` (our code, dev
+  `.local/neoforge-oracle/`, builds the exporter mod in `java/horizon/src/neoforge-oracle/` (our code, dev
   only), starts the server headless with the jars and writes, for every block of the mods'
   namespaces and every vanilla block: the class chain, states, per-state hardness, light, tool
   need, map colour, sounds, outline and collision shapes; drops for hand, diamond tools, shears
@@ -827,7 +827,7 @@ python3 tools/mod_port_harness.py --work <work>      # or --jars/--deps to expor
   modifiers, enchantability and repair items; armour's slot, defense, toughness, knockback resistance,
   equip sound and texture layers), recipes (type, result, count, resolved ingredients) and tags. One run
   with the seven mods below takes about 30 s.
-- `crates/horizon-client/examples/mod_port_probe.rs` builds the content root from the carried
+- `crates/zenith-client/examples/mod_port_probe.rs` builds the content root from the carried
   mods and dumps what Horizon's loaders make of the same blocks, drops, recipes and tags.
 - `tools/mod_port_harness.py` compares them per mod (blocks, properties, sounds, shapes, drops,
   placement against the template's in the oracle, vanilla tags, recipes, items) and writes
@@ -872,7 +872,7 @@ the self-drop tables it registers in code (step 4).
 Plus the licence summary (how many ports could be published) and, for a pack, "playable?":
 whether every required content mod is ported or partial with its blocks and items present.
 
-`horizon-port-pack report <work>` writes the per-mod rows and the class, tier and licence totals from the inventory, each mod's `carry-report.json`
+`zenith-port-pack report <work>` writes the per-mod rows and the class, tier and licence totals from the inventory, each mod's `carry-report.json`
 and its harness result. A data-tier mod is **ported** when its harness is green and nothing was
 left out (blocks with a class of their own are counted and named, since facts cannot show
 their extra code); **partial** with the failing checks, the blocks left out and what the
@@ -922,7 +922,7 @@ mods on the same machine, world and camera path ([benchmark.md](benchmark.md)). 
 `--game neoforge --mod-jars <dir> --deps <dir>` it runs the mods on their own loader (NeoForge
 21.1.259 for ATM10, installed under `.local/neoforge-oracle`, `-Xmx2G` like the launcher),
 driven by the same steps through a dev-only NeoForge port of the bench mod
-(`mods/horizon/src/neoforge-bench`). `--game horizon --port-work <work>` loads a work folder's
+(`java/horizon/src/neoforge-bench`). `--game horizon --port-work <work>` loads a work folder's
 carried-over mods into Horizon. A whole pack (`--pack`, its recommended JVM arguments) is next.
 
 | Metric | How | Horizon side |
@@ -930,7 +930,7 @@ carried-over mods into Horizon. A whole pack (`--pack`, its recommended JVM argu
 | **Load time** | start → title screen; start → in a fresh world, every chunk around the spawn drawn | the same with the ported pack's `.hmod`s enabled |
 | **RAM** | peak and steady RSS of the process, sampled 4 times a second from outside (the whole JVM for Java) | the whole process |
 | **FPS** | the four flight scenes: mean, 1 % and 0.1 % lows, p99 frame time | same |
-| **TPS / MSPT** | a fixed server-load world: N loaded chunks with the pack's machines and mobs placed by the harness fixtures; mean and p99 milliseconds per tick over 60 s (NeoForge: `/neoforge tps` and spark; Horizon: the integrated server's tick times, which today feed only the debug chart, exposed through `horizon-ctl`) | same fixture, the ported content |
+| **TPS / MSPT** | a fixed server-load world: N loaded chunks with the pack's machines and mobs placed by the harness fixtures; mean and p99 milliseconds per tick over 60 s (NeoForge: `/neoforge tps` and spark; Horizon: the integrated server's tick times, which today feed only the debug chart, exposed through `zenith-ctl`) | same fixture, the ported content |
 | **World generation** | chunks per second pregenerating a fixed square (Chunky on NeoForge; Horizon gets a pregeneration command for this) with the pack's worldgen | same |
 | **Disk and download** | install size of the pack against its `.hmod`s | |
 
@@ -993,7 +993,7 @@ So the six mods cost about 0.5 GB of footprint, not 1.1-1.4 GB. ATM10's 42 mods 
 states) take the game to 7.7 GB RSS but 3.9 GB footprint. The rest is startup garbage the
 allocator keeps.
 
-`crates/horizon-client/examples/resource_memory.rs` breaks it down per loader: the live heap
+`crates/zenith-client/examples/resource_memory.rs` breaks it down per loader: the live heap
 (a counting allocator), each step's peak, RSS and the footprint. Live heap after every loader,
 vanilla against ATM10's 42 mods:
 
@@ -1064,7 +1064,7 @@ In scope (each is a PR or a small stack):
    and lang, in single player. Proven by a harness: a test mod's block placed, rendered, broken
    with the right time and tool, dropping its loot, crafted from its recipe; every per-state
    fact equal to its template's with the overrides applied. Parity unchanged with no mods.
-3. **`horizon-port-pack`**: import (`.mrpack`, CurseForge zip and instance, Prism), inventory,
+3. **`zenith-port-pack`**: import (`.mrpack`, CurseForge zip and instance, Prism), inventory,
    classify, licence record, dependency order, data carry-over for data-tier mods and their
    `.hmod`s, coverage report. Run on ATM10's real list (coverage report published in the PR,
    metadata only) and on a small real pack end to end.
@@ -1134,11 +1134,11 @@ What is missing, ranked by how much a player notices:
 
 ### Three packs through the mod browser, measured
 
-2026-10-22, Mac mini M4 Pro (offscreen, a debug launcher, release-profile `horizon-port-pack` and game), while
+2026-10-22, Mac mini M4 Pro (offscreen, a debug launcher, release-profile `zenith-port-pack` and game), while
 other sessions kept the CPU at 85 to 93 %, so times are upper bounds. The two Modrinth packs were imported with
 `horizon-launcher mods install <slug>` (the browser's Import), ATM10 from its CurseForge zip with `modpack import`
 (CurseForge support is coming soon), then each ported with `--resources` for 26.3 and opened as a survival
-world with every ported mod on (horizon-ctl `launch --dev-mod ...`, from a scratch script).
+world with every ported mod on (zenith-ctl `launch --dev-mod ...`, from a scratch script).
 
 | Pack | Files | Import | Port | Ported mods | Coverage | Declared | World load (resources) | Crashes |
 |---|---|---|---|---|---|---|---|---|

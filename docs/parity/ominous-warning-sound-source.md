@@ -68,7 +68,7 @@ Replay with prepared resources and isolated test homes/cwd as required by AGENTS
 ```sh
 python3 tools/test_ominous_warning_sound_parity.py --binary /path/to/game --reference-only --work-dir .local/h128/reference
 python3 tools/test_ominous_warning_sound_parity.py --binary /path/to/game --reference .local/h128/reference/reference.json --work-dir .local/h128/replay
-HORIZON_TEST_RESOURCES=/absolute/resources/26.3 cargo test -p horizon-client --lib warning_dispatch_uses_neutral_at_tick_four -- --ignored --nocapture
+HORIZON_TEST_RESOURCES=/absolute/resources/26.3 cargo test -p zenith-client --lib warning_dispatch_uses_neutral_at_tick_four -- --ignored --nocapture
 ```
 
 Complete raw sounds/payloads, all transcripts, actor/body guards, stage timestamps, clocks,

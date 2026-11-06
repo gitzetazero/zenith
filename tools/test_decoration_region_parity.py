@@ -50,12 +50,12 @@ def main():
     lock,jars,libraries=base.verify_artifacts()
     tags=worldgen.tag_resources(jars["server"])
     if not tags or tags!=worldgen.tag_resources(jars["client"]):raise ValueError("client/server block tags differ or are empty")
-    oracle=lab.ROOT/"mods/horizon/src/test/java/dev/horizonlab/parity/VanillaDecorationRegionOracle.java"
+    oracle=lab.ROOT/"java/horizon/src/test/java/dev/horizonlab/parity/VanillaDecorationRegionOracle.java"
     helper=oracle.with_name("VanillaHeightmapOracle.java")
     placement_helper=oracle.with_name("VanillaPlacementOracle.java")
     sources=[oracle,helper,placement_helper,Path(__file__),lab.ROOT/"tools/test_rust_parity.py",lab.ROOT/"tools/test_worldgen_parity.py",lab.ROOT/"tools/test_feature_region_parity.py",lab.ROOT/"tools/test_decoration_parity.py",lab.ROOT/"tools/test_feature_sort_parity.py",lab.ROOT/"tools/lab.py",lab.ROOT/"Cargo.toml",lab.ROOT/"Cargo.lock",
-             lab.ROOT/"crates/horizon-core/Cargo.toml",lab.ROOT/"crates/horizon-world/Cargo.toml",
-             *sorted((lab.ROOT/"crates/horizon-core/src").rglob("*.rs")),*sorted((lab.ROOT/"crates/horizon-world/src").rglob("*.rs")),lab.ROOT/"crates/horizon-world/examples/probe/decoration_region_fixture.rs",lab.ROOT/"crates/horizon-world/examples/probe/support/decoration_storage.rs"]
+             lab.ROOT/"crates/zenith-core/Cargo.toml",lab.ROOT/"crates/zenith-world/Cargo.toml",
+             *sorted((lab.ROOT/"crates/zenith-core/src").rglob("*.rs")),*sorted((lab.ROOT/"crates/zenith-world/src").rglob("*.rs")),lab.ROOT/"crates/zenith-world/examples/probe/decoration_region_fixture.rs",lab.ROOT/"crates/zenith-world/examples/probe/support/decoration_storage.rs"]
     tested_sources=base.source_hashes(sources)
     classes=build/"classes";classes.mkdir(exist_ok=True)
     def run(command,name):
@@ -73,7 +73,7 @@ def main():
     (build/"tags.json").write_text(json.dumps(tags,separators=(",",":")),encoding="utf-8")
     fixture_paths=[inputs,build/"tags.json",build/"facts-client.json",build/"facts-server.json"]
     tested_fixtures=base.source_hashes(fixture_paths)
-    run(["cargo","build","--release","-p","horizon-world","--example","world_probe"],"compile-rust")
+    run(["cargo","build","--release","-p","zenith-world","--example","world_probe"],"compile-rust")
     metadata=json.loads(subprocess.check_output(["cargo","metadata","--no-deps","--format-version","1"],cwd=lab.ROOT,text=True))
     binary=Path(metadata["target_directory"])/"release/examples"/("world_probe.exe" if os.name=="nt" else "world_probe")
     run([binary,"decoration_region_fixture",build],"rust")

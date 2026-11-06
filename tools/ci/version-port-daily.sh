@@ -30,7 +30,7 @@ git fetch -q origin
 git checkout -q --detach "$ref"
 if [ ! -d .local ]; then
   mkdir .local
-  for d in minecraft horizon-client tools datagen; do ln -s "$shared/$d" ".local/$d"; done
+  for d in minecraft zenith-client tools datagen; do ln -s "$shared/$d" ".local/$d"; done
 fi
 # shellcheck disable=SC1091
 source "$HOME/code/horizon-parity/env.sh"

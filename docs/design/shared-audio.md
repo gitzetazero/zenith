@@ -20,5 +20,5 @@ sound. Keep the original `Audio` alive: it owns the output stream.
 Run the deterministic mixer tests without an audio device or game resources:
 
 ```sh
-cargo test --profile fast -p horizon-client-render --lib audio::tests
+cargo test --profile fast -p zenith-client-render --lib audio::tests
 ```

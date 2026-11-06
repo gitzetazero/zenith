@@ -1,6 +1,6 @@
 # Shader API reference (0.1)
 
-Generated from `crates/horizon-shader-api` (`HORIZON_WRITE_DOCS=1 cargo test -p horizon-shader-api --test reference`
+Generated from `crates/zenith-shader-api` (`HORIZON_WRITE_DOCS=1 cargo test -p zenith-shader-api --test reference`
 rewrites it; the test fails when it drifts). The API's design and pack format: [shaders.md](shaders.md).
 
 A stage is a function your WGSL defines, with the signature below; Horizon puts the prelude (these structs, the
@@ -314,7 +314,7 @@ Each `[[options]]` entry sets the WGSL `override` of the same name when the pipe
 
 ## The check
 
-A pack runs only after it passes `horizon_shader_api::check` (the game when it loads a pack, the launcher before it
+A pack runs only after it passes `zenith_shader_api::check` (the game when it loads a pack, the launcher before it
 installs one, the registry's CI): each stage is parsed and validated by naga, checked against its signature and
 the rules above, and translated for Vulkan (SPIR-V), Metal and DirectX 12 (HLSL) with its options at their
 defaults, minimums and maximums. Every option must be an `override` of its type in some stage; an `override`

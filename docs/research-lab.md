@@ -21,7 +21,7 @@ Class-file SourceFile metadata covers inner classes, which often share a source 
 
 ## Original Rust research
 
-The dependency-free `horizon-core` crate starts the Rust simulation foundation:
+The dependency-free `zenith-core` crate starts the Rust simulation foundation:
 integer block/chunk/section positions, legacy and xoroshiro seeded random streams and positional factories,
 padded palette-index storage, scheduled block/fluid tick queues, and double-precision
 bounding-box and voxel-grid collision geometry. Noise samplers, octave stacks and
@@ -52,7 +52,7 @@ The [density suite](density-functions.md) checks compiled scalar and bulk
 evaluation, including nested samplers, their different arithmetic paths, and
 selected interval operations used for graph range analysis.
 
-`horizon-world` adds NBT, four region compression codecs, `.mca`/`.mcc`
+`zenith-world` adds NBT, four region compression codecs, `.mca`/`.mcc`
 reading and export, saved palettes, a version-checked block-state registry,
 and packed resident block sections. The world-data suite checks Rust output
 with the actual vanilla NBT, region and block-state decoders on both JARs.

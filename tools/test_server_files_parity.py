@@ -191,18 +191,18 @@ def main():
     build.mkdir(parents=True, exist_ok=True)
     report = build / 'report.json'
     report.unlink(missing_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaServerFilesOracle.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaServerFilesOracle.java'
     sources = [Path(__file__).resolve(), oracle, lab.ROOT / 'tools/oracle_harness.py', lab.ROOT / 'tools/lab.py',
                lab.ROOT / 'tools/test_rust_parity.py', lab.ROOT / 'Cargo.lock',
-               lab.ROOT / 'crates/horizon-client/examples/probe/server_files_probe.rs',
-               *sorted((lab.ROOT / 'crates/horizon-client/src/server').glob('*.rs'))]
+               lab.ROOT / 'crates/zenith-client/examples/probe/server_files_probe.rs',
+               *sorted((lab.ROOT / 'crates/zenith-client/src/server').glob('*.rs'))]
     tested = base.source_hashes(sources)
     cases, count = make_cases(build)
     classes = build / 'classes'
     classes.mkdir(exist_ok=True)
     dependencies = os.pathsep.join(map(str, [jars['server'], *libraries]))
     oh.run_logged(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath',
-                   lab.ROOT / 'mods/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle],
+                   lab.ROOT / 'java/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle],
                   build, 'compile-java')
     command = oh.build_probe(build, 'server_files_probe')
     oh.run_logged([*command, cases, build / 'rust.txt'], build, 'rust')

@@ -1,6 +1,6 @@
 # Opt-in data collection
 
-Horizon collects nothing unless the player says yes. The launcher asks once, with four separate switches that are all off until the player turns one on, and the same switches stay in Settings. The game and the launcher obey the same answer. The code is in `crates/horizon-telemetry`.
+Horizon collects nothing unless the player says yes. The launcher asks once, with four separate switches that are all off until the player turns one on, and the same switches stay in Settings. The game and the launcher obey the same answer. The code is in `crates/zenith-telemetry`.
 
 Two exceptions:
 
@@ -75,7 +75,7 @@ Never sent: account names or UUIDs, world names, server or LAN addresses, chat, 
 
 Ludovic decided on 2026-10-22 to count every player, with or without consent, and to tell them. The launcher's first-run question and Settings → Data collection show it as an "Always on" row next to the switches. Players who answered the question before the ping existed see the same text once on the Play page. The privacy page on playhorizon.dev says the same.
 
-While the game runs (not a dedicated server, a benchmark or a run that quits by itself), a thread of its own (`crates/horizon-client/src/heartbeat.rs`) sends `POST /v1/live` once a minute. It also sends one at once when a world is opened to or closed from LAN or friends:
+While the game runs (not a dedicated server, a benchmark or a run that quits by itself), a thread of its own (`crates/zenith-client/src/heartbeat.rs`) sends `POST /v1/live` once a minute. It also sends one at once when a world is opened to or closed from LAN or friends:
 
 ```json
 { "session": "9b1c…", "version": "v2026.10.22", "platform": "macos", "lan": false }
@@ -103,7 +103,7 @@ Once a minute the server writes down only those totals (playing, LAN, per platfo
 
 `series` holds `[start, average, peak]` per point (5 minutes for 24h, an hour for 7d, 3 hours for 30d, a day for all; UTC Unix seconds), `peak` the range's highest minute, `all_time` the highest ever, `latest` the newest minute, `platforms` the range's average per platform.
 
-The server also asks the official server (`horizon_telemetry::server_status::OFFICIAL_STATUS_ADDRESS`, its address with the port its SRV record gives, or `HORIZON_TELEMETRY_OFFICIAL_SERVER`) for its player count every minute, with the server-list status ping every client sends to show a server in its Multiplayer list, and keeps it the same way (`series=official`, playing only; a minute it didn't answer stays empty). Its TPS and MSPT come later, once its admin API is reachable from outside the machine.
+The server also asks the official server (`zenith_telemetry::server_status::OFFICIAL_STATUS_ADDRESS`, its address with the port its SRV record gives, or `HORIZON_TELEMETRY_OFFICIAL_SERVER`) for its player count every minute, with the server-list status ping every client sends to show a server in its Multiplayer list, and keeps it the same way (`series=official`, playing only; a minute it didn't answer stays empty). Its TPS and MSPT come later, once its admin API is reachable from outside the machine.
 
 The launcher reads the count when it opens and every minute after, and shows "N playing now" on the Play page, exact, with thousands separators; clicking it opens playhorizon.dev/stats. Beside it, "M on the official SMP" is the official server's own count, from the same status ping the launcher sends once a minute (3-second timeout, nothing shown when it doesn't answer); clicking it opens the Servers page. It shows nothing when the server can't be reached. `HORIZON_TELEMETRY_URL=off` turns both off; `HORIZON_NO_HEARTBEAT=1` keeps a single automated run out of the count.
 
@@ -129,4 +129,4 @@ Public output never holds a raw hardware value, only these classes (`src/classes
 
 The driver, OS version, clocks, screen and power are kept raw for the 180 days of retention, to explain a slow group, and never published.
 
-`crates/horizon-telemetry-server` is the server, at `https://telemetry.playhorizon.dev` on Railway (one SQLite file on a volume, region `europe-west4`). Its [README](../crates/horizon-telemetry-server/README.md) covers storage (about 190 bytes per play session), retention (180 days of raw rows, anonymous daily totals kept), rate limits and hosting.
+`crates/zenith-telemetry-server` is the server, at `https://telemetry.playhorizon.dev` on Railway (one SQLite file on a volume, region `europe-west4`). Its [README](../crates/zenith-telemetry-server/README.md) covers storage (about 190 bytes per play session), retention (180 days of raw rows, anonymous daily totals kept), rate limits and hosting.

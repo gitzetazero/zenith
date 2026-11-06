@@ -26,7 +26,7 @@ try:
 except ImportError:
     import lab, test_rust_parity as base, test_model_baking_parity as baking
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity'
 DYES = ['white', 'orange', 'magenta', 'light_blue', 'yellow', 'lime', 'pink', 'gray', 'light_gray', 'cyan', 'purple',
         'blue', 'brown', 'green', 'red', 'black']
 HORIZONTAL = ['north', 'south', 'west', 'east']
@@ -305,7 +305,7 @@ def main():
     vanilla = [json.loads(l) for l in (build / 'vanilla.jsonl').read_text().splitlines()]
     textures = sorted({s['texture'] for v in vanilla for s in v.get('submits', []) if 'texture' in s})
     (build / 'textures.txt').write_text(''.join(t + '\n' for t in textures))
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe', '--',
          'block_entity_render_fixture', resources, inputs, build / 'textures.txt', build / 'rust.jsonl'], 'rust')
     rust = [json.loads(l) for l in (build / 'rust.jsonl').read_text().splitlines()]
     assert len(vanilla) == len(rust), (len(vanilla), len(rust))

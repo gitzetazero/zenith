@@ -13,7 +13,7 @@ except ImportError:
     import test_rust_parity as base
 
 RESOURCES = lab.RESOURCES
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity'
 
 
 def work_dir(name):
@@ -35,7 +35,7 @@ class Vanilla:
     def compile(self, *oracles):
         sources = [PARITY / (name + '.java') for name in oracles]
         done = subprocess.run(['javac', '--release', str(self.lock['minecraft']['java_major']), '-proc:none',
-                               '-sourcepath', str(lab.ROOT / 'mods/horizon/src/test/java'), '-nowarn', '-Xmaxerrs', '30',
+                               '-sourcepath', str(lab.ROOT / 'java/horizon/src/test/java'), '-nowarn', '-Xmaxerrs', '30',
                                '-cp', self.deps, '-d', str(self.classes), *map(str, sources)], capture_output=True, text=True)
         if done.returncode:
             print(done.stderr.replace(str(lab.ROOT) + '/', ''))
@@ -51,8 +51,8 @@ def cargo_example(package, example, *args, profile=None):
     if profile:
         command += ['--profile', profile]
     probe = package.removeprefix('horizon-') + '_probe'  # each crate's probe example: client_probe, world_probe
-    if package == 'horizon-client':
-        package = 'horizon-client-lib'
+    if package == 'zenith-client':
+        package = 'zenith-client-lib'
     command += ['-p', package, '--example', probe, '--', example, *map(str, args)]
     subprocess.run(command, check=True, cwd=lab.ROOT)
 

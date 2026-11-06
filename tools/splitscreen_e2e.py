@@ -7,11 +7,11 @@
     python3 tools/splitscreen_e2e.py --only native_pointer  # macOS, real OS input; desktop must be idle
 
 How it works
-- `Game(players)` launches P1's game through horizon-ctl (`target/fast/horizon-ctl`, built with
-  `cargo build --profile fast -p horizon-client`) with `HORIZON_SPLIT=players`: the game adds the
+- `Game(players)` launches P1's game through zenith-ctl (`target/fast/zenith-ctl`, built with
+  `cargo build --profile fast -p zenith-client`) with `HORIZON_SPLIT=players`: the game adds the
   others itself, as P2, P3...
 - Every player has its own control socket (`c.sock`, `c.sock2`...). `g.ctl(n, words...)` sends one
-  horizon-ctl command to player n (docs/horizon-ctl-commands.md).
+  zenith-ctl command to player n (docs/zenith-ctl-commands.md).
 - Checks look from outside: each player's view size (`g.size(n)`, from `status`) and its `state`.
   `check(name, got, want)` records a failure and goes on; a `RuntimeError` (a `wait` that timed
   out) ends that scenario as failed.
@@ -47,8 +47,8 @@ except ImportError:
     import lab
 
 ROOT = Path(__file__).resolve().parents[1]
-CTL = lab.cargo_target() / ('fast/horizon-ctl' + ('.exe' if os.name == 'nt' else ''))
-RESOURCES = ROOT / '.local/horizon-client/26.3'
+CTL = lab.cargo_target() / ('fast/zenith-ctl' + ('.exe' if os.name == 'nt' else ''))
+RESOURCES = ROOT / '.local/zenith-client/26.3'
 # Logical; the views are checked as fractions of what P1 gets alone, so any scale works.
 WIDTH, HEIGHT = 1000, 600
 VERBOSE = False
@@ -985,7 +985,7 @@ def dedicated(directory=None, **extra):
     (directory / 'server.properties').write_text(''.join(f'{k}={v}\n' for k, v in properties.items()),
                                                  encoding='iso-8859-1')
     (directory / 'eula.txt').write_text('eula=true\n')
-    server = Server([lab.cargo_target() / ('fast/horizon-client' + ('.exe' if os.name == 'nt' else '')), '--resources', RESOURCES, '--dedicated',
+    server = Server([lab.cargo_target() / ('fast/zenith' + ('.exe' if os.name == 'nt' else '')), '--resources', RESOURCES, '--dedicated',
                      '--nogui'], directory, 'server')
     try:
         server.wait_for(r'Done \(')
@@ -1194,7 +1194,7 @@ def scenario_native_pointer():
         state = lambda n: g.ctl(n, 'state')
         grabbed = lambda: [state(n)['pointer_grabbed'] for n in [1, 2]]
         check('P1 keeps capture after P2 joins without another click', grabbed(), [True, False])
-        # OS mouse motion, unlike horizon-ctl mouse-move, passes through Split.device_event.
+        # OS mouse motion, unlike zenith-ctl mouse-move, passes through Split.device_event.
         def look(owner):
             other = 3 - owner
             before = [state(n)['player']['yaw'] for n in [1, 2]]
@@ -1431,7 +1431,7 @@ def main():
     VERBOSE = args.verbose
     sys.stdout.reconfigure(line_buffering=True)
     if not CTL.exists():
-        sys.exit(f'{CTL} is missing: cargo build --profile fast -p horizon-client')
+        sys.exit(f'{CTL} is missing: cargo build --profile fast -p zenith-client')
     if not (RESOURCES / 'assets').exists():
         sys.exit(f'no prepared resources in {RESOURCES}')
     for name in args.only or [n for n in SCENARIOS if n != 'native_pointer']:

@@ -12,11 +12,11 @@ pinned jars. The release job also compares two fresh isolated preparations with 
 batched preparation using a runtime-only Java home:
 
 ```sh
-cargo build --release -p horizon-prepare
+cargo build --release -p zenith-prepare
 # Requires already imported Minecraft files in .local/minecraft/<version>.
-target/release/horizon-prepare compile-exporters
+target/release/zenith-prepare compile-exporters
 # Copy server/, client/ and manifest.json from the printed folder into exporters/.
-python3 tools/check_prepare_exporters.py --binary target/release/horizon-prepare
+python3 tools/check_prepare_exporters.py --binary target/release/zenith-prepare
 ```
 
 Development checkouts and changed sources compile on demand, into

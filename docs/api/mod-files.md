@@ -1,7 +1,7 @@
 # Mod files
 
 The rules a `.hmod` or `.hnmod` follows, in one place, for tools that make or read them. The readers are
-`horizon_mods::Package` and `horizon_mods::Content` (content), and `horizon_mods::index::native::Bundle` (native
+`zenith_mods::Package` and `zenith_mods::Content` (content), and `zenith_mods::index::native::Bundle` (native
 code). Level: content is preview, native code experimental ([data-formats.md](data-formats.md)).
 
 ## The zip

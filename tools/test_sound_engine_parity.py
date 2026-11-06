@@ -320,7 +320,7 @@ def main():
     lines = fixtures()
     matched, report = h.run_harness(
         'sound-engine', 'VanillaSoundEngineOracle', 'sound_engine_fixture', ''.join(l + '\n' for l in lines),
-        extra_sources=[h.lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaSoundRig.java'],
+        extra_sources=[h.lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaSoundRig.java'],
         java_args=[h.RESOURCES], rust_args=[h.RESOURCES],
         scope='Real SoundEngine (OpenAL Soft null device, inline executor, silent static buffers, never-ready streams): play results, '
               'AL source parameters set by play/tickInGameSound/refreshCategoryVolume (gain from calculateVolume, clamped pitch, linear '

@@ -54,7 +54,7 @@ def main():
     resources = lab.RESOURCES
     inputs = build / 'inputs.txt'; inputs.write_text('\n'.join(cases(resources)) + '\n')
     classes = build / 'classes'; classes.mkdir(exist_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaEnvironmentOracle.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaEnvironmentOracle.java'
     deps = os.pathsep.join(map(str, libraries))
 
     def run(command, name):
@@ -62,11 +62,11 @@ def main():
             result = subprocess.run(list(map(str, command)), cwd=lab.ROOT, timeout=3600, stdout=log, stderr=subprocess.STDOUT)
         if result.returncode:
             print((build / (name + '.log')).read_text()[-4000:]); sys.exit(f'{name} failed')
-    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath', lab.ROOT / 'mods/horizon/src/test/java',
+    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath', lab.ROOT / 'java/horizon/src/test/java',
          '-cp', str(jars['server']) + os.pathsep + deps, '-d', classes, oracle], 'compile-java')
     run(['java', '-Xmx1G', '-cp', os.pathsep.join([str(classes), str(jars['server']), deps]),
          'dev.horizonlab.parity.VanillaEnvironmentOracle', inputs, build / 'vanilla.jsonl'], 'vanilla')
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe', '--',
          'environment_fixture', resources, inputs, build / 'rust.jsonl'], 'rust')
     vanilla = [json.loads(l) for l in (build / 'vanilla.jsonl').read_text().splitlines()]
     rust = [json.loads(l) for l in (build / 'rust.jsonl').read_text().splitlines()]

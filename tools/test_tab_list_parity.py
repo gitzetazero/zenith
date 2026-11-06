@@ -11,11 +11,11 @@ case's teams (colour, prefix, suffix), `list` objective (integer or hearts,
 number formats) and scores, with the header, footer, row background option
 and Hud ticks. It records every fill, text (as styled runs), sprite and
 face blit. `examples/probe/tab_list_fixture` lays out the same frames with
-`horizon_client::tab_list`; the ordered call lists must agree.
+`zenith_client::tab_list`; the ordered call lists must agree.
 
 Downloaded skin images are compared too: VanillaSkinImageOracle decodes
 PNGs as NativeImage does and runs SkinTextureDownloader.processLegacySkin;
-`examples/probe/skin_image_fixture` runs `horizon_client::skins`. Pixels must agree.
+`examples/probe/skin_image_fixture` runs `zenith_client::skins`. Pixels must agree.
 
   test_tab_list_parity.py [--count N] [--detail N]
 """
@@ -35,7 +35,7 @@ try:
 except ImportError:
     import lab, test_rust_parity as base, test_model_baking_parity as baking
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity'
 COLORS = ['black', 'dark_blue', 'dark_green', 'dark_aqua', 'dark_red', 'dark_purple', 'gold', 'gray', 'dark_gray',
           'blue', 'green', 'aqua', 'red', 'light_purple', 'yellow', 'white']
 WORDS = ['Welcome', 'to', 'the', 'server', 'Horizon', 'players', 'online', 'mc.example.net', 'Have', 'fun!',
@@ -241,12 +241,12 @@ def main():
          *(PARITY / f'{n}.java' for n in ('ParityData', 'ParityFont', 'VanillaTabListOracle', 'VanillaSkinImageOracle'))], 'compile-java')
     run(['java', '-Xmx2G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaTabListOracle',
          inputs, build / 'vanilla.jsonl', resources / 'assets'], 'vanilla')
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe', '--',
          'tab_list_fixture', resources, inputs, build / 'rust.jsonl'], 'rust')
     images = build / 'skins.txt'; images.write_text(''.join(i + '\n' for i in skin_images(args.images)))
     run(['java', '-Xmx1G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaSkinImageOracle',
          images, build / 'vanilla-skins.txt'], 'vanilla-skins')
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe', '--',
          'skin_image_fixture', images, build / 'rust-skins.txt'], 'rust-skins')
     vanilla_skins = (build / 'vanilla-skins.txt').read_text().splitlines()
     rust_skins = (build / 'rust-skins.txt').read_text().splitlines()

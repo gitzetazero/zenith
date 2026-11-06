@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A dedicated server's resource pack (server.properties `resource-pack`), against vanilla's, as vanilla clients see it.
 
-A vanilla dedicated server and Horizon's (`horizon-client --dedicated --nogui`) each serve a copy of one flat world
+A vanilla dedicated server and Horizon's (`zenith-client --dedicated --nogui`) each serve a copy of one flat world
 vanilla generated first, twice: once with a required pack (an id, a SHA-1 and a prompt), once with an optional one
 (none of those: the id is derived from the URL). ServerPackClient, players made of vanilla's protocol code, join each
 and answer the offer the way vanilla's client can:
@@ -126,26 +126,26 @@ def main():
     build.mkdir(parents=True, exist_ok=True)
     report = build / 'report.json'
     report.unlink(missing_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/ServerPackClient.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/ServerPackClient.java'
     classes = build / 'classes'
     shutil.rmtree(classes, ignore_errors=True)
     classes.mkdir()
     dependencies = os.pathsep.join(map(str, [jars['server'], *libraries]))
     subprocess.run(['javac', '--release', str(lock['minecraft']['java_major']), '-proc:none', '-nowarn', '-sourcepath',
-                    lab.ROOT / 'mods/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle],
+                    lab.ROOT / 'java/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle],
                    cwd=lab.ROOT, check=True, capture_output=True)
-    subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], cwd=lab.ROOT,
+    subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client', '--bin', 'zenith-client'], cwd=lab.ROOT,
                    check=True, capture_output=True)
-    binary = lab.cargo_target() / 'fast' / ('horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+    binary = lab.cargo_target() / 'fast' / ('zenith.exe' if os.name == 'nt' else 'zenith-client')
     vanilla_server = ['java', '-Xmx2g', '-Duser.timezone=UTC', '-cp', dependencies, 'net.minecraft.server.Main', 'nogui']
-    horizon_server = [binary, '--resources', lab.LOCAL / 'horizon-client/26.3', '--dedicated', '--nogui']
+    zenith_server = [binary, '--resources', lab.LOCAL / 'zenith-client/26.3', '--dedicated', '--nogui']
     client = ['java', '-Xmx1g', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.ServerPackClient']
 
     world = generate_world(vanilla_server, build)
     differ = []
     for kind in SERVERS:
         vanilla = run_side('vanilla', kind, vanilla_server, client, build, world)
-        horizon = run_side('horizon', kind, horizon_server, client, build, world)
+        horizon = run_side('horizon', kind, zenith_server, client, build, world)
         if not any('offer ' in l for l in vanilla) or any(' error ' in f' {l} ' for l in vanilla):
             raise AssertionError(f'{kind}: vanilla offered no pack or the client failed: {vanilla}')
         if vanilla != horizon:

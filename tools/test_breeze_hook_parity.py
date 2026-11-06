@@ -35,9 +35,9 @@ def main():
     sources = [Path(__file__), lab.ROOT / 'tools/lab.py', lab.ROOT / 'tools/oracle_harness.py',
                lab.ROOT / 'tools/test_rust_parity.py', lab.ROOT / 'tools/integration_env.py',
                lab.ROOT / 'Cargo.toml', lab.ROOT / 'Cargo.lock',
-               lab.ROOT / 'crates/horizon-client/src/game/fishing.rs',
-               lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaBreezeHookOracle.java',
-               lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/ParityData.java']
+               lab.ROOT / 'crates/zenith-client/src/game/fishing.rs',
+               lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaBreezeHookOracle.java',
+               lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/ParityData.java']
     hashes = base.source_hashes(sources)
     rows = list(cases())
     inputs = build / 'inputs.txt'
@@ -50,7 +50,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix='horizon-breeze-hook-') as scratch:
         env = integration_env.game_environment(os.environ, scratch)
         env.update(HORIZON_BREEZE_HOOK_INPUT=str(inputs), HORIZON_BREEZE_HOOK_OUTPUT=str(build / 'rust.txt'))
-        harness.run_logged(['cargo', 'test', '--locked', '-p', 'horizon-client', '--lib',
+        harness.run_logged(['cargo', 'test', '--locked', '-p', 'zenith-client', '--lib',
                             'game::fishing::tests::breeze_hook_parity_fixture', '--', '--exact', '--ignored'],
                            build, 'rust', env=env)
     matched = harness.compare(build / 'client.txt', build / 'rust.txt', len(rows))

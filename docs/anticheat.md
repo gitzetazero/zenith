@@ -32,13 +32,13 @@ ban_after = 0              # the kick (counting this check's earlier ones) that 
 | `ground` | yes: 10, 15, 30, and `ban_after = 2`. On the official server's first two hours (67 players, log only), every player not flying or walking on water peaked at level 7; those who were, at 113 to 3749 | |
 | `prediction` | no, logs only | 5, 15, 60 |
 
-It lives in the server for now, in its own crate (`horizon-anticheat`) plus one file of the hub
+It lives in the server for now, in its own crate (`zenith-anticheat`) plus one file of the hub
 (`lan/anticheat.rs`), because the native mod API ([native-mods.md](native-mods.md)) has no hooks yet for a
 player's moves (the position, the on-ground claim, cancelling a move) or for packet timing. It moves into a
 native mod once those hooks exist.
 
-horizon-server checks the section before every start (a wrong one turns the anticheat off, with an
-error in the log); the game reads it from `server.toml` when it starts (`horizon-client --dedicated` run by hand reads the same file from its folder, if there is one).
+zenith-server checks the section before every start (a wrong one turns the anticheat off, with an
+error in the log); the game reads it from `server.toml` when it starts (`zenith-client --dedicated` run by hand reads the same file from its folder, if there is one).
 
 ## How a check acts
 
@@ -90,10 +90,10 @@ ones in this version.
 
 ## Writing a check
 
-- The rules are in `crates/horizon-anticheat` (no game state: unit-test them there); the hub runs them
-  where it handles the packet (`crates/horizon-client/src/lan/`) and calls `Hub::flag`, which carries out
+- The rules are in `crates/zenith-anticheat` (no game state: unit-test them there); the hub runs them
+  where it handles the packet (`crates/zenith-client/src/lan/`) and calls `Hub::flag`, which carries out
   setback, alert and kick (`lan/anticheat.rs`).
-- A check is one entry in the `checks!` table of `horizon-anticheat/src/lib.rs`: its name in
+- A check is one entry in the `checks!` table of `zenith-anticheat/src/lib.rs`: its name in
   `server.toml`, its default thresholds and its own settings.
 - Predict what vanilla allows (effects, ice, elytra, riptide, vehicles, knockback, levitation, slime,
   bubble columns, latency). A false positive is worse than a missed cheat: when unsure, don't flag.
@@ -104,12 +104,12 @@ ones in this version.
 - Original code only (CONTRIBUTING.md): written from vanilla 26.3 and public descriptions of what cheats
   do. Never read, copy or paraphrase another anticheat's source (Grim, NoCheatPlus, Vulcan, Matrix,
   Spartan, Paper's anti-xray...), its decompiled jars or docs quoting its code.
-- Test it both ways in `tools/anticheat_e2e.py`: a horizon-bots cheat is caught, legit bots are never
+- Test it both ways in `tools/anticheat_e2e.py`: a zenith-bots cheat is caught, legit bots are never
   flagged, and nothing happens with the anticheat off.
 
 ```sh
-cargo build --profile fast -p horizon-client --bin horizon-client
-cargo build --profile fast -p horizon-bots
+cargo build --profile fast -p zenith-client --bin zenith
+cargo build --profile fast -p zenith-bots
 python3 tools/anticheat_e2e.py --bin-dir target/fast
 python3 tools/server_bench.py --servers horizon --bots 60 --behaviour walk --anticheat   # its cost
 python3 tools/server_bench.py --servers horizon --bots 60 --behaviour walk --ground --anticheat   # survival, on the ground

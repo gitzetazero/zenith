@@ -38,8 +38,8 @@ how the world is fed to the GPU.
 ## The pack format (schema 1)
 
 A pack is a folder, or the same files zipped as a `.hshader`, with `horizon-shaders.toml` at its root
-(crate `horizon-shader-api`; the sample with every key is
-`crates/horizon-shader-api/tests/samples/schema-1/`):
+(crate `zenith-shader-api`; the sample with every key is
+`crates/zenith-shader-api/tests/samples/schema-1/`):
 
 ```toml
 schema = 1                 # the manifest's format; a reader refuses schemas newer than it knows
@@ -155,7 +155,7 @@ the same way every time (files in path order, fixed dates), so a pack's SHA-256 
 ## Shader API 0.2 (experimental)
 
 0.2 is the line for linear light and HDR ([hdr-linear-light.md](../design/hdr-linear-light.md)). A pack opts in with
-`api = "0.2"`. `horizon-shader check` and `pack` take it, but **the game refuses 0.2 packs for now and the registry
+`api = "0.2"`. `zenith-shader check` and `pack` take it, but **the game refuses 0.2 packs for now and the registry
 doesn't list them**: the game draws 0.2 in a later step, behind `HORIZON_HDR_FRAME=float` at first. What it changes
 from 0.1:
 
@@ -188,10 +188,10 @@ refused.
 ## Guide, reference and examples
 
 - [shaders-reference.md](shaders-reference.md): every stage's signature, input and output structs, resources and
-  helpers, the frame's fields with their units, option types and limits, generated from `crates/horizon-shader-api`.
+  helpers, the frame's fields with their units, option types and limits, generated from `crates/zenith-shader-api`.
   0.2's is [shaders-reference-0.2.md](shaders-reference-0.2.md).
-- [The guide](../shaders.md): making a pack with `horizon-shader new`, `check` and `pack`; the templates and the
-  example pack (`crates/horizon-shader-api/packs/golden_hour`).
+- [The guide](../shaders.md): making a pack with `zenith-shader new`, `check` and `pack`; the templates and the
+  example pack (`crates/zenith-shader-api/packs/golden_hour`).
 
 ## Stability
 
@@ -206,7 +206,7 @@ and particles (the material stage covers terrain only).
 ## Changelog
 
 - 2026-11-05: API 0.2 (new line, experimental): linear light, `Frame`'s display fields, `[tonemap]` and
-  `[frame] blend`, with its own reference. `horizon-shader` checks and packs it; the game and the registry refuse it
+  `[frame] blend`, with its own reference. `zenith-shader` checks and packs it; the game and the registry refuse it
   for now. API 0.1 is unchanged: the uploaded `Frame` buffer grows by 32 bytes after the fields 0.1 declares.
 - 2026-11-04: API 0.1 (change, experimental): the post stage's `scene_surface` is `texture_2d<u32>`, the bits of
   the stored floats (RGBA32F is not renderable on OpenGL). Read it through `surface_at`, or
@@ -268,7 +268,7 @@ and particles (the material stage covers terrain only).
 - 2026-10-26: the material stage in the game: terrain's surfaces through the pack's `material`.
 - 2026-10-26: the sky stage in the game: the pack's `sky` gets vanilla's colour along each ray.
 - 2026-10-26: the post stage in the game (`HORIZON_SHADER_PACK`, hot reload with the last good pack kept).
-- 2026-10-25: `horizon-shader` (`new`, `check`, `pack`), three templates, the example pack and the guide.
+- 2026-10-25: `zenith-shader` (`new`, `check`, `pack`), three templates, the example pack and the guide.
 - 2026-10-25: the check (naga validation, signatures, options, budgets, SPIR-V/Metal/HLSL translation).
 - 2026-10-25: the stages of API 0.1 (sky, material, post), their inputs and the generated reference.
 - 2026-10-25: the pack format, schema 1: `horizon-shaders.toml` and the `.hshader` package.

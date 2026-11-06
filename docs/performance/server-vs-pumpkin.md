@@ -5,7 +5,7 @@ is measured against. It is GPL-3.0: we build it and run it as a black box, and n
 source. Only its binary, its log and the configuration file it writes run here.
 
 Both servers speak the same protocol: Pumpkin 0.2.1+26.3-26.60 says "Java Minecraft (Protocol 777)", the
-protocol of 26.3 that Horizon and `horizon-bots` speak. Each server gets the same bots, the same world seed and
+protocol of 26.3 that Horizon and `zenith-bots` speak. Each server gets the same bots, the same world seed and
 the same settings.
 
 ## Result (2026-10-31)
@@ -76,8 +76,8 @@ On a Linux machine with the vanilla data prepared (`python3 tools/lab.py prepare
 # Pumpkin: your own build, run as a black box (GPL-3.0: don't read or copy its source into Horizon)
 git clone https://github.com/Pumpkin-MC/Pumpkin && cd Pumpkin && git checkout 55cb804cc && cargo build --release && cd -
 # Horizon
-cargo build --release -p horizon-client --bin horizon-client
-cargo build --release -p horizon-server -p horizon-bots
+cargo build --release -p zenith-client --bin zenith
+cargo build --release -p zenith-server -p zenith-bots
 # The comparison: 0, 20, 60 and 100 bots, three rounds, the servers alternated
 taskset -c 0-3 python3 tools/server_bench.py --servers horizon,pumpkin --pumpkin Pumpkin/target/release/pumpkin \
   --bots 0,20,60,100 --behaviour mixed --join-every 0.5 --warmup 60 --seconds 120 --repeat 3 \
@@ -87,4 +87,4 @@ taskset -c 0-3 python3 tools/server_bench.py --servers horizon,pumpkin --pumpkin
 `tools/server_bench.py` sets Pumpkin up from its own defaults. Its first start writes them, in a scratch folder,
 on 127.0.0.1 only and without telemetry. Each run then gets that file with the benchmark's settings, and with
 Pumpkin's Bedrock and LAN listeners, query, plugins and telemetry off. On playhorizon the run above is
-`tools/remote.sh --name <name> --cpus 0-3 --exclusive . bash -c ': horizon-prepare; python3 tools/server_bench.py …'`.
+`tools/remote.sh --name <name> --cpus 0-3 --exclusive . bash -c ': zenith-prepare; python3 tools/server_bench.py …'`.

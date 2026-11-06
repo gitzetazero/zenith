@@ -7,7 +7,7 @@ TextDisplayRenderer.submitInner (line split, alignment, default background from 
 options) and turns its submits into vertices as TextFeatureRenderer does, with glyphs
 baked from the real font providers. `examples/probe/text_display_render_fixture`
 decodes the same entity data from vanilla's wire bytes and lays the text out with
-`horizon_client::text_display`. Each case's pose must agree, and its quads
+`zenith_client::text_display`. Each case's pose must agree, and its quads
 [x, y, z, ARGB] in text units as multisets (Horizon draws all shadows first): the
 depths keep the background behind the shadow, behind the glyph and its bold copy.
 
@@ -26,7 +26,7 @@ except ImportError:
     import oracle_harness as harness
     import test_model_baking_parity as baking
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity'
 # Glyphs of the `default` include (ascii, accented, nonlatin_european); no Unihex.
 CHARS = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
          ' .,:;!?\'"()[]{}<>-_+=*/\\|@#$%^&~`' 'äöüßéèêñçÅØæ' 'АБВГДабвгдΩλπ')
@@ -113,8 +113,8 @@ def main():
     (build / 'report.json').unlink(missing_ok=True)
     classes = build / 'classes'
     classes.mkdir(exist_ok=True)
-    sources = [PARITY / 'VanillaTextDisplayRenderOracle.java', lab.ROOT / 'crates/horizon-client/src/text_display.rs',
-               lab.ROOT / 'crates/horizon-client-render/src/hud.rs', lab.ROOT / 'crates/horizon-client-render/src/font.rs']
+    sources = [PARITY / 'VanillaTextDisplayRenderOracle.java', lab.ROOT / 'crates/zenith-client/src/text_display.rs',
+               lab.ROOT / 'crates/zenith-client-render/src/hud.rs', lab.ROOT / 'crates/zenith-client-render/src/font.rs']
     tested = base.source_hashes(sources)
     chosen = cases(args.count)
     inputs = build / 'cases.jsonl'

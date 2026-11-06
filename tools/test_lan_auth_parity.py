@@ -23,7 +23,7 @@ def main():
     classes, dependencies, oracle = oh.compile_oracle(
         build, 'VanillaLanAuthOracle', jars, client_libraries(), lock['minecraft']['java_major'])
     oh.java_run(build, classes, dependencies, 'VanillaLanAuthOracle', [], 'vanilla')
-    oh.run_logged(['cargo', 'test', '-p', 'horizon-client-lib', '--lib',
+    oh.run_logged(['cargo', 'test', '-p', 'zenith-client-lib', '--lib',
                    'net::tests::lan_login_continues_after_authentication_failure', '--', '--nocapture'],
                   build, 'rust', timeout=180)
     pattern = r'lan_auth=(LAN|OTHER):(true|false):(true|false)'
@@ -33,7 +33,7 @@ def main():
         raise AssertionError(f'vanilla: {expected!r}; Horizon: {actual!r}')
     report.write_text(json.dumps({'passed': True, 'cases': expected,
         'tested_source_hashes': base.source_hashes([
-            Path(__file__), oracle, lab.ROOT / 'crates/horizon-client/src/net.rs'])}, indent=2) + '\n',
+            Path(__file__), oracle, lab.ROOT / 'crates/zenith-client/src/net.rs'])}, indent=2) + '\n',
         encoding='utf-8')
     print('LAN authentication parity: both server kinds match vanilla')
 

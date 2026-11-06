@@ -32,11 +32,11 @@ def main():
     paths = [
         'tools/test_sheep_dye_parity.py', 'tools/oracle_harness.py',
         'tools/test_rust_parity.py', 'tools/lab.py', 'tools/integration_env.py',
-        'Cargo.toml', 'Cargo.lock', 'crates/horizon-client/src/mobs/sheep_dye.rs',
-        'crates/horizon-client/src/mobs.rs',
-        'crates/horizon-client/examples/probe/main.rs',
-        'crates/horizon-client/examples/probe/sheep_dye_fixture.rs',
-        'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaSheepDyeOracle.java',
+        'Cargo.toml', 'Cargo.lock', 'crates/zenith-client/src/mobs/sheep_dye.rs',
+        'crates/zenith-client/src/mobs.rs',
+        'crates/zenith-client/examples/probe/main.rs',
+        'crates/zenith-client/examples/probe/sheep_dye_fixture.rs',
+        'java/horizon/src/test/java/dev/horizonlab/parity/VanillaSheepDyeOracle.java',
     ]
     sources = [lab.ROOT / p for p in paths]
     hashes = h.base.source_hashes(sources)

@@ -47,14 +47,14 @@ the game runs and the narrator is "Not Available".
 
 | Part | Code |
 |---|---|
-| `GameNarrator`: status, queued and interrupting messages, volume, the toast's text, the last 32 messages | `crates/horizon-narrator/src/lib.rs` |
-| The speech thread and the backends | `crates/horizon-narrator/src/speech.rs`, `speech/{windows,mac,linux}.rs` |
-| `ScreenNarrationCollector` (what changed since the last run), `Screen`'s timing (`afterMouseMove`, `afterKeyboardAction`, the suppression after `init`), `findNarratableWidget` | `crates/horizon-narrator/src/screen.rs` |
-| What a frame's screen and widgets narrate (`ScreenInfo`, `Narratable`, `What`), recorded while drawing | `crates/horizon-client-render/src/widgets.rs` |
-| The driver: reads the last drawn frame, runs `updateNarrationState` and says what is due | `crates/horizon-client/src/screen_narrator.rs` |
-| Game glue: start and stop, the options, Ctrl+B, the toast, the input events the driver hears | `crates/horizon-client/src/game/narrator.rs` |
-| Screens whose narration is their own (chat, level loading, books, confirm screens) | `crates/horizon-client/src/game/screen_info.rs` |
-| Chat and system messages | `game.rs`, `game/remote.rs` and the other callers of `horizon_narrator::say_*`, where vanilla narrates |
+| `GameNarrator`: status, queued and interrupting messages, volume, the toast's text, the last 32 messages | `crates/zenith-narrator/src/lib.rs` |
+| The speech thread and the backends | `crates/zenith-narrator/src/speech.rs`, `speech/{windows,mac,linux}.rs` |
+| `ScreenNarrationCollector` (what changed since the last run), `Screen`'s timing (`afterMouseMove`, `afterKeyboardAction`, the suppression after `init`), `findNarratableWidget` | `crates/zenith-narrator/src/screen.rs` |
+| What a frame's screen and widgets narrate (`ScreenInfo`, `Narratable`, `What`), recorded while drawing | `crates/zenith-client-render/src/widgets.rs` |
+| The driver: reads the last drawn frame, runs `updateNarrationState` and says what is due | `crates/zenith-client/src/screen_narrator.rs` |
+| Game glue: start and stop, the options, Ctrl+B, the toast, the input events the driver hears | `crates/zenith-client/src/game/narrator.rs` |
+| Screens whose narration is their own (chat, level loading, books, confirm screens) | `crates/zenith-client/src/game/screen_info.rs` |
+| Chat and system messages | `game.rs`, `game/remote.rs` and the other callers of `zenith_narrator::say_*`, where vanilla narrates |
 
 ## How screens record their narration
 
@@ -93,7 +93,7 @@ speak: with text-to-speech unavailable nothing is built or allocated.
 Adding a screen, for example a confirm screen with two buttons:
 
 ```rust
-horizon_client::widgets::begin_screen(|| {
+zenith_client::widgets::begin_screen(|| {
     // ConfirmScreen.getNarrationMessage: its title and its message.
     ScreenInfo::new("my_confirm", join_for_narration(&[&title, &message]))
 });
@@ -104,16 +104,16 @@ ui::button(batch, atlas, x + 160.0, y, 150.0, 20.0, &no, true, hover_no);
 
 Hovering "No" then reads "Title. Message" when the screen opens and, after
 the mouse moves, "No button. Screen element 2 out of 2. Left click to
-activate". Driver tests (`cargo test -p horizon-client --lib screen_narrator`)
+activate". Driver tests (`cargo test -p zenith-client --lib screen_narrator`)
 show the expected sentences as translation keys.
 
 ## Scripted runs
 
 - `HORIZON_NO_AUDIO=1` keeps the narrator active but silent: everything it
   would say still goes through its status and into its recent messages.
-- `horizon-ctl narration` prints the status, whether text-to-speech is
+- `zenith-ctl narration` prints the status, whether text-to-speech is
   there, and the last 32 messages its status let through, oldest first
-  ([horizon-ctl commands](horizon-ctl-commands.md)).
+  ([zenith-ctl commands](zenith-ctl-commands.md)).
 
 ## Known differences from vanilla
 

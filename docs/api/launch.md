@@ -1,16 +1,16 @@
 # Launch API
 
 What another launcher (Prism Launcher, MultiMC, ATLauncher, Modrinth App, HMCL or your own) needs to start Horizon:
-the options `horizon-client` takes, how it hands over an account, and how it ends. `horizon-launcher` is the
+the options `zenith-client` takes, how it hands over an account, and how it ends. `horizon-launcher` is the
 reference implementation. Proposed in horizon-rust/horizon#3545.
 
 ## Overview
 
 | | |
 | --- | --- |
-| Version | 0.1.0, printed by `horizon-client --launch-api` and `horizon-prepare --launch-api` |
+| Version | 0.1.0, printed by `zenith-client --launch-api` and `zenith-prepare --launch-api` |
 | Level | experimental ([stability.md](stability.md)): preview once preparing and the guide are covered too |
-| Covers | starting `horizon-client`: its options, the session JSON, the exit codes, the crash report's path; preparing with `horizon-prepare`: `--launch-api`, `--output`, `--check`, `--complete`, `--progress json` |
+| Covers | starting `zenith-client`: its options, the session JSON, the exit codes, the crash report's path; preparing with `zenith-prepare`: `--launch-api`, `--output`, `--check`, `--complete`, `--progress json` |
 | Not yet | finding a build (see Not there yet) |
 
 ## Guide
@@ -21,12 +21,12 @@ The whole way, from picking a build to playing: [launch-guide.md](launch-guide.m
    hand over that account's session (`--session-stdin`, or `--session-file`), never on the command line. This
    is the same owner gate `horizon-launcher` applies before every start. Horizon never downloads Mojang's
    files; a launcher that does downloads them only for that owner.
-2. Ask the build what it takes: `horizon-client --launch-api` prints JSON with `launch_api` (the version) and
+2. Ask the build what it takes: `zenith-client --launch-api` prints JSON with `launch_api` (the version) and
    `options`. Pass only options it lists: any other is refused with exit code 2.
 3. Start it with a folder per instance:
 
    ```sh
-   horizon-client --resources PREPARED --game-dir INSTANCE --home INSTANCE --width 1280 --height 720 --session-stdin
+   zenith-client --resources PREPARED --game-dir INSTANCE --home INSTANCE --width 1280 --height 720 --session-stdin
    ```
 
 4. Watch the exit code. On 2, stderr names the refused option (`Horizon: --width: …`). On 1 or 101, the last
@@ -34,7 +34,7 @@ The whole way, from picking a build to playing: [launch-guide.md](launch-guide.m
 
 ## Reference
 
-[launch-reference.md](launch-reference.md), generated from `crates/horizon-client/src/game/launch_api.rs`: every
+[launch-reference.md](launch-reference.md), generated from `crates/zenith-client/src/game/launch_api.rs`: every
 option, the `--launch-api` reply and the exit codes.
 
 ### The session JSON
@@ -55,19 +55,19 @@ The account the game joins online-mode servers with ([microsoft-account.md](../m
 
 ## Preparing
 
-`horizon-prepare` turns the player's own Minecraft files into the resources `horizon-client --resources` reads. It
+`zenith-prepare` turns the player's own Minecraft files into the resources `zenith-client --resources` reads. It
 downloads nothing: it reads the files of a Minecraft the player owns (Guide, step 1) and checks each against the
 pins in `research-lock.json`.
 
 ```sh
-horizon-prepare --launch-api
-horizon-prepare --prepare --output PREPARED --complete --progress json
-horizon-prepare --check --output PREPARED
+zenith-prepare --launch-api
+zenith-prepare --prepare --output PREPARED --complete --progress json
+zenith-prepare --check --output PREPARED
 ```
 
 - `--launch-api`: prints one JSON object on stdout and exits 0 (1, with an `error:` line, when there is no
   `research-lock.json` beside it or at `--root`). `launch_api` is the version, the same as
-  `horizon-client --launch-api`'s; `horizon` is the preparer's own; `minecraft` and `java_major` are the pins it
+  `zenith-client --launch-api`'s; `horizon` is the preparer's own; `minecraft` and `java_major` are the pins it
   prepares for (the game files it needs, and the Java `--java-home` must give); `schema` and `output_version`
   are the layout and contents of the resources it writes, the ones `--check` compares; `options` lists the
   options above and below as `{"name", "value"}` (`value` is the placeholder, null for a flag) and
@@ -103,8 +103,8 @@ horizon-prepare --check --output PREPARED
 ## Examples
 
 ```sh
-horizon-client --launch-api
-printf '%s' "$SESSION_JSON" | horizon-client --resources ~/horizon/prepared --game-dir ~/instances/a --session-stdin --fullscreen
+zenith-client --launch-api
+printf '%s' "$SESSION_JSON" | zenith-client --resources ~/horizon/prepared --game-dir ~/instances/a --session-stdin --fullscreen
 ```
 
 ## Stability
@@ -119,7 +119,7 @@ test keeps the contract and the code together.
 
 ## Changelog
 
-- 0.1.0 (not released yet, so still one version): `horizon-client`'s `--game-dir`, `--home`, `--player-dir`, `--fullscreen`,
-  `--session-stdin`, `--launch-api`, exit code 2 for a refused command line; `horizon-prepare`'s `--launch-api`,
+- 0.1.0 (not released yet, so still one version): `zenith-client`'s `--game-dir`, `--home`, `--player-dir`, `--fullscreen`,
+  `--session-stdin`, `--launch-api`, exit code 2 for a refused command line; `zenith-prepare`'s `--launch-api`,
   `--output`, `--check`, `--complete`, `--progress json`, `--version-json`, `--client-jar`, `--libraries-dir`,
   `--assets-dir` and `--java-home`.

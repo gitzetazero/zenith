@@ -1,10 +1,10 @@
 # Zenith: design of the Horizon fork
 
-> Historical design document (translated to English). Later decisions changed some parts: the Rust port of XMCL (phase 6) was replaced by a fork of XMCL (Zenith Launcher), and the repository was reorganised so everything of ours lives under `zenith/`. `ZENITH.md` is the current maintainer guide.
+> Historical design document (translated to English). Later decisions changed some parts: the Rust port of XMCL (phase 6) was replaced by a fork of XMCL (Zenith Launcher), and the repository was reorganised so everything of ours lives under `zenith/`. `docs/ZENITH.md` is the current maintainer guide.
 
 ## Context
 
-Zenith is a fork of [horizon-rust/horizon](https://github.com/horizon-rust/horizon), Minecraft: Java Edition 26.3 rewritten in Rust (MIT licence). It started from a real problem: the user could not join `<test server>` ("Unsupported client! Please use 1.7.2-26.2"). Horizon already ships a version translator, but it is off by default (`older_servers_enabled()`, `crates/horizon-client/src/net.rs:564`).
+Zenith is a fork of [horizon-rust/horizon](https://github.com/horizon-rust/horizon), Minecraft: Java Edition 26.3 rewritten in Rust (MIT licence). It started from a real problem: the user could not join `<test server>` ("Unsupported client! Please use 1.7.2-26.2"). Horizon already ships a version translator, but it is off by default (`older_servers_enabled()`, `crates/zenith-client/src/net.rs:564`).
 
 Goal: a client with more compatibility (among other things, servers of older versions) that is used from [XMCL](https://xmcl.app/en/) and later from a complete translation of XMCL to Rust, with more FPS and shaders that work, always receiving Horizon's patches.
 
@@ -52,7 +52,7 @@ Goal: a client with more compatibility (among other things, servers of older ver
 
 ## Fork rules (Claude's decision)
 
-They are what makes syncing viable. They go in `ZENITH.md`.
+They are what makes syncing viable. They go in `docs/ZENITH.md`.
 
 1. **Do not rename internals.** Crates, paths, internal binaries and `HORIZON_*` variables stay the same. Renaming them would conflict on every sync.
 2. **Zenith's code goes in `zenith/`, with its own Cargo workspace** (as `launcher/` does), so Horizon's `Cargo.toml` and `Cargo.lock` stay untouched. In Horizon's files only small hooks marked `// zenith:` fit, with no reformatting.
@@ -71,7 +71,7 @@ They are what makes syncing viable. They go in `ZENITH.md`.
 **Sync** (`.github/workflows/zenith-sync.yml`, daily, on free GitHub runners)
 - Takes the latest `nightly-source/*` tag reachable from `upstream/main`. Those tags are permanent, and nightlies with unmerged PRs are excluded. It does not follow every commit: Horizon makes thousands a week.
 - Merges into a temporary branch and runs fmt, clippy and tests.
-- Checks that `horizon-client --launch-api` still offers the options the phase 2 bridge uses. That API is experimental and this is the early warning if it changes.
+- Checks that `zenith-client --launch-api` still offers the options the phase 2 bridge uses. That API is experimental and this is the early warning if it changes.
 - If everything passes, it pushes to `main` and triggers publishing. If there is a conflict or something fails, it opens a PR with the list of files and neither touches `main` nor publishes.
 - Uses a token with workflow permission, because `GITHUB_TOKEN` cannot push Horizon's changes to `.github/workflows`.
 
@@ -81,9 +81,9 @@ They are what makes syncing viable. They go in `ZENITH.md`.
 - Two cheap brakes: the repo variable `ZENITH_AUTOPUBLISH=off` stops publishing, and the bridge keeps the previous build to go back to.
 
 **Game identity** (smallest possible change)
-- Signing: our own key for Zenith's files, verified by the bridge with `crates/horizon-release-sign`. The private half is an Actions secret.
+- Signing: our own key for Zenith's files, verified by the bridge with `crates/zenith-release-sign`. The private half is an Actions secret.
 - Visible name: replace "Horizon" with "Zenith" in a single place, when the game's texts are loaded, without editing the language files.
-- Game traffic (Claude's decision): an allow list of destinations. Allowed: Microsoft, Xbox and Mojang, and GitHub for the builds. Only when the player asks: the friends relay. Off: telemetry and the "I'm playing" ping (`crates/horizon-telemetry`, `crates/horizon-client/src/heartbeat.rs`) and cosmetics (`HORIZON_COSMETICS=0`, active by default today and tied to the UUID). Environment variables set by the bridge are preferred over changing code.
+- Game traffic (Claude's decision): an allow list of destinations. Allowed: Microsoft, Xbox and Mojang, and GitHub for the builds. Only when the player asks: the friends relay. Off: telemetry and the "I'm playing" ping (`crates/zenith-telemetry`, `crates/zenith-client/src/heartbeat.rs`) and cosmetics (`HORIZON_COSMETICS=0`, active by default today and tied to the UUID). Environment variables set by the bridge are preferred over changing code.
 - `LICENSE`, `THIRD_PARTY_NOTICES.md`, the notice of non-affiliation with Mojang and Microsoft, and the credit to Horizon are kept.
 
 Because Zenith does not distribute the Rust launcher, `launcher/` no longer needs to be touched. This removes the area with the most conflict risk.
@@ -98,12 +98,12 @@ Because Zenith does not distribute the Rust launcher, `launcher/` no longer need
 
 **Sign-in.** XMCL does it, unmodified and with its own registration, as for any other game. Zenith includes and copies no application ID, so this phase needs no approval from Mojang.
 
-**The bridge:** `zenith/bridge/`, a small Rust program (`zenith-bridge.exe`). XMCL downloads Minecraft 26.3 and Java, and runs `zenith-bridge <java> … net.minecraft.client.main.Main --username … --uuid … --accessToken … --gameDir …`. The bridge does not start Java. It does this:
+**The bridge:** `bridge/`, a small Rust program (`zenith-bridge.exe`). XMCL downloads Minecraft 26.3 and Java, and runs `zenith-bridge <java> … net.minecraft.client.main.Main --username … --uuid … --accessToken … --gameDir …`. The bridge does not start Java. It does this:
 1. **Reads the arguments** from XMCL.
 2. **Checks that the account owns the game** (step 0 of Horizon's guide): it refuses if `--userType` is not `msa` and asks the Minecraft services with that token. Offline, ely.by or LittleSkin accounts do not start Zenith.
 3. **Installs or updates Zenith** from the Releases, verifying the signature. It keeps the previous build.
-4. **Prepares the resources:** `horizon-prepare --check` and, if it fails, `--prepare --complete --progress json` with the files XMCL already downloaded and its Java (`--java-home`). Only for that owner does it download the server jar, which the preparation needs. There is a single prepared folder per Minecraft version. The first time takes minutes, so a progress window must be visible.
-5. **Starts the game:** `horizon-client --resources P --game-dir G --home G --width W --height H --session-stdin`. The session goes through standard input, never through the command line. It forwards the output, returns the exit code and writes the crash report path in the format XMCL detects (`Crash report saved to:`).
+4. **Prepares the resources:** `zenith-prepare --check` and, if it fails, `--prepare --complete --progress json` with the files XMCL already downloaded and its Java (`--java-home`). Only for that owner does it download the server jar, which the preparation needs. There is a single prepared folder per Minecraft version. The first time takes minutes, so a progress window must be visible.
+5. **Starts the game:** `zenith-client --resources P --game-dir G --home G --width W --height H --session-stdin`. The session goes through standard input, never through the command line. It forwards the output, returns the exit code and writes the crash report path in the format XMCL detects (`Crash report saved to:`).
 
 **First a throwaway test**, with Horizon's current nightly unchanged, before building the real bridge. It must answer:
 - whether XMCL accepts the prepend command and exactly which arguments it passes;
@@ -132,7 +132,7 @@ Also, XMCL's mods tab will offer Java mods that do not work in Zenith.
 
 **Inherited limit.** XMCL passes the token on the command line to the bridge, as it does for any game. Other programs of that user could read it during startup. It disappears in phase 6.
 
-**Tests.** The argument parser with real XMCL lines, the refusal of accounts that do not own the game or are not `msa`, and the check that the token never appears in the `horizon-client` command.
+**Tests.** The argument parser with real XMCL lines, the refusal of accounts that do not own the game or are not `msa`, and the check that the token never appears in the `zenith-client` command.
 
 **Done when:**
 - On a clean XMCL profile, with the user's account, Play opens Zenith on an online server.
@@ -145,14 +145,14 @@ Also, XMCL's mods tab will offer Java mods that do not work in Zenith.
 
 **Choosing the version.** Today it is chosen by exact match of the number the server announces (`older_server`, `net.rs:570`). New order:
 1. The version chosen by hand for that server, if any.
-2. The announced number, if it is one we know how to translate. `ServerVersion::from_protocol` and `ALL` (`crates/horizon-protocol/src/adapter.rs`) are reused.
+2. The announced number, if it is one we know how to translate. `ServerVersion::from_protocol` and `ALL` (`crates/zenith-protocol/src/adapter.rs`) are reused.
 3. If the server refuses during login (`net.rs:686`) with a message that includes a range such as "1.7.2-26.2": a single retry with the newest version we can translate inside that range.
 
 There is no probing with pings per version: `<test server>` answers yes to all of them and cuts fast pings, so it would add nothing and could trigger protections. Without a range in the message there is no retry, and the error suggests using the selector.
 
 **Changes**
 - `older_servers_enabled()` becomes active by default; `HORIZON_OLDER_SERVERS=0` turns it off.
-- The server list (`crates/horizon-client/src/multiplayer.rs:261`) uses the same logic, so a server that can be joined is not marked incompatible.
+- The server list (`crates/zenith-client/src/multiplayer.rs:261`) uses the same logic, so a server that can be joined is not marked incompatible.
 - Per-server selector ("Automatic", "26.2", …) in the edit screen. It is saved in a separate Zenith file indexed by address, so `servers.dat`, which must stay compatible with vanilla, is not altered. Versions from 1.20.2 to 1.21.7 are marked experimental.
 - Show "Joining as 26.2" when connecting. If the translation fails, the error says which version was tried.
 
@@ -163,8 +163,8 @@ There is no probing with pings per version: `<test server>` answers yes to all o
 **Known limit.** The game is still 26.3 inside. On old servers there can be visible differences, and some anticheats may react.
 
 **Verification**
-- Tests of `crates/horizon-protocol` and new selector tests, with the real response of `<test server>` and the captured message as test data.
-- A matrix with real vanilla servers locally, in offline mode, one per protocol: 1.20.2, 1.20.4, 1.20.6, 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.6, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 and 26.3. With `horizon-ctl`: join, move, break and place a block, chat, inventory, change dimension, die and respawn. It is run by hand, not on every sync, and the jars are not uploaded to the repo.
+- Tests of `crates/zenith-protocol` and new selector tests, with the real response of `<test server>` and the captured message as test data.
+- A matrix with real vanilla servers locally, in offline mode, one per protocol: 1.20.2, 1.20.4, 1.20.6, 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.6, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 and 26.3. With `zenith-ctl`: join, move, break and place a block, chat, inventory, change dimension, die and respawn. It is run by hand, not on every sync, and the jars are not uploaded to the repo.
 - `<test server>` on automatic and also forcing 26.2 with the selector, because if it joins directly as 26.3 the test does not exercise the translator.
 
 **Done when (Claude's decision):**
@@ -181,11 +181,11 @@ There is no probing with pings per version: `<test server>` answers yes to all o
 
 ## Phase 5: shaders
 
-- Start from the existing code (`crates/horizon-shaders`, `crates/horizon-client/src/game/shader_packs.rs`), do not rewrite.
+- Start from the existing code (`crates/zenith-shaders`, `crates/zenith-client/src/game/shader_packs.rs`), do not rewrite.
 - First check its real state by running it: the roadmap and `docs/shaders.md` do not fully agree, and there are open failures such as [#9137](https://github.com/horizon-rust/horizon/issues/9137).
 - Order: Sildur's or light ones → BSL → Complementary → Bliss and Photon.
-- Done per pack: loads without errors on Windows, normal world, Nether and End, a fixed scene captured with `horizon-ctl` and compared by eye with the same pack in Iris on an XMCL Java instance, with no frame-rate drop unacceptable to the user.
-- Packs are never uploaded to the repo: they are downloaded locally (each pack's licence). The repo's test data are packs of our own, such as `crates/horizon-shaders/tests/packs/terrain-test`.
+- Done per pack: loads without errors on Windows, normal world, Nether and End, a fixed scene captured with `zenith-ctl` and compared by eye with the same pack in Iris on an XMCL Java instance, with no frame-rate drop unacceptable to the user.
+- Packs are never uploaded to the repo: they are downloaded locally (each pack's licence). The repo's test data are packs of our own, such as `crates/zenith-shaders/tests/packs/terrain-test`.
 
 ## Phase 6: XMCL translated to Rust (Zenith launcher)
 
@@ -255,7 +255,7 @@ Approving this plan approves the complete design and allows building phases 1, 2
 - **#8718 unfinished:** it can change a lot or not be merged. If it is abandoned, that code becomes ours and 1.21.8 depends on it. From 1.21.9 to 26.2 does not depend on it.
 - **Experimental translator:** turning it on by default can cause kicks. That is why there is a switch, a selector and clear messages.
 - **Server rules:** joining with an unofficial client may go against a server's rules. The user should review those of `<test server>` before the 30-minute test.
-- **Base version change:** the user already has `26.4-snapshot-6` installed. When Horizon moves to another version, it will arrive as a large patch in the sync, and the bridge must follow the version declared by `horizon-prepare --launch-api`.
+- **Base version change:** the user already has `26.4-snapshot-6` installed. When Horizon moves to another version, it will arrive as a large patch in the sync, and the bridge must follow the version declared by `zenith-prepare --launch-api`.
 - **Legal:** the original repo has open issues about its "clean room" claims ([#1555](https://github.com/horizon-rust/horizon/issues/1555), [#6741](https://github.com/horizon-rust/horizon/issues/6741)). They were not evaluated here and the fork would inherit them from the first public Release. A lawyer should be consulted before announcing it.
 - **Name, before announcing it:** `zenith-rust` is free on GitHub, but "Zenith" is already used by other Minecraft projects, including a cheats repo. Review it then.
 
@@ -263,7 +263,7 @@ Approving this plan approves the complete design and allows building phases 1, 2
 
 - `git log` confirms that `main` contains the latest nightly and `git diff <nightly>..main --stat` shows a small difference outside `zenith/`.
 - `python3 tools/pr_ready.py` passes on every change. It needs JDK 25, which this PC lacks (Rust 1.99 and Python 3.12 are already there).
-- The tests in `ZENITH.md` are run on Windows. Horizon only declares its harnesses on Linux and macOS, so Windows is the gap to watch.
+- The tests in `docs/ZENITH.md` are run on Windows. Horizon only declares its harnesses on Linux and macOS, so Windows is the gap to watch.
 - After each phase, the user tests it on their PC.
 
 ## Not yet verified

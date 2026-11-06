@@ -27,7 +27,7 @@ when no SDL row matched. No second windowing or event stack: gilrs is polled
 once per loop iteration next to winit's events.
 
 - The pure logic (mapping table, deadzones and curves, button edges, the
-  settings file, glyph choice) lives in `crates/horizon-client-input/src/gamepad.rs`
+  settings file, glyph choice) lives in `crates/zenith-client-input/src/gamepad.rs`
   and is unit-tested. The game owns a thin gilrs backend and applies actions.
 - Controller actions go through the same path a keyboard key takes after
   rebinding: an action names a vanilla key mapping (`key.jump`, `key.attack`,
@@ -43,7 +43,7 @@ once per loop iteration next to winit's events.
   speed, as the server only hears the keys: an anticheat predicting from them
   pulls back a player moving at the stick's own angle and speed.
 - The pad last touched is the active one. Several pads are not merged.
-- `horizon-ctl pad ...` injects a virtual pad (buttons, sticks, triggers) into
+- `zenith-ctl pad ...` injects a virtual pad (buttons, sticks, triggers) into
   a running game, for tests without hardware.
 
 ## Default mapping
@@ -136,7 +136,7 @@ Don't declare a button Escape deliberately ignores: Optimize World's and a conne
 no pad button, only A on them, and show in `undeclared` for that reason.
 
 A focused text field shows A at its right end. `game/pad_actions.rs` holds this table. A screen that declares nothing keeps
-B as Escape. `horizon-ctl pad status` lists `undeclared`: a button labelled
+B as Escape. `zenith-ctl pad status` lists `undeclared`: a button labelled
 Done, Back or Cancel on the current screen that didn't declare its job.
 `tools/pad_menu_e2e.py` fails on one in the settings screens. `glyphs` lists what is drawn: each
 button, its `sprite` (null when it is the label on a key) and the `rect` it covers.
@@ -292,7 +292,7 @@ Approximations:
 - Left stick moves the crosshair with acceleration. Let go and it glides
   onto the nearest slot or control; a short flick toward a neighbouring slot
   lands on that slot rather than back where it started. The rules and their
-  numbers live in one place (`horizon_client_input::snap`).
+  numbers live in one place (`zenith_client_input::snap`).
 - D-pad hops to the nearest target that way (a slot, a button). Held, it stops
   at the edge of the slots it is on; a fresh press crosses.
 - A = left click, X = right click, Y = quick move, B = back; View and the left
@@ -396,7 +396,7 @@ Some are copies until theirs is drawn: Nintendo's letters and shoulders are Xbox
 same sticks, D-pad and menu pictures. Text remains for what runs inside a line of text, and for an atlas
 without the sprite.
 
-The art is in `crates/horizon-client/assets/horizon/textures/gui/controller/`, built into the binary, one
+The art is in `crates/zenith-client/assets/horizon/textures/gui/controller/`, built into the binary, one
 line of `pad_glyph::ART` per picture: a button with no line is text, and adding one is that line and its
 file. A resource pack replaces a picture by bringing the same path,
 `assets/horizon/textures/gui/controller/<file>.png`: the atlas packs other namespaces' `textures/gui/` as
@@ -474,7 +474,7 @@ is silently skipped there.
 ## DualSense output
 
 Gilrs only reads the pads. A DualSense (054c:0ce6, the Edge 054c:0df2) is also
-written to directly, over HID: the `horizon-dualsense` crate builds its output
+written to directly, over HID: the `zenith-dualsense` crate builds its output
 report and [hidapi](https://crates.io/crates/hidapi) (MIT, bundling the C
 hidapi under its BSD option) sends it: hidraw on Linux, IOKit on macOS (opened
 shared, so gilrs keeps reading the same pad), the HID API on Windows.
@@ -529,14 +529,14 @@ shared, so gilrs keeps reading the same pad), the HID API on Windows.
   install it):
 
   ```
-  # /etc/udev/rules.d/70-horizon-dualsense.rules
+  # /etc/udev/rules.d/70-zenith-dualsense.rules
   KERNEL=="hidraw*", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="0ce6|0df2", TAG+="uaccess"
   KERNEL=="hidraw*", KERNELS=="*054C:0CE6*|*054C:0DF2*", TAG+="uaccess"
   ```
 
   The kernel's own `hid-playstation` driver keeps working alongside: its
   reports set only the parts their flags name.
-- **Trying it without the game:** `cargo run -p horizon-dualsense --example
+- **Trying it without the game:** `cargo run -p zenith-dualsense --example
   dualsense -- all` plays each output on a connected pad and reads back what
   the pad reports: the triggers' active effect, and the accelerometer's
   shake while the motors run (`watch` logs the shake while the game drives

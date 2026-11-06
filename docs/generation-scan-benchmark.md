@@ -13,7 +13,7 @@ Reproduce from the repository root:
 
 ```sh
 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=/home/bob/Documents/horizon/target \
-  cargo test -p horizon-client --lib --profile fast generation_scan_benchmark \
+  cargo test -p zenith-client --lib --profile fast generation_scan_benchmark \
   -- --ignored --nocapture
 ```
 

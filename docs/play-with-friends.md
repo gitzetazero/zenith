@@ -6,7 +6,7 @@ Connection takes a full code too; or on the launcher's Play page) and join.
 There is no Horizon server in the middle and no account: the code itself says where the host is and
 holds the key that encrypts the game between them.
 
-It is built on Open to LAN: the integrated server (`crates/horizon-client/src/lan`) listens on a local
+It is built on Open to LAN: the integrated server (`crates/zenith-client/src/lan`) listens on a local
 TCP port and speaks the vanilla protocol. Play with friends puts an encrypted tunnel in front of that
 port. Neither the integrated server nor the guest's client changes: the tunnel carries exactly the
 bytes vanilla's protocol would send, between a loopback port on each side.
@@ -18,7 +18,7 @@ bytes vanilla's protocol would send, between a loopback port on each side.
  │ (unchanged)  │             │ tunnel     │  to an address from the code  │ tunnel     │               │ server (LAN) │
  └──────────────┘             └────────────┘                               └────────────┘               └──────────────┘
                                      ╲            optional: a relay anyone can run         ╱
-                                      ╲──────────▶ horizon-relay (short codes, fallback) ◀╱
+                                      ╲──────────▶ zenith-relay (short codes, fallback) ◀╱
 ```
 
 ## How it works
@@ -111,7 +111,7 @@ reaches the integrated server from `127.0.0.1`.
 ## Relays (optional)
 
 For networks nothing can reach (CGNAT on both sides, no VPN), a **relay** carries the session: one small
-binary, `horizon-relay`, that anyone can run on their own PC, a VPS, a Raspberry Pi or a free tier.
+binary, `zenith-relay`, that anyone can run on their own PC, a VPS, a Raspberry Pi or a free tier.
 There is no default relay. With one configured:
 
 - the host also registers there and gets a **short code** (`K7QM-3XPD`: a 4-symbol nameplate the relay
@@ -133,20 +133,20 @@ over new terrain up to a few hundred KB/s (capped per session).
 **From a release or source** (any OS with Rust):
 
 ```
-cargo build --release -p horizon-relay
-PORT=7000 ./target/release/horizon-relay
+cargo build --release -p zenith-relay
+PORT=7000 ./target/release/zenith-relay
 ```
 
 **With Docker** (build context: the repository root):
 
 ```
-docker build -f crates/horizon-relay/Dockerfile -t horizon-relay .
-docker run -d --restart unless-stopped -p 7000:7000 horizon-relay
+docker build -f crates/zenith-relay/Dockerfile -t zenith-relay .
+docker run -d --restart unless-stopped -p 7000:7000 zenith-relay
 ```
 
-**As a service** (Linux, including a Raspberry Pi): copy the binary to `/usr/local/bin/horizon-relay`,
-`crates/horizon-relay/horizon-relay.service` to `/etc/systemd/system/`, then
-`systemctl enable --now horizon-relay`.
+**As a service** (Linux, including a Raspberry Pi): copy the binary to `/usr/local/bin/zenith-relay`,
+`crates/zenith-relay/zenith-relay.service` to `/etc/systemd/system/`, then
+`systemctl enable --now zenith-relay`.
 
 Then forward TCP port 7000 on your router to that machine (or run it on a VPS with a public address),
 check `curl http://<address>:7000/health` from outside, and give friends `<address>:7000`. `GET /whoami`
@@ -206,7 +206,7 @@ host's version), `host_unreachable`, `full`, `rate_limited`, `bad_request`.
 - **CGNAT / a second router**: port forwarding on your own router can't help. Use a VPN or a relay (on a
   machine with a public address, e.g. a VPS).
 - **"Couldn't reach your friend's game"** (guest): the host's note under the code says why. A firewall
-  on the host computer can also block the direct port: allow `horizon-client` on private and public
+  on the host computer can also block the direct port: allow `zenith-client` on private and public
   networks (Windows asks the first time; on macOS answer "Allow" when asked whether Horizon may accept
   incoming network connections).
 - **"The code has a typo"**: copy it again; codes are only letters and digits in groups of five.
@@ -216,13 +216,13 @@ host's version), `host_unreachable`, `full`, `rate_limited`, `bad_request`.
 
 ## Testing
 
-- Unit tests (`horizon-friends`): code format (round trips, every single-symbol typo caught, versions),
+- Unit tests (`zenith-friends`): code format (round trips, every single-symbol typo caught, versions),
   STUN against a mock server, PCP / NAT-PMP against a mock router (map, renew, delete; NAT-PMP when PCP
   is unsupported), UPnP against a mock IGD (description, chunked replies, `AddPortMapping`, permanent-only
   leases (725), taken ports (718), `DeletePortMapping`), the verdicts and endpoint order, gateway
   parsing for Linux, macOS and Windows, the key exchange and frames (wrong secret, tampering), the direct
   race.
-- `crates/horizon-relay/tests/tunnel.rs`: the code alone with no server (1 MiB, two guests at once); a
+- `crates/zenith-relay/tests/tunnel.rs`: the code alone with no server (1 MiB, two guests at once); a
   self-hosted relay with the short code (relayed, then its direct race); dead endpoints falling back to
   the relay named in the code; wrong secrets (full and short codes, the short code retired after five);
   unknown and ended codes, version mismatch, rate limits, bandwidth caps, `/health`.

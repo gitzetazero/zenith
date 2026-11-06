@@ -157,7 +157,7 @@ def game_process():
             continue
         # A Horizon game counts when he started it (its parent is his launcher), not when a harness or agent did.
         if GAME.search(command) or (" --offscreen" not in command and "/horizon-launcher/" in command
-                                    and "horizon-client" in command.split(" ")[0]):
+                                    and "zenith-client" in command.split(" ")[0]):
             if not ci_process(int(entry.name)):
                 return f"process {entry.name}: {command[:120]}"
     return None
@@ -244,7 +244,7 @@ def main():
                 throttle(True)
                 # Parity workers other machines started here (tools/parity_hosts.json): they stop, and those
                 # machines run the harnesses themselves.
-                systemctl("stop", "horizon-parity-worker-*.scope")
+                systemctl("stop", "zenith-parity-worker-*.scope")
                 log(f"pause: {reason or 'waiting ' + str(RESUME_AFTER) + ' s after starting'}"
                     + (f"; a job is running: throttled to {THROTTLE_CPUS} threads, stops after it" if active else ""))
             if active and not runner_busy():

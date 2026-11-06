@@ -167,8 +167,8 @@ def main():
         if result.returncode:
             raise RuntimeError(f'{name}: {result.returncode}; see {out / (name+".log")}')
     if args.binary is None:
-        run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], 'build', cwd=lab.ROOT)
-        binary = lab.cargo_target()/'fast'/('horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+        run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client', '--bin', 'zenith-client'], 'build', cwd=lab.ROOT)
+        binary = lab.cargo_target()/'fast'/('zenith.exe' if os.name == 'nt' else 'zenith-client')
     else:
         binary = args.binary.resolve(strict=True)
     if args.reference:
@@ -181,7 +181,7 @@ def main():
         classes = out/'classes'
         classes.mkdir()
         cp = os.pathsep.join(map(str, [jars['server'], *libraries]))
-        oracle = lab.ROOT/'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaCommandExecOracle.java'
+        oracle = lab.ROOT/'java/horizon/src/test/java/dev/horizonlab/parity/VanillaCommandExecOracle.java'
         run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-cp', cp, '-d', classes, oracle], 'javac')
         vanilla = out/'vanilla'
         vanilla.mkdir()

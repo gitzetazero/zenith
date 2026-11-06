@@ -106,7 +106,7 @@ def main():
             folder = work / name
             folder.mkdir()
             shutil.copyfile(ROOT / 'research-lock.json', folder / 'research-lock.json')
-            shutil.copytree(ROOT / 'mods/horizon/src/test/java', folder / 'mods/horizon/src/test/java')
+            shutil.copytree(ROOT / 'java/horizon/src/test/java', folder / 'java/horizon/src/test/java')
             shutil.copytree(ROOT / 'exporters', folder / 'exporters')
             (folder / '.local').mkdir()
             (folder / '.local/minecraft').symlink_to((ROOT / '.local/minecraft').resolve(), target_is_directory=True)
@@ -141,7 +141,7 @@ def main():
             text = (work / f'{name}.log').read_text()
             if 'Compiling ' in text:
                 raise SystemExit(f'{name} unexpectedly needed a compiler')
-            resources = next((folder / '.local/horizon-client').iterdir())
+            resources = next((folder / '.local/zenith-client').iterdir())
             results.append(resources)
             times.append(round(time.monotonic() - started, 2))
             print(f'{name}: {times[-1]}s, prepared', flush=True)

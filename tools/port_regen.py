@@ -34,7 +34,7 @@ except ImportError:
 # Classes whose decompiled source a generator parses: (side, class).
 SOURCES = [("client", "net/minecraft/world/entity/EntityTypes"),
            ("server", "net/minecraft/util/datafix/fixes/BlockStateData")]
-PARITY = "mods/horizon/src/test/java/dev/horizonlab/parity"
+PARITY = "java/horizon/src/test/java/dev/horizonlab/parity"
 
 
 # --- the candidate -----------------------------------------------------------------------------------------
@@ -214,7 +214,7 @@ def compile_oracle(root, version, classpath, sources, build):
     classes = build / "classes"
     classes.mkdir(parents=True, exist_ok=True)
     run(["javac", "--release", lock["minecraft"]["java_major"], "-proc:none", "-sourcepath",
-         root / "mods/horizon/src/test/java", "-cp", os.pathsep.join(map(str, classpath)), "-d", classes,
+         root / "java/horizon/src/test/java", "-cp", os.pathsep.join(map(str, classpath)), "-d", classes,
          *sources], root)
     return classes
 
@@ -244,7 +244,7 @@ def gen_vanilla_order(root, version, store, build):
          "dev.horizonlab.parity.VanillaCommandParseOracle", "tree", build], build)
     env = dict(os.environ, CARGO_TARGET_DIR=str(root / ".local" / "port-target"))
     jobs = os.environ.get("FLEET_LOAD_JOBS")
-    run(["cargo", "build", "-p", 'horizon-client-lib', "--example", "client_probe",
+    run(["cargo", "build", "-p", 'zenith-client-lib', "--example", "client_probe",
          *(["-j", jobs] if jobs else [])], root, env=env)
     fixture = root / ".local/port-target/debug/examples/client_probe"
     run([fixture, "command_parse_fixture", "tree", build / "rust_tree.json"], root)
@@ -253,20 +253,20 @@ def gen_vanilla_order(root, version, store, build):
 
 # (name, outputs, how to get the generator's command: a list, or a function that prepares its input first).
 GENERATORS = [
-    ("version_consts", ["crates/horizon-core/src/version.rs"],
+    ("version_consts", ["crates/zenith-core/src/version.rs"],
      lambda root, version, store, build: [python(), "tools/gen_version_consts.py"]),
-    ("packet_ids", ["crates/horizon-protocol/src/ids.rs"],
+    ("packet_ids", ["crates/zenith-protocol/src/ids.rs"],
      lambda root, version, store, build: [python(), "tools/generate_packet_ids.py"]),
-    ("entity_tracking", ["crates/horizon-client/src/lan/tracking.rs"],
+    ("entity_tracking", ["crates/zenith-client/src/lan/tracking.rs"],
      lambda root, version, store, build: [python(), "tools/generate_entity_tracking.py", "--sources",
                                           store / "sources" / "client"]),
-    ("block_state_data", ["crates/horizon-world/src/datafix/block_state_data.txt"],
+    ("block_state_data", ["crates/zenith-world/src/datafix/block_state_data.txt"],
      lambda root, version, store, build: [python(), "tools/gen_block_state_data.py",
                                           store / "sources/server" / f"{SOURCES[1][1]}.java"]),
-    ("lan_command_order", ["crates/horizon-client/src/lan/command_order.rs"],
+    ("lan_command_order", ["crates/zenith-client/src/lan/command_order.rs"],
      lambda root, version, store, build: [python(), "tools/generate_lan_command_order.py"]),
-    ("command_suggestions", ["crates/horizon-client/src/lan/command_suggestions.rs"], gen_suggestions),
-    ("vanilla_command_order", ["crates/horizon-command/src/vanilla_order.rs"], gen_vanilla_order),
+    ("command_suggestions", ["crates/zenith-client/src/lan/command_suggestions.rs"], gen_suggestions),
+    ("vanilla_command_order", ["crates/zenith-command/src/vanilla_order.rs"], gen_vanilla_order),
 ]
 
 

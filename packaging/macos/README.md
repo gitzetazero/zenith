@@ -3,7 +3,7 @@
 `package.sh BINARY VERSION OUTDIR` (run by `.github/workflows/launcher.yml` on macOS) makes:
 
 - `Horizon.app`: `Contents/MacOS/horizon-launcher`, `Contents/Info.plist` (this folder's, bundle
-  id `dev.horizon.launcher`, macOS 11 or later), `Contents/Resources/horizon.icns`
+  id `dev.horizon.launcher`, macOS 11 or later), `Contents/Resources/zenith.icns`
   (`packaging/icons`, from `cargo run -p xtask -- icons`).
 - `horizon-launcher-macos-arm64.dmg`: the installer. Opening it shows the app and a link to
   Applications over `background.png` / `background@2x.png` (drawn from `background.html`); the
@@ -24,8 +24,8 @@ Releases are signed with Ludovic's **Developer ID** ("Developer ID Application: 
   launcher updates itself from and the .dmg both hold it stapled; then the .dmg is signed,
   notarized and stapled. The script ends with what Gatekeeper says of each, which must read
   `accepted` and `source=Notarized Developer ID`.
-- the game (`.github/workflows/release.yml`): `horizon-client`, `horizon-ctl` and
-  `horizon-prepare` are signed right after they are built (so the checks and the 1500-frame smoke
+- the game (`.github/workflows/release.yml`): `zenith-client`, `zenith-ctl` and
+  `zenith-prepare` are signed right after they are built (so the checks and the 1500-frame smoke
   run use them as players will), and the zip is notarized. Programs outside a bundle can't hold a
   ticket: Gatekeeper asks Apple online the first time each one runs.
 

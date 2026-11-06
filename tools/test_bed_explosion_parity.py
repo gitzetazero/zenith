@@ -132,26 +132,26 @@ def main():
     lock, jars, libraries = base.verify_artifacts()
     build = lab.LOCAL / NAME
     build.mkdir(parents=True, exist_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/KnockbackClient.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/KnockbackClient.java'
     classes = build / 'classes'
     shutil.rmtree(classes, ignore_errors=True)
     classes.mkdir()
     dependencies = os.pathsep.join(map(str, [jars['server'], *libraries]))
     subprocess.run(['javac', '--release', str(lock['minecraft']['java_major']), '-proc:none', '-nowarn', '-sourcepath',
-                    lab.ROOT / 'mods/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle],
+                    lab.ROOT / 'java/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle],
                    cwd=lab.ROOT, check=True, capture_output=True)
-    subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], cwd=lab.ROOT,
+    subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client', '--bin', 'zenith-client'], cwd=lab.ROOT,
                    check=True, capture_output=True)
     import json
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
-    binary = Path(metadata['target_directory']) / 'fast' / ('horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+    binary = Path(metadata['target_directory']) / 'fast' / ('zenith.exe' if os.name == 'nt' else 'zenith-client')
     vanilla_server = ['java', '-Xmx2g', '-Duser.timezone=UTC', '-cp', dependencies, 'net.minecraft.server.Main', 'nogui']
-    horizon_server = [binary, '--resources', lab.LOCAL / 'horizon-client/26.3', '--dedicated', '--nogui']
+    zenith_server = [binary, '--resources', lab.LOCAL / 'zenith-client/26.3', '--dedicated', '--nogui']
     client = ['java', '-Xmx1g', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.KnockbackClient']
     kb.CASES, kb.SETUP, kb.PLAYERS = CASES, SETUP, ('Alice',)
     world = generate_world(vanilla_server, build)
     vanilla = compared(kb.run_side('vanilla', vanilla_server, client, build, world))
-    horizon = compared(kb.run_side('horizon', horizon_server, client, build, world))
+    horizon = compared(kb.run_side('horizon', zenith_server, client, build, world))
     differ = []
     for case in CASES:
         want, got = vanilla.get(case, []), horizon.get(case, [])

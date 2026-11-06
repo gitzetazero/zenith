@@ -8,7 +8,7 @@ entries take on a click or key press: select (an incompatible pack only when
 its confirmation is accepted), unselect, move up, move down. The Java oracle
 (VanillaPackSelectionOracle) runs vanilla's PackRepository and
 PackSelectionModel; examples/probe/pack_selection_fixture runs
-horizon_client::packs::SelectionModel, which the game's pack screen uses.
+zenith_client::packs::SelectionModel, which the game's pack screen uses.
 After every action both lists, in order, with each entry's canSelect,
 canUnselect, canMoveUp and canMoveDown, and the selection committed at the
 end must agree.
@@ -29,7 +29,7 @@ except ImportError:
     import test_rust_parity as base
     import test_model_baking_parity as baking
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity'
 IDS = ['vanilla', 'programmer_art', 'file/Faithful.zip', 'file/alpha', 'file/Zeta pack', 'file/zeta', 'file/é',
        'file/0', 'server', 'world', 'fabric', 'file/a.zip', 'file/A.zip', 'file/b']
 
@@ -71,7 +71,7 @@ def main():
          *(PARITY / f'{n}.java' for n in ('ParityData', 'VanillaPackSelectionOracle'))], 'compile-java')
     run(['java', '-Xmx1G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaPackSelectionOracle',
          inputs, build / 'vanilla.jsonl'], 'vanilla')
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe', '--',
          'pack_selection_fixture', inputs, build / 'rust.jsonl'], 'rust')
     vanilla = [json.loads(l) for l in (build / 'vanilla.jsonl').read_text().splitlines()]
     rust = [json.loads(l) for l in (build / 'rust.jsonl').read_text().splitlines()]

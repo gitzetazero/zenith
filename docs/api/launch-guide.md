@@ -29,9 +29,9 @@ Builds are GitHub releases of `horizon-rust/horizon`, one archive per platform:
   and builds kept longer are not there yet).
 - Check the archive before unpacking: `SHA256SUMS` lists every archive's SHA-256, and `SHA256SUMS.sig` signs it
   with Ed25519 over `horizon release <tag>\n` followed by `SHA256SUMS`, so a signed list can't be replayed under
-  another tag (a Nightly's message says `horizon release nightly`, whichever date it carries). The public keys are in `crates/horizon-release-sign/release-keys.txt`
+  another tag (a Nightly's message says `horizon release nightly`, whichever date it carries). The public keys are in `crates/zenith-release-sign/release-keys.txt`
   ([data-formats.md](data-formats.md), [release-flow.md](../release-flow.md#signed-checksums)).
-- Unpack each build into a folder of its own and keep it whole: `horizon-client`, `horizon-prepare`,
+- Unpack each build into a folder of its own and keep it whole: `zenith-client`, `zenith-prepare`,
   `research-lock.json` and `exporters/` work together. On macOS the build is signed ad hoc, so the first start
   needs the usual right-click > Open, or your launcher clears the quarantine flag.
 
@@ -40,13 +40,13 @@ Builds are GitHub releases of `horizon-rust/horizon`, one archive per platform:
 Two calls, both quick, both before anything else runs:
 
 ```sh
-horizon-client --launch-api
-horizon-prepare --launch-api
+zenith-client --launch-api
+zenith-prepare --launch-api
 ```
 
 Each prints one JSON object and exits 0. Check `launch_api`: within its line (0.1.x today) a newer build only adds.
-From `horizon-prepare`'s reply take `minecraft` (the Minecraft version whose files it needs), `java_major` (the
-Java it runs) and the `options` it accepts; from `horizon-client`'s, the `options` it accepts. Pass only listed
+From `zenith-prepare`'s reply take `minecraft` (the Minecraft version whose files it needs), `java_major` (the
+Java it runs) and the `options` it accepts; from `zenith-client`'s, the `options` it accepts. Pass only listed
 options: any other is refused with exit code 2. Readers ignore fields they don't know.
 
 ## 3. Have the owner's game files and a Java
@@ -67,7 +67,7 @@ Every file is checked against the pins in `research-lock.json`, so a wrong or da
 Prepare into a folder of your choosing, with machine-readable progress:
 
 ```sh
-horizon-prepare --prepare --server-jar SERVER_JAR --minecraft-dir GAME_DIR \
+zenith-prepare --prepare --server-jar SERVER_JAR --minecraft-dir GAME_DIR \
     --output PREPARED --complete --progress json
 ```
 
@@ -83,7 +83,7 @@ horizon-prepare --prepare --server-jar SERVER_JAR --minecraft-dir GAME_DIR \
 ## 5. Before every start: check
 
 ```sh
-horizon-prepare --check --output PREPARED
+zenith-prepare --check --output PREPARED
 ```
 
 Exit 0 means the resources are complete and current for this build. Exit 1 lists each gap on stdout with the
@@ -96,7 +96,7 @@ makes older resources fail the check.
 One folder per instance, and the owner's session on standard input:
 
 ```sh
-horizon-client --resources PREPARED --game-dir INSTANCE --home INSTANCE --width 1280 --height 720 --session-stdin
+zenith-client --resources PREPARED --game-dir INSTANCE --home INSTANCE --width 1280 --height 720 --session-stdin
 ```
 
 - Write the [session JSON](launch.md#the-session-json) (`name`, `uuid`, `access_token`, `user_type: "msa"`,

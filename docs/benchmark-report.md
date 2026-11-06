@@ -1,10 +1,10 @@
 # Benchmark report format (version 1)
 
-Every benchmark Horizon writes uses this one JSON format: `horizon-client --benchmark`, the launcher's own
+Every benchmark Horizon writes uses this one JSON format: `zenith-client --benchmark`, the launcher's own
 measurements, and `tools/perf_bench.py` (which also writes it for vanilla and vanilla with mods). The same
 file is the local log a player can attach to an issue and, only with the player's consent, what the
 telemetry upload sends (minus the local-only fields below). The types, the statistics and the hardware
-detection are in `crates/horizon-bench`; nothing else builds a report by hand.
+detection are in `crates/zenith-bench`; nothing else builds a report by hand.
 
 A report holds summaries and histogram counts, never raw frame streams: a 10-minute run is a few
 kilobytes whatever the frame rate. Measured numbers are rounded to 3 decimals.
@@ -17,7 +17,7 @@ kilobytes whatever the frame rate. Measured numbers are rounded to 3 decimals.
   "version": 1,
   "kind": "game",
   "created": "2026-10-15T14:03:27Z",
-  "app": { "name": "horizon-client", "version": "0.21.0", "commit": "e96e1571" },
+  "app": { "name": "zenith-client", "version": "0.21.0", "commit": "e96e1571" },
   "hardware": {
     "os": "macos", "os_version": "27.0", "arch": "aarch64",
     "cpu": "Apple M4 Pro", "cpu_threads": 14, "cpu_cores": 14, "ram_mb": 65536, "storage": "nvme", "form": "desktop",
@@ -54,7 +54,7 @@ one (histogram edges included) makes it 2.
 
 **`created`.** When the run ended, UTC, `YYYY-MM-DDTHH:MM:SSZ`.
 
-**`app`.** What was measured: `name` (`horizon-client`, `horizon-launcher`, `minecraft`), `version`,
+**`app`.** What was measured: `name` (`zenith-client`, `horizon-launcher`, `minecraft`), `version`,
 optionally `commit` (Horizon builds) and `mods` (`[{ "name", "version" }]`, vanilla with mods).
 
 **`hardware`.** `os` (`macos`, `linux`, `windows`), `os_version`, `arch`, `cpu` (brand string; on Windows
@@ -120,7 +120,7 @@ Bucket *i* counts frames from edge *i* (included) to edge *i* + 1; the last buck
 
 `label` (a name the person running it chose) and `local` (paths of the logs the run wrote next to the
 report) stay on the machine: the upload removes them and dates the report to the day only, as every
-telemetry item is (`Report::for_upload`). The upload is `horizon-telemetry`'s `benchmark` item: this
+telemetry item is (`Report::for_upload`). The upload is `zenith-telemetry`'s `benchmark` item: this
 report, as it is, only with the player's consent to benchmark uploads (docs/telemetry.md). Nothing in a report
 identifies the player, the machine's name or the world: no host name, user name, path or address.
 

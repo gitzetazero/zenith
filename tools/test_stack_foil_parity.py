@@ -46,22 +46,22 @@ def main():
     report_path.unlink(missing_ok=True)
     inputs = build / 'cases.jsonl'
     inputs.write_text(''.join(json.dumps(c) + '\n' for c in corpus()), encoding='utf-8')
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaStackFoilOracle.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaStackFoilOracle.java'
     flags_oracle = oracle.with_name('VanillaStackModelFlagsOracle.java')
     flags_inputs = build / 'flags-cases.jsonl'
     flags_inputs.write_text(''.join(json.dumps(c) + '\n' for c in flags_corpus()), encoding='utf-8')
-    probe = lab.ROOT / 'crates/horizon-client/examples/probe/stack_foil_fixture.rs'
+    probe = lab.ROOT / 'crates/zenith-client/examples/probe/stack_foil_fixture.rs'
     sources = [Path(__file__), oracle, flags_oracle, oracle.with_name('ParityData.java'), probe,
-               lab.ROOT / 'tools/lab.py', lab.ROOT / 'tools/test_rust_parity.py', lab.ROOT / 'Cargo.lock', lab.ROOT / 'crates/horizon-client/src/item_render.rs',
-               lab.ROOT / 'crates/horizon-items/src/item_data.rs', lab.ROOT / 'crates/horizon-assets/src/item_model.rs']
+               lab.ROOT / 'tools/lab.py', lab.ROOT / 'tools/test_rust_parity.py', lab.ROOT / 'Cargo.lock', lab.ROOT / 'crates/zenith-client/src/item_render.rs',
+               lab.ROOT / 'crates/zenith-items/src/item_data.rs', lab.ROOT / 'crates/zenith-assets/src/item_model.rs']
     tested = base.source_hashes(sources)
     classes = build / 'classes'
     classes.mkdir(exist_ok=True)
     deps = os.pathsep.join(map(str, libraries))
     subprocess.run(['javac', '--release', str(lock['minecraft']['java_major']), '-proc:none',
-                    '-sourcepath', str(lab.ROOT / 'mods/horizon/src/test/java'),
+                    '-sourcepath', str(lab.ROOT / 'java/horizon/src/test/java'),
                     '-cp', str(jars['client']) + os.pathsep + deps, '-d', str(classes), str(oracle), str(flags_oracle)], check=True)
-    subprocess.run(['cargo', 'build', '--locked', '-p', 'horizon-client-lib', '--example', 'client_probe'],
+    subprocess.run(['cargo', 'build', '--locked', '-p', 'zenith-client-lib', '--example', 'client_probe'],
                    cwd=lab.ROOT, check=True)
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--locked', '--no-deps',
                                                   '--format-version', '1'], cwd=lab.ROOT, text=True))

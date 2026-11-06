@@ -7,7 +7,7 @@ registry for Horizon's own mods, modpacks, resource packs and shader packs; see 
 ## What it offers
 
 Horizon doesn't run Java code ([mods.md](mods.md)). It ports what a Java mod
-carries as data (blocks, items, recipes, loot tables, tags, worldgen, textures, names) with `horizon-port-pack`, and
+carries as data (blocks, items, recipes, loot tables, tags, worldgen, textures, names) with `zenith-port-pack`, and
 says before install which of the mod's features that leaves out. Horizon's own mods (content mods, `.hmod`, and native
 mods, `.hnmod`) aren't on Modrinth or CurseForge yet (Modrinth has no `horizon` loader).
 
@@ -31,8 +31,8 @@ never offered for install.
 
 Before a mod is offered for install, the launcher reads its jar. For each result it picks the version it would
 install (the newest for 26.3; with **Show everything**, else the newest for 1.21 or later, the versions port-pack
-upgrades from), downloads that file with the checks below, and runs `horizon-port-pack check` on it
-([modpacks.md](modpacks.md#the-pipeline-horizon-port-pack)): the jar is carried over into a folder content mod and its
+upgrades from), downloads that file with the checks below, and runs `zenith-port-pack check` on it
+([modpacks.md](modpacks.md#the-pipeline-zenith-port-pack)): the jar is carried over into a folder content mod and its
 class files are read, not run, for what the carry can't take. Two checks run at once; the row says **Checking** until
 its answer comes.
 
@@ -60,9 +60,9 @@ off.
 
 `tools/mod_browser_harness.py [--mod SLUG] [--query TEXT] [--keep]` runs the whole path a player takes, in a scratch
 game folder: the launcher's `mods search --kind mod`, `mods check` and `mods install` (Modrinth), then the game
-opens a survival world with the mod offscreen (horizon-ctl), places one of its blocks, and crafts one of its recipes
+opens a survival world with the mod offscreen (zenith-ctl), places one of its blocks, and crafts one of its recipes
 from vanilla ingredients on a crafting table and takes the result. It times the world's load with and without the
-mod and prints a JSON summary; it exits 1 when a step fails. It needs the launcher, the game and horizon-ctl built
+mod and prints a JSON summary; it exits 1 when a step fails. It needs the launcher, the game and zenith-ctl built
 and the prepared 26.3 resources in `.local`.
 
 On the Mac mini (M4 Pro, offscreen) with Macaw's Fences and Walls (the default): check 4.0 s, install 3.1 s, world
@@ -85,7 +85,7 @@ The launcher's **Mods** page has the five kinds as tabs: **Mods**, **Modpacks**,
 and **Data packs**, each with a search field (Enter searches). Mods, Modpacks, Resource packs and Data packs pick their
 source: Horizon's registry or Modrinth, with **CurseForge (coming soon)** beside them, disabled. Mods start on
 Horizon's registry; **Shader packs** search it only (Horizon's own packs); data packs install into the world picked
-under the search. On Horizon's registry, **Filters** lists the kind's categories (`horizon_mods::index::page::categories`,
+under the search. On Horizon's registry, **Filters** lists the kind's categories (`zenith_mods::index::page::categories`,
 named and ordered as on playhorizon.dev) and the tags its projects carry (the 30 most used, `#tag`): a result has
 every category and tag picked, and the search words, which also match a project's tags, narrow them further. While
 the panel is closed, what is picked stays in view as chips under **Filters**, each with a cross that removes it, and
@@ -196,7 +196,7 @@ launcher reads its `index.json` (`browser/horizon.rs`; `HORIZON_MOD_INDEX=<file 
 registry instead, whose files may then be on disk) at most every ten minutes, and keeps the last copy in
 `mod-browser/horizon-index.json`. Before a result is installed it shows whether its files are signed and, for a mod,
 what it may do, in the words of the game's Options > Mods. A download goes to `mod-browser/downloads/` and is moved
-into place only after `horizon_mods::index::check_file` passes (size, SHA-256, the author's signature when the project
+into place only after `zenith_mods::index::check_file` passes (size, SHA-256, the author's signature when the project
 has a key, the file's own manifest against the index). A content mod becomes `horizon-mods/<id>.hmod`, turned on; a native mod becomes
 `horizon-native-mods/<id>.hnmod`, and the launcher builds it into the game ([native-mods.md](native-mods.md));
 `mods disable` and `mods enable` switch it in `horizon-mods.txt`. When the index takes a file down, the launcher turns
@@ -207,7 +207,7 @@ like any registry mod and turned on or off as the pack says; its overrides (sett
 settings) are copied in on the first install only, so the player's changes survive updates. A pack whose mod was taken
 down installs nothing. It is listed on the Modpacks tab with **Play** and **Remove**, and plays like an imported pack
 (`modpacks::apply_profile`). A shader pack goes to `shaderpacks/<file>` once `check_file` has run the game's own
-check on it (`horizon_shader_api::check`); a taken-down one is named, for the player to remove.
+check on it (`zenith_shader_api::check`); a taken-down one is named, for the player to remove.
 A registry `.hmod` with any capability besides `registries` is neither listed nor installed alone. A modpack that
 requires one still installs, and the launcher lists the mod as not running, with that reason, and leaves out its code.
 

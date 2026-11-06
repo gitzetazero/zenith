@@ -51,7 +51,7 @@ Replay:
 ```sh
 python3 tools/test_selector_empty_tag_parity.py --binary /path/to/game --work-dir .local/h267/replay
 python3 tools/test_selector_empty_tag_parity.py --full-diagnostic --binary /path/to/game --work-dir .local/h267/full-replay
-HORIZON_TEST_RESOURCES=/absolute/resources/26.3 cargo test -p horizon-client --lib empty_tag_selectors_follow_actual_tag_edits -- --ignored --nocapture
+HORIZON_TEST_RESOURCES=/absolute/resources/26.3 cargo test -p zenith-client --lib empty_tag_selectors_follow_actual_tag_edits -- --ignored --nocapture
 ```
 
 Resource-backed units require isolated fresh test homes/cwd, as in AGENTS.md. Raw commands,

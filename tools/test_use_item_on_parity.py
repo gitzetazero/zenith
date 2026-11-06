@@ -834,7 +834,7 @@ def main():
         args.count = 4000
     lock, jars, libraries = base.verify_artifacts()
     facts = h.load_facts()
-    resources = lab.LOCAL / 'horizon-client' / lock['minecraft']['version']
+    resources = lab.LOCAL / 'zenith-client' / lock['minecraft']['version']
     work = lab.LOCAL / 'use-item-on-parity'
     work.mkdir(parents=True, exist_ok=True)
     all_cases = [*cases(facts, args.count, args.seed), *wake_cases(facts, max(args.count // 10, 1), args.seed),
@@ -844,14 +844,14 @@ def main():
     classes = work / 'classes'
     classes.mkdir(exist_ok=True)
     dependencies = os.pathsep.join(map(str, [jars['server'], *libraries]))
-    java_root = lab.ROOT / 'mods/horizon/src/test/java'
+    java_root = lab.ROOT / 'java/horizon/src/test/java'
     d.run(['javac', '--release', str(lock['minecraft']['java_major']), '-proc:none', '-sourcepath', str(java_root), '-nowarn',
            '-cp', dependencies, '-d', str(classes), str(java_root / 'dev/horizonlab/parity/VanillaDispenserOracle.java')])
     d.run(['java', '-Xmx3G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaDispenserOracle',
            str(resources), str(work / 'cases.jsonl'), str(work / 'native.txt')])
-    d.run(['cargo', 'build', '-q', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], cwd=lab.ROOT,
+    d.run(['cargo', 'build', '-q', '--profile', 'fast', '-p', 'zenith-client', '--bin', 'zenith-client'], cwd=lab.ROOT,
           env={**os.environ, 'CARGO_BUILD_JOBS': os.environ.get('CARGO_BUILD_JOBS', '3')})
-    d.run([str(lab.cargo_target() / 'fast/horizon-client'), '--resources', str(resources)], cwd=work,
+    d.run([str(lab.cargo_target() / 'fast/zenith'), '--resources', str(resources)], cwd=work,
           env=lab.game_env(HORIZON_DISPENSE_FIXTURE=f'{work / "cases.jsonl"},{work / "rust.txt"}'))
     ignore = tuple(prefix + ' ' for prefix in args.ignore.split(',') if prefix) + ('D ',)
     native = h.split_cases((work / 'native.txt').read_text(), ignore)

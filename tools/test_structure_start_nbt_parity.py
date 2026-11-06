@@ -45,12 +45,12 @@ def main():
     report_path = build / 'report.json'
     report_path.unlink(missing_ok=True)
     lock, jars, libraries = base.verify_artifacts()
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaStructureStartOracle.java'
-    probe = lab.ROOT / 'crates/horizon-world/examples/probe/structure_start_nbt.rs'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaStructureStartOracle.java'
+    probe = lab.ROOT / 'crates/zenith-world/examples/probe/structure_start_nbt.rs'
     sources = [oracle, probe, Path(__file__), lab.ROOT / 'tools/test_rust_parity.py', lab.ROOT / 'tools/lab.py',
-               lab.ROOT / 'Cargo.toml', lab.ROOT / 'Cargo.lock', lab.ROOT / 'crates/horizon-world/Cargo.toml',
-               *sorted((lab.ROOT / 'crates/horizon-core/src').rglob('*.rs')),
-               *sorted((lab.ROOT / 'crates/horizon-world/src').rglob('*.rs'))]
+               lab.ROOT / 'Cargo.toml', lab.ROOT / 'Cargo.lock', lab.ROOT / 'crates/zenith-world/Cargo.toml',
+               *sorted((lab.ROOT / 'crates/zenith-core/src').rglob('*.rs')),
+               *sorted((lab.ROOT / 'crates/zenith-world/src').rglob('*.rs'))]
     tested_sources = base.source_hashes(sources)
 
     def run(command, name, env=None):
@@ -61,13 +61,13 @@ def main():
     classes.mkdir(exist_ok=True)
     dependencies = os.pathsep.join(map(str, [jars['client'], *libraries]))
     run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath',
-         lab.ROOT / 'mods/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle], 'compile-java')
-    run(['cargo', 'build', '--release', '-p', 'horizon-world', '--example', 'world_probe'], 'compile-rust')
+         lab.ROOT / 'java/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle], 'compile-java')
+    run(['cargo', 'build', '--release', '-p', 'zenith-world', '--example', 'world_probe'], 'compile-rust')
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'],
                                                   cwd=lab.ROOT, text=True))
     binary = Path(metadata['target_directory']) / 'release/examples' / (
         'world_probe.exe' if os.name == 'nt' else 'world_probe')
-    resources = lab.LOCAL / 'horizon-client' / lock['minecraft']['version']
+    resources = lab.LOCAL / 'zenith-client' / lock['minecraft']['version']
     groups = collections.defaultdict(list)
     for seed, dimension, cx, cz in CASES:
         groups[(seed, dimension)].append((cx, cz))

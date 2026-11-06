@@ -7,7 +7,7 @@ work items, each a GitHub issue and a Kira card. This page is the design; `tools
 (status at the end).
 
 The downloads are for development only, on the Mac mini: nothing from them is ever committed, published or shipped
-to players. Players still prepare their own copy from their official launcher (`horizon-prepare`), as today.
+to players. Players still prepare their own copy from their official launcher (`zenith-prepare`), as today.
 
 ## How Horizon pins and prepares 26.3 today
 
@@ -18,18 +18,18 @@ to players. Players still prepare their own copy from their official launcher (`
   the user's own launcher install, unpacks the server bundler into `server-game.jar`, and writes the class
   inventories; `tools/lab.py decompile` runs Vineflower on both jars. On the Mac mini all of this lives once in
   `~/code/horizon-parity/shared-local/` (`minecraft/26.3/{jars,libraries,sources,reports}`, 366 MB), and every
-  worktree links to it from `.local/`. Release builds never do this: `horizon-prepare` imports the user's copy.
-- **The data generator.** `horizon-prepare` runs `java -DbundlerMainClass=net.minecraft.data.Main -jar server.jar
+  worktree links to it from `.local/`. Release builds never do this: `zenith-prepare` imports the user's copy.
+- **The data generator.** `zenith-prepare` runs `java -DbundlerMainClass=net.minecraft.data.Main -jar server.jar
   --reports` into `.local/datagen/out/reports/`: `blocks.json`, `registries.json`, `packets.json`,
   `commands.json`, `datapack.json`, item default components, biome parameters. It also runs Horizon's Java
-  exporters (`mods/horizon/src/test/java/dev/horizonlab/parity/Vanilla*Exporter.java`) against the jar for block
+  exporters (`java/horizon/src/test/java/dev/horizonlab/parity/Vanilla*Exporter.java`) against the jar for block
   behaviours, worldgen bundles and the like. CI does the same through `tools/ci/vanilla-data.sh`, keyed by the
   version in `research-lock.json`.
 - **Version facts in the code.** The client jar's own `version.json` states them (26.3: world version 5023,
   protocol 777, resource pack 97.1, data pack 121.0, Java 25). `tools/gen_version_consts.py` writes them into
-  one generated file, `crates/horizon-core/src/version.rs` (`VANILLA_VERSION`, `PROTOCOL_VERSION`,
+  one generated file, `crates/zenith-core/src/version.rs` (`VANILLA_VERSION`, `PROTOCOL_VERSION`,
   `DATA_VERSION`, the pack formats, Java, `/version`'s build time), and every Rust site reads them from there
-  (`horizon_protocol::PROTOCOL_VERSION`, `horizon_world::DATA_VERSION` and the save's version name are aliases
+  (`zenith_protocol::PROTOCOL_VERSION`, `zenith_world::DATA_VERSION` and the save's version name are aliases
   of it; the status, the legacy ping, the crash report, `/version`, the title screens and the default resource
   folder use it). CI checks the file against the pinned jar (`--check`). Test fixtures that state a version
   (a level.dat to read, a relay message) keep their literals: they test parsing, not the pin.
@@ -38,17 +38,17 @@ to players. Players still prepare their own copy from their official launcher (`
 
   | Output | Generator | Input |
   | --- | --- | --- |
-  | `crates/horizon-core/src/version.rs` | `gen_version_consts.py` | the client jar's `version.json` |
-  | `crates/horizon-protocol/src/ids.rs` | `generate_packet_ids.py` | `packets.json` report |
-  | `crates/horizon-client/src/lan/tracking.rs` | `generate_entity_tracking.py` | decompiled `EntityTypes` |
-  | `crates/horizon-client/src/lan/command_suggestions.rs` | `generate_command_suggestions.py` | `VanillaCommandSuggestionsExporter` |
-  | `crates/horizon-client/src/lan/command_order.rs` | `generate_lan_command_order.py` | vanilla's command tree |
-  | `crates/horizon-command/src/vanilla_order.rs` | `generate_command_order.py` | command-parse harness export |
-  | `crates/horizon-world/src/datafix/block_state_data.txt` | `gen_block_state_data.py` | decompiled `BlockStateData` |
-  | `crates/horizon-world/src/datafix/flat_tables.rs` | `gen_flat_tables.py` | 1.13 flattening fixers (never change) |
+  | `crates/zenith-core/src/version.rs` | `gen_version_consts.py` | the client jar's `version.json` |
+  | `crates/zenith-protocol/src/ids.rs` | `generate_packet_ids.py` | `packets.json` report |
+  | `crates/zenith-client/src/lan/tracking.rs` | `generate_entity_tracking.py` | decompiled `EntityTypes` |
+  | `crates/zenith-client/src/lan/command_suggestions.rs` | `generate_command_suggestions.py` | `VanillaCommandSuggestionsExporter` |
+  | `crates/zenith-client/src/lan/command_order.rs` | `generate_lan_command_order.py` | vanilla's command tree |
+  | `crates/zenith-command/src/vanilla_order.rs` | `generate_command_order.py` | command-parse harness export |
+  | `crates/zenith-world/src/datafix/block_state_data.txt` | `gen_block_state_data.py` | decompiled `BlockStateData` |
+  | `crates/zenith-world/src/datafix/flat_tables.rs` | `gen_flat_tables.py` | 1.13 flattening fixers (never change) |
 
   Everything else data-driven (block behaviours, items, worldgen, models, sounds, languages) is not committed: the
-  game reads what `horizon-prepare` exports from the user's own jar, so it follows a new version by itself as long
+  game reads what `zenith-prepare` exports from the user's own jar, so it follows a new version by itself as long
   as the exporters still compile and the formats still parse.
 
 - **The proof.** ~300 harnesses (`tools/test_*_parity.py`) each compare a Rust probe with a Java oracle that calls
@@ -157,7 +157,7 @@ classes (with the full jar as a library, so types resolve), and a unified diff p
 The diff matters only through what it changes in Horizon. `version_port.py map` builds `vanilla_map.json`, from
 the repository alone, in seconds:
 
-1. **Oracles → classes.** Each Java oracle and exporter under `mods/horizon/src/test/java/dev/horizonlab/parity/`
+1. **Oracles → classes.** Each Java oracle and exporter under `java/horizon/src/test/java/dev/horizonlab/parity/`
    names the vanilla classes it imports and uses (`net.minecraft.*` imports and fully qualified names).
 2. **Harnesses → oracles and Rust.** Each `tools/test_*_parity.py` names its oracle class; its probe (a crate's
    example or binary named in the script) and its `PARITY_RUST_SCOPE` give the Rust files it proves.
@@ -199,7 +199,7 @@ guessing which tables the diff made stale. `--only NAME...` reruns some generato
 
 Three generators run vanilla through Horizon's Java oracles (`VanillaCommandSuggestionsExporter`,
 `VanillaCommandParseOracle`) and one builds `command_parse_fixture` (Horizon's command tree in its own registration
-order, before `vanilla_order.rs` reorders it), so `regen` needs Java and Cargo. `horizon-prepare` (the resources the
+order, before `vanilla_order.rs` reorders it), so `regen` needs Java and Cargo. `zenith-prepare` (the resources the
 harnesses read) is the next stage's first step.
 
 ### Run every harness against the new version
@@ -207,12 +207,12 @@ harnesses read) is the next stage's first step.
 `version_port.py harnesses NEW [NAME...] --baseline STATE` (`tools/port_harness.py`), in the candidate `regen`
 made:
 
-1. **horizon-prepare**, built from the candidate and run there: `.local/horizon-client/NEW` and its exporters'
+1. **zenith-prepare**, built from the candidate and run there: `.local/zenith-client/NEW` and its exporters'
    outputs. Its `sounds` and `panorama` steps read the version store's launcher-shaped copy, whose asset index and the
    objects those steps copy (about 370 MB of sounds) are downloaded once per version from Mojang's resource server,
    each checked against its sha1. Regen's link to the version store's data generator reports is dropped first:
-   horizon-prepare runs the generator itself, into the candidate. When the exporters no longer compile against NEW,
-   the stage goes on and the report gets a rank-1 item with javac's errors (read from the log horizon-prepare names).
+   zenith-prepare runs the generator itself, into the candidate. When the exporters no longer compile against NEW,
+   the stage goes on and the report gets a rank-1 item with javac's errors (read from the log zenith-prepare names).
 2. **`tools/parity.py --all`** there (or the harnesses named), from scratch.
 3. **Each harness classified**:
    - **pass**: Horizon already matches NEW there;
@@ -280,7 +280,7 @@ been switched to NEW (the version store's files are copied in, then `lab.py deco
 sources), and a playtest shows a world loads and a vanilla NEW client can join a Horizon LAN world.
 
 A Horizon release then ships as usual (`docs/release-flow.md`), labelled `feature` with "Minecraft NEW" in its
-title. Its `research-lock.json` makes `horizon-prepare` ask for NEW, so players must have played NEW once in the
+title. Its `research-lock.json` makes `zenith-prepare` ask for NEW, so players must have played NEW once in the
 official launcher; the launcher already reads each release's game version from its `research-lock.json`, so players
 who haven't can keep the previous Horizon release. Supporting two Minecraft versions in one build is out of scope.
 
@@ -393,12 +393,12 @@ and other sessions ran:
 
 | | 26.3 → 26.2 (`ports/26.2`) | 26.2 → 26.3 (`ports/26.3`) |
 | --- | --- | --- |
-| horizon-prepare | failed: `VanillaHeightmapOracle.java:33: cannot find symbol: variable FULL_CODEC (class BlockState)` (rank 1) | ok, sounds and panorama from the downloaded assets |
+| zenith-prepare | failed: `VanillaHeightmapOracle.java:33: cannot find symbol: variable FULL_CODEC (class BlockState)` (rank 1) | ok, sounds and panorama from the downloaded assets |
 | pass | 1 (`food`) | 17 |
 | oracle no longer compiles | 4: `chunk_generation` (`ServerChunkCache` constructor), `command_exec` (`com.mojang.authlib.services`), `command_parse` and `hotbar` (`RegistryLayer.WORLD`) | 0 |
 | fail | 12 (Horizon's 26.3 packet tables and resources don't build or match 26.2) | 0 |
 | newly failing, against the other direction's run as baseline | 16 | 0 |
-| time | about an hour, most of it datafix's vanilla upgrades | about 85 min, 10 of them horizon-prepare |
+| time | about an hour, most of it datafix's vanilla upgrades | about 85 min, 10 of them zenith-prepare |
 
 So on a real port the stage separates the three cases the report needs: what already works on NEW, oracles whose
 vanilla API moved (javac names the symbol, as for regen), and behaviour that changed; and a candidate that is right
@@ -430,6 +430,6 @@ python3 tools/vanilla_map.py versions/26.3/classes.json net.minecraft.world.food
 | `version_consts`: one generated file for the version facts (`tools/gen_version_consts.py`) | done |
 | Tools read the version from the lock (`lab.VERSION`, `lab.GAME`, `lab.RESOURCES`, `lab.version_info()`) | done |
 | `regen` (`tools/port_regen.py`): candidate worktree, its `.local/`, the generators' classes decompiled alone, every generator, `regen.json` in the report | done |
-| Candidate harness run (`tools/port_harness.py`, `harnesses`): horizon-prepare with sounds, every harness, pass / oracle / fail, newly failing against a baseline, in the report | done |
+| Candidate harness run (`tools/port_harness.py`, `harnesses`): zenith-prepare with sounds, every harness, pass / oracle / fail, newly failing against a baseline, in the report | done |
 | `publish` (`tools/port_publish.py`): dry run by default, issues, tracking issue, Kira card | done (never run with `--yes`) |
 | Daily launchd agent (`tools/ci/version-port-daily.sh`, `tools/ci/dev.horizon.version-port.plist`) | written, not installed: needs Ludovic's approval |

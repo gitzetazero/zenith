@@ -161,7 +161,7 @@ def main():
     parser.add_argument("--lan-port", type=int,
                         help="open the --world to LAN on this port without authentication (needs --classes)")
     parser.add_argument("--classes", type=Path, default=ROOT / ".local/mp/oracle",
-                        help="compiled OfflineLanHost (mods/horizon/src/test/java)")
+                        help="compiled OfflineLanHost (java/horizon/src/test/java)")
     parser.add_argument("--backend", help="graphics backend (opengl or vulkan)")
     parser.add_argument("--option", action="append", default=[], help="KEY:VALUE for options.txt")
     parser.add_argument("--print", action="store_true", help="print the command and exit")

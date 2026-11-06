@@ -32,7 +32,7 @@ method-by-method reading misses:
     python3 tools/port_ledger.py build                         # index into .local/port-ledger/ledger.json
     python3 tools/port_ledger.py where KineticWeapon.damageEntities
     python3 tools/port_ledger.py where ShulkerBulletRenderer   # a whole class
-    python3 tools/port_ledger.py what crates/horizon-client/src/game/spear.rs:150
+    python3 tools/port_ledger.py what crates/zenith-client/src/game/spear.rs:150
     python3 tools/port_ledger.py class Shulker                 # every method: ported where, or not
     python3 tools/port_ledger.py issue 3123                    # the classes, code and gaps a report points at
     python3 tools/port_ledger.py check [--base origin/main]    # what a branch touches, gaps it opens and closes
@@ -1037,7 +1037,7 @@ ORACLE_DIR = ROOT / "mods" / "horizon" / "src" / "test" / "java" / "dev" / "hori
 
 def harness_coverage(van, methods, fns, edges, known):
     """The parity harnesses that cover each ported method. A harness (tools/test_*_parity.py) runs a vanilla oracle
-    (mods/horizon/src/test/java/.../parity/*.java) and a Rust fixture (crates/*/examples/**/*_fixture.rs) on the same
+    (java/horizon/src/test/java/.../parity/*.java) and a Rust fixture (crates/*/examples/**/*_fixture.rs) on the same
     inputs. It covers a method when its fixture reaches the method's port and the vanilla side is in reach too: the
     oracle calls into the method, or the harness or oracle names the method's class (oracles often reach vanilla
     through an interface, a block state for the block, which a call graph can't follow)."""

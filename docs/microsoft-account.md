@@ -90,8 +90,8 @@ possible; the launcher just doesn't offer it on its own.
   without a session, offline. An answer of "doesn't own" (or no profile) blocks at once.
 - **Offline names play behind an owner.** They can be added and played only while an owning
   account is signed in. Signing the last one out keeps them, and they play again once one is back.
-- **Who isn't affected:** the game binary itself (`horizon-client`, `horizon-ctl launch`, the
-  harnesses, CI), the dedicated server and `horizon-server`, the website. There is no bypass flag:
+- **Who isn't affected:** the game binary itself (`zenith-client`, `zenith-ctl launch`, the
+  harnesses, CI), the dedicated server and `zenith-server`, the website. There is no bypass flag:
   the launcher's tests use accounts in a memory store (`MemoryStore`, and `HORIZON_NO_KEYCHAIN`
   for the CLI and MCP tests, which then have no owner).
 
@@ -272,7 +272,7 @@ Vanilla's `ClientHandshakePacketListenerImpl.handleHello`, `Crypt` and authlib's
 
 The connecting screen follows vanilla's states: "Connecting to the server..." until the encryption
 request, "Logging in..." while joining the session service, "Encrypting...", then "Joining world...".
-Code: `horizon-protocol` (`rsa.rs`, `crypto::server_hash`), `horizon-client` (`auth.rs`, `net.rs`).
+Code: `zenith-protocol` (`rsa.rs`, `crypto::server_hash`), `zenith-client` (`auth.rs`, `net.rs`).
 
 Horizon's dedicated server verifies players when `online-mode=true`. A LAN or Play with Friends world
 verifies its guests when the host is signed in, as vanilla's `IntegratedServer` does
@@ -298,7 +298,7 @@ player renderer. Until a skin arrives the default skin for the UUID shows (as to
 26.3's dedicated servers default to `enforce-secure-profile=true`. A client without a chat session
 can join and play, but every chat message and signed command argument is refused with "Chat
 disabled due to missing profile public key. Please try reconnecting." (`SignedMessageChain.Decoder.unsigned`).
-To chat on such servers the game (`auth.rs`, `game/remote_chat.rs`, `horizon_protocol::secure_chat`):
+To chat on such servers the game (`auth.rs`, `game/remote_chat.rs`, `zenith_protocol::secure_chat`):
 
 - fetches the profile key pair from the services `player/getCertificates` endpoint with the Minecraft
   token, on a background thread at start and on each join (AccountProfileKeyPairManager): the PKCS#8
@@ -345,7 +345,7 @@ Negative cases: a token the mock rejects (the client must show vanilla's "Invali
 and a client that skips the join (the server must say "Failed to verify username!").
 
 Rust unit tests: server hash vectors (Notch, jeb_, simon), RSA wrapping round trip with a test key,
-X.509 key parsing, AES/CFB8 vectors (already in `horizon-protocol`), the session file (permissions,
+X.509 key parsing, AES/CFB8 vectors (already in `zenith-protocol`), the session file (permissions,
 age, deletion), the error mapping. Launcher: the whole token chain against a local mock of the
 Microsoft, Xbox and Minecraft endpoints, and the keychain abstraction with an in-memory backend.
 

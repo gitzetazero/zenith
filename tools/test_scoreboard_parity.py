@@ -14,7 +14,7 @@ playerScores as fastutil open hash maps, teamsByName, each team's HashSet of
 players), and the ScoreboardSaveData.Packed codec output that
 data/minecraft/scoreboard.dat holds, before and after loading it back.
 `examples/probe/scoreboard_fixture` runs the same cases on
-`horizon_client::scoreboard`, reloads vanilla's NBT, and vanilla reloads
+`zenith_client::scoreboard`, reloads vanilla's NBT, and vanilla reloads
 Horizon's NBT; all must agree. The one order vanilla leaves to identity hash
 codes (each holder's scores within PlayerScores) is compared as a set.
 
@@ -34,7 +34,7 @@ except ImportError:
     import lab
     import test_rust_parity as base
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity'
 COLORS = ['black', 'dark_blue', 'dark_green', 'dark_aqua', 'dark_red', 'dark_purple', 'gold', 'gray', 'dark_gray',
           'blue', 'green', 'aqua', 'red', 'light_purple', 'yellow', 'white']
 CUSTOM = ['dummy', 'trigger', 'deathCount', 'playerKillCount', 'totalKillCount', 'health', 'food', 'air', 'armor',
@@ -250,7 +250,7 @@ def main():
     inputs = build / 'inputs.jsonl'
     inputs.write_text(''.join(json.dumps(c, ensure_ascii=False) + '\n' for c in chosen), encoding='utf-8')
     run([*oracle, 'run', inputs, build / 'vanilla.jsonl'], 'vanilla')
-    run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe'], 'compile-rust')
+    run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe'], 'compile-rust')
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
     binary = Path(metadata['target_directory']) / 'fast/examples' / ('client_probe.exe' if os.name=='nt' else 'client_probe')
     run([binary, 'scoreboard_fixture',build / 'registries.json', inputs, build / 'rust.jsonl', build / 'vanilla.jsonl'], 'rust')

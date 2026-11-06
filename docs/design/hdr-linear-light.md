@@ -250,7 +250,7 @@ may need a tone-weighted resolve so bright pixels don't sparkle. Frame generatio
 Behind `HORIZON_HDR_FRAME=float` until the last step, each a small pull request:
 
 1. This note.
-2. Shader API 0.2 in `horizon-shader-api`: the rule, the `Frame` fields, `[tonemap]`, `[frame] blend`, both lines
+2. Shader API 0.2 in `zenith-shader-api`: the rule, the `Frame` fields, `[tonemap]`, `[frame] blend`, both lines
    served, the reference regenerated, Golden Hour's 0.2 port.
 3. The float frame with HDR on: the frame, the display pass decoding it, and light written instead of marked, one
    group of shaders a pull request (terrain and fluids, particles and the sky, entities and items, the rest).

@@ -46,7 +46,7 @@ output shapes are not yet described in the reference.
 - **A Horizon modpack manifest.** A pack made for Horizon (not a port of a Java pack) needs its own file: the pack's
   id, name and version; the Horizon API lines and the release line it needs; its `.hmod` mods (id, version, SHA-256,
   where to download it, client, server or both); resource packs; default settings; and whether it has a server side.
-  One manifest serves the launcher, `horizon-server` (a server installs the server side of the same pack) and the mod
+  One manifest serves the launcher, `zenith-server` (a server installs the server side of the same pack) and the mod
   browser. Designed from what a pack maker does, versioned per [stability.md](stability.md), with a schema test.
 - **JSON output schemas** for every command, in the generated reference, so MCP tools declare their output.
 - **A version** in MCP `serverInfo` and `--json` output, as for agent control.

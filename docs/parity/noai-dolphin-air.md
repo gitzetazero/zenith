@@ -57,7 +57,7 @@ or game resource is committed. Unknown phase times stay null.
 
 ## Actual full-Mob tick regression
 
-`cargo test -p horizon-client-lib --lib dolphin_noai_air_tests` uses the existing
+`cargo test -p zenith-client-lib --lib dolphin_noai_air_tests` uses the existing
 prepared-resource world factory with actual water or air and calls the real full
 `mobs::ai::tick`. It checks both media, loaded 4800/100, actual tick age, eye-water
 state, unchanged Health and NoAI, plus the normal water countdown. Before the fix,
@@ -72,8 +72,8 @@ claim. The gameplay change does not touch saved Air conversion, normal refill,
 Nautilus, water-breathing effects, goals, particles, sounds, RNG or lifecycle.
 
 ```sh
-python3 tools/test_noai_dolphin_air_parity.py --binary target/fast/horizon-client --work-dir .local/noai-dolphin-air
-python3 tools/test_noai_dolphin_air_parity.py --binary target/fast/horizon-client --work-dir .local/noai-dolphin-air-full --full-diagnostic
+python3 tools/test_noai_dolphin_air_parity.py --binary target/fast/zenith --work-dir .local/noai-dolphin-air
+python3 tools/test_noai_dolphin_air_parity.py --binary target/fast/zenith --work-dir .local/noai-dolphin-air-full --full-diagnostic
 ```
 
 ## Paired results and complete diagnostic residuals

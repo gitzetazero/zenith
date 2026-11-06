@@ -11,14 +11,14 @@ with ARM64 libraries. Install LLVM/Clang and put `clang.exe` on `PATH`; the `rin
 Clang to compile its ARM64 code. The MSVC target also needs the Visual C++ linker and Windows import
 libraries.
 
-To run `horizon-prepare compile-exporters`, install JDK 25 and Python 3.10+; that command compiles
+To run `zenith-prepare compile-exporters`, install JDK 25 and Python 3.10+; that command compiles
 the Java exporters used by the game.
 
 ```powershell
 rustup target add aarch64-pc-windows-msvc
 cargo build --release --locked --target aarch64-pc-windows-msvc `
-  -p horizon-client -p horizon-client-lib --bin horizon-client --bin horizon-ctl `
-  -p horizon-prepare --bin horizon-prepare -p horizon-server --bin horizon-server
+  -p zenith-client -p zenith-client-lib --bin zenith --bin zenith-ctl `
+  -p zenith-prepare --bin zenith-prepare -p zenith-server --bin zenith-server
 ```
 
 The launcher has a separate workspace:

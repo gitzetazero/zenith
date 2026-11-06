@@ -57,7 +57,7 @@ def stack(rng):
 def cases(build):
     rng = random.Random(0x46495245)
     path = build / 'cases.txt'
-    resources = lab.LOCAL / 'horizon-client' / '26.3'
+    resources = lab.LOCAL / 'zenith-client' / '26.3'
     path.write_text(f'#resources {resources}\n' + ''.join(stack(rng) + '\n' for _ in range(COUNT)))
     return path, COUNT
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
         'firework-tooltip-parity', 'VanillaFireworkTooltipOracle', 'firework_tooltip_fixture', cases,
         'Firework rocket and star tooltip lines: flight duration, explosions (counted runs), colours, fade, trail, '
         'twinkle, defaults and tooltip_display',
-        sources=[lab.ROOT / 'crates/horizon-items/src/enchant.rs',
-                 lab.ROOT / 'crates/horizon-client/src/item_tooltip.rs', lab.ROOT / 'crates/horizon-items/src/item_data.rs',
-                 lab.ROOT / 'crates/horizon-client-render/src/particles.rs'],
+        sources=[lab.ROOT / 'crates/zenith-items/src/enchant.rs',
+                 lab.ROOT / 'crates/zenith-client/src/item_tooltip.rs', lab.ROOT / 'crates/zenith-items/src/item_data.rs',
+                 lab.ROOT / 'crates/zenith-client-render/src/particles.rs'],
         expected_lines=COUNT)

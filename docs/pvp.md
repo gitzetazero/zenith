@@ -19,9 +19,9 @@ Each feature is built from what it visibly does, never from another client's or 
 
 | Part | Code |
 |---|---|
-| Settings, parsing, the page's rows | `crates/horizon-client-render/src/pvp.rs` (stored in `horizon-extras.txt`, see [extras.md](extras.md)) |
+| Settings, parsing, the page's rows | `crates/zenith-client-render/src/pvp.rs` (stored in `horizon-extras.txt`, see [extras.md](extras.md)) |
 | The page | `options_ui.rs` (`Page::Pvp`), the rows of `pvp::rows()` drawn like the Extras page |
-| Game glue | `crates/horizon-client/src/game/pvp.rs` |
+| Game glue | `crates/zenith-client/src/game/pvp.rs` |
 
 ## Crosshair (`crosshair`, default off)
 
@@ -53,7 +53,7 @@ Each feature is built from what it visibly does, never from another client's or 
 
 Boxes in the screen corners, placed like the minimap and mods' boxes (`extras_hud::Corners`), each in a corner of
 its own, with an optional dark background (on by default). F3's debug screen takes the top corners as it does from
-mods' boxes. Code: `crates/horizon-client-render/src/pvp_hud.rs` (lines, cache, layout) and `game/pvp.rs`.
+mods' boxes. Code: `crates/zenith-client-render/src/pvp_hud.rs` (lines, cache, layout) and `game/pvp.rs`.
 
 - **Armour** (bottom right): each piece worn, head first, with the uses left as a number or a percent, coloured
   like the item's durability bar (green to red). Only what the inventory already shows.
@@ -108,7 +108,7 @@ Code: `game/hud_editor.rs`.
 
 `Enchantment.getFullname` with the level as a number ("Sharpness 5", also past vanilla's numerals: "Sharpness 255")
 wherever the client names an enchantment (tooltips, the enchanting table's hint). A one-level enchantment still has
-none ("Mending"). Code: `horizon_items::enchant::set_numeric_levels`, set each frame from the option.
+none ("Mending"). Code: `zenith_items::enchant::set_numeric_levels`, set each frame from the option.
 
 ## Enchantment glint colour (`glintColour`, default off)
 
@@ -183,7 +183,7 @@ own rules. Melee hits follow 1.8.9's `EntityPlayer.attackTargetEntityWithCurrent
   resistance is a chance to take none instead of a cut; the sprint and Knockback push is added on top (0.1 up)
   instead of halving the motion first.
 
-Code: `crates/horizon-client/src/legacy_combat.rs` (the formulas, with their 1.8.9 sources),
+Code: `crates/zenith-client/src/legacy_combat.rs` (the formulas, with their 1.8.9 sources),
 `game/legacy_rules.rs`; `lan_e2e.py --check legacy-pvp` measures it between two games.
 
 It is only the look: the client sends a server exactly what Modern sends (same attacks, same timing, no

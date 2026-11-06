@@ -32,15 +32,15 @@ except ImportError:
     from integration_env import run_game
 
 SOURCES = [
-    'crates/horizon-client/src/game.rs',
-    'crates/horizon-client/src/game/boat_rider_fixture.rs',
-    'crates/horizon-client/src/game/remote_vehicles.rs',
-    'crates/horizon-client/src/game/boats.rs',
-    'crates/horizon-client/src/game/remote_objects.rs',
-    'crates/horizon-client/src/game/hand.rs',
-    'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaBoatRiderOracle.java',
-    'mods/horizon/src/test/java/dev/horizonlab/parity/ParityData.java',
-    'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaVehicleContainerOracle.java',
+    'crates/zenith-client/src/game.rs',
+    'crates/zenith-client/src/game/boat_rider_fixture.rs',
+    'crates/zenith-client/src/game/remote_vehicles.rs',
+    'crates/zenith-client/src/game/boats.rs',
+    'crates/zenith-client/src/game/remote_objects.rs',
+    'crates/zenith-client/src/game/hand.rs',
+    'java/horizon/src/test/java/dev/horizonlab/parity/VanillaBoatRiderOracle.java',
+    'java/horizon/src/test/java/dev/horizonlab/parity/ParityData.java',
+    'java/horizon/src/test/java/dev/horizonlab/parity/VanillaVehicleContainerOracle.java',
     'tools/test_boat_rider_parity.py',
 ]
 
@@ -109,7 +109,7 @@ def main():
     lab.write_json(work / 'inputs.json', inputs)
     classes = work / 'classes'
     classes.mkdir(exist_ok=True)
-    sources = lab.ROOT / 'mods/horizon/src/test/java'
+    sources = lab.ROOT / 'java/horizon/src/test/java'
     package = sources / 'dev/horizonlab/parity'
     dependencies = os.pathsep.join(map(str, [jars['client'], *baking.client_libraries()]))
 
@@ -130,8 +130,8 @@ def main():
         return
     binary = args.binary
     if binary is None:
-        run(['cargo', 'build', '-p', 'horizon-client', '--bin', 'horizon-client'], 'compile-rust')
-        binary = lab.cargo_target() / 'debug' / ('horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+        run(['cargo', 'build', '-p', 'zenith-client', '--bin', 'zenith-client'], 'compile-rust')
+        binary = lab.cargo_target() / 'debug' / ('zenith.exe' if os.name == 'nt' else 'zenith-client')
     with tempfile.TemporaryDirectory(prefix='hz-boat-rider-') as scratch:
         with (work / 'rust.log').open('w', encoding='utf-8') as log:
             run_game([str(binary.resolve()), '--headless', '--resources', str(args.resources.resolve()),

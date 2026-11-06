@@ -91,9 +91,9 @@ def run(corpus, build_name, source_file, scope):
     label=build_name.removeprefix('rust-').removesuffix('-parity')
     build=lab.LOCAL/build_name;build.mkdir(parents=True,exist_ok=True);report_path=build/'report.json';report_path.unlink(missing_ok=True)
     if args.prepare:lab.prepare()
-    lock,jars,libraries=base.verify_artifacts();oracle=lab.ROOT/'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaSimpleBlockOracle.java'
+    lock,jars,libraries=base.verify_artifacts();oracle=lab.ROOT/'java/horizon/src/test/java/dev/horizonlab/parity/VanillaSimpleBlockOracle.java'
     helpers=[oracle.with_name(name+'.java') for name in ['VanillaPlacementOracle','VanillaBlockSurvivalOracle','VanillaBlockPropertiesOracle','VanillaBlockSupportOracle','VanillaBlockStateCodecOracle','VanillaCollisionOracle','VanillaHeightmapOracle']]
-    sources=[oracle,*helpers,Path(__file__),Path(source_file),*[lab.ROOT/'tools'/name for name in ['test_block_survival_parity.py','test_worldgen_parity.py','test_rust_parity.py','lab.py']],lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/horizon-core/Cargo.toml',lab.ROOT/'crates/horizon-world/Cargo.toml',*sorted((lab.ROOT/'crates/horizon-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/horizon-world/src').rglob('*.rs')),lab.ROOT/'crates/horizon-world/examples/probe/simple_block_fixture.rs']
+    sources=[oracle,*helpers,Path(__file__),Path(source_file),*[lab.ROOT/'tools'/name for name in ['test_block_survival_parity.py','test_worldgen_parity.py','test_rust_parity.py','lab.py']],lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/zenith-core/Cargo.toml',lab.ROOT/'crates/zenith-world/Cargo.toml',*sorted((lab.ROOT/'crates/zenith-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/zenith-world/src').rglob('*.rs')),lab.ROOT/'crates/zenith-world/examples/probe/simple_block_fixture.rs']
     tested_sources=base.source_hashes(sources);classes=build/'classes';classes.mkdir(exist_ok=True)
     def run(command,name):
         with (build/(name+'.log')).open('w',encoding='utf-8') as log:subprocess.run(list(map(str,command)),cwd=lab.ROOT,check=True,timeout=3600,stdout=log,stderr=subprocess.STDOUT)
@@ -104,7 +104,7 @@ def run(corpus, build_name, source_file, scope):
     for name,value in [('tags.json',tags),('fluid-tags.json',fluid_tags),('catalog.json',{'horizon:stone':json.dumps({'id':'stone'})})]:(build/name).write_text(json.dumps(value,separators=(',',':')))
     feature_bundle={'features':{name:json.dumps({'type':'simple_block','to_place':provider,'schedule_tick':True}) for name,provider in [('horizon:moss',{'id':'pale_moss_carpet'}),('horizon:stone','horizon:stone'),('horizon:empty',{'type':'random_block','blocks':[]})]},'placed':{name:json.dumps({'feature':name,'placement':[{'type':'count','count':2}]}) for name in ['horizon:moss','horizon:stone','horizon:empty']}}
     (build/'feature-catalog.json').write_text(json.dumps(feature_bundle,separators=(',',':')))
-    run(['javac','--release' ,lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'mods/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle,*helpers],'compile-java')
+    run(['javac','--release' ,lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'java/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle,*helpers],'compile-java')
     for side in jars:
         export=build/(side+'-definitions');export.mkdir(exist_ok=True);java(side,'export',export)
     for path in (build/'server-definitions').iterdir():
@@ -116,7 +116,7 @@ def run(corpus, build_name, source_file, scope):
     with inputs.open('w',encoding='utf-8') as output:
         for fixture in corpus(facts,placement):output.write(json.dumps(fixture,separators=(',',':'))+'\n');fixture_count+=1
     fixtures=[inputs,*sorted(build.glob('*.nbt')),*[p for p in sorted(build.glob('*.json')) if p.name!='report.json']];tested_fixtures=base.source_hashes(fixtures);print(f'Prepared {fixture_count:,} placement fixtures',flush=True)
-    run(['cargo','build','--release','-p','horizon-world','--example','world_probe'],'compile-rust')
+    run(['cargo','build','--release','-p','zenith-world','--example','world_probe'],'compile-rust')
     metadata=json.loads(subprocess.check_output(['cargo','metadata','--no-deps','--format-version','1'],cwd=lab.ROOT,text=True));binary=Path(metadata['target_directory'])/'release/examples'/('world_probe.exe' if os.name=='nt' else 'world_probe')
     run([binary,'simple_block_fixture',build],'rust');references=[]
     for side,jar in jars.items():

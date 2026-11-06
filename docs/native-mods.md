@@ -2,7 +2,7 @@
 
 API 362 adds `native_compute_fov_modifier(player, base, modifier)` on the client each tick for the local player's FOV scale, after vanilla effects and before zoom and camera easing. `player` contains the calculation inputs and `base` is the original scale. Non-finite modifiers or values outside 0.01..=10 fall back to `base`. It does not affect a spectator camera on a mob. Bundles need "hooks": 362.
 
-The client hook `native_client_packet(packet)` hears each play packet the server sends, decoded (`ClientboundPlayPacket`, `horizon_protocol`'s `play::Clientbound`), just before the game handles it, custom payloads included and in the order they came. It only reads: the game handles the packet as it would without the mod. Packets the network thread handles itself (keep-alives, bundle delimiters, resource packs, cookies, server links, transfers, disconnects, the configuration switch, `minecraft:brand`, far terrain tiles) and the configuration phase are not heard. Bundles need "hooks": 408.
+The client hook `native_client_packet(packet)` hears each play packet the server sends, decoded (`ClientboundPlayPacket`, `zenith_protocol`'s `play::Clientbound`), just before the game handles it, custom payloads included and in the order they came. It only reads: the game handles the packet as it would without the mod. Packets the network thread handles itself (keep-alives, bundle delimiters, resource packs, cookies, server links, transfers, disconnects, the configuration switch, `minecraft:brand`, far terrain tiles) and the configuration phase are not heard. Bundles need "hooks": 408.
 
 The client hook `native_render_name_tag(entity_id, kind, vanilla_visible, visible, text)` runs at player and mob, armor stand, and item frame name decisions before shared geometry. Set `visible` to override vanilla and `text` to `Some` literal replacement text (NeoForge `RenderNameTagEvent`). Distance and entity availability still apply; the local player's tag is considered only when its own camera and settings gates allow it. Bundles need "hooks": 372.
 
@@ -53,7 +53,7 @@ fn item_model_property(
 }
 ```
 
-`Host`, `ItemModelPropertyEvent`, and `StackView` are exported by `horizon_client::mod_api`. The stack is borrowed,
+`Host`, `ItemModelPropertyEvent`, and `StackView` are exported by `zenith_client::mod_api`. The stack is borrowed,
 including for nested bundle items: `item`, `count`, explicit component `patch` (not merged
 defaults), and the runtime bundle selection. Listeners run in mod order; later answers win.
 Use `"property": "example:charged"` with both `on_true` and `on_false` in the item's
@@ -76,7 +76,7 @@ requires a farmer at work and `mob_griefing` enabled.
 
 ## Named mob damage
 
-Native code may use `horizon_client::mobs::DamageKind::Named(NamedDamage::new(id, tags))`
+Native code may use `zenith_client::mobs::DamageKind::Named(NamedDamage::new(id, tags))`
 for its own damage types. The static namespaced `id` is retained in the ordinary
 mob damage record, loot damage source and death-message path. Add that type's JSON
 and damage-type tags to the mod's data pack too; player damage reads that registry.
@@ -113,7 +113,7 @@ their numeric sprite-set handles cannot refer to a different reloaded set.
 ## Pinned to a Nightly
 
 A native mod builds on one exact Horizon commit: `[compatibility] horizon_revision` in its `horizon-mixin.toml`,
-and `horizon` in the `horizon-native.json` of its registry file (`.hnmod`, `horizon_mods::index::native`). Mods
+and `horizon` in the `horizon-native.json` of its registry file (`.hnmod`, `zenith_mods::index::native`). Mods
 pin a **Nightly's commit** (or a release's). Every Nightly ships its source and keeps its commit for good as the
 tag `nightly-source/<date>-<short>` ([release-flow.md](release-flow.md#nightly-channel)), so a pinned mod still
 builds after its Nightly is replaced. When the mods of one build pin different commits, the launcher says which
@@ -143,9 +143,9 @@ lists each version's `hooks` for this ([api/mod-index.md](api/mod-index.md)).
 
 ### Mods on the hook points
 
-A mod that hooks only Horizon's native hook points (`crates/horizon-client/src/game/native_hooks.rs`, with a few
+A mod that hooks only Horizon's native hook points (`crates/zenith-client/src/game/native_hooks.rs`, with a few
 free functions in other crates: [render hook points](#render-hook-points), [items' default
-components](#items-default-components), `horizon_world::loot::native_loot_table_load`, [menu slot
+components](#items-default-components), `zenith_world::loot::native_loot_table_load`, [menu slot
 rules](#menu-slot-rules); empty functions the game
 calls at fixed places, plus helpers, kept stable across releases) can name the version it
 needs instead of pinning: `"hooks": 1` in its `.hnmod`'s `horizon-native.json`, the `NATIVE_HOOKS_API` of that
@@ -435,7 +435,7 @@ bindings = [{ name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *s
 [[crate]]
 id = "engine"
 path = "engine"           # holds Cargo.toml
-# dependent = "horizon-client"   (the default: the workspace package that depends on it)
+# dependent = "zenith-client"   (the default: the workspace package that depends on it)
 
 [[post_build]]
 crate = "engine"
@@ -446,14 +446,14 @@ args = []
 ### Named hook points
 
 `native-hooks.json` at the root of the source names each hook point and the version of its contract (signature,
-when it is called, what it does): `{"name": "hud", "version": 1, "target": "horizon_client::game::native_hooks::Game<'_>::native_hud"}`.
+when it is called, what it does): `{"name": "hud", "version": 1, "target": "zenith_client::game::native_hooks::Game<'_>::native_hud"}`.
 An injection names `hook` and `hook_version` instead of `target`, and horizon-mixins resolves it from the catalog
 of the source it applies to, so a hook point can move in the source without breaking the mods that use it. A name
 the catalog lacks is `E_HOOK_UNKNOWN` (the error lists the names it has), a version it lacks `E_HOOK_VERSION`. A
 contract is never changed, its `mod_api` entry (the trait method's contract) included: an incompatible change adds
 a version. Helpers (`native_text`, `native_player`…) have no hook entry; the catalog's `helpers` list names the ones
 the generated `Host` offers, and they are kept stable as the hook points are. A test (`catalog_matches_hook_points`) keeps the
-catalog and the hook points' sources (`native_hooks.rs`, `gfx/native_render.rs`, `horizon-world`'s `loot.rs`) in step.
+catalog and the hook points' sources (`native_hooks.rs`, `gfx/native_render.rs`, `zenith-world`'s `loot.rs`) in step.
 
 ### How fast a player digs
 
@@ -533,16 +533,16 @@ The hook may be called many times a craft; the answer must be the same for the s
 A `[[crate]]` is a Cargo package of the bundle's, staged as `native-crates/<mod>/<crate>/` and added to the
 workspace's members and to the `[dependencies]` of its `dependent`, so helpers call it as
 `crate_demo_engine::checksum(…)`. Cargo compiles it once and keeps it: editing a helper, or switching another mod
-on or off, recompiles `horizon-client` but not the mod's crate, so the heavy code of a big mod belongs there and
-only the glue in helpers. A crate can't depend on `horizon-client` (Cargo forbids the cycle) or on any path or git
-crate, and has no `Cargo.lock`, `[workspace]` or build of its own. Horizon's own crates (`horizon-core`…) are path
+on or off, recompiles `zenith-client` but not the mod's crate, so the heavy code of a big mod belongs there and
+only the glue in helpers. A crate can't depend on `zenith-client` (Cargo forbids the cycle) or on any path or git
+crate, and has no `Cargo.lock`, `[workspace]` or build of its own. Horizon's own crates (`zenith-core`…) are path
 crates too, so they are refused the same way, on purpose for now: a mod names game types through its helpers, which
-are compiled into `horizon-client`; a stable API crate for mods' own crates is #3897.
+are compiled into `zenith-client`; a stable API crate for mods' own crates is #3897.
 
 **Dependencies come from Horizon's `Cargo.lock`.** A crate names registry crates by version requirement
 (`crc32fast = "1"`, `{ version, features, default-features, optional }`); each must already be in Horizon's lock
 file in a version that matches, and builds in exactly that version. The crates that are there only for mods are listed in
-`crates/horizon-mod-deps/Cargo.toml` (optional dependencies, with the features mods may turn on; nothing builds them):
+`crates/zenith-mod-deps/Cargo.toml` (optional dependencies, with the features mods may turn on; nothing builds them):
 `mysql` 27 (blocking MariaDB/MySQL client, `minimal-rust` + `rustls-tls-ring`, no default features), `redis` 1 (blocking,
 no default features), `tungstenite` 0.30 (websocket over a stream the mod opens, no default features) and `rusty-opus` 1
 (Opus encoder and decoder). A feature of theirs that turns on a dependency not listed there is refused.
@@ -643,7 +643,7 @@ mob's death loot; on other rolls `place` is `None`.
 
 The pending `recipe_book_categories` API fragment adds a declaration hook and a
 lookup helper. It has no API number until stamping; do not require a guessed
-hooks version. Trait mods import `RecipeBookCategory` from `horizon_client::mod_api`
+hooks version. Trait mods import `RecipeBookCategory` from `zenith_client::mod_api`
 and append declarations in `Hooks::recipe_book_categories`:
 
 ```rust,ignore
@@ -689,7 +689,7 @@ and the recipe fails, as an unknown kind does.
 ### Data files
 
 A bundle's `data/` folder (any files) is staged as `native-data/<mod>/` at the root of the workspace. A helper or
-module compiles a file in with `horizon_client::native_data!("<mod id>", "path/in/data")` (`&'static [u8; N]`,
+module compiles a file in with `zenith_client::native_data!("<mod id>", "path/in/data")` (`&'static [u8; N]`,
 `crate::native_data!` inside the lib), since hook points API 41. A mod's crate keeps its own data in its folder and
 reads it with `include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/data/…"))`. The registry's `.hnmod` may carry
 both (`mixins/<id>/data/…`, `mixins/<id>/<crate>/data/…`).
@@ -707,9 +707,9 @@ most 512 files and 64 MiB unpacked; anything else refuses the bundle. A local fo
 decides what happens: only `horizon-mod.toml` with `assets/` and `data/` is a content mod, nothing compiles; with
 `horizon-native.json` and `mixins/<id>/` (a bundle as above) it is a native mod, built into the game. Both may be in
 one file: `horizon-mod.toml`, `assets/` and `data/` are its content, checked as a content mod's
-(`horizon_mods::Content`) and left out of the build, and the two manifests name the same mod id. A `.hmod` with
+(`zenith_mods::Content`) and left out of the build, and the two manifests name the same mod id. A `.hmod` with
 native code is never a WebAssembly mod: one carrying `mod.wasm` is refused with
-`horizon_mods::index::native::WASM_GONE`. An `.hnmod` (code only) keeps loading as before. The registry keeps
+`zenith_mods::index::native::WASM_GONE`. An `.hnmod` (code only) keeps loading as before. The registry keeps
 publishing native mods as `.hnmod` until launchers and the game read native `.hmod`s. Every rule of the file is in
 [api/mod-files.md](api/mod-files.md).
 
@@ -723,7 +723,7 @@ folder with:
 |---|---|
 | `HORIZON_NATIVE_MOD` | the mod's id |
 | `HORIZON_NATIVE_VERSION_DIR` | the new build's version folder (also the working directory) |
-| `HORIZON_NATIVE_DATA_DIR` | `<version folder>/native-data/<mod>/`, created: what the game reads at run time with `native_built_data("<mod>")` (or `horizon_client::native_data::built`) |
+| `HORIZON_NATIVE_DATA_DIR` | `<version folder>/native-data/<mod>/`, created: what the game reads at run time with `native_built_data("<mod>")` (or `zenith_client::native_data::built`) |
 | `HORIZON_NATIVE_CACHE_DIR` | `<launcher data>/native/cache/<mod>/`, created, kept from one build to the next |
 | `HORIZON_NATIVE_BUNDLE_DATA_DIR` | the bundle's own `data/` as staged for the build (`native/stage/native-data/<mod>/`); read it, don't write it |
 
@@ -925,7 +925,7 @@ item is consumed, on the server thread, for the acting player. The kind and the 
 the game's own effects, sounds, teleports and drops are open to the hook. An unclaimed kind does nothing.
 The hook sees the item's own consumable component, not a patch on the stack; a bare vanilla name and an unknown `minecraft:` kind are the loader's, not the hook's. Bundles that use it need "hooks": 74.
 
-API 75 adds [loot table hooks](#loot-tables), for changing loot a mod didn't make. `native_loot_table_load(id, table)`, in `horizon-world`'s `loot.rs`, gets each loot table's JSON as it loads, after the data packs' (NeoForge's `LootTableLoadEvent`, Fabric's `LootTableEvents.MODIFY`): add pools or entries, change or replace it, and chests, block and mob drops, fishing and the rest then roll the changed table. It runs wherever tables load, a client too. `native_loot_drops(context, drops)` gets the items a broken block or a dead mob is about to drop, to add, change or take out (global loot modifiers, `MODIFY_DROPS`), with `NativeLootDrops`: the table rolled, the dimension, the origin, the block or the mob, the player who broke or killed it, the tool and an explosion's radius. It hears blocks a player, an explosion or a mob breaks, not other breaks such as leaves decaying. Bundles need `"hooks": 75`.
+API 75 adds [loot table hooks](#loot-tables), for changing loot a mod didn't make. `native_loot_table_load(id, table)`, in `zenith-world`'s `loot.rs`, gets each loot table's JSON as it loads, after the data packs' (NeoForge's `LootTableLoadEvent`, Fabric's `LootTableEvents.MODIFY`): add pools or entries, change or replace it, and chests, block and mob drops, fishing and the rest then roll the changed table. It runs wherever tables load, a client too. `native_loot_drops(context, drops)` gets the items a broken block or a dead mob is about to drop, to add, change or take out (global loot modifiers, `MODIFY_DROPS`), with `NativeLootDrops`: the table rolled, the dimension, the origin, the block or the mob, the player who broke or killed it, the tool and an explosion's radius. It hears blocks a player, an explosion or a mob breaks, not other breaks such as leaves decaying. Bundles need `"hooks": 75`.
 
 API 76 adds `native_state_for_placement(state, context, fluid, answer)`: the state a block is about to be placed in
 (`Block.getStateForPlacement(BlockPlaceContext)`), `state` the block's own default state. Answer only for your own
@@ -944,7 +944,7 @@ API 77 adds a `minecraft:post_attack` enchantment effect of a mod's own kind, on
 
 API 78 adds `native_screen_render_post`, the point of `ScreenEvent.Render.Post`: a native mod draws over the open screen after it and its tooltips, given its id, the server-opened menu's vanilla type (`menu`) and title, its container panel, its slot count, the mouse in GUI pixels and the partial tick (`NativeScreenView`). Every container, station and mod window draws on the inventory screen and so reports `inventory`: tell them apart by `menu` and `title` (None on a window the client opened) and by `slots`. It does not fire on the title screen, nor for the prompts, books and sign editors drawn over gameplay after it. Bundles that use it need "hooks": 78.
 
-API 79 adds `native_modify_default_components(item, components)`, in `horizon-world`'s `item_defaults.rs`: an item's default
+API 79 adds `native_modify_default_components(item, components)`, in `zenith-world`'s `item_defaults.rs`: an item's default
 components in `items.json`'s form, for any item, vanilla's included (NeoForge's `ModifyDefaultComponentsEvent`). Insert
 or replace a component to set it (`"minecraft:max_stack_size": 16`), remove it to take it away. The item table,
 loot, enchanting and item models all read the changed defaults, and stacks are saved and sent against them as
@@ -998,7 +998,7 @@ no item slots: send the stacks you draw in `native_block_entity_update_tag` and 
 
 API 92 adds the world's clock for client mods: `native_clock()` is the shown world's game time and time of day in ticks (`i64`; the day time counts on past 24000), none on the title screen. Bundles need `"hooks": 92`.
 
-API 93 adds the open screen hears of the wheel (`native_screen_mouse_scrolled_pre`) before it scrolls, as vanilla's `ScreenEvent.MouseScrolled.Pre`: the screen, the scroll's x and y as the game's scroll handler scales them (a line times the wheel sensitivity: with Discrete Scrolling on, a notch is ±1, its sign only; a touchpad's pixels are divided by 30), GLFW's modifier bits (shift 1, control 2, alt 4, super 8) and the pointer in `screen.mouse`. A cancelled turn scrolls nothing: no bundle under the pointer, no list, slider or scrollbar, and no hotbar slot. It fires for the window's wheel (horizon-ctl's `scroll-at` included), never on the title screen itself (Options and the pack list opened from it do fire), the connect and loading screens, the prompts, books and sign editors drawn over gameplay, or while a world loads or saves, and never for a wheel a gamepad or the keyboard's focus sends. Bundles need "hooks": 93.
+API 93 adds the open screen hears of the wheel (`native_screen_mouse_scrolled_pre`) before it scrolls, as vanilla's `ScreenEvent.MouseScrolled.Pre`: the screen, the scroll's x and y as the game's scroll handler scales them (a line times the wheel sensitivity: with Discrete Scrolling on, a notch is ±1, its sign only; a touchpad's pixels are divided by 30), GLFW's modifier bits (shift 1, control 2, alt 4, super 8) and the pointer in `screen.mouse`. A cancelled turn scrolls nothing: no bundle under the pointer, no list, slider or scrollbar, and no hotbar slot. It fires for the window's wheel (zenith-ctl's `scroll-at` included), never on the title screen itself (Options and the pack list opened from it do fire), the connect and loading screens, the prompts, books and sign editors drawn over gameplay, or while a world loads or saves, and never for a wheel a gamepad or the keyboard's focus sends. Bundles need "hooks": 93.
 
 API 94 adds keeping a mod block entity's geometry: `draw.keep()` in `native_block_entity_submit` keeps what that call drew, and the
 block is drawn the same again without calling `native_block_entity_submit` or `native_block_entity_render_bounding_box`
@@ -1162,7 +1162,7 @@ API 128 adds `native_experience_orb_can_merge(dimension, into, from, into_value,
 
 API 129 adds `native_block_entity` gives a block a block entity whatever its template: a mod's stone casing or thin part no longer needs a chest's or furnace's template. The engine removes it when its block is broken or replaced, no piston moves it, and a mod that draws it (`native_block_entity_submit`) is asked for it. Bundles need "hooks": 129.
 
-API 130 adds slot rules a mod decides in code for its content menu types: `native_menu_slot_rules(menu, slot, stack, may_place, max_stack)`, in `horizon-client`'s `menu.rs`, is given the type's own answer (false on one of its `results`, [mods.md](mods.md#menu-types), true elsewhere, and 99) and may change both, as a NeoForge mod overrides `Slot.mayPlace` and `Slot.getMaxStackSize`. A mod menu type's clicks run on the vanilla menu engine (`menu::Kind::Mod`). Bundles need `"hooks": 130`.
+API 130 adds slot rules a mod decides in code for its content menu types: `native_menu_slot_rules(menu, slot, stack, may_place, max_stack)`, in `zenith-client`'s `menu.rs`, is given the type's own answer (false on one of its `results`, [mods.md](mods.md#menu-types), true elsewhere, and 99) and may change both, as a NeoForge mod overrides `Slot.mayPlace` and `Slot.getMaxStackSize`. A mod menu type's clicks run on the vanilla menu engine (`menu::Kind::Mod`). Bundles need `"hooks": 130`.
 
 API 131 adds an item's use tick and release, as vanilla's `Item.onUseTick` and `releaseUsing` and NeoForge's `LivingEntityUseItemEvent.Tick` and `.Stop`. Each tick of a use, `native_living_entity_use_item_tick` may change the ticks left: at 0 or less, or on a cancel, the server finishes the use, as NeoForge's code does, and an item used on release stays frozen until let go. `native_on_use_tick` is what a mod's own item does then (cook, charge). When the player lets go early, `native_living_entity_use_item_stop` may skip the release, and `native_release_using` acts with the ticks left (a bow-like item shoots by its charge); setting `used` starts the item's cooldown. All four run on both sides, as vanilla's do, and take the using entity, None for a player; the tick and stop take the hand too. Change the world only where this game runs the world, not on a server's client. Bundles that use them need `"hooks": 131`.
 
@@ -1198,9 +1198,9 @@ API 143 adds data maps (`RegisterDataMapTypesEvent`). `native_data_map_types(typ
 
 `native_living_drown(entity, kind, is_drowning, damage_amount, bubble_count, cancel)` asks on the server when a player or generic-air mob cannot breathe and has no air (NeoForge's `LivingDrownEvent`, `LivingEntity.baseTick`). Mods may change the drowning decision, damage and bubble count, or cancel. Damage at or below zero does not hurt. The normal eight bubbles use the entity event; other positive counts are sent in a particle packet, and nonpositive counts suppress bubbles. Bundles need "hooks": 356.
 
-API 144 adds a player's or mob's breathing, on the single player server thread and on a dedicated server: `native_living_breathe(entity, kind, can_breathe, consume, refill)` every tick for a player and for a mob with the generic air logic (NeoForge's `LivingBreatheEvent`, vanilla's `LivingEntity.baseTick`), with Horizon's answers as the defaults: set `can_breathe` and how much air `consume` takes or `refill` gives (up to 300); at -20 the entity is set to 0 air and takes 2 drowning damage. It is a free function in `horizon_client::breathing`, so it answers and cannot call helpers. Axolotls and `WaterAnimal`s keep their own air logic. Bundles that use it need "hooks": 144.
+API 144 adds a player's or mob's breathing, on the single player server thread and on a dedicated server: `native_living_breathe(entity, kind, can_breathe, consume, refill)` every tick for a player and for a mob with the generic air logic (NeoForge's `LivingBreatheEvent`, vanilla's `LivingEntity.baseTick`), with Horizon's answers as the defaults: set `can_breathe` and how much air `consume` takes or `refill` gives (up to 300); at -20 the entity is set to 0 air and takes 2 drowning damage. It is a free function in `zenith_client::breathing`, so it answers and cannot call helpers. Axolotls and `WaterAnimal`s keep their own air logic. Bundles that use it need "hooks": 144.
 
-API 145 adds blocks and items a native mod declares in code, as NeoForge's `DeferredRegister.Blocks` and `.Items` drained by `RegisterEvent`, instead of one content file each: `native_blocks(blocks)` and `native_items(items)`, asked once at start on every side, take `horizon_mods::content::Block` and `Item`, the declarations a content mod's `data/<id>/horizon/block/` and `item/` files hold (a vanilla template and what differs; `item: true` gives a block its item). Ids are in the mod's namespace. They join the content mods' blocks and items, inside the content mod whose id is that namespace when it is on (its models, textures, loot and recipes), else on their own with the template's look, so their network ids, saves and the joining client's content check are the files' (docs/mods.md). They pass the files' checks; a namespace whose declarations don't is logged and left out. Bundles that use them need `"hooks": 145`.
+API 145 adds blocks and items a native mod declares in code, as NeoForge's `DeferredRegister.Blocks` and `.Items` drained by `RegisterEvent`, instead of one content file each: `native_blocks(blocks)` and `native_items(items)`, asked once at start on every side, take `zenith_mods::content::Block` and `Item`, the declarations a content mod's `data/<id>/horizon/block/` and `item/` files hold (a vanilla template and what differs; `item: true` gives a block its item). Ids are in the mod's namespace. They join the content mods' blocks and items, inside the content mod whose id is that namespace when it is on (its models, textures, loot and recipes), else on their own with the template's look, so their network ids, saves and the joining client's content check are the files' (docs/mods.md). They pass the files' checks; a namespace whose declarations don't is logged and left out. Bundles that use them need `"hooks": 145`.
 
 API 146 adds entities ticking, through `native_entity_tick_pre` (NeoForge's `EntityTickEvent.Pre`) and `native_entity_tick_post` (`EntityTickEvent.Post`), with the entity's id and type (`minecraft:zombie`, `minecraft:item`) and the level. Set `canceled` in the Pre and the entity doesn't tick this tick (and its Post isn't told). Told for the mobs, item entities, minecarts and boats that tick in an entity-ticking chunk, on the single player server thread and on a dedicated server; not for a player's own boat or minecart, projectiles, orbs, primed TNT, falling blocks or armor stands yet (check `kind`: later APIs add kinds). Mobs and items hear every Pre before the family's first tick and every Post after its last; minecarts and boats hear theirs around each one's tick. A mod that hooks them also hooks `native_entity_tick_listened(listened)` and sets `*listened = true`: otherwise no entity's tick is told. It runs each tick for every ticking entity, so keep it cheap. Bundles that use them need "hooks": 146.
 
@@ -1251,7 +1251,7 @@ API 161 adds a player took a crafting grid's result, through `native_item_crafte
 
 API 162 adds a player's item losing durability: `native_item_damaged(player, name, item, amount, cancel)` is heard where `ItemStack.hurtAndBreak` wears the item of a player of a server (Bukkit's `PlayerItemDamageEvent`), after Unbreaking, with the points about to be lost. A mod changes `amount` or sets `cancel` for no wear. The player's state is swapped in. Bundles that use it need `"hooks": 162`.
 
-API 163 adds `native_server_event(name, uuid, message)` posts an `announce` event to a dedicated server's event stream (`GET /api/v1/events`); horizon-server's Discord bridge relays it, in gold, when `[discord] events` lists `announce` (off by default). False elsewhere and for an empty message. Bundles that use it need "hooks": 163.
+API 163 adds `native_server_event(name, uuid, message)` posts an `announce` event to a dedicated server's event stream (`GET /api/v1/events`); zenith-server's Discord bridge relays it, in gold, when `[discord] events` lists `announce` (off by default). False elsewhere and for an empty message. Bundles that use it need "hooks": 163.
 
 API 164 adds `native_state_block(state)` names the block a state belongs to (`BlockState.getBlock()`), on a server hook's level and on the game: `native_state_for_placement` is asked for every block placed, so a mod compares it with its own block to answer only for it. Bundles that use it need "hooks": 164.
 
@@ -1837,18 +1837,18 @@ trusting native code is the player's decision, never an agent's.
    switching Nightlies linked the previous one's crates (#10421). A stage from before that fix is written again
    once (`native/stage.stamped` marks it).
    With mods' crates, their dependencies are checked against Horizon's `Cargo.lock` ("The mod's crate").
-5. **Compile**: `cargo build --locked --profile <fast|release> [--config ...] [--features horizon-client/mods] -p
-   horizon-client`, into `native/target/`, with one of three build profiles:
+5. **Compile**: `cargo build --locked --profile <fast|release> [--config ...] [--features zenith-client/mods] -p
+   zenith-client`, into `native/target/`, with one of three build profiles:
 
    | Profile | Cargo profile | Use |
    |---|---|---|
    | `performance` (the default) | `fast`, the workspace's own: `codegen-units = 16`, incremental, and `lto = false`, Cargo's default, which is thin-local LTO across one crate's codegen units, none across crates | The everyday build for playing with mods: a rebuild recompiles and links only what changed |
-   | `dev` | `fast` with `horizon-client` at opt-level 0 (`--config profile.fast.package.horizon-client.opt-level=0`) | Developing a mod: the quickest rebuild after an edit, but the game runs about twice as slow, so iterate with it rather than play |
+   | `dev` | `fast` with `zenith-client` at opt-level 0 (`--config profile.fast.package.zenith-client.opt-level=0`) | Developing a mod: the quickest rebuild after an edit, but the game runs about twice as slow, so iterate with it rather than play |
    | `release` | `release`, the release's own (game-build.yml: thin LTO, one codegen unit) | Slowest to build, slightly faster game |
 
    With `dev`, an edit to a function the machine sample's mixin injects into `game/native_hooks.rs` compiled
-   about 6× faster than with `performance`, and a tick took up to about twice as long. `dev` lowers only `horizon-client`, so an edit in another workspace
-   crate (`horizon-client-lib`, `-render`, `-world`) still compiles at opt-level 3, as with `performance`. The
+   about 6× faster than with `performance`, and a tick took up to about twice as long. `dev` lowers only `zenith-client`, so an edit in another workspace
+   crate (`zenith-client-lib`, `-render`, `-world`) still compiles at opt-level 3, as with `performance`. The
    launcher sets it with `--config` (`native_mods::Profile`), so the workspace's own `[profile.fast]` builds stay
    as they are. The Mods page's "Native build" row, `horizon-launcher settings native-profile performance|dev|release`
    or `native-build --profile ...` pick one (the setting's older value `fast` still means `performance`, and an older
@@ -1856,8 +1856,8 @@ trusting native code is the player's decision, never an agent's.
 
    A revision whose `Cargo.toml` has no `fast` builds with `release`; `native-mods.json` says which (`profile`).
    Each profile is in the build's key, so their builds never mix and may all stay. `performance` and `dev` share
-   `native/target/fast/`: every crate but `horizon-client` is built with the same settings, so switching between
-   them recompiles only `horizon-client`, and Cargo keeps both builds of it, so switching back finds the other
+   `native/target/fast/`: every crate but `zenith-client` is built with the same settings, so switching between
+   them recompiles only `zenith-client`, and Cargo keeps both builds of it, so switching back finds the other
    still there. `release` has its own folder (`native/target/release/`). The first build in a folder builds every
    crate once (1½ to 3½ minutes measured through the launcher, depending on the machine); later builds reuse them.
    Post-build steps build with the same
@@ -1935,7 +1935,7 @@ GitHub link, on the Mods page ("Add from GitHub") or with `horizon-launcher mods
   (`[compatibility] horizon_revision`); the launcher packs its Rust, TOML and `data/` files into a `.hnmod`.
   A release that ships only a content mod (`.hmod`) says "not supported yet": installing `.hmod` files from a link
   is not built.
-- **Checked like the registry's files.** The `.hnmod` is read as `horizon_mods::index::native::Bundle::read` reads a
+- **Checked like the registry's files.** The `.hnmod` is read as `zenith_mods::index::native::Bundle::read` reads a
   registry file (only Rust, TOML and data under `mixins/<id>/`, size limits, nothing run) before it is installed.
 - **Said first.** Before anything is downloaded: "not reviewed by the Horizon registry; native mods run with full
   access to this computer; read the source", with a link to the exact commit. The command needs
@@ -1955,9 +1955,9 @@ Installing turns Native mods on, as any native mod does; then build as usual.
 
 The key hashes the commit, the horizon-mixins commit, Rust's version, the profile and features, and every file of
 every bundle. The same set on the same commit is never built twice. A change gives a new build, and
-`native/target/` stays, so a rebuild compiles only `horizon-client` and what the mods touched.
+`native/target/` stays, so a rebuild compiles only `zenith-client` and what the mods touched.
 
-**Incremental rebuilds.** With `performance` and `dev`, Cargo recompiles only the changed parts of `horizon-client`, not the whole
+**Incremental rebuilds.** With `performance` and `dev`, Cargo recompiles only the changed parts of `zenith-client`, not the whole
 crate with LTO. Patched source is cached separately by its mixin inputs and pins (the three most
 recent snapshots are kept), so editing only a trait crate skips the mixins pass. This holds because
 the stage (`native/stage/`) is one folder for every build and the launcher writes
@@ -1979,7 +1979,7 @@ source downloaded first):
 | What | Time |
 |---|---|
 | First build: Rust, horizon-mixins, the whole game (384 crates) | 4 min 29 s in all; 3 min 6 s of compiling the game; `native/target/` about 2 GB |
-| One mod switched off, rebuild | 56 s in all, 51 s of compiling (only `horizon-client`) |
+| One mod switched off, rebuild | 56 s in all, 51 s of compiling (only `zenith-client`) |
 | That mod switched on again | under 1 s: the kept build plays again |
 | Nothing changed, rebuild | 1 s, nothing compiled |
 
@@ -1989,12 +1989,12 @@ post-build step), measured the same way on 2026-10-30 (Rust already downloaded):
 | What | Time | Compiled |
 |---|---|---|
 | First build (horizon-mixins, the crates, the whole game) | 3 min 27 s; 2 min 24 s compiling the game | 343 crates |
-| A helper's code changed | 48 s (43 s compiling) | `horizon-client` only: the mod's crate is kept |
-| The mod's crate changed | 11 s (6 s compiling) | `crate-demo-engine`, then `horizon-client` |
+| A helper's code changed | 48 s (43 s compiling) | `zenith-client` only: the mod's crate is kept |
+| The mod's crate changed | 11 s (6 s compiling) | `crate-demo-engine`, then `zenith-client` |
 | Nothing changed | under 1 s | nothing |
 
 The same set with the `release` profile took 7 min 6 s for the first build and 2 min 34 s per rebuild (2 min 28 s of
-compiling `horizon-client`, mostly its link-time optimization). In play, a `fast` game drew the same frames per
+compiling `zenith-client`, mostly its link-time optimization). In play, a `fast` game drew the same frames per
 second as the Nightly's own `release` build (vsync-bound, about 112 FPS at 120 Hz), with about 0.1 ms more CPU per
 frame (0.57 to 0.68 ms against 0.51 to 0.54 ms).
 
@@ -2008,7 +2008,7 @@ Measured before builds used `fast`, with the `release` profile, on 2026-10-28 on
 | Crates in the launcher's Cargo home (`<launcher data>/cargo/`) | 289 MB |
 | Source of one commit, and the stage | 64 MB each |
 | First build: the whole game | 9 min 10 s of compiling, 9 min 41 s in all; `native/target/` 1.5 GB |
-| Rebuild after a helper's code changed | 2 min 46 s of compiling (only `horizon-client`), 2 min 53 s in all |
+| Rebuild after a helper's code changed | 2 min 46 s of compiling (only `zenith-client`), 2 min 53 s in all |
 | A change horizon-mixins ignores (a comment) | nothing compiled; 31 s, mostly the version folder's copy |
 
 Measured 2026-10-29 on Windows 11 (Ryzen 7 9800X3D, 16 threads), the same mod and Nightly, an empty `native/target/`
@@ -2074,8 +2074,8 @@ because it is copied outside the managed folders. On Windows use the printed `ho
 
 Point a server at it:
 
-    horizon-server --dir SERVER config set engine.path=/absolute/export/horizon-engine
-    horizon-server --dir SERVER restart
+    zenith-server --dir SERVER config set engine.path=/absolute/export/horizon-engine
+    zenith-server --dir SERVER restart
 
 Updates do not rebuild a pinned `engine.path`: build a new export folder, set `engine.path` to it, restart, and keep
 the old folder for manual rollback. The supervisor does not auto-update or rebuild a pinned engine path, and there
@@ -2101,7 +2101,7 @@ Install and prepare the base release in that scratch launcher home first, then t
 
 1. `horizon-launcher native-build bundle/ --server-output $ENGINE --version TAG --trust-native-code` (scratch homes,
    `HORIZON_NO_AUDIO=1`, `HORIZON_LAUNCHER_NO_SELF_UPDATE=1`).
-2. `horizon-server --dir SERVER config set engine.path=$ENGINE/horizon-engine`; `horizon-server --dir SERVER run`.
+2. `zenith-server --dir SERVER config set engine.path=$ENGINE/horizon-engine`; `zenith-server --dir SERVER run`.
 3. Join with the same mod's client half where the hook needs one; test lifecycle, tick, command and net hooks.
 4. Headless compatibility: the mod's server code must not require an audio device; run the server audio-free (`HORIZON_NO_AUDIO=1`).
 
@@ -2149,7 +2149,7 @@ A native server tick hook can call `native_server_block` with its context, a dim
 ### Server commands and players
 
 For mods that run where the world is simulated: a dedicated server, a LAN host, single player's server thread
-(`crates/horizon-client/src/game/native_server.rs`). The SMP mod of the official server is built on them
+(`crates/zenith-client/src/game/native_server.rs`). The SMP mod of the official server is built on them
 ([smp.md](smp.md)).
 
 - **`native_register_commands(commands)`**: push a `NativeCommand` per usage, asked once when a world opens to
@@ -2260,7 +2260,7 @@ For mods that run where the world is simulated: a dedicated server, a LAN host, 
 - **`native_perform_console_command(command, ran)`**: a registered command typed on the dedicated server's console
   (without its slash), run as the server at level 4: no player, so `native_acting_player()` is None and the player-only
   helpers give nothing. The mod parses the line and sets `ran`; `native_feedback` answers on the console. A name no mod
-  registered goes to vanilla's dispatcher as before. The single player owner's console (`horizon-ctl command`, the MCP
+  registered goes to vanilla's dispatcher as before. The single player owner's console (`zenith-ctl command`, the MCP
   command tool) is a player's: it reaches `native_perform_command` with the owner, at level 4.
 - **`native_player_respawned(player, name)`**: a dead player came back, once per respawn, on a server: after
   `PlayerList.respawn` reset their health, food and experience and placed them at their bed, anchor or the world spawn
@@ -2635,7 +2635,7 @@ For mods that run where the world is simulated: a dedicated server, a LAN host, 
 
 ### Mobs
 
-API 37, `crates/horizon-client/src/game/native_mobs.rs`: helpers for server mods, for the level in place, on a server only (on a
+API 37, `crates/zenith-client/src/game/native_mobs.rs`: helpers for server mods, for the level in place, on a server only (on a
 client they do nothing, and the readers give nothing). Each takes the `dimension` (`minecraft:overworld`) of the level it means, as
 `native_set_block` does, and is refused when another level is in place. The per-level tick hooks (API 23) run with a defined level in
 place; `native_server_tick` does not define one, so name the dimension and expect a refusal there.
@@ -2654,7 +2654,7 @@ place; `native_server_tick` does not define one, so name the dimension and expec
 
 ### Mob goals
 
-**`horizon_client_lib::mobs::ai::native_register_goals(mob)`** (vanilla's `Mob.registerGoals`; a trait mod's
+**`zenith_client_lib::mobs::ai::native_register_goals(mob)`** (vanilla's `Mob.registerGoals`; a trait mod's
 `Hooks::register_goals(event)`, with `event.mob`) is asked for every new mob, after its species added its goals and before its
 saved data is read. `mob.ai.goals` is vanilla's `goalSelector`, `mob.ai.targets` its `targetSelector`. A mod's living type
 ([mods.md](mods.md)) comes with its template's goals, a zombie's attacks, strolls and targets: clear them to replace them, as a
@@ -2662,14 +2662,14 @@ class whose `registerGoals` skips `super`'s, or add to them. A villager acts thr
 a type from the villager template still works, sleeps and trades as a villager, next to the goals a mod adds. For a
 neutral mob whose goals are all the mod's, copy `minecraft:wandering_trader`. A goal is a
 Rust type implementing
-`horizon_client::mobs::goals::Goal` (a bundle compiles into the game, so nothing is loaded at run time): its `flags` (`MOVE`,
+`zenith_client::mobs::goals::Goal` (a bundle compiles into the game, so nothing is loaded at run time): its `flags` (`MOVE`,
 `LOOK`, `JUMP`, `TARGET`), `can_use`, `can_continue`, `start`, `tick` and `stop` run by priority and flag as vanilla's
 `GoalSelector` runs them. The vanilla goals in that module (`Float`, `Stroll`, `LookAtPlayer`, `MeleeAttack`, `NearestTarget`
 and the rest) are there to reuse.
 
 ```rust
-use horizon_client::mobs::{Mob, goals::{self, Cx, Goal}};
-use horizon_client::mod_api::{Hooks, RegisterGoalsEvent};
+use zenith_client::mobs::{Mob, goals::{self, Cx, Goal}};
+use zenith_client::mod_api::{Hooks, RegisterGoalsEvent};
 
 /// Walks the mob back to its post when it is more than 4 blocks away.
 #[derive(Clone, Debug)]
@@ -2712,11 +2712,11 @@ The hook is asked on a client too, for its copies of a server's mobs; goals tick
 Changing loot a mod didn't make, as NeoForge's `LootTableLoadEvent` and global loot modifiers and Fabric's
 `LootTableEvents.MODIFY` and `MODIFY_DROPS` do. A mod's own loot function and condition kinds are #5451.
 
-- **`horizon_world::loot::native_loot_table_load(id, table)`**: each table's JSON as it loads, after the data packs'. Push a pool
+- **`zenith_world::loot::native_loot_table_load(id, table)`**: each table's JSON as it loads, after the data packs'. Push a pool
   onto `table["pools"]` or an entry onto a pool's `entries`; chests, block and mob drops, fishing and the rest then roll the
   changed table. Keep a replaced table's `random_sequence`: a mob's table without one drops nothing. It runs wherever tables load,
   a client too, so make the same change each time; a `/reload` may keep the tables already loaded. It is a free function in
-  `crates/horizon-world/src/loot.rs`, so a helper injected there compiles inside `horizon-world`, without `crate::game`.
+  `crates/zenith-world/src/loot.rs`, so a helper injected there compiles inside `zenith-world`, without `crate::game`.
 - **`native_loot_drops(context, drops)`**: the items a broken block or a dead mob is about to drop, after its tables rolled (a
   mob's worn, held and carried items and inventory too, not an enderman's carried block or a copper golem's preserved equipment).
   Add, change or take out stacks; empty ones don't drop. `NativeLootDrops` says what dropped them: its own loot table (empty when
@@ -2749,7 +2749,7 @@ During a machine's own tick its block entity is out of the world, so these answe
 
 ### Entities
 
-`crates/horizon-client/src/game/native_entities.rs`: helpers for server mods, for the level in place, on a server only. Each
+`crates/zenith-client/src/game/native_entities.rs`: helpers for server mods, for the level in place, on a server only. Each
 names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does.
 
 - `native_summon(dimension, kind, pos, nbt)` spawns an entity of `kind` from its compound, as `/summon <kind> <pos> <nbt>`
@@ -2768,7 +2768,7 @@ client, so a call a tick looks smooth.
 
 ### Entity and level handles
 
-`crates/horizon-client/src/game/native_entity_refs.rs` (#7387): an `EntityRef` names one entity of the open world and a
+`crates/zenith-client/src/game/native_entity_refs.rs` (#7387): an `EntityRef` names one entity of the open world and a
 `LevelRef` one level. They are small `Copy` values a mod keeps, and their methods take the host, so a mod can hold
 several at once: `host.entity(id)` makes one from the id an event carries, `host.level("minecraft:the_nether")` one from
 a dimension.
@@ -2828,7 +2828,7 @@ Each read is a `Host` method too (`host.entity_position(entity)`): a helper whos
 
 ### Mobs drawn by a mod
 
-`crates/horizon-client/src/game/native_mob_draw.rs`: `native_mob_submit(mob, draw, drawn)` (client) is asked once a frame for
+`crates/zenith-client/src/game/native_mob_draw.rs`: `native_mob_submit(mob, draw, drawn)` (client) is asked once a frame for
 every mob in view but players (vanilla's `EntityRenderer.submit`). Set `drawn` and the mob's vanilla model, armour and held
 items are left out (NeoForge's `RenderLivingEvent.Pre`, cancelled); its name tag, shadow, flames and glowing outline still draw.
 
@@ -2879,7 +2879,7 @@ items are left out (NeoForge's `RenderLivingEvent.Pre`, cancelled); its name tag
 
 ### Advancement triggers
 
-`crates/horizon-client/src/game/native_criteria.rs`: a mod's own criteria triggers, as a NeoForge mod registers a
+`crates/zenith-client/src/game/native_criteria.rs`: a mod's own criteria triggers, as a NeoForge mod registers a
 `CriterionTrigger` and calls its `SimpleCriterionTrigger.trigger`. The advancement is an ordinary file of a content mod
 or a world's data pack (`data/mymod/advancement/connect_a_pipe.json`) whose criterion names the mod's trigger and
 whatever conditions the mod reads:
@@ -2910,7 +2910,7 @@ whatever conditions the mod reads:
 
 ### Explosions
 
-`crates/horizon-client/src/game/native_explosions.rs`: a helper for server mods, for the level in place, on a server only. It
+`crates/zenith-client/src/game/native_explosions.rs`: a helper for server mods, for the level in place, on a server only. It
 names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does, and is refused when another
 level is in place.
 
@@ -2933,7 +2933,7 @@ it moves only what the player sees, not where they are or aim.
 
 ### A player's motion
 
-`crates/horizon-client/src/game/native_motion.rs`: a push on a client, a flying speed on a server.
+`crates/zenith-client/src/game/native_motion.rs`: a push on a client, a flying speed on a server.
 
 - `native_push_player([x, y, z])` (client) adds a push to the player's own velocity, in blocks a tick, as an
   explosion's knockback does: the player's own game moves them. The server didn't send it, so on a LAN or dedicated
@@ -3003,7 +3003,7 @@ them. The mod's server half can send what happened to each client half with mod 
 
 ### Biome colours
 
-`crates/horizon-client/src/game/native_biome_colors.rs`: the grass, leaf and water colours a client mod changes while the
+`crates/zenith-client/src/game/native_biome_colors.rs`: the grass, leaf and water colours a client mod changes while the
 game runs, for seasons (a golden autumn, a pale winter) or a world that greens as it heals.
 
 - `native_biome_colors(biome, colors)` (client) changes a biome's `BiomeColors`: `grass`, `foliage` (leaves, vines),
@@ -3078,7 +3078,7 @@ fn block_entity_accepts_fluid(
 
 ### Falling blocks
 
-`crates/horizon-client/src/game/native_falling.rs`: a helper for server mods, for the level in place, on a server only. It
+`crates/zenith-client/src/game/native_falling.rs`: a helper for server mods, for the level in place, on a server only. It
 names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does.
 
 - `native_spawn_falling_block(dimension, state, pos, velocity, falling)` throws a falling block of `state` from `pos` (its
@@ -3092,7 +3092,7 @@ names the level it means by its `dimension` (`minecraft:overworld`), as `native_
 
 ### Bulk block edits
 
-`crates/horizon-client/src/game/native_world_edit.rs`: a helper for server mods, for the level in place, on a server only.
+`crates/zenith-client/src/game/native_world_edit.rs`: a helper for server mods, for the level in place, on a server only.
 It names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does.
 
 - `native_edit_blocks(dimension, edit)` makes many blocks at once: `NativeBlockEdit` holds a `palette` of block states and
@@ -3112,7 +3112,7 @@ It names the level it means by its `dimension` (`minecraft:overworld`), as `nati
 
 ### Machines
 
-`crates/horizon-client/src/game/native_machines.rs`: helpers for a mod's machines on a server, in the level in place.
+`crates/zenith-client/src/game/native_machines.rs`: helpers for a mod's machines on a server, in the level in place.
 These are what Create's drill, saw, harvester and deployer need.
 
 - `native_machine_destroy_block(pos, tool, collect)` (`Host::destroy_block`) is `Level.destroyBlock(pos, true)` with
@@ -3133,7 +3133,7 @@ These are what Create's drill, saw, harvester and deployer need.
 
 ### Column reads
 
-`crates/horizon-client/src/game/native_world_columns.rs`: helpers for server mods, for the level in place, on a server
+`crates/zenith-client/src/game/native_world_columns.rs`: helpers for server mods, for the level in place, on a server
 only, that read many columns in one call. They name the level they mean by its `dimension` (`minecraft:overworld`), as
 `native_set_block` does, and answer `Err` with the reason, reading nothing, on a client, for another dimension or for
 a read too big, so a mod can tell "ask for less" from "wrong level". They run on the server tick: read a big area in
@@ -3152,7 +3152,7 @@ pieces.
 
 ### Structure templates
 
-`crates/horizon-client/src/game/native_structures.rs`: a helper for server mods that reads a structure template without
+`crates/zenith-client/src/game/native_structures.rs`: a helper for server mods that reads a structure template without
 placing it, for a builder that places it a block at a time (a colony's builder, a schematic cannon). API
 @API:structure_template@.
 
@@ -3175,7 +3175,7 @@ right. It keeps how far it got in an attachment on the builder, so the build goe
 
 ### Chunk tickets
 
-`crates/horizon-client/src/game/native_chunk_tickets.rs`: `native_force_chunk(owner, [x, z], hold)` holds a chunk of the
+`crates/zenith-client/src/game/native_chunk_tickets.rs`: `native_force_chunk(owner, [x, z], hold)` holds a chunk of the
 level in place for `owner` (`create:train/<uuid>`), as NeoForge's `TicketController.forceChunk` does. The chunk stays
 held while any owner holds it. It is kept as a `/forceload`ed chunk is: it is loaded with the ring around it, it ticks,
 and its level stays open. `/forceload` neither lists nor releases it. `native_forced_chunks(owner)` lists what an owner
@@ -3196,7 +3196,7 @@ Where this differs from NeoForge, and its limits today:
 
 ### Mod messages
 
-API 40, `crates/horizon-client/src/game/native_net.rs`: bytes between a mod's server half and its client half, on the
+API 40, `crates/zenith-client/src/game/native_net.rs`: bytes between a mod's server half and its client half, on the
 one custom payload channel `horizon:mod_net`. A vanilla client never gets them, and a vanilla server isn't sent any.
 
 - `native_net_send_to_player(player, channel, data)` on the server and `native_net_send_to_server(channel, data)` on the
@@ -3211,7 +3211,7 @@ one custom payload channel `horizon:mod_net`. A vanilla client never gets them, 
 
 ### Scenes in screens
 
-`native_draw_scene(batch, rect, blocks, view)` (client, `crates/horizon-client/src/game/native_scene.rs`) draws a small
+`native_draw_scene(batch, rect, blocks, view)` (client, `crates/zenith-client/src/game/native_scene.rs`) draws a small
 scene into a box of a screen: block states at positions of the scene's own (`NativeSceneBlock`), each with its model and,
 given a mod block entity, its drawing through `native_block_entity_submit`, `spin` parts included. `NativeSceneView`
 sets the point at the box's middle, the turn (`yaw`, counterclockwise seen from above; at 0 the scene is seen from the
@@ -3226,7 +3226,7 @@ timeline turns parts through the pose instead. Faces are shaded and culled as in
 
 ### Chat and commands a client mod sends
 
-API 404, `crates/horizon-client/src/game/native_net.rs`: `native_send_chat(message)` sends what the player
+API 404, `crates/zenith-client/src/game/native_net.rs`: `native_send_chat(message)` sends what the player
 could type in chat, to any server, a vanilla one included: `ClientPacketListener.sendChat` and `sendCommand`. A leading
 `/` sends the rest as a command, signed where its arguments are messages; anything else goes as signed chat. The message
 is trimmed first, as the chat screen trims it. It isn't added to the chat history, and no client chat event fires
@@ -3237,7 +3237,7 @@ typed chat. Bundles need `"hooks": 404`.
 
 ### Packets a client mod sends
 
-API 409, `crates/horizon-client/src/game/native_net.rs`: `native_send_packet(packet)` sends one
+API 409, `crates/zenith-client/src/game/native_net.rs`: `native_send_packet(packet)` sends one
 serverbound play packet (`mod_api::ServerboundPlayPacket`, Horizon's `play::Serverbound`) to any server, a vanilla one
 included. The usual one is a plugin channel's `ServerboundPlayPacket::CustomPayload`, for a server plugin or a Java mod
 that listens on that channel; its data is at most 32767 bytes (`ServerboundCustomPayloadPacket.MAX_PAYLOAD_SIZE`), past
@@ -3249,7 +3249,7 @@ Horizon mod stay with `native_net_send_to_server`. Bundles need `"hooks": 409`.
 
 ### Server menus
 
-API 10, `crates/horizon-client/src/game/native_menus.rs`: menus a server mod builds from ordinary items, which a
+API 10, `crates/zenith-client/src/game/native_menus.rs`: menus a server mod builds from ordinary items, which a
 stock client shows as a chest (`generic_9x1` to `generic_9x6`); nothing is installed on the player's side.
 
 - `native_open_menu(uuid, rows, title, items)` opens one in place of the player's open menu (its window id);
@@ -3288,8 +3288,8 @@ player whose state is (inside `native_perform_command`): call them from a menu h
 
 ### Render hook points
 
-`crates/horizon-client-render/src/gfx/native_render.rs`: the renderer's own hook points, free functions rather than
-`Game` methods, which a bundle targets as `horizon_client_render::gfx::native_render::native_<name>`. They run on the
+`crates/zenith-client-render/src/gfx/native_render.rs`: the renderer's own hook points, free functions rather than
+`Game` methods, which a bundle targets as `zenith_client_render::gfx::native_render::native_<name>`. They run on the
 render thread with the frame's wgpu objects; what a mod draws there shows in that frame.
 
 - `native_world_drawn(world)`: the world is drawn (sky, terrain, entities, particles, weather and the world post pass),
@@ -3316,7 +3316,7 @@ render thread with the frame's wgpu objects; what a mod draws there shows in tha
 
 `native_world_primitives(partial, camera, primitives)` (the trait's `Hooks::world_primitives`) runs once a frame while
 the world is drawn, on the client, not on the title screen. A mod adds to `primitives`
-(`horizon_client::world_primitives::WorldPrimitives`) in world coordinates, with ARGB colours:
+(`zenith_client::world_primitives::WorldPrimitives`) in world coordinates, with ARGB colours:
 
 - `line(from, to, color, width)`: a line `width` pixels wide;
 - `box_outline(min, max, color, width)` and `filled_box(min, max, color)`;
@@ -3343,7 +3343,7 @@ fn world_primitives(&self, _host: &dyn Host, event: &mut WorldPrimitivesEvent<'_
 
 ### Block textures
 
-`crates/horizon-client/src/game/native_block_sprites.rs` and `WorldDrawn::block_sprites`: for a client mod drawing
+`crates/zenith-client/src/game/native_block_sprites.rs` and `WorldDrawn::block_sprites`: for a client mod drawing
 blocks in its own pass (flying debris as voxels, say) with the player's own block textures, resource packs included,
 as the terrain samples them. API 380.
 
@@ -3392,8 +3392,8 @@ on single player's server thread, for LAN guests and on a dedicated server. Bund
 
 ### Menu slot rules
 
-`crates/horizon-client/src/menu.rs`: `native_menu_slot_rules(menu, slot, stack, may_place, max_stack)`, a free function
-a bundle targets as `horizon_client::menu::native_menu_slot_rules`. A content mod menu type's container slot `slot`
+`crates/zenith-client/src/menu.rs`: `native_menu_slot_rules(menu, slot, stack, may_place, max_stack)`, a free function
+a bundle targets as `zenith_client::menu::native_menu_slot_rules`. A content mod menu type's container slot `slot`
 (from 0) is asked whether it takes `stack` (`Slot.mayPlace`) and how many it holds (`Slot.getMaxStackSize`), as a
 NeoForge mod's own `Slot` overrides them. `may_place` and `max_stack` come in with the type's own answer (false on one
 of its `results` ([mods.md](mods.md#menu-types)), true elsewhere, and 99): change them for your own menu types.
@@ -3436,8 +3436,8 @@ clicks already.
 
 ### Items' default components
 
-`crates/horizon-world/src/item_defaults.rs`: `native_modify_default_components(item, components)`, a free function a
-bundle targets as `horizon_world::item_defaults::native_modify_default_components` (NeoForge's
+`crates/zenith-world/src/item_defaults.rs`: `native_modify_default_components(item, components)`, a free function a
+bundle targets as `zenith_world::item_defaults::native_modify_default_components` (NeoForge's
 `ModifyDefaultComponentsEvent`). `components` is the item's entry in `items.json`, vanilla's default-component report:
 insert or replace a key to set a component (`"minecraft:max_stack_size": 16`), remove it to take the component away.
 Any item can be changed, vanilla's included. Write values as vanilla's codec writes them: nothing decodes them with it.
@@ -3471,8 +3471,8 @@ path = "engine"
 ```
 
 The package may use only crates and versions in Horizon's `Cargo.lock`, like mixin crates.
-The folder contains a Rust package with a `horizon-client` dependency. Its library exports
-`pub fn hooks() -> Box<dyn horizon_client::mod_api::Hooks>`. The launcher links this package
+The folder contains a Rust package with a `zenith-client` dependency. Its library exports
+`pub fn hooks() -> Box<dyn zenith_client::mod_api::Hooks>`. The launcher links this package
 into a generated game executable and calls `hooks()` in dependency order (a mod after the mods it
 depends on, else in bundle order). The package is not a
 `[[crate]]`: it depends on the game instead of the game depending on it. A bundle with no
@@ -3519,7 +3519,7 @@ A bundle with an `[api]` package may declare its own injection in the trait:
 ```toml
 [[injection]]
 id = "before-tick"
-target = "horizon_client::game::example"
+target = "zenith_client::game::example"
 kind = "HEAD"
 trait_method = "before_tick"
 bindings = [{ name = "amount", ty = "&mut i32", value = "&mut *amount" }]
@@ -3529,7 +3529,7 @@ The generated trait method is `inject_<mod_id>_<trait_method>` (hyphens in the m
 underscores). Its event, as a catalog hook's, is that name in CamelCase plus `Event`
 (`InjectExampleBeforeTickEvent`), with the bindings as fields under the same rules. Implement it on the object
 returned by that bundle's `hooks()`; it is called only for that bundle's object. Types must be
-public and available from both the target and `horizon_client::mod_api`. The kinds are HEAD listen,
+public and available from both the target and `zenith_client::mod_api`. The kinds are HEAD listen,
 or HEAD with `cancellable = true` for a unit-returning target (that method returns `Flow`, and
 `Flow::Cancel` returns early from the target), and RETURN, MODIFY_ARG and MODIFY_EXPRESSION_VALUE.
 For those three, the binding whose `value` is `$value` (its type is the returned, argument or
@@ -3542,7 +3542,7 @@ one input. `cancellable` is HEAD-only. Other kinds are rejected. Do not specify 
 ```toml
 [[injection]]
 id = "points"
-target = "horizon_client::game::example"
+target = "zenith_client::game::example"
 kind = "MODIFY_ARG"
 selector = "self.give_points"
 require = 1
@@ -3558,19 +3558,19 @@ fn inject_example_points(&self, event: &mut InjectExamplePointsEvent) {
 }
 ```
 
-Trait injections can target only functions in `horizon-client`;
+Trait injections can target only functions in `zenith-client`;
 ordinary mixin helpers in other crates continue to work as before. The generated helper has the same priority and ordering as an
 ordinary helper of that mod: priority descending, mod id then injection id. It is not automatically
 ordered after other mixins. Catalog hooks retain the mixin-before-trait order below.
 
-The launcher and catalog build scripts share `horizon-mod-api-gen` for trait, event and helper generation.
+The launcher and catalog build scripts share `zenith-mod-api-gen` for trait, event and helper generation.
 For game sources with that build dependency, the launcher stages declarations in
 `.horizon-mod-api-injections.json`; Cargo consumes them through `HORIZON_MOD_API_INJECTIONS` without
 editing generated Rust in the source tree. The declarations stay with cached mixin output. Older released
 sources without that build dependency still receive the same declarations in their committed generated
 trait. Neither path requires rustfmt during a player build.
 
-A linked trait mod implements `horizon_client::mod_api::Hooks`. Mixin injections run first.
+A linked trait mod implements `zenith_client::mod_api::Hooks`. Mixin injections run first.
 An injection that returns early skips trait mods. A claimed cancellation also skips trait mods.
 Otherwise, trait mods run in their supplied order. The first `Cancel` stops dispatch.
 For replacement hooks, the first `Some` wins. Collection hooks call every mod. Receiverless hooks have no `Host`.
@@ -3625,7 +3625,7 @@ into its target class, so it can use the typed API. On a `Game` method, bind the
 ```toml
 [[injection]]
 id = "count"
-target = "horizon_client::game::Game<'_>::tick_mobs"
+target = "zenith_client::game::Game<'_>::tick_mobs"
 kind = "HEAD"
 helper = "count.rs"
 bindings = [{ name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" }]
@@ -3633,8 +3633,8 @@ bindings = [{ name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *s
 
 ```rust
 fn count(game: &mut crate::game::Game<'_>) {
-    let host: &mut dyn horizon_client::mod_api::Host = game;
-    let holder = horizon_client::mod_api::Holder::Level;
+    let host: &mut dyn zenith_client::mod_api::Host = game;
+    let holder = zenith_client::mod_api::Holder::Level;
     if let Ok(old) = crate::game::example::COUNTER.get(&mut *host, holder) {
         let _ = crate::game::example::COUNTER.set(host, holder, old + 1);
     }
@@ -3642,7 +3642,7 @@ fn count(game: &mut crate::game::Game<'_>) {
 ```
 
 `COUNTER` is the `AttachmentType<i32>` of [Server attachments](#server-attachments), kept in a `[[module]]` of the
-bundle (horizon-mixins' README): one with `file = "crates/horizon-client/src/game.rs"` and `name = "example"` is
+bundle (horizon-mixins' README): one with `file = "crates/zenith-client/src/game.rs"` and `name = "example"` is
 `crate::game::example`. `Game` is not an `AttachmentHost` itself, so the `dyn Host` coercion is the step that matters;
 any `Host` helper works on `host` too.
 
@@ -3652,13 +3652,13 @@ for attachments and `random()`. Scheduling and `set_block_property` stay on the 
 hook points pass; `is_bonemeal_success` gets only a `LevelRandomHost`.
 
 A trait injection gives the mod's `[api]` crate the same `Host` at that method. The `[api]` crate depends on
-horizon-client's library, not on the game executable that helpers and modules are compiled into, so it declares its
+zenith-client's library, not on the game executable that helpers and modules are compiled into, so it declares its
 own `AttachmentType<i32>` with the same `namespace` and `name`: the pair is the key, so both statics read one value.
 
 ```toml
 [[injection]]
 id = "count"
-target = "horizon_client::game::Game<'_>::tick_mobs"
+target = "zenith_client::game::Game<'_>::tick_mobs"
 kind = "HEAD"
 trait_method = "count"
 bindings = [{ name = "host", ty = "&mut dyn crate::mod_api::Host", value = "&mut *self" }]
@@ -3688,7 +3688,7 @@ leaves `hooks` out.
 
 Every `Host` method defaults to a panic naming it (`not implemented: Host::tell`), so a test double implements
 only what its hook calls, and an unexpected call fails loudly. Drive the hook through
-`horizon_client::mod_api::dispatch_<hook>(&mut host, &mods, args…)`, which builds the event as the game does.
+`zenith_client::mod_api::dispatch_<hook>(&mut host, &mods, args…)`, which builds the event as the game does.
 If a `Host` method returns a game value a test can't build, a double can return `None` instead, as with
 `acting_player() -> Option<NativeServerPlayer>`. If the dispatch function itself takes an unconstructible value,
 such as `dispatch_perform_command`'s `&NativeServerPlayer`, test the logic beneath the hook instead. The level
@@ -3713,14 +3713,14 @@ A new hook needs its fragment in `tools/native-hook-fragments/` with its `mod_ap
 `{"contract": "cancel", "out": "cancel"}`), its `native_*` function with the placeholder body
 `let _ = (every, parameter);` (all its parameters, in order), and a run of `cargo run -p xtask -- mod-api`.
 That command only replaces the placeholder in `native_hooks.rs` with the `dispatch_<hook>` call; commit
-that source change and the fragment. The `horizon-mod-api-gen` build dependency generates the hook traits,
+that source change and the fragment. The `zenith-mod-api-gen` build dependency generates the hook traits,
 `Host` methods and dispatch code into Cargo's `OUT_DIR` when the game and renderer build, including release
 builds. These generated Rust files are not kept in the source tree or committed, and no manual regeneration
 is needed after a merge. Every hook needs a `mod_api` entry: the build fails naming any hook without one.
 A body that is neither the
 placeholder nor already calls the dispatch is an error, and the generator never changes it. Hooks that are
 free functions outside `Game` are wired by hand: those crates can't see the mod list, so each calls a callback
-the executable installs once, such as `NativeLoadHooks` in `horizon-world` and `NativeClientHooks` in the
+the executable installs once, such as `NativeLoadHooks` in `zenith-world` and `NativeClientHooks` in the
 client library (`menu_slot_rules`, `living_breathe`, `ingredient`). A build reports a placeholder still to
 fill instead of changing hand-written source; run `cargo run -p xtask -- mod-api` to fill it. Mixin injections
 go at the head of the body, before the dispatch, so they still run first.
@@ -3743,7 +3743,7 @@ keeps a copy for any holder it is asked about (see the sync paragraph below).
 without a codec) and `InvalidSyncPolicy` (sync without a codec).
 
 ```rust
-use horizon_client::mod_api::{AttachmentCodec, AttachmentError, AttachmentType, Compound, Holder, Tag};
+use zenith_client::mod_api::{AttachmentCodec, AttachmentError, AttachmentType, Compound, Holder, Tag};
 
 static COUNTER: AttachmentType<i32> = AttachmentType {
     namespace: "example", name: "counter", default: || 0,

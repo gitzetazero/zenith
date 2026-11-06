@@ -3,7 +3,7 @@ name: zenith-sync
 # Keeps Zenith's main level with horizon-rust/horizon main: every 6 hours (Horizon pushes dozens of commits a day, and each
 # merge costs a full build) it merges Horizon's tip into main with a real
 # merge commit (never a rebase, never a force push to main), so every commit of ours stays. All the logic is in
-# zenith/ci/sync.py (runnable locally: `python zenith/ci/sync.py merge --upstream-ref upstream/main`).
+# ci/sync.py (runnable locally: `python ci/sync.py merge --upstream-ref upstream/main`).
 #
 #   merge     prune.py removes what Zenith never uses, merge=ours keeps our README/CONTRIBUTING, Cargo.toml/Cargo.lock
 #             take Horizon's and are pruned/regenerated; any other conflict blocks the sync.
@@ -59,7 +59,7 @@ jobs:
 
       - name: Merge Horizon main
         id: merge
-        run: python3 zenith/ci/sync.py merge --upstream-ref upstream/main --output "$GITHUB_OUTPUT" || [ $? -eq 10 ]
+        run: python3 ci/sync.py merge --upstream-ref upstream/main --output "$GITHUB_OUTPUT" || [ $? -eq 10 ]
 
       - name: Report a blocked merge
         if: steps.merge.outputs.outcome == 'blocked'
@@ -71,7 +71,7 @@ jobs:
           COMMIT: ${{ steps.merge.outputs.commit }}
           DETAILS: ${{ steps.merge.outputs.conflicts }}
         run: |
-          python3 zenith/ci/sync.py report --reason "$REASON" --commit "$COMMIT" --conflicts "$DETAILS"
+          python3 ci/sync.py report --reason "$REASON" --commit "$COMMIT" --conflicts "$DETAILS"
           exit 1
 
       - name: Install system deps
@@ -87,7 +87,7 @@ jobs:
       - name: Check the merged tree
         id: check
         if: steps.merge.outputs.outcome == 'merged'
-        run: python3 zenith/ci/sync.py checks | tee "$RUNNER_TEMP/checks.log"; grep '^failed=' "$RUNNER_TEMP/checks.log" >> "$GITHUB_OUTPUT"
+        run: python3 ci/sync.py checks | tee "$RUNNER_TEMP/checks.log"; grep '^failed=' "$RUNNER_TEMP/checks.log" >> "$GITHUB_OUTPUT"
 
       - name: Report a failed check
         if: steps.merge.outputs.outcome == 'merged' && steps.check.outputs.failed != ''
@@ -98,7 +98,7 @@ jobs:
           COMMIT: ${{ steps.merge.outputs.commit }}
           FAILED: ${{ steps.check.outputs.failed }}
         run: |
-          python3 zenith/ci/sync.py report --reason "failed check: $FAILED" --commit "$COMMIT"
+          python3 ci/sync.py report --reason "failed check: $FAILED" --commit "$COMMIT"
           exit 1
 
       - name: Push main
@@ -121,7 +121,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}
-        run: python3 zenith/ci/sync.py resolved
+        run: python3 ci/sync.py resolved
 
       # zenith-release.yml requires `date` to be today's UTC date. Only a Horizon commit covered by a Horizon
       # nightly may be published (the exporters come from that nightly); the sync.py release step decides.
@@ -130,4 +130,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ZENITH_SYNC_TOKEN }}
           UPSTREAM: ${{ steps.merge.outputs.upstream }}
-        run: python3 zenith/ci/sync.py release --upstream "$UPSTREAM" | tee -a "$GITHUB_STEP_SUMMARY"
+        run: python3 ci/sync.py release --upstream "$UPSTREAM" | tee -a "$GITHUB_STEP_SUMMARY"

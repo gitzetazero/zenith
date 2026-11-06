@@ -43,13 +43,13 @@ def main():
     inputs = out / "cases.json"
     inputs.write_text(json.dumps(cases, sort_keys=True) + "\n", encoding="utf-8")
     lock, jars, libraries = base.verify_artifacts()
-    source = lab.ROOT / "mods/horizon/src/test/java/dev/horizonlab/parity/VanillaMapSavedDataOracle.java"
+    source = lab.ROOT / "java/horizon/src/test/java/dev/horizonlab/parity/VanillaMapSavedDataOracle.java"
     tested_sources = base.source_hashes([
         Path(__file__), source,
-        lab.ROOT / "mods/horizon/src/test/java/dev/horizonlab/parity/ParityData.java",
-        lab.ROOT / "crates/horizon-client/src/game/maps.rs",
-        lab.ROOT / "crates/horizon-client/src/game/maps/save_tests.rs",
-        lab.ROOT / "crates/horizon-client/Cargo.toml",
+        lab.ROOT / "java/horizon/src/test/java/dev/horizonlab/parity/ParityData.java",
+        lab.ROOT / "crates/zenith-client/src/game/maps.rs",
+        lab.ROOT / "crates/zenith-client/src/game/maps/save_tests.rs",
+        lab.ROOT / "crates/zenith-client/Cargo.toml",
         lab.ROOT / "Cargo.toml", lab.ROOT / "Cargo.lock"])
     classes = out / "classes"
     classes.mkdir(exist_ok=True)
@@ -60,7 +60,7 @@ def main():
             base.run(list(map(str, command)), stdout=log, stderr=subprocess.STDOUT, env=env)
 
     run(["javac", "--release", lock["minecraft"]["java_major"], "-proc:none",
-         "-sourcepath", lab.ROOT / "mods/horizon/src/test/java", "-cp", classpath,
+         "-sourcepath", lab.ROOT / "java/horizon/src/test/java", "-cp", classpath,
          "-d", classes, source], "compile-java")
     java = out / "java.txt"
     run(["java", "-Xmx1G", "-cp", str(classes) + os.pathsep + classpath,
@@ -74,7 +74,7 @@ def main():
     rust = out / "rust.txt"
     rust.unlink(missing_ok=True)
     env = dict(os.environ, HORIZON_MAP_SAVE_CASES=str(inputs), HORIZON_MAP_SAVE_OUTPUT=str(rust))
-    run(["cargo", "test", "-p", "horizon-client", "--lib",
+    run(["cargo", "test", "-p", "zenith-client", "--lib",
          "game::maps::save_tests::saved_map_codec_fixture", "--", "--ignored", "--exact"],
         "rust", env)
     actual = rust.read_text(encoding="utf-8").splitlines()

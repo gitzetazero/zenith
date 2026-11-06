@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The dragon fight on a dedicated server, against vanilla's, seen by a vanilla client.
 
-A vanilla dedicated server and Horizon's (`horizon-client --dedicated --nogui`) each serve a copy of one flat
+A vanilla dedicated server and Horizon's (`zenith-client --dedicated --nogui`) each serve a copy of one flat
 world vanilla generated first, with the same server.properties. A vanilla-codec client (VanillaProtocolClient in
 its entity mode) joins, and once its chunks are in, the console sends it to the End, over the exit portal. Nobody
 else is in the End: the fight must start from that player alone (`EnderDragonFight.tick` finds it among the
@@ -90,25 +90,25 @@ def main():
     build.mkdir(parents=True, exist_ok=True)
     report = build / 'report.json'
     report.unlink(missing_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaProtocolClient.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaProtocolClient.java'
     classes = build / 'classes'
     shutil.rmtree(classes, ignore_errors=True)
     classes.mkdir()
     dependencies = os.pathsep.join(map(str, [jars['server'], *libraries]))
     subprocess.run(['javac', '--release', str(lock['minecraft']['java_major']), '-proc:none', '-nowarn', '-sourcepath',
-                    lab.ROOT / 'mods/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle],
+                    lab.ROOT / 'java/horizon/src/test/java', '-cp', dependencies, '-d', classes, oracle],
                    cwd=lab.ROOT, check=True, capture_output=True)
     # SERVER_DRAGON_SIDES=vanilla (or horizon) runs one side and reads the other's last transcript.
     sides = [s for s in os.environ.get('SERVER_DRAGON_SIDES', 'vanilla,horizon').split(',') if s]
     if 'horizon' in sides:
-        subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], cwd=lab.ROOT,
+        subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client', '--bin', 'zenith-client'], cwd=lab.ROOT,
                        check=True, capture_output=True)
     import json
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'],
                                                   cwd=lab.ROOT, text=True))
-    binary = Path(metadata['target_directory']) / 'fast' / ('horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+    binary = Path(metadata['target_directory']) / 'fast' / ('zenith.exe' if os.name == 'nt' else 'zenith-client')
     vanilla_server = ['java', '-Xmx2g', '-Duser.timezone=UTC', '-cp', dependencies, 'net.minecraft.server.Main', 'nogui']
-    horizon_server = [binary, '--resources', lab.LOCAL / 'horizon-client/26.3', '--dedicated', '--nogui']
+    zenith_server = [binary, '--resources', lab.LOCAL / 'zenith-client/26.3', '--dedicated', '--nogui']
     client = ['java', '-Xmx1g', '-Duser.timezone=UTC', '-cp', str(classes) + os.pathsep + dependencies,
               'dev.horizonlab.parity.VanillaProtocolClient']
 
@@ -116,7 +116,7 @@ def main():
     if not world.exists() or set(sides) == {'vanilla', 'horizon'}:
         world = generate_world(vanilla_server, build)
     results = {}
-    for label, command in [('vanilla', vanilla_server), ('horizon', horizon_server)]:
+    for label, command in [('vanilla', vanilla_server), ('horizon', zenith_server)]:
         if label in sides:
             results[label] = run_side(label, command, client, build, world)
         else:

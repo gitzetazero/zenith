@@ -1,4 +1,4 @@
-<img src="zenith/branding/png/banner.png" alt="Zenith: Minecraft in Rust, at its highest point. A fork of Horizon." width="100%">
+<img src="branding/png/banner.png" alt="Zenith: Minecraft in Rust, at its highest point. A fork of Horizon." width="100%">
 
 # Zenith
 
@@ -10,11 +10,11 @@ Zenith is Minecraft: Java Edition 26.3 rewritten in Rust. You install it, sign i
 
 ## Download and install
 
-Windows only for now. Download **Zenith Launcher** from the [Releases](https://github.com/gitzetazero/zenith/releases/latest) page (a fork of XMCL with Zenith built in; its source is in [`zenith/launcher`](zenith/launcher)):
+Windows only for now. Download **Zenith Launcher** from the [Releases](https://github.com/gitzetazero/zenith/releases/latest) page (a fork of XMCL with Zenith built in; its source is in [`launcher`](launcher)):
 
 1. Get `Zenith-Launcher-Setup-x64.exe` (per-user installer, no administrator) or `Zenith-Launcher-Portable-x64.zip` (the portable exe in a zip), and check it against the SHA-256 in the release notes.
 2. Run it. Windows will warn you ("Windows protected your PC") because the build is not code-signed: choose "More info", then "Run anyway".
-3. First-run steps, updates and limits are in [`zenith/README.md`](zenith/README.md). Note: Microsoft sign-in uses Zenith's own Azure app (the build embeds its public client id); until Mojang approves that app registration, Microsoft sign-in may be refused for players.
+3. First-run steps, updates and limits are in [`docs/PLAYER-GUIDE.md`](docs/PLAYER-GUIDE.md). Note: Microsoft sign-in uses Zenith's own Azure app (the build embeds its public client id); until Mojang approves that app registration, Microsoft sign-in may be refused for players.
 
 ## Requirements
 
@@ -29,12 +29,12 @@ Windows only for now. Download **Zenith Launcher** from the [Releases](https://g
 2. The first time it asks you to choose a data folder. Choose it, close the launcher and open it again: this creates the "Zenith" instance.
 3. Sign in with your Microsoft account.
 4. Choose the "Zenith" instance and press Play. The first time it downloads and prepares the resources: from a few seconds to a few minutes.
-5. To play on a server, add it under Multiplayer as usual. Zenith detects its version. More in [`zenith/SERVERS.md`](zenith/SERVERS.md).
+5. To play on a server, add it under Multiplayer as usual. Zenith detects its version. More in [`docs/SERVERS.md`](docs/SERVERS.md).
 
 ## What it brings
 
 - The game engine, written in Rust.
-- Multiplayer with version translation: join servers from 1.20.2 to 26.2 as well as 26.3, with a version selector for each server. **Not tested against real servers yet**: see the table in [`zenith/SERVERS.md`](zenith/SERVERS.md).
+- Multiplayer with version translation: join servers from 1.20.2 to 26.2 as well as 26.3, with a version selector for each server. **Not tested against real servers yet**: see the table in [`docs/SERVERS.md`](docs/SERVERS.md).
 - Automatic game updates, with the signature checked before installing.
 - No telemetry and no cosmetics by default.
 
@@ -48,7 +48,7 @@ Windows only for now. Download **Zenith Launcher** from the [Releases](https://g
 | 1.21.7 to 26.2 | Translated | Translated |
 | 1.20.2 to 1.21.6 | Translated | Translated, experimental |
 
-You cannot join servers older than 1.20.2, Bedrock servers or servers that require mods. **No translated version has been tested against a real server yet.** The full table, how the version is chosen and how to turn the translator off are in [`zenith/SERVERS.md`](zenith/SERVERS.md).
+You cannot join servers older than 1.20.2, Bedrock servers or servers that require mods. **No translated version has been tested against a real server yet.** The full table, how the version is chosen and how to turn the translator off are in [`docs/SERVERS.md`](docs/SERVERS.md).
 
 ## Build from source
 
@@ -61,11 +61,11 @@ Preparation builds the game resources from **your own copy** of Minecraft: Java 
 ```sh
 git clone https://github.com/gitzetazero/zenith.git
 cd zenith
-cargo run --release -p horizon-prepare -- --prepare --server-jar ~/Downloads/server.jar
-cargo run --release -p horizon-client
+cargo run --release -p zenith-prepare -- --prepare --server-jar ~/Downloads/server.jar
+cargo run --release -p zenith-client
 ```
 
-Prepared files end up in `.local/`, which git ignores: do not commit or share them. Internal names (`horizon-client`, `HORIZON_*`) were deliberately not changed; see [`ZENITH.md`](ZENITH.md).
+Prepared files end up in `.local/`, which git ignores: do not commit or share them. Internal names (`zenith-client`, `HORIZON_*`) were deliberately not changed; see [`docs/ZENITH.md`](docs/ZENITH.md).
 
 ## Known problems
 
@@ -79,11 +79,11 @@ Anything else? [Open an issue](https://github.com/gitzetazero/zenith/issues/new/
 
 ## More information
 
-- [`zenith/SERVERS.md`](zenith/SERVERS.md): server versions and how one is chosen.
-- [`zenith/README.md`](zenith/README.md): player guide for the launcher.
+- [`docs/SERVERS.md`](docs/SERVERS.md): server versions and how one is chosen.
+- [`docs/PLAYER-GUIDE.md`](docs/PLAYER-GUIDE.md): player guide for the launcher.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md) and [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md): how to contribute and how to report a security problem.
-- [`ZENITH.md`](ZENITH.md): guide for the people who maintain the project.
-- [`zenith/branding/BRAND.md`](zenith/branding/BRAND.md): logo and colours.
+- [`docs/ZENITH.md`](docs/ZENITH.md): guide for the people who maintain the project.
+- [`branding/BRAND.md`](branding/BRAND.md): logo and colours.
 
 ## Credits and licence
 

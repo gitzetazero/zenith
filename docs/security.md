@@ -58,7 +58,7 @@ and some are waiting for Ludovic:
   drew a world on the Mac mini) and only while no issue labelled `release-blocker` is open; otherwise nothing is
   published.
 - **Signed updates.** Each release carries a list of its files' checksums, signed with Horizon's release key. The
-  launcher (for the game and for itself) and `horizon-server update` check that signature against the public key
+  launcher (for the game and for itself) and `zenith-server update` check that signature against the public key
   built into them, then check the download against the list. Anything unsigned, signed with another key, signed
   for another version, or changed in any way is refused with a message saying why. Releases from before signing
   stay installable, for going back to an older version, but only with the exact files they had when signing
@@ -69,18 +69,18 @@ and some are waiting for Ludovic:
 - **Nightly signatures.** A Nightly carries two signatures over the same `SHA256SUMS`. `SHA256SUMS.sig` is signed
   for the channel (`horizon release nightly`), for launchers and servers from before this change, which read only
   that one. `SHA256SUMS.v2.sig` is signed for the Nightly's own version (`horizon release nightly-<date>-<commit>`),
-  which its release title names (`Nightly <date> · <commit>`). Current launchers, `horizon-server update` and
+  which its release title names (`Nightly <date> · <commit>`). Current launchers, `zenith-server update` and
   `install.sh` parse that title strictly, refuse a Nightly whose title doesn't parse, and install it only with a v2
   signature for exactly that version. That way an older Nightly can't be served as tonight's: its signature names its own date. Installing
   an older Nightly on purpose still works as a rollback, with a warning, and never happens as an automatic update.
   **The changeover:** Nightlies published before this change have no `SHA256SUMS.v2.sig`, so they can't be installed
   or picked with `--version` any more; they leave GitHub with the 7-day rotation. Until a v2 Nightly exists, a
   launcher has nothing to update to, so the first Nightly is built right after this merges. A server can still go back
-  to a build it already has with `horizon-server rollback`, which checks nothing it hasn't already checked.
+  to a build it already has with `zenith-server rollback`, which checks nothing it hasn't already checked.
   **When the old signature can go:** once every launcher and server still updating reads v2. That is, when the
-  telemetry live count shows no launcher (and the server update log no `horizon-server`) older than the first build
+  telemetry live count shows no launcher (and the server update log no `zenith-server`) older than the first build
   with this change, or at the latest 60 days after it shipped. Then drop `SHA256SUMS.sig` from nightly-build.yml's
-  publish step and the `--tag nightly` check before it, and remove `NIGHTLY` from horizon-release-sign. Releases (not
+  publish step and the `--tag nightly` check before it, and remove `NIGHTLY` from zenith-release-sign. Releases (not
   Nightlies) keep their single `SHA256SUMS.sig`, which is already signed for their tag.
 - **The release machinery needs Ludovic.** The workflows, the release and signing tools, the update-checking code
   and the installers are listed in `.github/CODEOWNERS`. Once main's protection requires code owners' reviews, a

@@ -3,7 +3,7 @@
 
 Java (VanillaTradingOracle) runs vanilla's villagers, wandering traders and
 MerchantMenu on a real flat server level; Rust (trading_fixture) runs
-horizon_client::merchant and the merchant kind of horizon_client::menu on the
+zenith_client::merchant and the merchant kind of zenith_client::menu on the
 same cases:
 
 - gen: offers of every profession at every level and villager type, and of
@@ -197,9 +197,9 @@ def main():
         lab.prepare()
     lock, jars, libraries = base.verify_artifacts()
     resources = lab.RESOURCES
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaTradingOracle.java'
-    sources = [oracle, Path(__file__), lab.ROOT / 'crates/horizon-client/examples/probe/trading_fixture.rs',
-               lab.ROOT / 'crates/horizon-client/src/merchant.rs', lab.ROOT / 'crates/horizon-client/src/menu.rs']
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaTradingOracle.java'
+    sources = [oracle, Path(__file__), lab.ROOT / 'crates/zenith-client/examples/probe/trading_fixture.rs',
+               lab.ROOT / 'crates/zenith-client/src/merchant.rs', lab.ROOT / 'crates/zenith-client/src/menu.rs']
     tested = base.source_hashes([s for s in sources if s.exists()])
     inputs = build / 'inputs.txt'
     cases = corpus(wanted(resources))
@@ -216,7 +216,7 @@ def main():
             except subprocess.CalledProcessError:
                 log.flush()
                 raise SystemExit(f'{name} failed:\n' + path.read_text(errors='replace')[-4000:])
-    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath', str(lab.ROOT / 'mods/horizon/src/test/java'),
+    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath', str(lab.ROOT / 'java/horizon/src/test/java'),
          '-cp', str(jars['server']) + os.pathsep + deps, '-d', classes, oracle], 'compile-java')
     universe = build / 'universe'
     stamp = build / 'server.inputs'
@@ -233,7 +233,7 @@ def main():
     if args.java_only:
         print(f'{len(vanilla)} oracle lines')
         return
-    run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe'], 'compile-rust')
+    run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client-lib', '--example', 'client_probe'], 'compile-rust')
     binary = lab.cargo_target() / 'fast/examples/client_probe'
     run([binary, 'trading_fixture', resources, inputs, build / 'server.txt', build / 'rust.txt'], 'rust')
     rust = (build / 'rust.txt').read_text().splitlines()

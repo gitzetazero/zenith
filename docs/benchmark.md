@@ -17,9 +17,9 @@ One game is started per window size (1280x720 and 1920x1080 by default) and rend
 - **Same machine, same run conditions.** Games run one at a time; the load average before and after each run (Windows has none, so it is left out there) and the machine (CPU, RAM, OS) are stored with the results. Runs on a machine doing other work are marked as such and not published.
 - **Same settings, one file.** Every game gets the same `options.txt`, written by the driver: render distance, simulation distance 12, unlimited frame rate (`maxFps:260`), VSync off, FOV 70, automatic GUI scale, windowed, no pause on lost focus, and `inactivityFpsLimit:minimized` (both games otherwise drop to 30 FPS after a minute without input). Everything else stays at vanilla's defaults: Horizon reads vanilla's `options.txt` keys and its defaults match vanilla's (the options harness checks it), and Horizon's own settings (`horizon-graphics.txt`) are left at their defaults, which render as vanilla does.
 - **Same resolution.** Both games get the same window size, `--width` and `--height` (vanilla's own launch arguments, which Horizon takes too): 1280x720, the size results were first published at, then 1920x1080, the commonest screen; `--sizes` picks others. The size each game actually renders at is stored with the results: a compositor or screen smaller than the window can shrink it.
-- **Same world and path.** Same seed and world type; same paths, yaw and pitch, same flight speed; the same steps in the same order. Vanilla is driven by a small dev-only Fabric mod (`mods/horizon/src/bench`), which only calls the game's own code: it creates the world with `WorldOpenFlows.createFreshLevel` as the Create World screen does, teleports with `/tp`, sets the time with `/time set`, and places the player on the path each frame as Horizon's `horizon-ctl fly` does.
+- **Same world and path.** Same seed and world type; same paths, yaw and pitch, same flight speed; the same steps in the same order. Vanilla is driven by a small dev-only Fabric mod (`java/horizon/src/bench`), which only calls the game's own code: it creates the world with `WorldOpenFlows.createFreshLevel` as the Create World screen does, teleports with `/tp`, sets the time with `/time set`, and places the player on the path each frame as Horizon's `zenith-ctl fly` does.
 - **Warm-up excluded.** Each scene's flight starts only after its chunks are loaded and drawn and 2 seconds have passed; the load itself is reported separately. JIT warm-up of the JVM during the first scene is part of vanilla's real behaviour and is not removed.
-- **The same statistics code.** Horizon returns its raw frame times (`horizon-ctl fly ... raw`) and the vanilla mod writes its own; `stats()` in the driver computes every figure for both.
+- **The same statistics code.** Horizon returns its raw frame times (`zenith-ctl fly ... raw`) and the vanilla mod writes its own; `stats()` in the driver computes every figure for both.
 - **Vanilla as players run it.** Your own 26.3 client jar and libraries (as the official launcher installs them for your OS), the official launcher's default JVM arguments (`-Xmx2G` and its G1 options) and the version manifest's JVM flags (`-XX:StackShadowPages=32`, without which vanilla crashes on about half its starts on Windows), Java 25. The game's assets index is not used, so neither game plays sound (Horizon runs with `HORIZON_NO_AUDIO=1`, vanilla with OpenAL's null device); textures, models and shaders come from the client jar as usual.
 - **Performance mods.** `--game vanilla-mods` adds the Fabric builds for 26.3 of Sodium, Lithium, FerriteCore and ImmediatelyFast, the versions pinned with their hashes in `tools/benchmark-deps/mods.lock.json` (downloaded from Modrinth, never committed), plus Fabric API if one of them needs it.
 
@@ -37,7 +37,7 @@ One game is started per window size (1280x720 and 1920x1080 by default) and rend
 The game runs the Horizon half of this benchmark by itself, with nothing else installed:
 
 ```sh
-horizon-client --benchmark standard --render-distance 16
+zenith-client --benchmark standard --render-distance 16
 ```
 
 It starts at the title screen, creates the world `horizon-benchmark` (seed 1234, creative; the next run replaces it, and it never touches a world it didn't create), flies the four scenes as above, writes a report to `benchmarks/` in the game folder and quits. `--benchmark village` (or `forest`, `ocean`, `mountain`) flies one scene. For the run only, VSync is off, the frame rate unlimited and the game doesn't pause or slow down without focus; your options are not changed. Your other settings (render distance unless given, graphics, window size) are used as they are, and stored in the report, so compare reports with the same conditions.
@@ -46,7 +46,7 @@ The report is the [benchmark report format](benchmark-report.md): startup to the
 
 ## Reproduce it
 
-You need Horizon built (`cargo build --release -p horizon-client -p horizon-client-lib --bins`) and its resources prepared from your own copy of 26.3 (which also provides `.local/minecraft/26.3`, the vanilla client the driver starts), Java 25 with `javac`, and Python 3.10 or newer.
+You need Horizon built (`cargo build --release -p zenith-client -p zenith-client-lib --bins`) and its resources prepared from your own copy of 26.3 (which also provides `.local/minecraft/26.3`, the vanilla client the driver starts), Java 25 with `javac`, and Python 3.10 or newer.
 
 ```sh
 python3 tools/perf_bench.py --game horizon --label horizon-mine
@@ -59,7 +59,7 @@ Options: `--distances 8,16`, `--sizes 1920x1080`, `--scenes village,ocean`, `--s
 
 ### Many-entity stress scenes
 
-`--scenes stress` (or some of `stress_empty`, `stress_mobs`, `stress_items`, `stress_frames`, `stress_armor_stands`, `stress_chests`, `stress_signs`, `stress_banners`, `stress_particles`) runs the scenes of `tools/stress_scenes.py` instead of flying: 1000 still mobs of 8 kinds, 2000 dropped items, 512 item frames, 500 armoured armor stands, 800 chests and shulker boxes, a wall of 687 written signs, 300 banners, and steady particles from repeating command blocks (flames, smoke, end rods, firework bursts, TNT in the air). Each is built high above the terrain by the same vanilla commands in every game (Horizon through `horizon-ctl command`, vanilla and vanilla-mods through the driver mod), settles 6 seconds and is held still for `--seconds`; `stress_empty` is the same camera and floor without them. Entities are drawn only within a distance that grows with the render distance up to 20 (`Entity.shouldRenderAtSqrDistance`), so run them at 16 or more:
+`--scenes stress` (or some of `stress_empty`, `stress_mobs`, `stress_items`, `stress_frames`, `stress_armor_stands`, `stress_chests`, `stress_signs`, `stress_banners`, `stress_particles`) runs the scenes of `tools/stress_scenes.py` instead of flying: 1000 still mobs of 8 kinds, 2000 dropped items, 512 item frames, 500 armoured armor stands, 800 chests and shulker boxes, a wall of 687 written signs, 300 banners, and steady particles from repeating command blocks (flames, smoke, end rods, firework bursts, TNT in the air). Each is built high above the terrain by the same vanilla commands in every game (Horizon through `zenith-ctl command`, vanilla and vanilla-mods through the driver mod), settles 6 seconds and is held still for `--seconds`; `stress_empty` is the same camera and floor without them. Entities are drawn only within a distance that grows with the render distance up to 20 (`Entity.shouldRenderAtSqrDistance`), so run them at 16 or more:
 
 ```sh
 python3 tools/perf_bench.py --game horizon --scenes stress --distances 16 --label stress-horizon
@@ -69,7 +69,7 @@ python3 tools/perf_bench.py --table stress-horizon stress-vanilla
 
 Besides the FPS table, `--table` then gives each scene's median frame CPU time (Horizon), client tick time and resident memory. Chests stay closed: opening them needs a player, which neither driver has. The stress scenes use 26.3's command syntax, so they are not for `--game neoforge`.
 
-On Windows, run `python tools\perf_bench.py ...` the same way. Horizon's control endpoint there is a localhost TCP port, which the game writes to a `.json` file in the temporary folder. `--build` can point at an installed release (`%APPDATA%\horizon-launcher\versions\vX.Y.Z`, with `--resources` its `.local\horizon-client\26.3`), and the report then gives that release's version.
+On Windows, run `python tools\perf_bench.py ...` the same way. Horizon's control endpoint there is a localhost TCP port, which the game writes to a `.json` file in the temporary folder. `--build` can point at an installed release (`%APPDATA%\horizon-launcher\versions\vX.Y.Z`, with `--resources` its `.local\zenith-client\26.3`), and the report then gives that release's version.
 
 ## Frame pacing
 

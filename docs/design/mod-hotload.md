@@ -82,7 +82,7 @@ this step out of the first PRs:
 
 - **Process-wide tables are set once.** Mob effects (`potions::MOD_EFFECTS`), thrown entity types
   (`projectiles::THROWN_TYPES`), mod menu types, living entity types and native component types
-  (`horizon_protocol::item::custom::install`) are `OnceLock`s, filled at start and read without a lock on hot
+  (`zenith_protocol::item::custom::install`) are `OnceLock`s, filled at start and read without a lock on hot
   paths. They become `ArcSwap`-style tables replaced between worlds, never while one is open.
 - **A mod turned off whose blocks are in the world.** Opening a world without a mod already drops its effects and
   keeps its entities frozen ([mods.md](../mods.md)), and its blocks get what opening the world without it does today. The world reload asks
@@ -118,7 +118,7 @@ with the options screen's widgets (`options_ui`), every string through `Text::tr
 - **The index.** The same file the launcher reads (`horizon-mods` `index.json`, `HORIZON_MOD_INDEX` for a test
   registry), fetched on a worker with the game's `ureq` when the page opens (a Pages file, not the API: no rate
   limit), kept in `mod-browser/horizon-index.json` beside `options.txt`. The launcher and the game share that copy,
-  so an offline game still lists what the launcher saw last. Parsed with `horizon_mods::index::Index::parse`, which
+  so an offline game still lists what the launcher saw last. Parsed with `zenith_mods::index::Index::parse`, which
   refuses an index with a bad entry as the launcher does.
 - **The list.** A search box and the projects this game can install, sorted by downloads: name, author, summary,
   its categories, and **Installed**, **Update** or nothing. A search matches the name, id, summary, tags and
@@ -130,7 +130,7 @@ with the options screen's widgets (`options_ui`), every string through `Text::tr
   them as PNG and JPEG under its own Pages ([registry-v2.md](registry-v2.md)); the page will draw them through the
   same dynamic-texture path as player skins (`skin_slots`), one at a time, loaded when the page opens.
 - **Install.** As the launcher's `install_version`: the newest version for this game that was not taken down, into
-  `mod-browser/downloads/`, then `horizon_mods::index::check_file` (size, SHA-256, the author's signature, the
+  `mod-browser/downloads/`, then `zenith_mods::index::check_file` (size, SHA-256, the author's signature, the
   file's manifest against the index), then moved to `horizon-mods/<id>.hmod`, turned on in `horizon-mods.txt`, and
   recorded in `mod-browser.json` with the launcher's own fields, so the launcher lists it, updates it and removes
   it. A file the index took down (`revoked.toml`) is refused. A `.hmod` with code (`needs_port`) is not offered.
@@ -182,7 +182,7 @@ A native mod's code is in the game's binary. What can be made fast:
 ### Measured
 
 On the desktop (i7-13700KF, `-j 8`, Linux, `rustc` 1.99, the launcher's `profile.fast`, incremental), building
-`horizon-client` as the launcher does, on 2026-11-05 while other builds kept the machine at a load of about 30 to 40
+`zenith-client` as the launcher does, on 2026-11-05 while other builds kept the machine at a load of about 30 to 40
 (an idle machine is faster; the ratios are the point):
 
 | Build | Time |
@@ -190,7 +190,7 @@ On the desktop (i7-13700KF, `-j 8`, Linux, `rustc` 1.99, the launcher's `profile
 | Cold, empty target | 812 s |
 | No change | 55 s |
 | One line changed in gameplay (`game/mods.rs`), as a mixin into gameplay does | 570 s (the revert: 668 s) |
-| One line changed in `horizon-world`, as a mixin into a lower crate does | 427 s (the revert: 469 s) |
+| One line changed in `zenith-world`, as a mixin into a lower crate does | 427 s (the revert: 469 s) |
 | The gameplay change, linked with mold | 612 s |
 
 Mold changes nothing: the time is spent compiling the gameplay crate again, not linking it. A native mod's change
@@ -207,7 +207,7 @@ Nothing in this note widens what a mod can do.
   before installing one, and installing never builds or runs it: the launcher does, behind its own warning.
 - The registry review stays the gate for listing a project, `revoked.toml` turns off taken-down files in the game
   as in the launcher, and SHA-256 pinning and signatures are checked before a file reaches `horizon-mods/`.
-- The browser fetches only the index, the registry's release assets (`horizon_mods::index::FILE_HOST`) and, later,
+- The browser fetches only the index, the registry's release assets (`zenith_mods::index::FILE_HOST`) and, later,
   the registry's own mirrored images. It never follows a project's own links.
 
 ## Plan, small PRs

@@ -107,11 +107,11 @@ def main():
     args = parser.parse_args()
     lock, jars, _ = base.verify_artifacts()
     source_paths = [lab.ROOT / path for path in (
-        'crates/horizon-client/src/game/boats.rs',
-        'crates/horizon-client/src/game/remote_vehicles.rs',
-        'crates/horizon-client/src/game/lan_vehicles.rs',
-        'crates/horizon-client/src/game/boat_authority_fixture.rs',
-        'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaBoatAuthorityOracle.java',
+        'crates/zenith-client/src/game/boats.rs',
+        'crates/zenith-client/src/game/remote_vehicles.rs',
+        'crates/zenith-client/src/game/lan_vehicles.rs',
+        'crates/zenith-client/src/game/boat_authority_fixture.rs',
+        'java/horizon/src/test/java/dev/horizonlab/parity/VanillaBoatAuthorityOracle.java',
         'tools/test_boat_authority_parity.py')]
     source_hashes = base.source_hashes(source_paths)
     work = lab.LOCAL / 'boat-authority-parity'
@@ -121,7 +121,7 @@ def main():
     lab.write_json(work / 'inputs.json', inputs)
     classes = work / 'classes'
     classes.mkdir(exist_ok=True)
-    sources = lab.ROOT / 'mods/horizon/src/test/java'
+    sources = lab.ROOT / 'java/horizon/src/test/java'
     package = sources / 'dev/horizonlab/parity'
     dependencies = os.pathsep.join(map(str, [jars['client'], *baking.client_libraries()]))
 
@@ -137,8 +137,8 @@ def main():
         'compile-java')
     run(['java', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaBoatAuthorityOracle',
          work / 'inputs.json', work / 'vanilla.json'], 'vanilla')
-    run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], 'compile-rust')
-    binary = lab.cargo_target() / 'fast' / ('horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+    run(['cargo', 'build', '--profile', 'fast', '-p', 'zenith-client', '--bin', 'zenith-client'], 'compile-rust')
+    binary = lab.cargo_target() / 'fast' / ('zenith.exe' if os.name == 'nt' else 'zenith-client')
     with (work / 'rust.log').open('w') as log, tempfile.TemporaryDirectory(prefix='boat-authority-') as game_dir:
         run_game([str(binary), '--headless', '--resources', str(args.resources.resolve()), '--game-dir', game_dir], cwd=game_dir,
                  env=lab.game_env(HORIZON_BOAT_AUTHORITY_FIXTURE=work), stdout=log,

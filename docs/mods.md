@@ -38,9 +38,9 @@ Benchmarks (`--benchmark`) never load mods.
 
 ```sh
 # A prebuilt binary for Linux x86_64/aarch64, macOS x86_64/arm64 or Windows x86_64 (#2120):
-cargo binstall --git https://github.com/horizon-rust/horizon cargo-horizon-mod
+cargo binstall --git https://github.com/horizon-rust/horizon cargo-zenith-mod
 # Or build it from source, without cargo-binstall:
-cargo install --git https://github.com/horizon-rust/horizon cargo-horizon-mod
+cargo install --git https://github.com/horizon-rust/horizon cargo-zenith-mod
 cargo horizon-mod new my-mod        # a content mod: manifest, one block with its model, loot and recipe
 cd my-mod
 cargo horizon-mod run               # build my-mod.hmod, then start the game with it turned on
@@ -55,7 +55,7 @@ cargo horizon-mod check target/horizon-mod/my_mod.hmod   # the registry's checks
 - `build` packs `horizon-mod.toml`, `assets/` and `data/` into `target/horizon-mod/<id>.hmod`, with the same checks
   the game makes when it reads the content. It refuses a folder with a `Cargo.toml` (code is native now) and a
   manifest without capability `registries`.
-- `run` builds, then starts `horizon-client` (on `PATH`, or `--game PATH`, or `HORIZON_CLIENT`) with
+- `run` builds, then starts `zenith-client` (on `PATH`, or `--game PATH`, or `HORIZON_CLIENT`) with
   `--dev-mod target/horizon-mod/<id>.hmod`, always on. Arguments after `--` go to the game. The game reads content once
   at start, so rebuild and run again after an edit.
 - `check <file>` runs what the registry runs: the file's size and SHA-256, its manifest and content, and a signature
@@ -88,7 +88,7 @@ effects, entity types and menu types (each below) in `creative_tab/`, `mob_effec
 them. LAN and dedicated server players play with them when they run the same mods: a client whose mods add different
 content is refused when it joins, with the reason.
 
-A server that has content mods on also checks them one by one (`horizon_protocol::mod_list`, channel
+A server that has content mods on also checks them one by one (`zenith_protocol::mod_list`, channel
 `horizon:mod_list`): in the configuration phase it sends the id, version and SHA-256 of each `.hmod` with
 `side = "both"`, the client answers with its own, and a client that differs is refused with the mods named: missing,
 not on this server, or another version or file. Only `side = "both"` mods are compared and sent: a `client` mod (a
@@ -394,7 +394,7 @@ recipes, names and loot. Blocks, items, creative tabs, mob effects, entity types
 the other's): the game keeps the first in load order and leaves the other's content out, with "mods A and B both use
 the namespace N; turn one of them off" in the log. Paths use vanilla's resource characters, at most 65,536 files, 16
 MiB each and 512 MiB in all. A mod whose content is refused is left out, with the reason in the log. The game reads
-this content into its block and item tables (`horizon_client::mod_content`, [modpacks.md](modpacks.md)). A tag entry
+this content into its block and item tables (`zenith_client::mod_content`, [modpacks.md](modpacks.md)). A tag entry
 naming an id nobody registers (a block a port left out, another mod's item) is dropped, so the rest of the tag still
 loads; vanilla would drop the whole tag.
 
@@ -429,7 +429,7 @@ itself. A name nobody defines is skipped.
 
 A pool addition holds `"elements"` as a pool does, a processor list addition `"processors"`. This is what
 Lithostitched's `add_structure_set_entries`, `add_template_pool_elements` and `add_processor_list_processors` modifiers
-do on NeoForge and Fabric, and `horizon-port-pack carry` writes the last two from those.
+do on NeoForge and Fabric, and `zenith-port-pack carry` writes the last two from those.
 
 A mod's own configured and placed features (`data/<ns>/worldgen/configured_feature/`, `placed_feature/`) and mob spawn
 changes reach biomes it does not own (vanilla's) through NeoForge's biome modifiers, files in

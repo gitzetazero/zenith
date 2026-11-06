@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate crates/horizon-client/src/lan/command_order.rs: the order of the
+"""Generate crates/zenith-client/src/lan/command_order.rs: the order of the
 children of every node of vanilla's command tree (Commands constructed with
 CommandSelection.ALL), which the tree sent to players keeps. Brigadier keeps
 children in registration order; the data generator's commands report, which
@@ -18,7 +18,7 @@ except ImportError:
     import lab
     import test_rust_parity as base
 
-OUT = lab.ROOT / 'crates/horizon-client/src/lan/command_order.rs'
+OUT = lab.ROOT / 'crates/zenith-client/src/lan/command_order.rs'
 
 
 def main():
@@ -26,7 +26,7 @@ def main():
     build = lab.LOCAL / 'lan-command-order'
     classes = build / 'classes'
     classes.mkdir(parents=True, exist_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaCommandParseOracle.java'
+    oracle = lab.ROOT / 'java/horizon/src/test/java/dev/horizonlab/parity/VanillaCommandParseOracle.java'
     path = os.pathsep.join(map(str, [jars['server'], *libraries]))
     subprocess.run(['javac', '--release', str(lock['minecraft']['java_major']), '-proc:none', '-cp', path,
                     '-d', str(classes), str(oracle)], check=True)

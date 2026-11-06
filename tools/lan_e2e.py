@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """LAN multiplayer end to end: a host opens its world to LAN and a guest joins, both real games.
 
-The host's world runs on its integrated server thread. Two Horizon clients run under horizon-ctl in scratch folders. The host
+The host's world runs on its integrated server thread. Two Horizon clients run under zenith-ctl in scratch folders. The host
 creates a survival world and opens it to LAN with commands allowed; the guest connects to it by
 address. The script then checks, from both sides, what a guest's game used to get wrong (#366):
 
@@ -353,7 +353,7 @@ both sides go to --out (host-*.png, guest-*.png).
     python3 tools/lan_e2e.py --check chest --check tab
     python3 tools/lan_e2e.py --check portals
 
-Needs the prepared resources in .local/horizon-client. On Linux the games run on vscreen (the
+Needs the prepared resources in .local/zenith-client. On Linux the games run on vscreen (the
 desktop), or headless (offscreen, no pause) where there is none; on macOS both games render offscreen. Games started here have no audio (HORIZON_NO_AUDIO=1).
 """
 import argparse
@@ -395,8 +395,8 @@ class Game:
     def __init__(self, name, ctl, resources):
         self.name = name
         self.work = Path(tempfile.mkdtemp(prefix=f'hzlan-{name}-'))
-        (self.work / '.local/horizon-client').mkdir(parents=True)
-        lab.link_dir(resources, self.work / '.local/horizon-client' / lab.VERSION)
+        (self.work / '.local/zenith-client').mkdir(parents=True)
+        lab.link_dir(resources, self.work / '.local/zenith-client' / lab.VERSION)
         self.socket = self.work / 'c.sock'
         env = game_env(os.environ.get('VSCREEN', 'lan-e2e'), home=self.work / 'home')
         env = game_environment(env, self.work)
@@ -407,7 +407,7 @@ class Game:
         return self.d(tool, **args)
 
     def raw(self, *words):
-        """A game command horizon-ctl has no table entry for (lan, connect): the words as typed."""
+        """A game command zenith-ctl has no table entry for (lan, connect): the words as typed."""
         result = subprocess.run(self.d.base + [str(w) for w in words], cwd=self.work, env=self.d.env,
                                 capture_output=True, text=True, timeout=600)
         lines = result.stdout.strip().splitlines()
@@ -7278,7 +7278,7 @@ def run(ctl, out, resources, checks):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--bin-dir', help='prebuilt horizon-client and horizon-ctl (default: build with the fast profile)')
+    parser.add_argument('--bin-dir', help='prebuilt zenith-client and zenith-ctl (default: build with the fast profile)')
     parser.add_argument('--check', action='append', choices=CHECKS, help='run only these checks (repeatable)')
     parser.add_argument('--out', default=str(ROOT / '.local/lan-e2e'), help='screenshots and game logs go here')
     # The host's world always runs on its server thread; the flag stays for existing callers.
@@ -7287,8 +7287,8 @@ def main():
     if args.bin_dir:
         bins = Path(args.bin_dir).resolve()
     else:
-        subprocess.run(['cargo', 'build', '--locked', '--profile', 'fast', '-p', 'horizon-client', '-p', 'horizon-client-lib',
-                        '--bin', 'horizon-client', '--bin', 'horizon-ctl'],
+        subprocess.run(['cargo', 'build', '--locked', '--profile', 'fast', '-p', 'zenith-client', '-p', 'zenith-client-lib',
+                        '--bin', 'zenith-client', '--bin', 'zenith-ctl'],
                        cwd=ROOT, check=True)
         meta = json.loads(subprocess.run(['cargo', 'metadata', '--format-version', '1', '--no-deps'], cwd=ROOT,
                                          capture_output=True, text=True, check=True).stdout)
@@ -7302,7 +7302,7 @@ def main():
         sys.exit(str(error))
     out = Path(args.out).resolve()
     out.mkdir(parents=True, exist_ok=True)
-    results = run(bins / 'horizon-ctl', out, resources, args.check or CHECKS)
+    results = run(bins / 'zenith-ctl', out, resources, args.check or CHECKS)
     (out / 'results.json').write_text(json.dumps({'checks': results}, indent=2) + '\n')
     print(json.dumps(results, indent=1))
     sys.exit(0 if results and all(r['pass'] for r in results.values()) else 1)
@@ -13255,7 +13255,7 @@ def set_legacy_rules(game, on):
 
 
 def check_legacy_pvp(host, guest, out):
-    """The host's legacy combat rules (crates/horizon-client/src/legacy_combat.rs) on a guest's diamond axe hits:
+    """The host's legacy combat rules (crates/zenith-client/src/legacy_combat.rs) on a guest's diamond axe hits:
     one at full charge, and one right after a hotbar swap, which empties the charge on the server
     (ServerPlayer's attack item change resets attackStrengthTicker).
 
