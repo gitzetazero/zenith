@@ -9,7 +9,7 @@ run-name: zenith-release ${{ inputs.date }}
 #   1. a DRAFT nightly-<date> gets the two launcher files (the game files go to `nightly`; they used to be here: the two game archives, the bridge exe, the build stamp, the
 #      launcher installer and portable zip, SHA256SUMS and its signature); its file list is checked (a leftover draft or an unfinished dated release from an earlier
 #      attempt is removed first);
-#   2. `nightly` is updated in place: the six signed files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
+#   2. `nightly` is updated in place: the signed files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that short
 #      window a launcher finds sums that do not match the signature or the archives and fails closed; then its
 #      tag moves to this commit and its title changes; its assets are downloaded and verified again;
 #   3. only then is nightly-<date> published. Its existence means "done", so the gate lets a retry through while
@@ -121,10 +121,6 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - name: linux
-            os: ubuntu-22.04
-            dir: horizon-linux-x86_64
-            asset: horizon-linux-x86_64.tar.gz
           - name: windows
             os: windows-latest
             dir: horizon-windows-x64
@@ -344,7 +340,7 @@ jobs:
         env:
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
         run: >
-          bash tools/ci/sign_release.sh nightly dist/horizon-linux-x86_64.tar.gz dist/horizon-windows-x64.zip
+          bash tools/ci/sign_release.sh nightly dist/horizon-windows-x64.zip
           dist/zenith-bridge-windows-x64.exe dist/zenith-build.txt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:

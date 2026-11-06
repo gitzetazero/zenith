@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Publishes Zenith's signed Nightly (called by .github/workflows/zenith-release.yml, publish job).
 # Needs GH_TOKEN, GITHUB_REPOSITORY, DATE (yyyy-mm-dd), SHA (the commit built) and dist/ holding the eight files
-# (the two game archives, the bridge exe, zenith-build.txt, the launcher installer and portable zip, SHA256SUMS
+# (the game zip, the bridge exe, zenith-build.txt, the launcher installer and portable zip, SHA256SUMS
 # and SHA256SUMS.sig).
 #
 # What players see: the dated release (the repository's "latest") holds ONLY the launcher installer and portable zip.
@@ -11,7 +11,7 @@
 # Ordering (the old `nightly` is never deleted, so launchers always find a release):
 #   1. a DRAFT nightly-<date> gets the two launcher files and its file list is checked (a leftover from an earlier
 #      attempt, draft or published, is removed first);
-#   2. `nightly` is updated in place: the four game files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that
+#   2. `nightly` is updated in place: the three game files, then SHA256SUMS, then SHA256SUMS.sig LAST, so during that
 #      short window a launcher finds sums that do not match the signature or the archives and fails closed; then its
 #      tag moves to this commit and its title changes; its assets are downloaded and verified again;
 #   3. only then is nightly-<date> published, as a normal release (prerelease=false) and the repository's one "latest"
@@ -22,7 +22,7 @@ repo=$GITHUB_REPOSITORY
 dated="nightly-$DATE"
 title="Zenith $DATE · ${SHA:0:7}"
 channel_title="Update channel $DATE · ${SHA:0:7} (used by the launcher, not for download)"
-want_channel="SHA256SUMS SHA256SUMS.sig horizon-linux-x86_64.tar.gz horizon-windows-x64.zip zenith-bridge-windows-x64.exe zenith-build.txt" # sorted as jq sorts
+want_channel="SHA256SUMS SHA256SUMS.sig horizon-windows-x64.zip zenith-bridge-windows-x64.exe zenith-build.txt" # sorted as jq sorts
 want_launcher="Zenith-Launcher-Portable-x64.zip Zenith-Launcher-Setup-x64.exe"
 key="$(tr -d '
 ' < zenith/bridge/zenith-release-keys.txt)"
@@ -49,7 +49,7 @@ portable_sum=$(sha256sum dist/Zenith-Launcher-Portable-x64.zip | cut -d' ' -f1)
 {
   echo "The signed game channel of Zenith build ${SHA:0:7} (SHA256SUMS, SHA256SUMS.sig). The Zenith Launcher and the game download and verify these files themselves: **there is nothing to install from here**. Get the launcher from the latest release."
 } > notes-channel.md
-channel=(dist/horizon-windows-x64.zip dist/horizon-linux-x86_64.tar.gz dist/zenith-bridge-windows-x64.exe dist/zenith-build.txt)
+channel=(dist/horizon-windows-x64.zip dist/zenith-bridge-windows-x64.exe dist/zenith-build.txt)
 launcher=(dist/Zenith-Launcher-Setup-x64.exe dist/Zenith-Launcher-Portable-x64.zip)
 # The id of the release (draft or not) with this tag, empty if none.
 release_id() { gh api --paginate "repos/$repo/releases" --jq ".[] | select(.tag_name == \"$1\") | .id" | sed -n 1p; }
@@ -76,8 +76,8 @@ fi
 step "2. nightly (the game channel)"
 nightly=$(release_id nightly)
 if [[ -n "$nightly" ]]; then
-  # an earlier layout also kept the launcher files here
-  for stale in Zenith-Launcher-Setup-x64.exe Zenith-Launcher-Portable-x64.zip; do
+  # earlier layouts also kept the launcher files and a Linux build here
+  for stale in Zenith-Launcher-Setup-x64.exe Zenith-Launcher-Portable-x64.zip horizon-linux-x86_64.tar.gz; do
     gh release delete-asset nightly "$stale" -R "$repo" --yes 2>/dev/null || true
   done
   gh release upload nightly --clobber -R "$repo" "${channel[@]}"
@@ -88,7 +88,7 @@ if [[ -n "$nightly" ]]; then
 else
   gh release create nightly --latest=false --target "$SHA" --title "$channel_title" --notes-file notes-channel.md     "${channel[@]}" dist/SHA256SUMS dist/SHA256SUMS.sig
 fi
-[[ "$(assets_of "$(release_id nightly)")" == "$want_channel" ]] || { echo "::error::nightly does not hold exactly the expected six files"; exit 1; }
+[[ "$(assets_of "$(release_id nightly)")" == "$want_channel" ]] || { echo "::error::nightly does not hold exactly the expected five files"; exit 1; }
 rm -rf check && mkdir check
 gh release download nightly -R "$repo" -D check
 cargo run --locked --quiet -p horizon-release-sign -- verify --tag nightly --key "$key" check
