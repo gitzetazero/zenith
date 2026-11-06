@@ -22,7 +22,10 @@ use std::{
 fn main() -> ExitCode {
     // Cargo runs `cargo-zenith-mod zenith-mod <args>`.
     let mut args: Vec<String> = std::env::args().skip(1).collect();
-    if args.first().is_some_and(|a| a == "zenith-mod" || a == "horizon-mod") {
+    if args
+        .first()
+        .is_some_and(|a| a == "zenith-mod" || a == "horizon-mod")
+    {
         args.remove(0);
     }
     let result = match args.first().map(String::as_str) {
