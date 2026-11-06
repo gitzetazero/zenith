@@ -113,7 +113,7 @@ zenith-client --resources PREPARED --game-dir INSTANCE --home INSTANCE --width 1
 | Exit code | Meaning | What your launcher does |
 | --- | --- | --- |
 | 0 | The player quit | Nothing |
-| 1 | Stopped on an error | Show the last stderr line: `Horizon: crash report saved to <path>` |
+| 1 | Stopped on an error | Show the last stderr line: `Zenith: crash report saved to <path>` |
 | 2 | Refused command line | Show stderr: it names the option (`Horizon: --width: …`); a bug in your launcher |
 | 101 | Panicked | As 1 |
 

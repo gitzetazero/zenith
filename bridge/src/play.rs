@@ -8,7 +8,9 @@ use std::sync::mpsc;
 
 /// What XMCL waits for to call the game started (SPIKE.md section 4).
 pub const READY_LINE: &str = "LWJGL Version: zenith";
-const CRASH_LINE: &str = "Horizon: crash report saved to ";
+const CRASH_LINE: &str = "Zenith: crash report saved to ";
+/// Builds made before the rename print Horizon's name there.
+const CRASH_LINE_OLD: &str = "Horizon: crash report saved to ";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Stream {
@@ -193,7 +195,10 @@ pub fn run_game(
     }
     pump(
         child,
-        &mut |stream, line| match line.strip_prefix(CRASH_LINE) {
+        &mut |stream, line| match line
+            .strip_prefix(CRASH_LINE)
+            .or_else(|| line.strip_prefix(CRASH_LINE_OLD))
+        {
             Some(path) => {
                 if stream == Stream::Err {
                     emit(stream, line);

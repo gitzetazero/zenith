@@ -236,7 +236,7 @@ pub fn run_prepare(mut cmd: Command, emit: &mut dyn FnMut(Stream, &str)) -> Resu
         Ok(())
     } else {
         Err(format!(
-            "Could not prepare Horizon's resources: {} (code {code}).",
+            "Could not prepare the game's resources: {} (code {code}).",
             failure.as_deref().unwrap_or("see the log")
         ))
     }

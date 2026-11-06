@@ -627,7 +627,7 @@ impl Options {
                 zenith_client::auth::prepare_chat_keys(true);
             }
             Ok(None) => {}
-            Err(e) => eprintln!("Horizon: not signed in: {e}"),
+            Err(e) => eprintln!("Zenith: not signed in: {e}"),
         }
         split::launcher::read_now();
         if let Some(dir) = o.game_dir.take() {

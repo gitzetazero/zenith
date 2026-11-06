@@ -86,7 +86,7 @@ fn go(argv: &[String], d: &Deps, store: &Store) -> Result<i32, String> {
     if !ready {
         (d.emit)(
             Stream::Out,
-            "Zenith: preparing Horizon's resources (the first time takes a few minutes).",
+            "Zenith: preparing the game's resources (the first time takes a few minutes).",
         );
         let mc = a.minecraft_root();
         let version_json = mc

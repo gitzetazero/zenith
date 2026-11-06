@@ -121,7 +121,7 @@ pub fn paint(hwnd: isize, semibold: &[u8], mono: &[u8], logs: &[String]) {
         let old_mark = SelectObject(hdc, mark);
         SetBkMode(hdc, TRANSPARENT as i32);
         SetTextColor(hdc, WORDMARK);
-        let text: Vec<u16> = "Horizon".encode_utf16().collect();
+        let text: Vec<u16> = "Zenith".encode_utf16().collect();
         let mut mark_rect = RECT {
             left: 0,
             top: top as i32,

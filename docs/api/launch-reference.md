@@ -28,7 +28,7 @@ Prints one JSON object on stdout and exits 0. `horizon` is the build's version; 
 
 ```json
 {
-  "crash_report_line": "Horizon: crash report saved to ",
+  "crash_report_line": "Zenith: crash report saved to ",
   "exit_codes": [
     0,
     1,
@@ -100,4 +100,4 @@ Prints one JSON object on stdout and exits 0. `horizon` is the build's version; 
 | 2 | The command line was refused: an unknown option, a missing or bad value. No crash report. |
 | 101 | The game panicked. A crash report was saved. |
 
-When a crash report is saved, the last line on stderr is `Horizon: crash report saved to` followed by the report's path.
+When a crash report is saved, the last line on stderr is `Zenith: crash report saved to` followed by the report's path.
