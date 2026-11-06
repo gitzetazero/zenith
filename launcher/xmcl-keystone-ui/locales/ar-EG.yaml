@@ -632,7 +632,6 @@ logLevel:
 logView:
   searchPlaceholder: البحث في السجلات...
 login:
-  dropHint: اسحب رابط كود المصادقة هنا لتسجيل الدخول يدوياً
   forgetPassword: نسيت الباسورد؟
   login: تسجيل الدخول
   manualLoginUrl: لو المتصفح مفتحش، اضغط على الرابط ده للمصادقة!
@@ -1634,11 +1633,8 @@ userService:
 userServices:
   microsoft:
     account: حساب مايكروسوفت
-    deviceCode: كود الجهاز
-    deviceCodeHint: كود الجهاز هيتم توليده تلقائياً بعد ما تضغط تسجيل دخول
     name: مايكروسوفت
     password: اكتب الباسورد في المتصفح
-    useDeviceCode: تسجيل دخول بكود الجهاز
   mojang:
     account: البريد الإلكتروني
     name: موجانج (Mojang)

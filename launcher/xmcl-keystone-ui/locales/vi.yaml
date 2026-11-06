@@ -632,7 +632,6 @@ logLevel:
 logView:
   searchPlaceholder: Tìm kiếm nhật ký...
 login:
-  dropHint: Thả liên kết chứa mã xác thực vào đây để đăng nhập thủ công
   forgetPassword: Quên mật khẩu?
   login: Đăng nhập
   manualLoginUrl: Nếu trình duyệt không hiển thị, vui lòng nhấp vào liên kết này để xác thực!
@@ -1634,11 +1633,8 @@ userService:
 userServices:
   microsoft:
     account: Tài khoản Microsoft
-    deviceCode: Mã thiết bị
-    deviceCodeHint: Mã thiết bị sẽ được tạo sau khi bạn nhấp vào đăng nhập
     name: Microsoft
     password: Nhập mật khẩu trong trình duyệt
-    useDeviceCode: Đăng nhập bằng mã thiết bị
   mojang:
     account: Địa chỉ Email
     name: Mojang

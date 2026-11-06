@@ -39,13 +39,13 @@ describe('registry index', () => {
     expect(projectOf(parsed.projects[0], GAME)).toBeUndefined()
   })
 
-  test('types: content mod, native mod (requires rebuild), shader, resource pack', () => {
+  test('types: content mod, native mod (installed, needs a build), shader, resource pack', () => {
     const byKind = (kind: any) => searchIndex(index, { text: '', kind }, GAME)
     const mod = byKind('mod')[0]
     expect(mod).toMatchObject({ id: 'compass_bar', source: 'zenith', installable: true, support: { level: 'works' } })
     const native = byKind('native-mod')[0]
-    expect(native).toMatchObject({ requiresRebuild: true, installable: false, support: { level: 'works' } })
-    expect(native.support.reason).toMatch(/rebuild/)
+    expect(native).toMatchObject({ requiresRebuild: true, installable: true, support: { level: 'partial' } })
+    expect(native.support.reason).toMatch(/horizon-native-mods/)
     expect(byKind('shader')[0]).toMatchObject({ id: 'daybreak', installable: true })
     expect(byKind('resourcepack')[0]).toMatchObject({ id: 'menu_panorama', installable: true })
     expect(byKind('datapack')).toEqual([])

@@ -53,15 +53,15 @@ describe('safe downloads', () => {
     expect(USER_AGENT_CONTACT).toBe('github.com/gitzetazero/zenith')
   })
 
-  test('destinations: horizon-mods, shaderpacks, resourcepacks, a world\'s datapacks; native mods and modpacks are refused', () => {
+  test('destinations: horizon-mods, horizon-native-mods, shaderpacks, resourcepacks, a world\'s datapacks; modpacks are refused', () => {
     const inst = join('x', 'instances', 'Zenith')
     expect(destinationFor('mod', inst)).toBe(join(inst, 'horizon-mods'))
+    expect(destinationFor('native-mod', inst)).toBe(join(inst, 'horizon-native-mods'))
     expect(destinationFor('shader', inst)).toBe(join(inst, 'shaderpacks'))
     expect(destinationFor('resourcepack', inst)).toBe(join(inst, 'resourcepacks'))
     expect(destinationFor('datapack', inst, 'My World')).toBe(join(inst, 'saves', 'My World', 'datapacks'))
     expect(() => destinationFor('datapack', inst)).toThrow(/world/)
     expect(() => destinationFor('datapack', inst, '../x')).toThrow(/world/)
-    expect(() => destinationFor('native-mod', inst)).toThrow(/rebuild/)
     expect(() => destinationFor('modpack', inst)).toThrow(/modpack/)
   })
 })

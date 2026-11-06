@@ -31,7 +31,6 @@
               class="w-full h-full flex justify-center items-start pt-6 px-6 pb-6"
             >
               <UserLoginForm
-                :inside="false"
                 :options="options"
                 class="w-full max-w-md h-full"
                 @login="onLogin()"

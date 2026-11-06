@@ -600,7 +600,6 @@ logLevel:
 logView:
   searchPlaceholder: ログを検索...
 login:
-  dropHint: ここに認証コードを含んだURLをドロップすることで手動でログインできます
   forgetPassword: パスワードを忘れましたか?
   login: ログイン
   manualLoginUrl: もしブラウザが表示されなかったら、このリンクをクリックして認証してください!
@@ -1547,11 +1546,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft アカウント
-    deviceCode: デバイスコード
-    deviceCodeHint: デバイスコードはログインをクリックした後に生成されます
     name: Microsoft
     password: ブラウザでパスワードを入力
-    useDeviceCode: デバイスコードでログイン
   mojang:
     account: メールアドレス
     name: Mojang

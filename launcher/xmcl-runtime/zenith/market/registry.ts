@@ -62,7 +62,7 @@ export function kindOf(kind: string): MarketKind | undefined {
 
 /** True for what the launcher can write to disk today. */
 export function canInstallKind(kind: MarketKind): boolean {
-  return kind === 'mod' || kind === 'shader' || kind === 'resourcepack' || kind === 'datapack'
+  return kind === 'mod' || kind === 'native-mod' || kind === 'shader' || kind === 'resourcepack' || kind === 'datapack'
 }
 
 /** Parses and sanity-checks the index; refuses a newer schema rather than misreading it. */

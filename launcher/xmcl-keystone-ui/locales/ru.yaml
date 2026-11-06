@@ -514,7 +514,6 @@ logLevel:
 logView:
   searchPlaceholder: Поиск логов...
 login:
-  dropHint: Перетащите сюда ссылку с кодом авторизации для ручного входа
   forgetPassword: Забыли пароль?
   login: Войти
   manualLoginUrl: >-
@@ -1423,11 +1422,8 @@ userService:
 userServices:
   microsoft:
     account: Аккаунт Microsoft
-    deviceCode: Код устройства
-    deviceCodeHint: Будет сгенерирован после нажатия "Войти"
     name: Microsoft
     password: Введите пароль в браузере
-    useDeviceCode: Войти по коду устройства
   mojang:
     account: Электронная почта
     name: Mojang

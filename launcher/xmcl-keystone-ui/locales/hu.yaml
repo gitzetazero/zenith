@@ -610,7 +610,6 @@ logLevel:
 logView:
   searchPlaceholder: Naplók keresése...
 login:
-  dropHint: Dobja ide a linket az authcode-mal a kézi bejelentkezéshez
   forgetPassword: Elfelejtett jelszó?
   login: Bejelentkezés
   manualLoginUrl: Ha a böngésző nem jelenik meg, kérjük, kattints erre a linkre a belépéshez!
@@ -1547,11 +1546,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft Fiók
-    deviceCode: Eszközkód
-    deviceCodeHint: Az eszközkód a bejelentkezés gombra kattintás után generálódik
     name: Microsoft
     password: Jelszó megadása a böngészőben
-    useDeviceCode: Bejelentkezés eszközkóddal
   mojang:
     account: Email cím
     name: Mojang

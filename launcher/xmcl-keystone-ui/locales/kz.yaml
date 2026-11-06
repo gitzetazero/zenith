@@ -594,7 +594,6 @@ logLevel:
 logView:
   searchPlaceholder: Журналдардан іздеу...
 login:
-  dropHint: Қолмен кіру үшін authcode бар сілтемені осы жерге апарыңыз
   forgetPassword: Құпиясөзді ұмыттыңыз ба?
   login: Кіру
   manualLoginUrl: Егер браузер пайда болмаса, аутентификация үшін осы сілтемені басыңыз!
@@ -1500,11 +1499,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft тіркелгісі
-    deviceCode: Құрылғы коды
-    deviceCodeHint: Құрылғы коды сіз кіру батырмасын басқаннан кейін генерацияланады
     name: Microsoft
     password: Браузерде құпиясөзді енгізіңіз
-    useDeviceCode: Құрылғы коды арқылы кіру
   mojang:
     account: Электрондық пошта мекенжайы
     name: Mojang

@@ -22,7 +22,7 @@ The launcher plays Zenith only: there are no Java settings, mod loaders or other
 ## Honest limits
 
 - The exes are **not code-signed**: Windows SmartScreen will warn you.
-- **Microsoft sign-in uses Zenith's own Azure app** (`ZENITH_MSA_CLIENT_ID`, a public client id set as a repository variable and embedded at build time); **Mojang must still approve the app registration** before sign-in works for players. XMCL's own application ID is deliberately not used. Without a configured id, sign-in shows a clear message. Other account types work as in XMCL.
+- **Microsoft sign-in uses the public Minecraft client id** `00000000402b5328` (built in; `ZENITH_MSA_CLIENT_ID` or `zenith-config.json` can override it). It speaks Live Connect v1, not MSAL/v2, so the launcher uses the v1 authorization-code flow; Microsoft can revoke the shared id at any time. Mojang's `login_with_xbox` must still accept the application before sign-in works for players. XMCL's own application ID is deliberately not used. Other account types work as in XMCL.
 - No telemetry and no XMCL-hosted services. Updates are manual (the launcher links to the Zenith Releases).
 - Not verified on third-party PCs. Windows x64 only.
 

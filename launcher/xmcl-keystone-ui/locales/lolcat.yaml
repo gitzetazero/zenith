@@ -594,7 +594,6 @@ logLevel:
 logView:
   searchPlaceholder: SEARCH LOGZ...
 login:
-  dropHint: DROP DA LINK WITH AUTHCODE HERE TO MANUALLY LOGIN
   forgetPassword: FORGET PASSWORD?
   login: LOGIN
   manualLoginUrl: IF DA BROWSR DOESNT SHOW UP, PLZ CLICK THIS LINK TO AUTH!
@@ -1495,11 +1494,8 @@ userService:
 userServices:
   microsoft:
     account: MICROSOFT ACCOUNT
-    deviceCode: DEVICE CODE
-    deviceCodeHint: DEVICE CODE WILL BE GENERATED AFTR U CLICK LOGIN
     name: MICROSOFT
     password: ENTER PASSWORD IN BROWSR
-    useDeviceCode: LOGIN BY DEVICE CODE
   mojang:
     account: EMAIL ADDWESS
     name: MOJANG

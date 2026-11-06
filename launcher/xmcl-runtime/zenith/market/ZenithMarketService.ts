@@ -115,9 +115,7 @@ export class ZenithMarketService extends AbstractService implements IZenithMarke
       const kind = p && kindOf(p.kind)
       if (!p || !kind) throw new Error(`${options.projectId} is not in the Zenith registry.`)
       if (!canInstallKind(kind)) {
-        throw new Error(kind === 'native-mod'
-          ? 'Native mods are compiled into the game and need a Zenith rebuild: this launcher cannot install them yet.'
-          : 'This launcher cannot install this kind of project yet.')
+        throw new Error('This launcher cannot install this kind of project yet.')
       }
       const versions = versionsOf(index, p, this.game)
       const chosen = options.versionId ? versions.find((v) => v.id === options.versionId) : versions.find((v) => v.picked)
@@ -135,7 +133,16 @@ export class ZenithMarketService extends AbstractService implements IZenithMarke
           throw new Error(`${v.file.name}: the author's signature does not verify.`)
         }
       }
-      return { path, fileName: v.file.name, kind, notes: kind === 'mod' ? ['Mods start turned off: enable it in the game, Options > Mods.'] : [] }
+      return {
+        path,
+        fileName: v.file.name,
+        kind,
+        notes: kind === 'mod'
+          ? ['Mods start turned off: enable it in the game, Options > Mods.']
+          : kind === 'native-mod'
+            ? ['Installed into horizon-native-mods. The game runs it only once built with it: this launcher installs the file but does not compile native mods.']
+            : [],
+      }
     }
     // Modrinth
     const detail = await this.getProject('modrinth', options.projectId)

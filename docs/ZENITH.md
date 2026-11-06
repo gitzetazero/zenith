@@ -135,7 +135,7 @@ Zenith Launcher is our own fork of XMCL (Voxelum, MIT, Electron + Vue), renamed 
 - No telemetry, no XMCL-hosted services. XMCL's Microsoft application ID is **not** used.
 - On first start the launcher creates the `Zenith` instance, whose Java is a copy of the bundled bridge.
 - The release workflow bundles the bridge it builds in the same run (`xmcl-electron-app/build/zenith/`). `tools/zenith/fetch-bridge.mjs` (signature and SHA-256 of the `nightly` release) is only for local builds. The launcher checks the app's update feed against this repository's Releases. The installed Windows build downloads `Zenith-Launcher-Setup-x64.exe` from them, checks its SHA-256 against the release notes and runs it silently when the user restarts (portable builds only link to Releases). The hash comes from the same release, so it catches corruption, not a replaced release, and the installer is not code-signed (SmartScreen may warn). Details: `launcher/docs/ZENITH-LAUNCHER.md`, "Launcher updates".
-- **Open problem:** Microsoft sign-in uses our own Azure app (repository variable `ZENITH_MSA_CLIENT_ID`, embedded at build time); Mojang must still approve the app registration before sign-in works for players. Without the variable the launcher shows a clear message instead. The first releases are unsigned (SmartScreen warns) and not verified on third-party PCs.
+- **Open problem:** Microsoft sign-in uses the public Minecraft client id `00000000402b5328`, built into the launcher (no repository variable); Mojang must still approve that application before sign-in works for players. The first releases are unsigned (SmartScreen warns) and not verified on third-party PCs.
 
 ## Legal notice
 

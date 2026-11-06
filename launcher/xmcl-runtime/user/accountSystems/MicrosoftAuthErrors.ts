@@ -34,7 +34,7 @@ export function classifyMicrosoftAppSetupProblem(error: unknown): MicrosoftAppSe
     .filter((v): v is string => typeof v === 'string')
     .join(' ')
   if (!text) return undefined
-  if (/\bunauthorized_client\b|AADSTS700016|AADSTS700025|client does not exist|not enabled for consumers/i.test(text)) return 'APP_NOT_FOUND'
+  if (/\bunauthorized_client\b|\binvalid_client\b|AADSTS700016|AADSTS700025|client does not exist|not enabled for consumers/i.test(text)) return 'APP_NOT_FOUND'
   if (/redirect_uri|redirect uri|AADSTS50011|AADSTS900971/i.test(text) && /not valid|does not match|not registered|invalid/i.test(text)) return 'REDIRECT_URI_NOT_REGISTERED'
   if (/AADSTS70011|AADSTS65001|invalid_scope|scope[^.]*not valid/i.test(text)) return 'INVALID_SCOPE'
   return undefined

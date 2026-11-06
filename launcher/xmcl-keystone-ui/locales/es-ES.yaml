@@ -636,7 +636,6 @@ logLevel:
 logView:
   searchPlaceholder: Buscar registros...
 login:
-  dropHint: Suelta el enlace con el código de autenticación aquí para iniciar sesión manualmente
   forgetPassword: ¿Olvidaste tu contraseña?
   login: Iniciar sesión
   manualLoginUrl: 'Si el navegador no aparece, haz clic en este enlace para autenticarte:'
@@ -1655,11 +1654,8 @@ userService:
 userServices:
   microsoft:
     account: Cuenta de Microsoft
-    deviceCode: Código de dispositivo
-    deviceCodeHint: El código de dispositivo se generará después de hacer clic en iniciar sesión
     name: Microsoft
     password: Introducir contraseña en el navegador
-    useDeviceCode: Iniciar sesión con código de dispositivo
   mojang:
     account: Dirección de correo electrónico
     name: Mojang

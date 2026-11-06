@@ -53,8 +53,8 @@ The fork's `.github/workflows/zenith-release.yml` has the exact steps:
 3. Bridge: build it in the same run (or `node tools/zenith/fetch-bridge.mjs xmcl-electron-app/build/zenith`).
 4. `pnpm run check` (typecheck of `xmcl-runtime-api`, `xmcl-runtime`, `xmcl-electron-app`, `xmcl-keystone-ui`).
 5. Tests (see section 4).
-6. `pnpm run --prefix xmcl-keystone-ui build` then `pnpm run --prefix xmcl-electron-app build:all` (env: `NODE_ENV=production`, `NODE_OPTIONS=--max-old-space-size=8192`, optional repository variables
-   `ZENITH_MSA_CLIENT_ID`, `ZENITH_DISCORD_CLIENT_ID`; variables, never secrets).
+6. `pnpm run --prefix xmcl-keystone-ui build` then `pnpm run --prefix xmcl-electron-app build:all` (env: `NODE_ENV=production`, `NODE_OPTIONS=--max-old-space-size=8192`, optional repository variable
+   `ZENITH_DISCORD_CLIENT_ID`; variables, never secrets. The Microsoft client id is built in).
 7. `node tools/zenith/verify-asar.mjs <win-unpacked/resources/app.asar>` (fails on `xmcl.app`, `1363d629`, `XMCL Agent`, `Together`, `signaling`, Application Insights; requires `.minecraftz`).
 8. Collect `Zenith-Launcher-Setup-x64.exe` and `Zenith-Launcher-Portable-x64.exe`, write `SHA256SUMS`.
 9. Publish with `gh release create <tag> --prerelease=false --latest ...` (a normal release, not a prerelease).
@@ -81,6 +81,6 @@ Known to fail on a Windows PC without the symlink privilege (not related to Zeni
 
 ## 5. Things the maintainer provides
 
-- `ZENITH_MSA_CLIENT_ID`: an Azure app registered and approved by Mojang (redirect `http://localhost:25555/auth`). Without it Microsoft sign-in shows a message.
+- `ZENITH_MSA_CLIENT_ID`: not needed for releases: the public Minecraft client id `00000000402b5328` is built in. A developer can still set it in the environment or `zenith-config.json` to point a local build at another app. It speaks Live Connect v1 (see `docs/ZENITH-LAUNCHER.md`); an Entra app id here switches the launcher back to the MSAL/v2 flow and needs a `http://localhost:25555/auth` redirect plus Mojang approval.
 - `ZENITH_DISCORD_CLIENT_ID`: create a Discord application named **Zenith**, upload the logo as a Rich Presence art asset named `zenith-logo`, and set its application id (repository variable at build time, the environment variable, or `zenith-config.json`). Without it the presence is disabled silently.
 - Optionally `CURSEFORGE_API_KEY` (not used by the Market today) and `ZENITH_MOD_INDEX` (an https address of a test registry index).

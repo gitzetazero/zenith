@@ -30,7 +30,7 @@ export function registrySupport(kind: MarketKind, gameVersions: string[], game: 
   }
   switch (kind) {
     case 'native-mod':
-      return { level: 'works', reason: 'Native mods are compiled into the game: they need a Zenith rebuild, which this launcher cannot do yet.' }
+      return { level: 'partial', reason: 'Installed into horizon-native-mods; it runs only in a game built with it, and this launcher does not compile native mods.' }
     case 'modpack':
       return { level: 'partial', reason: 'Modpacks (.hpack) cannot be installed from this launcher yet.' }
     case 'datapack':

@@ -632,7 +632,6 @@ logLevel:
 logView:
   searchPlaceholder: वृत्तलेखान् अन्विषतु...
 login:
-  dropHint: हस्तेन प्रवेशार्थं प्रमाणीकरणसङ्केतयुक्तां कडीम् अत्र क्षिपतु
   forgetPassword: सङ्केतशब्दं विस्मृतवान्?
   login: प्रवेशः
   manualLoginUrl: यदि जालगवाक्षः न दृश्यते, तर्हि प्रमाणीकरणाय एतां कडीं नुदतु!
@@ -1634,11 +1633,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft लेखा
-    deviceCode: यन्त्रसङ्केतः (Device Code)
-    deviceCodeHint: प्रवेशमुद्रणानन्तरं यन्त्रसङ्केतः जनिष्यते
     name: Microsoft
     password: जालगवाक्षे सङ्केतशब्दं लिखतु
-    useDeviceCode: यन्त्रसङ्केतेन प्रविशतु
   mojang:
     account: विद्युत्पत्रम्
     name: Mojang

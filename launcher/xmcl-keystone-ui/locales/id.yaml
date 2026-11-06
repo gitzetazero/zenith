@@ -632,7 +632,6 @@ logLevel:
 logView:
   searchPlaceholder: Cari log...
 login:
-  dropHint: Letakkan tautan dengan kode autentikasi di sini untuk masuk secara manual
   forgetPassword: Lupa Kata Sandi?
   login: Masuk
   manualLoginUrl: Jika browser tidak muncul, silakan klik tautan ini untuk melakukan autentikasi!
@@ -1634,11 +1633,8 @@ userService:
 userServices:
   microsoft:
     account: Akun Microsoft
-    deviceCode: Kode Perangkat
-    deviceCodeHint: Kode perangkat akan dibuat setelah Anda mengklik masuk
     name: Microsoft
     password: Masukkan Kata Sandi di Browser
-    useDeviceCode: Masuk dengan Kode Perangkat
   mojang:
     account: Alamat Email
     name: Mojang

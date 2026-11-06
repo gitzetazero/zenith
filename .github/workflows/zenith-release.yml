@@ -205,7 +205,8 @@ jobs:
 
   # Zenith Launcher (launcher, our fork of XMCL by Voxelum, MIT): typecheck, tests, build, app.asar check, with the
   # bridge built above bundled as an extra resource. The portable exe is zipped so the public file name stays
-  # Zenith-Launcher-Portable-x64.zip. No secrets; ZENITH_MSA_CLIENT_ID / ZENITH_DISCORD_CLIENT_ID are optional repository variables.
+  # Zenith-Launcher-Portable-x64.zip. No secrets, and no repository variable for Microsoft: the public Minecraft client id
+  # (00000000402b5328) is built into the launcher. ZENITH_DISCORD_CLIENT_ID is an optional repository variable.
   launcher:
     needs: [gate, bridge]
     if: needs.gate.outputs.go == 'true'
@@ -244,7 +245,6 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
           NODE_ENV: production
           NODE_OPTIONS: --max-old-space-size=8192
-          ZENITH_MSA_CLIENT_ID: ${{ vars.ZENITH_MSA_CLIENT_ID }} # public client id, embedded by the esbuild config
           ZENITH_DISCORD_CLIENT_ID: ${{ vars.ZENITH_DISCORD_CLIENT_ID }}
           ZENITH_COMMIT: ${{ github.sha }} # the updater compares it with the release notes
         run: |

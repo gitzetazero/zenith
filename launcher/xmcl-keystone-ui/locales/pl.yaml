@@ -566,7 +566,6 @@ logLevel:
 logView:
   searchPlaceholder: Szukaj w logach...
 login:
-  dropHint: Upuść link z authcode tutaj, aby zalogować się ręcznie
   forgetPassword: Nie pamiętasz hasła?
   login: Logowanie
   manualLoginUrl: Jeśli przeglądarka się nie wyświetla, kliknij ten link, aby autoryzować!
@@ -1478,11 +1477,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft Account
-    deviceCode: Kod urządzenia
-    deviceCodeHint: Kod urządzenia zostanie wygenerowany po kliknięciu przycisku logowania.
     name: Microsoft
     password: Wprowadź hasło w przeglądarce
-    useDeviceCode: Logowanie według kodu urządzenia
   mojang:
     account: Email Address
     name: Mojang

@@ -89,18 +89,21 @@ export async function downloadChecked(
   return { path: final, bytes }
 }
 
-/** Where a kind goes inside a Zenith instance folder. Native mods and modpacks cannot be installed yet. */
+/** Where a kind goes inside a Zenith instance folder. Native mods go to the folder the game scans beside it. */
 export function destinationFor(kind: MarketKind, instancePath: string, world?: string): string {
   switch (kind) {
     case 'mod': return join(instancePath, 'horizon-mods')
+    case 'native-mod':
+      // zenith: `<instance>/horizon-native-mods/<file>.hnmod`, where the game lists an installed
+      // native mod and says whether the game it runs was built with it (zenith-client-render
+      // `mod_list::NATIVE_DIR`). The launcher does not compile native code: the file waits there.
+      return join(instancePath, 'horizon-native-mods')
     case 'shader': return join(instancePath, 'shaderpacks')
     case 'resourcepack': return join(instancePath, 'resourcepacks')
     case 'datapack': {
       if (!world || !safeName(world)) throw new Error('Pick the world to install the data pack into.')
       return join(instancePath, 'saves', world, 'datapacks')
     }
-    case 'native-mod':
-      throw new Error('Native mods are compiled into the game and need a Zenith rebuild: this launcher cannot install them yet.')
     default:
       throw new Error('This launcher cannot install modpacks yet.')
   }

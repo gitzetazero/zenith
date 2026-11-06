@@ -10,7 +10,7 @@ import { MicrosoftOAuthClient } from './accountSystems/MicrosoftOAuthClient'
 import { kUserTokenStorage } from './userTokenStore'
 import { withRetry } from './utils/withRetry'
 
-// zenith: XMCL's Microsoft client id is NOT used; configure ZENITH_MSA_CLIENT_ID (see docs/ZENITH-LAUNCHER.md)
+// zenith: XMCL's Microsoft client id is NOT used; the public Minecraft client id is built in (see docs/ZENITH-LAUNCHER.md)
 const XBOX_DEVICE_STORAGE_SERVICE = 'xmcl/xbox-device'
 const XBOX_DEVICE_STORAGE_ACCOUNT = 'XMCL_XBOX_DEVICE'
 

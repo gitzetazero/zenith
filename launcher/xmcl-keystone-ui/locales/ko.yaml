@@ -619,7 +619,6 @@ logLevel:
 logView:
   searchPlaceholder: 로그 검색...
 login:
-  dropHint: 인증 코드가 포함된 링크를 여기에 놓아 수동 로그인하세요
   forgetPassword: 비밀번호를 잊으셨나요?
   login: 로그인
   manualLoginUrl: 브라우저가 나타나지 않으면 이 링크를 클릭해 인증하세요!
@@ -1601,11 +1600,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft 계정
-    deviceCode: 디바이스 코드
-    deviceCodeHint: 로그인을 클릭한 후 디바이스 코드가 생성됩니다
     name: Microsoft
     password: 브라우저에서 비밀번호 입력
-    useDeviceCode: 디바이스 코드로 로그인
   mojang:
     account: 이메일 주소
     name: Mojang

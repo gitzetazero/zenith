@@ -592,7 +592,6 @@ logLevel:
 logView:
   searchPlaceholder: Pesquisar logs...
 login:
-  dropHint: Coloque o link com o código de autenticação aqui para login manual
   forgetPassword: Esqueceu a senha?
   login: Entrar
   manualLoginUrl: Se o navegador não aparecer, clique neste link para autenticar!
@@ -1504,11 +1503,8 @@ userService:
 userServices:
   microsoft:
     account: Conta da Microsoft
-    deviceCode: Código do Dispositivo
-    deviceCodeHint: O código do dispositivo será gerado após clicar em login
     name: Microsoft
     password: Insira a Senha no Navegador
-    useDeviceCode: Fazer Login com Código do Dispositivo
   mojang:
     account: Endereço de E-mail
     name: Mojang

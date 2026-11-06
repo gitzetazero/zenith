@@ -46,7 +46,7 @@ function setup() {
       injection: () => ({
         select,
         data: Vue.ref([
-          { authority: RuntimeApi.AUTHORITY_MICROSOFT, flow: ['device-code'] },
+          { authority: RuntimeApi.AUTHORITY_MICROSOFT, flow: ['grant-code'] },
           { authority: RuntimeApi.AUTHORITY_DEV, flow: [] },
           { authority: 'https://auth.example.com', flow: ['password'] },
         ]),
@@ -95,7 +95,7 @@ describe('login authority error state', () => {
   it('clears Microsoft errors and authorization details when switching to offline', async () => {
     const state = setup()
     state.error.value = profileError
-    state.data.password = 'device-code'
+    state.data.password = 'stale-secret'
     state.data.verificationUri = 'https://microsoft.com/link'
     await Vue.nextTick()
     expect(state.errorMessage.value).toBe('loginError.noProfileForNewUser')

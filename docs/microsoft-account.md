@@ -1,5 +1,12 @@
 # Microsoft account sign-in and online-mode play
 
+> **Zenith Launcher (the Electron launcher in `launcher/`) uses a different
+> Microsoft flow.** It signs in with the public Minecraft client id
+> `00000000402b5328` over Live Connect v1, not the device-code/Entra flow
+> described below; see
+> [launcher/docs/ZENITH-LAUNCHER.md](../launcher/docs/ZENITH-LAUNCHER.md).
+> The rest of this page describes Horizon's own launcher.
+
 Horizon signs players in with their Microsoft account in the launcher and joins online-mode
 (authenticated) servers like vanilla 26.3 does. The launcher plays only with an account that owns
 Minecraft: Java Edition ([the owner gate](#the-owner-gate)); offline names, LAN and offline-mode
@@ -38,7 +45,7 @@ no Microsoft sign-in"); release builds have it.
    - Any build, at run time: the environment variable `HORIZON_MSA_CLIENT_ID` overrides the built-in
      value (empty or unset = not configured).
 
-Never use another application's client ID (the official launcher's or another launcher's).
+Never use another application's client ID for Horizon's own launcher (the official launcher's or another launcher's). The exception is the separate Electron Zenith Launcher, which uses the public Minecraft id `00000000402b5328` by its maintainer's decision; see its note above.
 
 ## Flow (launcher)
 

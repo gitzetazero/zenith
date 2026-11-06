@@ -632,7 +632,6 @@ logLevel:
 logView:
   searchPlaceholder: பதிவுகளைத் தேடு...
 login:
-  dropHint: கைமுறையாக உள்நுழைய அங்கீகாரக் குறியீட்டுடன் (authcode) கூடிய இணைப்பை இங்கே இழுத்து விடவும்
   forgetPassword: கடவுச்சொல்லை மறந்துவிட்டீர்களா?
   login: உள்நுழை
   manualLoginUrl: உலாவி தோன்றவில்லை எனில், அங்கீகரிக்க இந்த இணைப்பைக் கிளிக் செய்யவும்!
@@ -1634,11 +1633,8 @@ userService:
 userServices:
   microsoft:
     account: மைக்ரோசாஃப்ட் கணக்கு
-    deviceCode: சாதனக் குறியீடு
-    deviceCodeHint: நீங்கள் உள்நுழைவைக் கிளிக் செய்த பிறகு சாதனக் குறியீடு உருவாக்கப்படும்
     name: மைக்ரோசாஃப்ட்
     password: உலாவியில் கடவுச்சொல்லை உள்ளிடவும்
-    useDeviceCode: சாதனக் குறியீடு மூலம் உள்நுழையவும்
   mojang:
     account: மின்னஞ்சல் முகவரி
     name: மோஜாங்

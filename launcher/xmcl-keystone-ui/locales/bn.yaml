@@ -632,7 +632,6 @@ logLevel:
 logView:
   searchPlaceholder: লগ খুঁজুন...
 login:
-  dropHint: ম্যানুয়ালি লগইন করতে authcode সহ লিঙ্কটি এখানে ড্রপ করুন
   forgetPassword: পাসওয়ার্ড ভুলে গেছেন?
   login: লগইন করুন
   manualLoginUrl: যদি ব্রাউজারটি না খোলে, তবে যাচাইকরণের জন্য অনুগ্রহ করে এই লিঙ্কে ক্লিক করুন!
@@ -1633,11 +1632,8 @@ userService:
 userServices:
   microsoft:
     account: মাইক্রোসফট অ্যাকাউন্ট
-    deviceCode: ডিভাইস কোড
-    deviceCodeHint: লগইন এ ক্লিক করার পর ডিভাইস কোড তৈরি করা হবে
     name: Microsoft
     password: ব্রাউজারে পাসওয়ার্ড লিখুন
-    useDeviceCode: ডিভাইস কোডের মাধ্যমে লগইন করুন
   mojang:
     account: ইমেল ঠিকানা
     name: Mojang

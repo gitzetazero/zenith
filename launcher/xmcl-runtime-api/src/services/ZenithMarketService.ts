@@ -28,9 +28,9 @@ export interface MarketProject {
   gameVersions: string[]
   categories: string[]
   support: MarketSupport
-  /** False for what the launcher cannot install (Java mods, native mods until the game is rebuilt, modpacks). */
+  /** False for what the launcher cannot install (Java mods, modpacks). */
   installable: boolean
-  /** Native mods are compiled into the game: they need a Zenith rebuild, which this launcher does not do yet. */
+  /** Native mods are compiled into the game: an installed `.hnmod` runs only in a game built with it. */
   requiresRebuild?: boolean
 }
 

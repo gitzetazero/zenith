@@ -2,6 +2,7 @@ import type { AccountInfo, INativeBrokerPlugin, TokenCacheContext } from '@azure
 import { copyFileSync } from 'fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SecretStorage } from '~/app/SecretStorage'
+import { MINECRAFT_LAUNCHER_PUBLIC_CLIENT_ID } from '~/zenith/config'
 import { createPlugin } from '../credentialPlugin'
 import { MicrosoftOAuthClient } from './MicrosoftOAuthClient'
 
@@ -339,6 +340,138 @@ describe('MicrosoftOAuthClient', () => {
 
     expect(storage.put).not.toHaveBeenCalled()
     expect(getOAuthApp).toHaveBeenCalledOnce()
+  })
+})
+
+describe('MicrosoftOAuthClient with the public Minecraft client id', () => {
+  const logger = { log: vi.fn(), warn: vi.fn(), error: vi.fn() }
+  const tokenResponse = (overrides: Record<string, unknown> = {}) => new Response(JSON.stringify({
+    access_token: 'ms-token',
+    refresh_token: 'ms-refresh',
+    expires_in: 3600,
+    user_id: 'ms-user-id',
+    ...overrides,
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+
+  function createLegacyClient(fetch: typeof global.fetch, getCode = vi.fn(), storage: SecretStorage = {
+    get: vi.fn().mockResolvedValue(undefined),
+    put: vi.fn().mockResolvedValue(undefined),
+  }) {
+    return {
+      client: new MicrosoftOAuthClient(
+        fetch,
+        logger as any,
+        MINECRAFT_LAUNCHER_PUBLIC_CLIENT_ID,
+        getCode,
+        vi.fn().mockResolvedValue('http://localhost:25555/auth'),
+        vi.fn(),
+        storage,
+      ),
+      getCode,
+      storage,
+    }
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('uses the Live Connect authorization-code flow instead of MSAL', async () => {
+    const fetch = vi.fn().mockResolvedValue(tokenResponse())
+    const getOAuthApp = vi.spyOn(MicrosoftOAuthClient.prototype as any, 'getOAuthApp')
+    const { client, getCode, storage } = createLegacyClient(fetch as any, vi.fn().mockResolvedValue('live-code'))
+
+    const authentication = await client.authenticate('player@example.com', ['XboxLive.signin'])
+
+    expect(getOAuthApp).not.toHaveBeenCalled()
+    expect(getCode).toHaveBeenCalledWith(
+      expect.stringContaining('https://login.live.com/oauth20_authorize.srf'),
+      'https://login.live.com/oauth20_desktop.srf',
+      undefined,
+      expect.any(String),
+    )
+    const authorize = new URL(getCode.mock.calls[0][0])
+    expect(authorize.searchParams.get('client_id')).toBe(MINECRAFT_LAUNCHER_PUBLIC_CLIENT_ID)
+    expect(authorize.searchParams.get('response_type')).toBe('code')
+    expect(authorize.searchParams.get('scope')).toBe('service::user.auth.xboxlive.com::MBI_SSL')
+    expect(authorize.searchParams.get('login_hint')).toBe('player@example.com')
+
+    const [tokenUrl, tokenInit] = fetch.mock.calls[0]
+    expect(tokenUrl).toBe('https://login.live.com/oauth20_token.srf')
+    const body = new URLSearchParams(tokenInit.body)
+    expect(body.get('grant_type')).toBe('authorization_code')
+    expect(body.get('code')).toBe('live-code')
+    expect(body.get('redirect_uri')).toBe('https://login.live.com/oauth20_desktop.srf')
+    expect(authentication.result.accessToken).toBe('ms-token')
+    expect(storage.put).toHaveBeenCalledWith(
+      'xmcl-oauth-legacy',
+      'player@example.com',
+      expect.stringContaining('"refreshToken":"ms-refresh"'),
+    )
+  })
+
+  it('refreshes the stored Live Connect token without opening a window', async () => {
+    const fetch = vi.fn().mockResolvedValue(tokenResponse({ access_token: 'refreshed-token', refresh_token: 'rotated' }))
+    const stored = {
+      version: 1,
+      clientId: MINECRAFT_LAUNCHER_PUBLIC_CLIENT_ID,
+      username: 'player@example.com',
+      userId: 'ms-user-id',
+      accessToken: 'old-token',
+      refreshToken: 'old-refresh',
+      expiresAt: Date.now() - 1,
+    }
+    const { client, getCode, storage } = createLegacyClient(fetch as any, vi.fn(), {
+      get: vi.fn().mockResolvedValue(JSON.stringify(stored)),
+      put: vi.fn().mockResolvedValue(undefined),
+    })
+
+    const authentication = await client.authenticate('player@example.com', ['XboxLive.signin'], { slientOnly: true })
+
+    expect(getCode).not.toHaveBeenCalled()
+    const body = new URLSearchParams(fetch.mock.calls[0][1].body)
+    expect(body.get('grant_type')).toBe('refresh_token')
+    expect(body.get('refresh_token')).toBe('old-refresh')
+    expect(authentication.result.accessToken).toBe('refreshed-token')
+    expect(storage.put).toHaveBeenCalledWith(
+      'xmcl-oauth-legacy',
+      'player@example.com',
+      expect.stringContaining('"refreshToken":"rotated"'),
+    )
+  })
+
+  it('reuses an unexpired token without a network request', async () => {
+    const fetch = vi.fn()
+    const stored = {
+      version: 1,
+      clientId: MINECRAFT_LAUNCHER_PUBLIC_CLIENT_ID,
+      username: 'player@example.com',
+      userId: 'ms-user-id',
+      accessToken: 'cached-token',
+      refreshToken: 'cached-refresh',
+      expiresAt: Date.now() + 3_600_000,
+    }
+    const { client, getCode } = createLegacyClient(fetch as any, vi.fn(), {
+      get: vi.fn().mockResolvedValue(JSON.stringify(stored)),
+      put: vi.fn(),
+    })
+
+    const authentication = await client.authenticate('player@example.com', ['XboxLive.signin'], { slientOnly: true })
+
+    expect(getCode).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
+    expect(authentication.result.accessToken).toBe('cached-token')
+  })
+
+  it('reports a silent miss without falling back to the interactive flow', async () => {
+    const fetch = vi.fn()
+    const { client, getCode } = createLegacyClient(fetch as any)
+
+    await expect(client.authenticate('player@example.com', ['XboxLive.signin'], { slientOnly: true }))
+      .rejects.toMatchObject({ name: 'MicrosoftOAuthSlientFailed' })
+
+    expect(fetch).not.toHaveBeenCalled()
+    expect(getCode).not.toHaveBeenCalled()
   })
 })
 

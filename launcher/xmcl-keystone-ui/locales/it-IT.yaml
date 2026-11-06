@@ -584,7 +584,6 @@ logLevel:
 logView:
   searchPlaceholder: Cerca nei log...
 login:
-  dropHint: Lasciare il collegamento con authcode qui per accedere manualmente
   forgetPassword: Hai dimenticato la password?
   login: Accedi
   manualLoginUrl: Se il browser non si apre, fare clic su questo link per l'autenticazione!
@@ -1504,11 +1503,8 @@ userService:
 userServices:
   microsoft:
     account: Account Microsoft
-    deviceCode: Codice dispositivo
-    deviceCodeHint: Il codic del dispositivo sarà genereando dopo che cliccerai login
     name: Microsoft
     password: Inserisci la Password nel Browser
-    useDeviceCode: Accedi con codice dispositivo
   mojang:
     account: Indirizzo E-mail
     name: Mojang

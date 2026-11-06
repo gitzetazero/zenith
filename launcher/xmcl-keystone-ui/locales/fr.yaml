@@ -604,7 +604,6 @@ logLevel:
 logView:
   searchPlaceholder: Rechercher les logs...
 login:
-  dropHint: Déposez le lien avec le code d'authentification ici pour vous connecter manuellement
   forgetPassword: Mot de passe oublié?
   login: Connexion
   manualLoginUrl: Si le navigateur ne s'affiche pas, veuillez cliquer sur ce lien pour vous authentifier !
@@ -1555,11 +1554,8 @@ userService:
 userServices:
   microsoft:
     account: Compte microsoft
-    deviceCode: Code d'Appareil
-    deviceCodeHint: Le code de l'appareil sera généré après avoir cliqué sur connexion
     name: Microsoft
     password: Entrez le mot de passe dans le navigateur
-    useDeviceCode: Connexion par Code d'Appareil
   mojang:
     account: Adresse e-mail
     name: Mojang

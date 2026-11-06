@@ -632,7 +632,6 @@ logLevel:
 logView:
   searchPlaceholder: लॉग खोजें...
 login:
-  dropHint: मैन्युअल रूप से लॉग इन करने के लिए प्रमाणीकरण कोड वाले लिंक को यहाँ छोड़ें
   forgetPassword: पासवर्ड भूल गए?
   login: लॉग इन
   manualLoginUrl: यदि ब्राउज़र दिखाई नहीं देता है, तो कृपया प्रमाणित करने के लिए इस लिंक पर क्लिक करें!
@@ -1634,11 +1633,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft खाता
-    deviceCode: डिवाइस कोड
-    deviceCodeHint: लॉगिन पर क्लिक करने के बाद डिवाइस कोड जेनरेट होगा
     name: Microsoft
     password: ब्राउज़र में पासवर्ड दर्ज करें
-    useDeviceCode: डिवाइस कोड से लॉगिन करें
   mojang:
     account: ईमेल पता
     name: Mojang

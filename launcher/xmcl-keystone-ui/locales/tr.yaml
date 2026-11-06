@@ -628,7 +628,6 @@ logLevel:
 logView:
   searchPlaceholder: Günlükleri ara...
 login:
-  dropHint: Manuel giriş yapmak için yetkilendirme kodlu bağlantıyı buraya bırakın
   forgetPassword: Şifremi Unuttum?
   login: Giriş Yap
   manualLoginUrl: Tarayıcı açılmazsa, yetkilendirme için lütfen bu bağlantıya tıklayın!
@@ -1606,11 +1605,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft Hesabı
-    deviceCode: Cihaz Kodu
-    deviceCodeHint: Giriş'e tıkladıktan sonra cihaz kodu oluşturulacaktır
     name: Microsoft
     password: Tarayıcıda Şifre Girin
-    useDeviceCode: Cihaz Kodu ile Giriş
   mojang:
     account: E-posta Adresi
     name: Mojang

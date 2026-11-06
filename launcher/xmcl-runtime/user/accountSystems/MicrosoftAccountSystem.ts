@@ -28,7 +28,9 @@ export class MicrosoftAccountSystem implements UserAccountSystem {
     return [
       {
         authority: AUTHORITY_MICROSOFT,
-        flow: ['device-code', 'grant-code'],
+        // Live Connect (the public Minecraft client id) has no device-code
+        // endpoint; the browser grant is the only way in.
+        flow: this.oauthClient.usesLegacyMinecraftClient ? ['grant-code'] : ['device-code', 'grant-code'],
         emailOnly: true,
         kind: 'builtin',
       },

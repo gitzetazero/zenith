@@ -593,7 +593,6 @@ logLevel:
 logView:
   searchPlaceholder: Zoek in logs...
 login:
-  dropHint: Sleep de link met authcode hierheen om handmatig in te loggen
   forgetPassword: Wachtwoord vergeten?
   login: Inloggen
   manualLoginUrl: Als de browser niet verschijnt, klik op deze link om te verifiëren!
@@ -1500,11 +1499,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft Account
-    deviceCode: Apparaatcode
-    deviceCodeHint: Apparaatcode wordt gegenereerd nadat je op inloggen klikt
     name: Microsoft
     password: Voer Wachtwoord in Browser in
-    useDeviceCode: Inloggen via Apparaatcode
   mojang:
     account: E-mailadres
     name: Mojang

@@ -684,7 +684,6 @@ logLevel:
 logView:
   searchPlaceholder: 搜索日志...
 login:
-  dropHint: 将验证链接拖入此处手动验证
   forgetPassword: 忘记密码？
   login: 登录
   manualLoginUrl: 如果浏览器没有自动打开，请点击此链接来验证！
@@ -1871,11 +1870,8 @@ userService:
 userServices:
   microsoft:
     account: 微软账号
-    deviceCode: 设备码
-    deviceCodeHint: 设备码会在点击登录后自动生成
     name: 微软
     password: 在浏览器中输入密码
-    useDeviceCode: 使用设备码登录
   mojang:
     account: 邮箱地址
     name: Mojang

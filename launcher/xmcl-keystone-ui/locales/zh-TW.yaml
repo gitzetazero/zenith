@@ -616,7 +616,6 @@ logLevel:
 logView:
   searchPlaceholder: 搜尋日誌...
 login:
-  dropHint: 將驗證連結拖入此處手動驗證
   forgetPassword: 忘記密碼？
   login: 登入
   manualLoginUrl: 如果瀏覽器沒有自動開啟，請按一下此連結來驗證！
@@ -1634,11 +1633,8 @@ userService:
 userServices:
   microsoft:
     account: 微軟帳號
-    deviceCode: 裝置碼
-    deviceCodeHint: 裝置碼會在按一下登入後自動產生
     name: 微軟
     password: 在瀏覽器中輸入密碼
-    useDeviceCode: 使用裝置碼登入
   mojang:
     account: 電子郵件
     name: Mojang

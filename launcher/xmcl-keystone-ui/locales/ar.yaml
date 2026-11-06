@@ -620,7 +620,6 @@ logLevel:
 logView:
   searchPlaceholder: سجلات البحث...
 login:
-  dropHint: قم بإسقاط الرابط الذي يحتوي على رمز المصادقة هنا لتسجيل الدخول يدويًا
   forgetPassword: نسيت كلمة المرور؟
   login: تسجيل الدخول
   manualLoginUrl: إذا لم يظهر المتصفح، يرجى النقر على هذا الرابط للمصادقة!
@@ -1564,11 +1563,8 @@ userService:
 userServices:
   microsoft:
     account: حساب مايكروسوفت
-    deviceCode: رمز الجهاز
-    deviceCodeHint: سيتم إنشاء رمز الجهاز بعد النقر فوق تسجيل الدخول
     name: مايكروسوفت
     password: أدخل كلمة المرور في المتصفح
-    useDeviceCode: تسجيل الدخول عن طريق رمز الجهاز
   mojang:
     account: عنوان البريد الإلكتروني
     name: موجانج

@@ -670,7 +670,6 @@ logLevel:
 logView:
   searchPlaceholder: Search logs...
 login:
-  dropHint: Drop the link with authcode here to manually login
   forgetPassword: Forget Password?
   login: Login
   manualLoginUrl: If the browser doesn't show up, please click this link to auth!
@@ -1860,11 +1859,8 @@ userService:
 userServices:
   microsoft:
     account: Microsoft Account
-    deviceCode: Device Code
-    deviceCodeHint: Device code will be generated after you click login
     name: Microsoft
     password: Enter Password in Browser
-    useDeviceCode: Login by Device Code
   mojang:
     account: Email Address
     name: Mojang

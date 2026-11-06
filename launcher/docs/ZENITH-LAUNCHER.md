@@ -48,7 +48,7 @@ Page `Zenith Market` (sidebar, `/market`; `/store` redirects). Code: `xmcl-runti
 | Modrinth | `https://api.modrinth.com/v2` (no key) | resource packs, data packs (a `mod` project with the `datapack` category), shader packs; Java mods and modpacks only appear with "Show everything", marked Doesn't run. |
 
 Badges, as in Horizon: **Works** (made for the Zenith game version), **Partly** (older resource packs, data packs, Java-format shader packs: the reason is shown), **Doesn't run** (Java mods, registry projects for another game version: never installable).
-Native mods are listed with **Requires rebuild**: they are compiled into the game, so this launcher does not install them yet. Modpacks (`.hpack`) are listed and not installable yet.
+Native mods are listed with **Requires rebuild** and install into `horizon-native-mods/`, where the game lists them and says that the game it runs was not built with them: this launcher places the file, it does not compile native code. Modpacks (`.hpack`) are listed and not installable yet.
 
 Install (all checked before the file reaches the instance): https, known hosts (`cdn.modrinth.com`, the registry's release assets, a project's own GitHub release assets), a plain file name, the size, the **SHA-256** of the index (**SHA-512** on Modrinth), the index's
 takedown list, and the author's **minisign** signature when the project has a key. Destinations in the Zenith instance folder: `horizon-mods/` (mods start turned off: enable them in the game, Options > Mods), `shaderpacks/`, `resourcepacks/`, and
@@ -58,7 +58,7 @@ takedown list, and the author's **minisign** signature when the project has a ke
 
 | What XMCL embedded | What Zenith Launcher does | What the maintainer must provide |
 |---|---|---|
-| Microsoft client ID `1363d629-...` | **Removed.** `ZENITH_MSA_CLIENT_ID` (environment), `zenith-config.json` (`msaClientId`) or the build (repository variable). Without it, Microsoft sign-in shows a message and never contacts Microsoft. | Their own Azure app, registered and approved by Mojang/Microsoft (personal accounts, public client, redirect `http://localhost:25555/auth`). |
+| Microsoft client ID `1363d629-...` | **Replaced by the public Minecraft client id `00000000402b5328`**, built into the launcher (no repository variable needed). It is a Live Connect v1 application, so the launcher uses the v1 authorization-code flow (see "Microsoft sign-in" below). `ZENITH_MSA_CLIENT_ID` / `zenith-config.json` can still override it. | Nothing: the id is public. |
 | Application Insights keys | **Removed.** Telemetry is hard-off. | Nothing. |
 | Hosted services `api/ai/signaling/core-api.xmcl.app`, `xmcl.blob.core.windows.net` | **Removed.** Nothing calls them; a guard (`xmcl-runtime/zenith/blockedHosts.ts`) refuses such requests anyway. News are off, flights are never downloaded, mod databases come from GitHub, ely.by uses its bundled list. | Nothing. |
 | CurseForge API key | **No key.** `CURSEFORGE_API_KEY` / `curseforgeApiKey` (not used by the Market). | Optional. |
@@ -105,8 +105,8 @@ After merging: `pnpm install`, `pnpm run check`, `pnpm vitest run xmcl-runtime/z
 
 ## Limits
 
-- Not verified on third-party PCs; builds and unit tests of the touched code run in CI and on a development PC. Native mods and `.hpack` modpacks cannot be installed from the Market yet.
-- Microsoft sign-in does not work until an approved Azure app exists and is configured.
+- Not verified on third-party PCs; builds and unit tests of the touched code run in CI and on a development PC. `.hpack` modpacks cannot be installed from the Market yet, and native mods install as files only: running one needs a game built with it.
+- Microsoft sign-in uses the public Minecraft client id, shared with other launchers: Mojang must accept it for this application, and Microsoft could retire it.
 - Updates: installed Windows builds self-update (see "Launcher updates"); portable, development and non-Windows builds link to Releases.
 
 ### Launcher updates
@@ -118,16 +118,61 @@ Releases are dated (`nightly-<date>`), so "is there an update" compares the buil
 - **Security model and limits:** HTTPS from GitHub releases of `gitzetazero/zenith` plus the SHA-256 from the notes of the same release. The hash catches a corrupt or truncated download, not a replaced release (whoever can edit the release can edit both). Installers are not code-signed for Windows, so SmartScreen may warn. The game itself is updated separately by the bridge, with its Ed25519 signature.
 - **Tested:** unit tests of the pure decisions (`xmcl-runtime/zenith/updateVerify.test.ts`) and typecheck. The download, hash check and silent install on a real installed build were not exercised.
 
-## Microsoft sign-in: the Azure app
+## Microsoft sign-in: the public Minecraft client id
 
-Zenith Launcher signs in with MSAL against `https://login.microsoftonline.com/consumers/` (personal Microsoft accounts), then Xbox Live (`user.auth.xboxlive.com`, `xsts.auth.xboxlive.com`), then Minecraft Services (`api.minecraftservices.com/authentication/login_with_xbox`, `/minecraft/profile`, `/entitlements/mcstore`). It uses a public client with PKCE and the scopes `XboxLive.signin offline_access`. There is no client secret anywhere: the client ID is public and is embedded at build time from the repository variable `ZENITH_MSA_CLIENT_ID` (or set by `ZENITH_MSA_CLIENT_ID` / `zenith-config.json` at run time).
+Zenith Launcher signs in with Microsoft's **public Minecraft client id**
+`00000000402b5328`, the historical "Sign in to Minecraft" application. It is
+not a secret and every client embeds it in the authorization URL. It is **not**
+a Microsoft Entra application, so MSAL and the v2 endpoints
+(`login.microsoftonline.com/consumers/oauth2/v2.0/*`) cannot use it: Microsoft
+answers `unauthorized_client` / `AADSTS700016`. The launcher therefore uses the
+Live Connect v1 flow:
 
-The Azure app registration must be:
+1. **Authorization code**:
+   `https://login.live.com/oauth20_authorize.srf` with
+   `client_id=00000000402b5328`,
+   `scope=service::user.auth.xboxlive.com::MBI_SSL`, `response_type=code` and
+   `redirect_uri=https://login.live.com/oauth20_desktop.srf`. The login window
+   intercepts that Microsoft-hosted redirect and reads `code`; a localhost
+   redirect is not registered for this id and is rejected by Microsoft.
+2. **Token**: `POST https://login.live.com/oauth20_token.srf` with
+   `grant_type=authorization_code`, the code, the same redirect URI and scope.
+   The result is a Microsoft access token and a refresh token.
+3. **Refresh**: the same token endpoint with `grant_type=refresh_token`. The
+   refresh token, account key and expiry live in the OS secret storage under
+   `xmcl-oauth-legacy`; they never reach logs, `accounts.json` or the CLI.
+4. **Xbox Live, XSTS and Minecraft Services** are unchanged:
+   `RpsTicket=d=<Microsoft access token>`, `rp://api.minecraftservices.com/`,
+   `login_with_xbox`, `/minecraft/profile`, `/entitlements/mcstore`.
 
-1. **Supported account types:** personal Microsoft accounts ("Personal Microsoft accounts only", or "Accounts in any organizational directory and personal Microsoft accounts"). `unauthorized_client: The client does not exist or is not enabled for consumers` means the ID does not exist or is not enabled for them.
-2. **Platform:** *Mobile and desktop applications* with the redirect URI `http://localhost/auth` (the launcher listens on `http://localhost:<port>/auth`, port 25555 or the next free one; Microsoft ignores the port for loopback addresses). Without it Microsoft answers `invalid_request ... redirect_uri is not valid`.
-3. **Allow public client flows:** yes.
-4. **API permissions:** nothing extra (`XboxLive.signin` is requested at sign-in; Zenith no longer asks for Microsoft Graph `User.Read`).
-5. **Mojang's review:** until Mojang approves the app registration, `login_with_xbox` answers 403 ("Invalid app registration") even though Microsoft sign-in itself works. Their form: https://aka.ms/AppRegInfo.
+The device-code flow is not offered for this id: Live Connect has no device
+endpoint. The browser window is the only interactive route. The built-in id can
+still be overridden with `ZENITH_MSA_CLIENT_ID` (environment) or
+`zenith-config.json` (`msaClientId`); an override that is an Entra application
+keeps using the MSAL/v2 flow.
 
-You can test an ID without signing in: open `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=<ID>&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%2Fauth&scope=XboxLive.signin%20offline_access` in a browser. "The client does not exist" means a wrong ID; a redirect_uri error means step 2 is missing; the Microsoft sign-in page means the registration is fine.
+### Why not `00000000-402b-4cd3-a82b-c45ab2f1d3f7`?
+
+That is the id used by the new Microsoft Store launcher, but Microsoft has
+decommissioned it for third-party clients: on 2026-11-06 the v2 authorize and
+device-code endpoints answer `unauthorized_client` / `AADSTS700016`, and the v1
+endpoints answer `invalid_client`, all with "The client does not exist or is not
+enabled for consumers". No flow adaptation can fix that: the failure happens
+before an authorization request is made. The public id that still works is the
+legacy `00000000402b5328`.
+
+### Limits
+
+- The id is shared with other launchers. Microsoft has tolerated it for years
+  but can revoke it at any time; only the maintainer can register a replacement.
+- Accounts signed in with the previous Azure app need one fresh sign-in: their
+  refresh tokens belong to a different client id and are not reused.
+- Mojang's `login_with_xbox` must recognise the application. The legacy id is
+  the Minecraft application id, so it is the one the ecosystem uses, but a real
+  end-to-end sign-in needs a real Microsoft account and cannot be verified in
+  CI. If Mojang rejects it, the launcher shows the 403 ("Invalid app
+  registration") from Minecraft Services; approval is Mojang's, through
+  <https://aka.ms/AppRegInfo>, and is not something this repository can grant.
+- Live Connect v1 is legacy. If Microsoft retires it, this flow stops working.
+- The Microsoft token is not a Minecraft token; the Xbox/Minecraft steps and
+  their owner gate are unchanged.

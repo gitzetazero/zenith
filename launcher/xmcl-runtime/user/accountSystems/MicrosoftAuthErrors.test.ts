@@ -7,6 +7,11 @@ test('a client id Microsoft does not know is told apart from a network failure',
   expect(classifyMicrosoftAppSetupProblem(error)).toBe('APP_NOT_FOUND')
   expect(classifyMicrosoftAppSetupProblem(new Error('unauthorized_client'))).toBe('APP_NOT_FOUND')
   expect(classifyMicrosoftAppSetupProblem(new Error('AADSTS700016: Application with identifier was not found'))).toBe('APP_NOT_FOUND')
+  // Live Connect (v1) spells the same refusal `invalid_client`.
+  expect(classifyMicrosoftAppSetupProblem(Object.assign(
+    new Error('The client does not exist or is not enabled for consumers.'),
+    { error: 'invalid_client' },
+  ))).toBe('APP_NOT_FOUND')
 })
 
 test('an unregistered redirect uri and a refused scope are named', () => {

@@ -1,7 +1,12 @@
 import { AccountInfo, DeviceCodeResponse, INativeBrokerPlugin } from '@azure/msal-common'
 import { AuthenticationResult, LogLevel, PublicClientApplication } from '@azure/msal-node'
 import { AnyError } from '@xmcl/utils'
-import { MSA_NOT_CONFIGURED_MESSAGE } from '~/zenith/config'
+import {
+  MINECRAFT_LAUNCHER_PUBLIC_REDIRECT_URI,
+  MINECRAFT_LAUNCHER_PUBLIC_SCOPE,
+  MSA_NOT_CONFIGURED_MESSAGE,
+  isMinecraftLauncherPublicClientId,
+} from '~/zenith/config'
 import { randomUUID } from 'crypto'
 import { copyFileSync, mkdirSync } from 'fs'
 import { tmpdir } from 'os'
@@ -39,6 +44,41 @@ interface Authentication {
 interface SilentAuthentication {
   account?: AccountInfo
   authentication?: Authentication
+}
+
+/**
+ * Tokens issued by Live Connect (v1). The public Minecraft client id is not a
+ * Microsoft Entra application, so MSAL (which only talks to
+ * login.microsoftonline.com, v2) cannot be used with it.
+ */
+interface LegacyTokenResponse {
+  access_token?: string
+  refresh_token?: string
+  expires_in?: number
+  user_id?: string
+  error?: string
+  error_description?: string
+}
+
+interface LegacyTokenRecord {
+  version: 1
+  clientId: string
+  username: string
+  userId: string
+  accessToken: string
+  refreshToken: string
+  expiresAt: number
+}
+
+const LEGACY_TOKEN_SERVICE = 'xmcl-oauth-legacy'
+
+interface AuthTelemetryState {
+  attemptId: string
+  startedAt: number
+  routeUsed: string
+  fallbackUsed: boolean
+  cachedAccount: boolean
+  completed: boolean
 }
 
 interface AuthenticateOptions {
@@ -329,6 +369,176 @@ export class MicrosoftOAuthClient {
     return { result, extra, routeUsed, fallbackUsed }
   }
 
+  /** True when the configured id is the public Minecraft client id (Live Connect v1). */
+  get usesLegacyMinecraftClient() {
+    return isMinecraftLauncherPublicClientId(this.clientId)
+  }
+
+  private legacyAccountKey(username: string, userId: string) {
+    return (username.trim() || userId).toLowerCase()
+  }
+
+  private legacyAuthentication(record: LegacyTokenRecord): Authentication {
+    const account: AccountInfo = {
+      homeAccountId: record.userId,
+      localAccountId: record.userId,
+      environment: 'login.live.com',
+      tenantId: 'consumers',
+      username: record.username,
+    }
+    return {
+      result: {
+        accessToken: record.accessToken,
+        expiresOn: new Date(record.expiresAt),
+        account,
+        scopes: [MINECRAFT_LAUNCHER_PUBLIC_SCOPE],
+        tenantId: 'consumers',
+        uniqueId: record.userId,
+        fromCache: false,
+      } as unknown as AuthenticationResult,
+    }
+  }
+
+  private async readLegacyToken(username: string): Promise<LegacyTokenRecord | undefined> {
+    const key = username.trim().toLowerCase()
+    if (!key) return undefined
+    try {
+      const raw = await this.storage.get(LEGACY_TOKEN_SERVICE, key)
+      if (!raw) return undefined
+      const record = JSON.parse(raw) as LegacyTokenRecord
+      if (record.version !== 1 || record.clientId !== this.clientId || !record.refreshToken) {
+        return undefined
+      }
+      return record
+    } catch (error) {
+      this.logger.warn(`Microsoft legacy token cache unreadable: ${JSON.stringify(getSafeErrorProperties(error))}`)
+      return undefined
+    }
+  }
+
+  private async requestLegacyToken(fields: Record<string, string>, signal?: AbortSignal): Promise<LegacyTokenResponse> {
+    const response = await this.fetch('https://login.live.com/oauth20_token.srf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(fields).toString(),
+      signal,
+    })
+    let payload: LegacyTokenResponse = {}
+    try {
+      payload = await response.json() as LegacyTokenResponse
+    } catch {
+      // The error below carries the HTTP status.
+    }
+    if (!response.ok || payload.error || !payload.access_token) {
+      const message = payload.error_description || payload.error ||
+        `Live Connect token request failed (HTTP ${response.status})`
+      const error = new AnyError('MicrosoftLegacyOAuthTokenFailed', message)
+      ;(error as any).error = payload.error
+      ;(error as any).status = response.status
+      throw error
+    }
+    return payload
+  }
+
+  private async saveLegacyToken(
+    username: string,
+    token: LegacyTokenResponse,
+    previous?: LegacyTokenRecord,
+  ): Promise<Authentication> {
+    const userId = token.user_id || previous?.userId || this.legacyAccountKey(username, '')
+    const record: LegacyTokenRecord = {
+      version: 1,
+      clientId: this.clientId,
+      username: username.trim() || userId,
+      userId,
+      accessToken: token.access_token!,
+      refreshToken: token.refresh_token || previous?.refreshToken || '',
+      expiresAt: Date.now() + (token.expires_in ?? 3600) * 1000,
+    }
+    await this.storage.put(
+      LEGACY_TOKEN_SERVICE,
+      this.legacyAccountKey(record.username, record.userId),
+      JSON.stringify(record),
+    )
+    return this.legacyAuthentication(record)
+  }
+
+  private async acquireLegacySilently(username: string, signal?: AbortSignal): Promise<SilentAuthentication> {
+    const record = await this.readLegacyToken(username)
+    if (!record) return {}
+    if (record.expiresAt > Date.now() + 60_000) {
+      const authentication = this.legacyAuthentication(record)
+      return { account: authentication.result.account ?? undefined, authentication }
+    }
+    const token = await this.requestLegacyToken({
+      client_id: this.clientId,
+      grant_type: 'refresh_token',
+      refresh_token: record.refreshToken,
+      redirect_uri: MINECRAFT_LAUNCHER_PUBLIC_REDIRECT_URI,
+      scope: MINECRAFT_LAUNCHER_PUBLIC_SCOPE,
+    }, signal)
+    const authentication = await this.saveLegacyToken(record.username, token, record)
+    return { account: authentication.result.account ?? undefined, authentication }
+  }
+
+  private async acquireLegacyInteractively(
+    username: string,
+    options: AuthenticateOptions,
+    authAttemptId: string,
+  ): Promise<Authentication> {
+    const redirectUri = MINECRAFT_LAUNCHER_PUBLIC_REDIRECT_URI
+    let code = options.code
+    if (!code) {
+      const params = new URLSearchParams({
+        client_id: this.clientId,
+        response_type: 'code',
+        redirect_uri: redirectUri,
+        scope: MINECRAFT_LAUNCHER_PUBLIC_SCOPE,
+        prompt: 'select_account',
+      })
+      if (username.trim()) params.set('login_hint', username.trim())
+      const url = `https://login.live.com/oauth20_authorize.srf?${params.toString()}`
+      code = await this.getCode(url, redirectUri, options.signal, authAttemptId)
+    }
+    const token = await this.requestLegacyToken({
+      client_id: this.clientId,
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+      scope: MINECRAFT_LAUNCHER_PUBLIC_SCOPE,
+    }, options.signal)
+    return this.saveLegacyToken(username, token)
+  }
+
+  private async authenticateLegacy(
+    username: string,
+    options: AuthenticateOptions,
+    telemetry: AuthTelemetryState,
+    complete: (outcome: string, error?: unknown) => void,
+  ): Promise<Authentication> {
+    telemetry.routeUsed = 'silent'
+    if (!options.code && !options.useDeviceCode && username.trim()) {
+      try {
+        const silent = await this.acquireLegacySilently(username, options.signal)
+        telemetry.cachedAccount = Boolean(silent.account)
+        if (silent.authentication) {
+          complete('success')
+          return silent.authentication
+        }
+      } catch (error) {
+        this.logger.warn(`Microsoft legacy silent token acquisition missed: ${JSON.stringify(getSafeErrorProperties(error))}`)
+        if (options.slientOnly) throw error
+      }
+    }
+    if (options.slientOnly) {
+      throw new AnyError('MicrosoftOAuthSlientFailed', 'Fail to acquire Microsoft token silently.')
+    }
+    telemetry.routeUsed = 'authorization_code'
+    const authentication = await this.acquireLegacyInteractively(username, options, telemetry.attemptId)
+    complete('success')
+    return authentication
+  }
+
   async authenticate(username: string, scopes: string[], options: AuthenticateOptions = {}) {
     const telemetry = {
       attemptId: randomUUID(),
@@ -363,6 +573,19 @@ export class MicrosoftOAuthClient {
     }
 
     try {
+      if (this.usesLegacyMinecraftClient) {
+        // The public Minecraft client id only exists on Live Connect v1; MSAL,
+        // the native broker and the localhost redirect cannot be used with it.
+        track('microsoft-auth-start', {
+          preferredFlow: options.slientOnly ? 'silent' : 'authorization_code',
+          brokerRequested: false,
+          brokerAvailable: false,
+          windowHandleAvailable: false,
+          existingAccount: Boolean(username),
+        })
+        return await this.authenticateLegacy(username, options, telemetry, complete)
+      }
+
       const nativeBrokerPlugin = options.useNativeBroker
         ? await this.getNativeBrokerPlugin()
         : undefined

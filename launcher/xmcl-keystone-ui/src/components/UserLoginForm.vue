@@ -1,12 +1,5 @@
 <template>
-  <Hint
-    v-if="showDropHint"
-    icon="save_alt"
-    :text="t('login.dropHint').toString()"
-    class="text-lg font-medium tracking-wide drop-shadow-md"
-  />
   <div
-    v-else
     class="login-form-container overflow-auto mx-auto w-full h-full max-w-md px-6 py-8 flex flex-col"
   >
     <!-- Header / Branding Area -->
@@ -77,12 +70,12 @@
       variant="outlined"
       density="comfortable"
       rounded="lg"
-      :type="passwordType"
+      type="password"
       required
       :label="passwordLabel"
-      :placeholder="passwordPlaceholder"
+      :placeholder="passwordLabel"
       :rules="!isPasswordReadonly ? passwordRules : []"
-      :disabled="isPasswordDisabled"
+      :disabled="isPasswordReadonly"
       :readonly="isPasswordReadonly"
       :error="!!errorMessage"
       hide-details="auto"
@@ -112,15 +105,6 @@
     >
       {{ errorMessage }}
     </v-alert>
-
-    <v-checkbox
-      v-if="allowDeviceCode"
-      v-model="data.useDeviceCode"
-      density="compact"
-      hide-details
-      color="primary"
-      :label="t('userServices.microsoft.useDeviceCode')"
-    />
 
     <div class="flex-grow" />
 
@@ -242,7 +226,6 @@
 </template>
 
 <script lang="ts" setup>
-import Hint from '@/components/Hint.vue'
 import { useRefreshable, useService } from '@/composables'
 import { useLocalStorage } from '@vueuse/core'
 import { kSupportedAuthorityMetadata } from '@/composables/yggrasil'
@@ -262,7 +245,6 @@ import { kUserContext, useLoginValidation } from '../composables/user'
 import UserLoginAuthoritySelect from './UserLoginAuthoritySelect.vue'
 
 const props = defineProps<{
-  inside: boolean
   options?: {
     username?: string
     password?: string
@@ -284,8 +266,6 @@ const data = reactive({
   username: '',
   password: '',
   uuid: '',
-  useDeviceCode: false,
-  useFast: false,
   verificationUri: '',
 })
 const isOffline = computed(() => authority.value === AUTHORITY_DEV)
@@ -321,9 +301,6 @@ const signUpLink = computed(() => {
 const manageAuthorityLabel = computed(() => t('userService.manageServices'))
 
 // Password data
-const allowDeviceCode = computed(() => {
-  return currentAccountSystem.value?.flow.includes('device-code')
-})
 const emailOnly = computed(() => {
   if (!currentAccountSystem.value?.authlibInjector) {
     if (authority.value === AUTHORITY_MICROSOFT) {
@@ -332,17 +309,13 @@ const emailOnly = computed(() => {
   }
   return false
 })
+// A system whose flow has no `password` never asks for one:
+// Microsoft's browser grant, and third-party services that redirect.
 const isPasswordReadonly = computed(
-  () => !currentAccountSystem.value?.flow.includes('password') || data.useDeviceCode,
+  () => !currentAccountSystem.value?.flow.includes('password'),
 )
-const isPasswordDisabled = computed(() => isPasswordReadonly.value && !data.useDeviceCode)
-const passwordType = computed(() => (data.useDeviceCode ? 'text' : 'password'))
 const passwordLabel = computed(() => getUserServicePassword(authority.value))
-const passwordPlaceholder = computed(() =>
-  data.useDeviceCode ? t('userServices.microsoft.deviceCodeHint') : passwordLabel.value,
-)
 const getUserServicePassword = (serv: string) => {
-  if (data.useDeviceCode) return t('userServices.microsoft.deviceCode')
   if (serv === AUTHORITY_MICROSOFT) return t('userServices.microsoft.password')
   if (serv === AUTHORITY_DEV) return t('userServices.offline.password')
   return t('userServices.mojang.password')
@@ -354,10 +327,6 @@ const uuidLabel = computed(() => t('userServices.offline.uuid'))
 // Event handler
 on('microsoft-authorize-url', (url) => {
   data.verificationUri = url
-})
-on('device-code', (code) => {
-  data.password = code.userCode
-  data.verificationUri = code.verificationUri
 })
 
 // Rules
@@ -524,7 +493,7 @@ const { refresh: onLogin, error } = useRefreshable(async () => {
     }
   }
 
-  if (!isPasswordReadonly.value && !isPasswordDisabled.value) {
+  if (!isPasswordReadonly.value) {
     for (const rule of passwordRules) {
       const err = rule(data.password)
       if (err !== true) {
@@ -543,7 +512,6 @@ const { refresh: onLogin, error } = useRefreshable(async () => {
     password: data.password,
     authority: authority.value,
     properties: {
-      mode: data.useDeviceCode ? 'device' : '',
       uuid: data.uuid,
     },
   }).finally(() => {
@@ -592,9 +560,6 @@ watch(authority, () => {
   data.verificationUri = ''
   emit('seed')
 })
-
-// Hint state
-const showDropHint = computed(() => allowDeviceCode.value && props.inside && isLogining.value)
 
 // Hover state
 const hovered = ref(false)

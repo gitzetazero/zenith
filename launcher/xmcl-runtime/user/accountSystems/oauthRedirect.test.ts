@@ -24,4 +24,13 @@ describe('oauthRedirect', () => {
   it('ignores malformed URLs', () => {
     expect(parseOAuthRedirect('not a url', redirect)).toBeUndefined()
   })
+
+  it('matches the Microsoft-hosted Live Connect redirect used by the public client id', () => {
+    const liveRedirect = new URL('https://login.live.com/oauth20_desktop.srf')
+    expect(parseOAuthRedirect(
+      'https://login.live.com/oauth20_desktop.srf?code=M.C123&lc=1033',
+      liveRedirect,
+    )?.searchParams.get('code')).toBe('M.C123')
+    expect(parseOAuthRedirect('https://login.live.com/other?code=M.C123', liveRedirect)).toBeUndefined()
+  })
 })
