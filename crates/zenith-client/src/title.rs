@@ -129,13 +129,17 @@ pub(crate) fn zenith_main_menu_layout(w: f32, h: f32) -> MainMenuLayout {
 
 /// The client's mark under the Minecraft logo: Laby writes its name there, Zenith
 /// draws its bundled mark (the theme crate's icon, cropped at atlas build).
-fn draw_zenith_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32, y: f32) {
+/// Drawn at `anchor` when the space between it and `limit` holds it, or nowhere.
+fn draw_zenith_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32, limit: f32, anchor: f32) {
     let Some(rect) = atlas.sprites.get(ZENITH_MARK_SPRITE) else {
         return;
     };
-    let height = 26.0;
+    let height = 28.0;
     let width = rect.w as f32 * (height / rect.h as f32);
-    batch.rect_uv((w - width) / 2.0, y, width, height, *rect, 0xFFFFFFFF);
+    if anchor + height > limit {
+        return;
+    }
+    batch.rect_uv((w - width) / 2.0, anchor, width, height, *rect, 0xFFFFFFFF);
 }
 
 /// The screenshots gallery, as Laby's Photos page: its title, then either the captures'
@@ -243,6 +247,7 @@ fn draw_screenshots(
 
 /// `LogoRenderer.extractRenderState`: the logo's top 44 of 64 rows, then the
 /// edition banner's top 14 of 16 rows overlapping its bottom by 7.
+pub(crate) const LOGO_BOTTOM: f32 = 81.0;
 fn draw_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32) {
     batch.sprite_region(
         atlas,
@@ -2790,7 +2795,9 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 }
                 draw_logo(atlas, batch, w);
                 let menu_top = zenith_main_menu_layout(w, h).rows[0][1];
-                draw_zenith_logo(atlas, batch, w, menu_top - 24.0);
+                // The mark nests under the Minecraft banner and above the buttons;
+                // in a window this small there is no room, so nothing shows.
+                draw_zenith_logo(atlas, batch, w, menu_top, LOGO_BOTTOM + 12.0);
                 if !zenith
                     && !hide_splash
                     && let Some(splash) = self.splash.as_deref()
