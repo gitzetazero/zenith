@@ -1782,6 +1782,13 @@ impl HudBatch {
     /// triangles) are clipped as polygons.
     /// Scale the vertices pushed since `start` about `(cx, cy)` (a GUI pose
     /// matrix of translate, scale, translate back).
+    /// Move the vertices pushed since `start` by `(dx, dy)` in GUI pixels.
+    pub fn translate_since(&mut self, start: usize, dx: f32, dy: f32) {
+        for v in &mut self.vertices[start..] {
+            v.pos[0] += dx;
+            v.pos[1] += dy;
+        }
+    }
     pub fn scale_since(&mut self, start: usize, cx: f32, cy: f32, sx: f32, sy: f32) {
         for v in &mut self.vertices[start..] {
             v.pos[0] = cx + (v.pos[0] - cx) * sx;
@@ -4402,5 +4409,28 @@ texture=wide",
                 );
             }
         }
+    }
+
+    #[test]
+    fn translating_a_run_moves_only_its_own_vertices() {
+        let atlas = HudAtlas::boot();
+        let mut batch = HudBatch::new([320, 240]);
+        batch.fill(&atlas, 0.0, 0.0, 10.0, 10.0, u32::MAX);
+        let before: Vec<_> = batch.vertices.iter().map(|v| v.pos).collect();
+        let start = batch.vertices.len();
+        batch.fill(&atlas, 0.0, 0.0, 10.0, 10.0, u32::MAX);
+        batch.translate_since(start, 3.0, 24.0);
+        assert_eq!(
+            &before[..],
+            &batch.vertices[..start]
+                .iter()
+                .map(|v| v.pos)
+                .collect::<Vec<_>>()[..]
+        );
+        assert!(
+            batch.vertices[start..]
+                .iter()
+                .all(|v| v.pos[0] >= 3.0 && v.pos[1] >= 24.0)
+        );
     }
 }

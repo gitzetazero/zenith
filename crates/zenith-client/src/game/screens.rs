@@ -19,6 +19,7 @@ impl Screen {
         match self {
             Self::Paused => pause_menu,
             Self::Options
+            | Self::Addons
             | Self::Stats
             | Self::Advancements
             | Self::WorldOptions

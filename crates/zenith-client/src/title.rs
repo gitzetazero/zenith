@@ -3682,6 +3682,10 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
             self.focused_button = None;
         }
     }
+    /// A press on the Zenith top bar from another screen (the in-game Options screen).
+    pub fn open_tab(&mut self, tab: crate::top_bar::Tab) {
+        let _ = self.tab_action(tab);
+    }
     /// A press on the Zenith top bar. Addons is wired once the screen exists.
     fn tab_action(&mut self, tab: crate::top_bar::Tab) -> Action {
         use crate::top_bar::Tab;

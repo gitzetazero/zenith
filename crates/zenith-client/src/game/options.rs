@@ -181,9 +181,47 @@ impl Game<'_> {
         if ui.controller_open() {
             ui.controller.context = context;
         }
+        let top = if crate::theme::current() == crate::theme::UiTheme::Zenith
+            && ui.calibration_fullscreen.is_none()
+        {
+            crate::top_bar::HEIGHT
+        } else {
+            0.0
+        };
+        let start = batch.vertices.len();
         ui.draw(&self.settings, batch, &self.gui.atlas, self.cursor);
         self.ui.options = ui;
+        if top > 0.0 {
+            batch.translate_since(start, 0.0, top);
+            let account = self.addons_account();
+            crate::top_bar::draw(
+                batch,
+                &self.gui.atlas,
+                crate::top_bar::Tab::Options,
+                &account,
+                self.cursor,
+            );
+        }
         self.show_calibration(batch.height);
+    }
+    /// A press on the Zenith top bar in Options.
+    fn options_tab(&mut self, tab: crate::top_bar::Tab) {
+        use crate::top_bar::Tab;
+        match tab {
+            Tab::Options => {}
+            Tab::Addons => {
+                self.addons.open = None;
+                self.screen = Screen::Addons;
+            }
+            Tab::Singleplayer | Tab::Multiplayer => {
+                if self.options_from_title && self.title.is_some() {
+                    if let Some(title) = &mut self.title {
+                        title.open_tab(tab);
+                    }
+                    self.screen = Screen::Playing;
+                }
+            }
+        }
     }
     /// Whose controller settings these are and what this game sees (`controller_ui`): the
     /// player's badge in splitscreen with its name, and its own controller.
@@ -345,6 +383,7 @@ impl Game<'_> {
         for e in events {
             match e {
                 Event::ButtonClick => self.audio.play_button_click(),
+                Event::Tab(tab) => self.options_tab(tab),
                 Event::Changed => {
                     self.settings.save(&Self::options_path());
                     self.apply_settings();

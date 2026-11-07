@@ -1295,6 +1295,7 @@ impl Game<'_> {
             Screen::EmoteWheel => "emote-wheel",
             Screen::Paused => "paused",
             Screen::Options => "options",
+            Screen::Addons => "addons",
             Screen::Inventory => "inventory",
             Screen::Creative => "creative",
             Screen::Dead => "dead",

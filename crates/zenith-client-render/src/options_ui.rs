@@ -1446,6 +1446,8 @@ fn matches_focus(id: &FocusId, i: usize, wd: &Widget) -> bool {
 pub enum Event {
     /// An accepted button press or the release of a slider.
     ButtonClick,
+    /// A press on the Zenith top bar.
+    Tab(crate::top_bar::Tab),
     /// Horizon's own: download the Modrinth hit at this index of the pack
     /// screen's browser. The game owns the packs folder, not this screen.
     DownloadPack(usize),
@@ -3934,6 +3936,12 @@ impl OptionsUi {
                 return vec![Event::ButtonClick];
             }
             return Vec::new();
+        }
+        if crate::theme::current() == crate::theme::UiTheme::Zenith
+            && self.calibration_fullscreen.is_none()
+            && let Some(tab) = crate::top_bar::hit(size.0, x, y)
+        {
+            return vec![Event::Tab(tab)];
         }
         if self.page() == Page::SplitSetup {
             use crate::split_ui::Click;

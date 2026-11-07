@@ -418,6 +418,7 @@ impl Game<'_> {
             Screen::EmoteWheel => "emote-wheel",
             Screen::Paused => "paused",
             Screen::Options => "options",
+            Screen::Addons => "addons",
             Screen::Inventory if self.station.is_some() => "station",
             Screen::Inventory if self.container.is_some() => "container",
             Screen::Inventory => "inventory",

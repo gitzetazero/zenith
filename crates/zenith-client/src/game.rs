@@ -49,6 +49,7 @@ fn pack_files(world_tables: &Option<WorldTables>) -> zenith_world::loot::PackOve
     }
 }
 
+mod addons_screen;
 mod advancements;
 mod advancements_screen;
 mod agent;
@@ -866,6 +867,8 @@ enum Screen {
     Advancements,
     /// WorldOptionsScreen (game/lan_screen.rs).
     WorldOptions,
+    /// The Addons screen over the paused world, opened from Options.
+    Addons,
     /// Play with Friends, from the pause menu's Friends button
     /// (`friends_screen`, game/friends.rs).
     Friends,
@@ -902,6 +905,7 @@ impl Screen {
             Screen::EmoteWheel => "emote_wheel",
             Screen::Paused => "paused",
             Screen::Options => "options",
+            Screen::Addons => "addons",
             Screen::Chat => "chat",
             Screen::Creative => "creative",
             Screen::Inventory => "inventory",
@@ -2842,6 +2846,8 @@ struct Game<'a> {
     narration: zenith_client::screen_narrator::ScreenNarrator,
     /// Where the options screen returns: true = title, false = pause menu.
     options_from_title: bool,
+    /// The Addons screen opened from Options while in a world (or from the title).
+    addons: zenith_client::addons_ui::State,
     dragging: bool,
     /// `ClientAvatarState`: walked distance and view bob.
     avatar: zenith_client::camera::AvatarBob,
@@ -8874,6 +8880,11 @@ impl Game<'_> {
             self.draw_split_hud(&mut batch, true);
             return batch;
         }
+        if self.screen == Screen::Addons {
+            self.draw_addons(&mut batch);
+            self.fire_screen_render_post(&mut batch);
+            return batch;
+        }
         if let Some(title) = &mut self.title {
             title.poll_backup();
             if std::mem::take(&mut title.onboarding_finished) {
@@ -9239,7 +9250,7 @@ impl Game<'_> {
                 self.draw_creative(&mut batch);
             }
             Screen::Chat => self.draw_chat_screen(&mut batch),
-            Screen::Playing | Screen::Options | Screen::Win => {}
+            Screen::Playing | Screen::Options | Screen::Addons | Screen::Win => {}
         }
         // ScreenEvent.Render.Post: the open screen has drawn itself and its
         // tooltips, so a native mod draws over it here. Never `Playing`: the
@@ -17127,6 +17138,7 @@ impl Game<'_> {
         match key {
             KeyCode::Escape => match self.screen {
                 Screen::Options => self.options_key(KeyCode::Escape, None)?,
+                Screen::Addons => self.close_addons(),
                 Screen::Playing => {
                     self.pause_focus = None;
                     self.screen = Screen::Paused;
@@ -18793,6 +18805,11 @@ impl Game<'_> {
                     }
                 }
                 WindowEvent::MouseInput { .. } if self.screen == Screen::Win => {}
+                WindowEvent::MouseInput {
+                    state: ElementState::Pressed,
+                    button: MouseButton::Left,
+                    ..
+                } if self.screen == Screen::Addons => self.addons_click(),
                 WindowEvent::MouseInput { state, button, .. } if self.screen == Screen::Options => {
                     if self.options_waiting_for_key() && state == ElementState::Pressed {
                         self.options_bind_mouse(button)?;
@@ -20026,6 +20043,7 @@ impl<'a> Game<'a> {
             narrator_toast: None,
             narration: Default::default(),
             options_from_title: false,
+            addons: Default::default(),
             dragging: false,
             avatar: Default::default(),
             flash: 0,

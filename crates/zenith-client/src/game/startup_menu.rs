@@ -531,6 +531,7 @@ impl Loading {
                 Event::SliderDrag => {
                     self.apply_menu_settings();
                 }
+                Event::Tab(_) => {}
                 Event::Close if self.menu.options.resource_error.is_some() => {}
                 Event::Close => {
                     self.menu.options_open = false;
