@@ -49,25 +49,35 @@ impl CommandStorage {
         if !self.dirty {
             return;
         }
-        self.dirty = false;
+        let mut failed = false;
         for (namespace, map) in &self.namespaces {
             let contents: Compound = map
                 .iter()
                 .map(|(k, v)| (k.as_str().into(), v.clone()))
                 .collect();
-            if let Err(e) = save::write_dat(
-                &file(root, namespace),
-                Tag::compound([
-                    (
-                        "data",
-                        Tag::compound([("contents", Tag::Compound(contents))]),
-                    ),
-                    ("DataVersion", Tag::Int(zenith_world::DATA_VERSION)),
-                ]),
-            ) {
+            let path = file(root, namespace);
+            let result = path
+                .parent()
+                .map_or(Ok(()), std::fs::create_dir_all)
+                .map_err(Into::into)
+                .and_then(|()| {
+                    save::write_dat(
+                        &path,
+                        Tag::compound([
+                            (
+                                "data",
+                                Tag::compound([("contents", Tag::Compound(contents))]),
+                            ),
+                            ("DataVersion", Tag::Int(zenith_world::DATA_VERSION)),
+                        ]),
+                    )
+                });
+            if let Err(e) = result {
+                failed = true;
                 log::warn!("command storage {namespace} was not written: {e}");
             }
         }
+        self.dirty = failed;
     }
     /// `get`: an empty compound when unset.
     pub fn get(&self, id: &str) -> Tag {

@@ -34,6 +34,63 @@ const LIST_TOP: f32 = 49.0;
 const LIST_BOTTOM: f32 = 60.0;
 const ROW_HEIGHT: f32 = 36.0;
 const ROW_WIDTH: f32 = 270.0;
+const ZENITH_GITHUB_URL: &str = "https://github.com/gitzetazero/zenith";
+
+/// Zenith's title link follows the reference's upper-left community link.
+/// The 16 px mark is a pixel rendering of the GitHub Octocat; keeping it in
+/// the HUD avoids a second icon pipeline just for the title screen.
+fn zenith_github_link_rect(w: f32) -> [f32; 4] {
+    [8.0, 8.0, 64.0_f32.min(w - 16.0).max(0.0), 18.0]
+}
+
+fn draw_zenith_github_link(atlas: &HudAtlas, batch: &mut HudBatch, cursor: (f32, f32), w: f32) {
+    let [x, y, width, height] = zenith_github_link_rect(w);
+    if width <= 0.0 {
+        return;
+    }
+    let label = lang::get_or("zenith.title.github", "GitHub");
+    let inside = (x..x + width).contains(&cursor.0) && (y..y + height).contains(&cursor.1);
+    crate::widgets::record(&label, [x, y, width, height], true);
+    crate::widgets::widget_cursor(inside, true);
+    // The official mark is circular with the Octocat cut out. At GUI scale the
+    // original vector's silhouette reads more cleanly as a 12 px pixel mark.
+    let ink = if inside { 0xFFFF_FFFF } else { 0xFFE7_E9F1 };
+    let ox = x + 2.0;
+    let oy = y + 3.0;
+    for (row, bits) in [
+        0b0000_1111_0000u16,
+        0b0011_1111_1100,
+        0b0111_1111_1110,
+        0b1111_0110_1111,
+        0b1110_0000_0111,
+        0b1110_0000_0111,
+        0b1111_0000_1111,
+        0b0111_1001_1110,
+        0b0011_1111_1100,
+        0b0000_1111_0000,
+        0b0001_1001_1000,
+        0b0011_0000_1100,
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        for col in 0..12 {
+            if bits & (1 << (11 - col)) != 0 {
+                batch.fill(atlas, ox + col as f32, oy + row as f32, 1.0, 1.0, ink);
+            }
+        }
+    }
+    crate::ui_text::text(
+        batch,
+        atlas,
+        crate::ui_text::Face::Medium,
+        12.0,
+        x + 18.0,
+        y + 2.0,
+        ink,
+        &label,
+    );
+}
 
 fn edit_top(h: f32) -> f32 {
     ((h.ceil() - 234.0) / 2.0).floor()
@@ -2797,7 +2854,10 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
             Mode::Main => {
                 let zenith = crate::theme::current() == crate::theme::UiTheme::Zenith;
                 if zenith {
-                    crate::ui_zenith::background(batch, atlas, 0.0, 0.0, w, h);
+                    // The title keeps its panorama legible under a warm, dark veil,
+                    // matching the reference's world-first main menu. Other Zenith
+                    // screens retain their full shared background treatment.
+                    batch.fill(atlas, 0.0, 0.0, w, h, rgba(7, 9, 15, 160));
                     // Laby's living background: the critters pace the ground under
                     // the buttons and ride the cursor while a press holds one.
                     let mut critters = self.critters.borrow_mut();
@@ -2809,6 +2869,7 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                     // banner in the Zenith theme, so they never stack.
                     let menu_top = zenith_main_menu_layout(w, h).rows[0][1];
                     draw_zenith_mark(atlas, batch, w, menu_top);
+                    draw_zenith_github_link(atlas, batch, cursor, w);
                 } else {
                     draw_logo(atlas, batch, w);
                 }
@@ -3804,6 +3865,10 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
             }
         }
         if matches!(self.mode, Mode::Main) {
+            let [link_x, link_y, width, height] = zenith_github_link_rect(w);
+            if (link_x..link_x + width).contains(&x) && (link_y..link_y + height).contains(&y) {
+                return (Action::OpenUri(ZENITH_GITHUB_URL.to_owned()), true);
+            }
             let [bx, by, bw, bh] = self.credits_button.get();
             if (bx..bx + bw).contains(&x) && (by..by + bh).contains(&y) {
                 return (Action::Credits, true);

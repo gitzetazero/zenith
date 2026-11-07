@@ -2653,6 +2653,31 @@ fn the_main_menu_layout_holds_every_button_and_fits_small_windows() {
 }
 
 #[test]
+fn zenith_title_github_link_opens_the_project_repository() {
+    let mut f = Fixture::new();
+    let (action, sound) = f.title.click(10.0, 12.0, (854.0, 480.0));
+
+    assert_eq!(
+        action,
+        Action::OpenUri("https://github.com/gitzetazero/zenith".into())
+    );
+    assert!(sound, "the GitHub link has the title screen click sound");
+}
+
+#[test]
+fn zenith_title_keeps_the_panorama_visible_behind_its_menu() {
+    crate::theme::set(crate::theme::UiTheme::Zenith);
+    let atlas = crate::hud::HudAtlas::boot();
+    let title = Title::new(PathBuf::new(), Path::new("."));
+    let mut batch = crate::hud::HudBatch::new([854, 480]);
+
+    title.draw(&atlas, &mut batch, (0.0, 0.0), true);
+    crate::theme::set(crate::theme::UiTheme::Vanilla);
+
+    assert_eq!(batch.vertices[0].color >> 24, 0xA0);
+}
+
+#[test]
 fn the_addons_screens_back_button_returns_to_the_title() {
     let mut f = Fixture::new();
     f.title.mode = Mode::Addons;
