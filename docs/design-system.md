@@ -5,6 +5,13 @@ vanilla has no screen for (the on-screen keyboard a controller types with). Ever
 and the HUD are not part of it: they are vanilla's, because parity is the point of the game, and
 Horizon's own settings are pages built from vanilla's widgets, the way mods add theirs.
 
+The **interface** is the exception. Zenith ships a `Zenith` menu theme (dark rounded plates,
+one blue accent, a top tab bar and an Addons screen) and a `Vanilla` theme that keeps every
+screen exactly as it was. The vanilla parity rule covers the world, the mechanics and the HUD,
+not the menus; parity harnesses run with `Vanilla`
+([the UI spec](superpowers/specs/2026-11-07-zenith-ui-design.md)). `zenith-client-render`'s
+`theme.rs`, `ui_zenith.rs`, `top_bar.rs` and `addons_ui.rs` hold it.
+
 The tokens live in one place, `crates/zenith-theme`. The launcher (`launcher/src/theme.rs`)
 and the game (`crates/zenith-client/src/ui_theme.rs`) read them as Rust constants, and the
 website reads them as CSS custom properties generated from the same crate

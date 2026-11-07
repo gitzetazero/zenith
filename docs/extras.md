@@ -72,7 +72,11 @@ in Controls, and adding one would put a non-vanilla mapping into `options.txt`.
 
 ### Moved to native mods
 
-The **FPS counter**, **Keystrokes**, **Zoom** and the **Minimap** are official native mods now (in
+The **FPS counter** and **Keystrokes** are Addons in the Zenith interface: **Addons** on the
+title's tab bar turns them on, with their corner, minimum/1% low and click counter, and
+`crates/zenith-client/src/addons_hud.rs` draws them over the world
+([zenith-ui plan](superpowers/plans/2026-11-07-zenith-ui.md)). They need no native mod.
+**Zoom** and the **Minimap** are still official native mods (in
 horizon-rust/horizon-mods under `native/<name>/`, [mods.md](mods.md#horizons-official-mods)), with the same look and
 options. Players install them from the launcher's Mods page, and the launcher builds them into the game
 ([native-mods.md](native-mods.md)). The game keeps
