@@ -127,19 +127,20 @@ pub(crate) fn zenith_main_menu_layout(w: f32, h: f32) -> MainMenuLayout {
     }
 }
 
-/// The client's mark under the Minecraft logo: Laby writes its name there, Zenith
-/// draws its bundled mark (the theme crate's icon, cropped at atlas build).
-/// Drawn at `anchor` when the space between it and `limit` holds it, or nowhere.
-fn draw_zenith_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32, limit: f32, anchor: f32) {
+/// The client's mark as the one and only menu logo, in Minecraft's banner slot:
+/// Laby shows its own logo there, so Zenith does the same. Nothing when the
+/// buttons would run into it in a very short window.
+fn draw_zenith_mark(atlas: &HudAtlas, batch: &mut HudBatch, w: f32, menu_top: f32) {
     let Some(rect) = atlas.sprites.get(ZENITH_MARK_SPRITE) else {
         return;
     };
-    let height = 28.0;
-    let width = rect.w as f32 * (height / rect.h as f32);
-    if anchor + height > limit {
+    let top = 32.0;
+    let height = 44.0;
+    if top + height > menu_top {
         return;
     }
-    batch.rect_uv((w - width) / 2.0, anchor, width, height, *rect, 0xFFFFFFFF);
+    let width = rect.w as f32 * (height / rect.h as f32);
+    batch.rect_uv((w - width) / 2.0, top, width, height, *rect, 0xFFFFFFFF);
 }
 
 /// The screenshots gallery, as Laby's Photos page: its title, then either the captures'
@@ -247,7 +248,6 @@ fn draw_screenshots(
 
 /// `LogoRenderer.extractRenderState`: the logo's top 44 of 64 rows, then the
 /// edition banner's top 14 of 16 rows overlapping its bottom by 7.
-pub(crate) const LOGO_BOTTOM: f32 = 81.0;
 fn draw_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32) {
     batch.sprite_region(
         atlas,
@@ -2793,11 +2793,14 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 if zenith {
                     crate::ui_zenith::background(batch, atlas, 0.0, 0.0, w, h);
                 }
-                draw_logo(atlas, batch, w);
-                let menu_top = zenith_main_menu_layout(w, h).rows[0][1];
-                // The mark nests under the Minecraft banner and above the buttons;
-                // in a window this small there is no room, so nothing shows.
-                draw_zenith_logo(atlas, batch, w, menu_top, LOGO_BOTTOM + 12.0);
+                if zenith {
+                    // One logo, like Laby: the bundled mark replaces Minecraft's
+                    // banner in the Zenith theme, so they never stack.
+                    let menu_top = zenith_main_menu_layout(w, h).rows[0][1];
+                    draw_zenith_mark(atlas, batch, w, menu_top);
+                } else {
+                    draw_logo(atlas, batch, w);
+                }
                 if !zenith
                     && !hide_splash
                     && let Some(splash) = self.splash.as_deref()
