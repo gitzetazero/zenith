@@ -63,6 +63,7 @@ pub mod light;
 pub mod lod;
 pub mod logging;
 pub mod menu_blur;
+pub mod menu_critters;
 pub mod mesher;
 pub mod minimap;
 pub mod mipmap;

@@ -629,6 +629,9 @@ pub struct Title {
     reopen_data_packs: bool,
     /// The Addons screen's search, filter and open settings page.
     pub addons: crate::addons_ui::State,
+    /// Laby's interactive background: the critters that pace the menu and ride
+    /// the cursor when a press picks one up.
+    critters: RefCell<crate::menu_critters::State>,
 }
 pub(crate) struct Button {
     x: f32,
@@ -975,6 +978,7 @@ impl Title {
             preparing: false,
             reopen_data_packs: false,
             addons: crate::addons_ui::State::default(),
+            critters: RefCell::new(crate::menu_critters::State::default()),
         }
     }
     /// Vanilla bypasses the selector when there are no saves.
@@ -1350,6 +1354,8 @@ impl Title {
     }
     /// The button was released (`onRelease`).
     pub fn release(&mut self) {
+        // Letting go of a held critter throws it with the cursor's own speed.
+        self.critters.get_mut().drop();
         if let Some(rules) = self.rules.get_mut() {
             rules.release();
         }
@@ -2792,6 +2798,11 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 let zenith = crate::theme::current() == crate::theme::UiTheme::Zenith;
                 if zenith {
                     crate::ui_zenith::background(batch, atlas, 0.0, 0.0, w, h);
+                    // Laby's living background: the critters pace the ground under
+                    // the buttons and ride the cursor while a press holds one.
+                    let mut critters = self.critters.borrow_mut();
+                    critters.tick(cursor, w, h, crate::hud_overlays::now_ms());
+                    critters.draw(batch, atlas);
                 }
                 if zenith {
                     // One logo, like Laby: the bundled mark replaces Minecraft's
@@ -3813,6 +3824,17 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
         ) {
             // A press on a text field takes the focus from the button.
             self.focused_button = None;
+        }
+        // The menu's critters take a press on open ground, before any widget.
+        if hit.is_none()
+            && matches!(self.mode, Mode::Main)
+            && crate::theme::current() == crate::theme::UiTheme::Zenith
+        {
+            let mut critters = self.critters.borrow_mut();
+            if critters.grab((x, y)) {
+                return (Action::None, false);
+            }
+            critters.startle((x, y));
         }
         if matches!(self.mode, Mode::CreateBuffet { .. }) {
             self.buffet_click(x, y, (w, h), hit);
