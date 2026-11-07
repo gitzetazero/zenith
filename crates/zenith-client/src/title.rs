@@ -1156,7 +1156,49 @@ impl Title {
         let (w, h) = (w.ceil(), h.ceil());
         let content = self.visible_worlds(worlds).count() as f32 * ROW_HEIGHT + 4.0;
         let left = (w / 2.0).floor() - ROW_WIDTH / 2.0;
-        (LIST_TOP, h - LIST_BOTTOM, left, content)
+        (
+            LIST_TOP + self.top_bar_offset(),
+            h - LIST_BOTTOM,
+            left,
+            content,
+        )
+    }
+    /// The room the Zenith top bar takes above a screen's own content. `Vanilla` takes
+    /// none, so the layout is exactly today's.
+    fn top_bar_offset(&self) -> f32 {
+        if crate::theme::current() == crate::theme::UiTheme::Zenith
+            && matches!(self.mode, Mode::Select { .. })
+        {
+            crate::top_bar::HEIGHT
+        } else {
+            0.0
+        }
+    }
+    /// The tab the current title screen belongs to, when the Zenith bar is drawn.
+    fn top_bar_active(&self) -> Option<crate::top_bar::Tab> {
+        if crate::theme::current() != crate::theme::UiTheme::Zenith {
+            return None;
+        }
+        use crate::top_bar::Tab;
+        match self.mode {
+            Mode::Select { .. } => Some(Tab::Singleplayer),
+            Mode::Create { .. }
+            | Mode::CreateFlat { .. }
+            | Mode::CreateBuffet { .. }
+            | Mode::Edit { .. } => Some(Tab::Singleplayer),
+            Mode::Multiplayer(_) | Mode::MultiplayerWarning { .. } => Some(Tab::Multiplayer),
+            _ => None,
+        }
+    }
+    /// The account the bar names: the signed-in session, else this player's offline name.
+    fn top_bar_account(&self) -> String {
+        crate::auth::current()
+            .map(|s| s.name.clone())
+            .unwrap_or_else(|| {
+                crate::offline_name::load_or_create(
+                    self.saves.parent().unwrap_or_else(|| Path::new(".")),
+                )
+            })
     }
     /// The visible row under the pointer and the pointer relative to its
     /// content (`AbstractSelectionList.getEntryAtPosition`).
@@ -2670,19 +2712,20 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 batch.text_styled(atlas, &text, rect[0], rect[1], u32::MAX, true);
             }
             Mode::Select { worlds, selected } => {
+                let dy = self.top_bar_offset();
                 crate::ui::menu_background(batch, atlas, 0.0, 0.0, w, h, false);
                 centered(
                     atlas,
                     batch,
                     &lang::get_or("selectWorld.title", "Select World"),
-                    8.0,
+                    8.0 + dy,
                     u32::MAX,
                 );
                 self.caret.borrow_mut().draw(
                     batch,
                     atlas,
                     (SEARCH, &self.search, 50),
-                    [(w / 2.0).floor() - 100.0, 21.0, 200.0, 20.0],
+                    [(w / 2.0).floor() - 100.0, 21.0 + dy, 200.0, 20.0],
                     self.search_focused,
                     self.started,
                 );
@@ -2694,7 +2737,7 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                             .italic()
                             .with_color(crate::text::GRAY),
                         (w / 2.0).floor() - 96.0,
-                        27.0,
+                        27.0 + dy,
                         u32::MAX,
                         true,
                     );
@@ -3365,6 +3408,10 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 );
             }
         }
+        if let Some(active) = self.top_bar_active() {
+            let account = self.top_bar_account();
+            crate::top_bar::draw(batch, atlas, active, &account, cursor);
+        }
         if let Some(from) = fade_from {
             self.draw_onboarding_logo(atlas, batch, w, from);
         }
@@ -3530,6 +3577,12 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
             return (Action::None, false);
         }
         let (w, h) = (size.0.ceil(), size.1.ceil());
+        // The Zenith top bar takes the press before the screen's own widgets.
+        if self.top_bar_active().is_some()
+            && let Some(tab) = crate::top_bar::hit(w, x, y)
+        {
+            return (self.tab_action(tab), true);
+        }
         // MenuTabBar: a new tab clears the focus and clicks.
         if let Some(tab) = create_world::tab_at(w, (x, y))
             && matches!(self.mode, Mode::Create { .. })
@@ -3595,6 +3648,28 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
     fn drop_button_focus_for_field(&mut self, hit: Option<u8>) {
         if hit.is_none() && self.has_caret_field() {
             self.focused_button = None;
+        }
+    }
+    /// A press on the Zenith top bar. Addons is wired once the screen exists.
+    fn tab_action(&mut self, tab: crate::top_bar::Tab) -> Action {
+        use crate::top_bar::Tab;
+        match tab {
+            Tab::Singleplayer => {
+                self.focused_button = None;
+                self.enter_singleplayer();
+                Action::None
+            }
+            Tab::Multiplayer => {
+                self.focused_button = None;
+                self.mode = if self.skip_multiplayer_warning {
+                    Mode::Multiplayer(crate::multiplayer::Screen::list(&self.saves))
+                } else {
+                    Mode::MultiplayerWarning { check: false }
+                };
+                Action::None
+            }
+            Tab::Addons => Action::None,
+            Tab::Options => Action::Options,
         }
     }
     fn click_action(&mut self, x: f32, y: f32, (w, h): (f32, f32), hit: Option<u8>) -> Action {

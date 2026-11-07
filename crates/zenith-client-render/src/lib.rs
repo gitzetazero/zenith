@@ -121,6 +121,7 @@ pub mod test_instance_block;
 pub mod testgen;
 pub mod theme;
 pub mod title_edition;
+pub mod top_bar;
 pub mod trims;
 pub mod ui;
 pub mod ui_zenith;

@@ -5,5 +5,9 @@
   "zenith.multiplayer.joining_as": "Entrando como %s",
   "zenith.settings.brand": "Zenith",
   "Vanilla Preset": "Preset de vanilla",
-  "zenith.title.version": "Zenith · Minecraft %s"
+  "zenith.title.version": "Zenith · Minecraft %s",
+  "zenith.tab.singleplayer": "Un jugador",
+  "zenith.tab.multiplayer": "Multijugador",
+  "zenith.tab.addons": "Addons",
+  "zenith.tab.options": "Opciones"
 }
