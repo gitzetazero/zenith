@@ -124,6 +124,29 @@ pub(crate) fn main_menu_layout(w: f32, h: f32, scale: f32) -> MainMenuLayout {
     }
 }
 
+/// The Zenith main menu: wider rows than vanilla's, so it reads as a client menu.
+pub(crate) fn zenith_main_menu_layout(w: f32, h: f32) -> MainMenuLayout {
+    let (w, h) = (w.ceil(), h.ceil());
+    let cx = (w / 2.0).floor();
+    let y = (h / 4.0).floor() + 48.0;
+    let full = 280.0_f32.min(w - 24.0).max(120.0).floor();
+    let two = ((full - 4.0) / 2.0).floor();
+    let left = (cx - full / 2.0).floor();
+    MainMenuLayout {
+        rows: vec![
+            [left, y, full, 20.0],
+            [left, y + 24.0, full, 20.0],
+            [left, y + 48.0, full, 20.0],
+            [cx - 34.0, y + 72.0, 20.0, 20.0],
+            [cx - 10.0, y + 72.0, 20.0, 20.0],
+            [cx + 14.0, y + 72.0, 20.0, 20.0],
+            [left, y + 96.0, two, 20.0],
+            [left + two + 4.0, y + 96.0, two, 20.0],
+        ],
+        version: (2.0, h - 10.0),
+    }
+}
+
 /// The Zenith mark as text (the spec's placeholder until a logo image exists) over the
 /// darkened panorama.
 fn draw_zenith_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32) {
@@ -1873,7 +1896,11 @@ impl Title {
         };
         match &self.mode {
             Mode::Main => {
-                let layout = main_menu_layout(w, h, 1.0);
+                let layout = if crate::theme::current() == crate::theme::UiTheme::Zenith {
+                    zenith_main_menu_layout(w, h)
+                } else {
+                    main_menu_layout(w, h, 1.0)
+                };
                 let r = &layout.rows;
                 let mut buttons = vec![
                     b(

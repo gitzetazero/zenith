@@ -699,17 +699,61 @@ impl Loading {
             .status_changed(was_disabled, zenith_narrator::screen::Trigger::Keyboard);
     }
 
+    /// The Zenith bar's height above the startup menu's Options page.
+    fn menu_options_top(&self) -> f32 {
+        if zenith_client::theme::current() == zenith_client::theme::UiTheme::Zenith
+            && self.menu.options.calibration_fullscreen.is_none()
+        {
+            zenith_client::top_bar::HEIGHT
+        } else {
+            0.0
+        }
+    }
+    fn menu_options_account(&self) -> String {
+        zenith_client::auth::current()
+            .map(|s| s.name.clone())
+            .or_else(|| self.options.as_ref().map(Options::player_name))
+            .unwrap_or_else(|| "Player".into())
+    }
+    fn menu_options_tab(&mut self, tab: zenith_client::top_bar::Tab) {
+        use zenith_client::top_bar::Tab;
+        match tab {
+            Tab::Options => {}
+            Tab::Addons => {
+                self.menu.options_open = false;
+                if let Some(title) = &mut self.menu.title {
+                    title.mode = zenith_client::title::Mode::Addons;
+                }
+            }
+            Tab::Singleplayer | Tab::Multiplayer => {
+                self.menu.options_open = false;
+                if let Some(title) = &mut self.menu.title {
+                    title.open_tab(tab);
+                }
+            }
+        }
+    }
     fn menu_options_click(&mut self, drag: bool, right: bool) {
         let size = self.menu_size();
         let batch = HudBatch::new(size);
         let Some(gui) = &self.gui else { return };
+        let top = self.menu_options_top();
+        if top > 0.0
+            && !drag
+            && !right
+            && let Some(tab) =
+                zenith_client::top_bar::hit(batch.width, self.menu.cursor.0, self.menu.cursor.1)
+        {
+            self.menu_options_tab(tab);
+            return;
+        }
         self.menu.options.shift = self.menu.modifiers.shift_key();
         let events = self.menu.options.click(
             &mut self.settings,
             &gui.atlas,
             self.menu.cursor.0,
-            self.menu.cursor.1,
-            (batch.width, batch.height),
+            self.menu.cursor.1 - top,
+            (batch.width, batch.height - top),
             [size[0] as i32, size[1] as i32],
             drag,
             right,
@@ -1146,10 +1190,11 @@ impl Loading {
                 let size = self.menu_size();
                 let batch = HudBatch::new(size);
                 if self.menu.options_open {
+                    let top = self.menu_options_top();
                     let events = self.menu.options.wheel(
                         &mut self.settings,
-                        (batch.width, batch.height),
-                        self.menu.cursor,
+                        (batch.width, batch.height - top),
+                        (self.menu.cursor.0, self.menu.cursor.1 - top),
                         [size[0] as i32, size[1] as i32],
                         amount,
                     );
@@ -1228,9 +1273,29 @@ impl Loading {
                 self.menu.win = None;
             }
         } else if self.menu.options_open {
+            let top = self.menu_options_top();
+            let full_h = batch.height;
+            let cursor = (self.menu.cursor.0, self.menu.cursor.1 - top);
+            if top > 0.0 {
+                batch.height = (full_h - top).max(1.0);
+            }
+            let start = batch.vertices.len();
             self.menu
                 .options
-                .draw(&self.settings, batch, &gui.atlas, self.menu.cursor);
+                .draw(&self.settings, batch, &gui.atlas, cursor);
+            if top > 0.0 {
+                batch.height = full_h;
+                batch.translate_since(start, 0.0, top);
+                zenith_client::widgets::translate_current(0.0, top);
+                let account = self.menu_options_account();
+                zenith_client::top_bar::draw(
+                    batch,
+                    &gui.atlas,
+                    zenith_client::top_bar::Tab::Options,
+                    &account,
+                    self.menu.cursor,
+                );
+            }
         } else if let Some(title) = &mut self.menu.title {
             title.poll_backup();
             if std::mem::take(&mut title.onboarding_finished) {

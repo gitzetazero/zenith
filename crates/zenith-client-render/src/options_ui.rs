@@ -3937,12 +3937,6 @@ impl OptionsUi {
             }
             return Vec::new();
         }
-        if crate::theme::current() == crate::theme::UiTheme::Zenith
-            && self.calibration_fullscreen.is_none()
-            && let Some(tab) = crate::top_bar::hit(size.0, x, y)
-        {
-            return vec![Event::Tab(tab)];
-        }
         if self.page() == Page::SplitSetup {
             use crate::split_ui::Click;
             if right {

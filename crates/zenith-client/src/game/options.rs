@@ -188,11 +188,18 @@ impl Game<'_> {
         } else {
             0.0
         };
+        let full_h = batch.height;
+        let cursor = (self.cursor.0, self.cursor.1 - top);
+        if top > 0.0 {
+            batch.height = (full_h - top).max(1.0);
+        }
         let start = batch.vertices.len();
-        ui.draw(&self.settings, batch, &self.gui.atlas, self.cursor);
+        ui.draw(&self.settings, batch, &self.gui.atlas, cursor);
         self.ui.options = ui;
         if top > 0.0 {
+            batch.height = full_h;
             batch.translate_since(start, 0.0, top);
+            zenith_client::widgets::translate_current(0.0, top);
             let account = self.addons_account();
             crate::top_bar::draw(
                 batch,
@@ -203,6 +210,17 @@ impl Game<'_> {
             );
         }
         self.show_calibration(batch.height);
+    }
+    /// The Zenith bar's height above the Options page, zero with `Vanilla` or while HDR
+    /// calibration takes the whole screen.
+    fn options_top(&self) -> f32 {
+        if crate::theme::current() == crate::theme::UiTheme::Zenith
+            && self.ui.options.calibration_fullscreen.is_none()
+        {
+            crate::top_bar::HEIGHT
+        } else {
+            0.0
+        }
     }
     /// A press on the Zenith top bar in Options.
     fn options_tab(&mut self, tab: crate::top_bar::Tab) {
@@ -287,6 +305,14 @@ impl Game<'_> {
             self.dragging = true;
         }
         let size = self.gui_size();
+        let top = self.options_top();
+        if top > 0.0
+            && !right
+            && let Some(tab) = crate::top_bar::hit(size.0, self.cursor.0, self.cursor.1)
+        {
+            self.options_tab(tab);
+            return Ok(());
+        }
         let framebuffer = self.renderer.as_ref().map_or([1280, 720], |r| {
             [r.config.width as i32, r.config.height as i32]
         });
@@ -296,8 +322,8 @@ impl Game<'_> {
             &mut self.settings,
             &self.gui.atlas,
             self.cursor.0,
-            self.cursor.1,
-            size,
+            self.cursor.1 - top,
+            (size.0, size.1 - top),
             framebuffer,
             false,
             right,
@@ -307,6 +333,7 @@ impl Game<'_> {
     }
     pub(super) fn options_drag(&mut self) -> Result<()> {
         let size = self.gui_size();
+        let top = self.options_top();
         let framebuffer = self.renderer.as_ref().map_or([1280, 720], |r| {
             [r.config.width as i32, r.config.height as i32]
         });
@@ -315,8 +342,8 @@ impl Game<'_> {
             &mut self.settings,
             &self.gui.atlas,
             self.cursor.0,
-            self.cursor.1,
-            size,
+            self.cursor.1 - top,
+            (size.0, size.1 - top),
             framebuffer,
             true,
             false,
@@ -330,7 +357,8 @@ impl Game<'_> {
         let framebuffer = self.renderer.as_ref().map_or([1280, 720], |r| {
             [r.config.width as i32, r.config.height as i32]
         });
-        self.ui.options.size = size;
+        let top = self.options_top();
+        self.ui.options.size = (size.0, size.1 - top);
         self.ui.options.framebuffer = framebuffer;
         let mut ui = std::mem::take(&mut self.ui.options);
         let events = ui.key_modifiers(&mut self.settings, &self.gui.atlas, key, text, shift);
@@ -347,11 +375,13 @@ impl Game<'_> {
             .shortcut(&self.gui.atlas, shortcut, &mut self.clipboard)
     }
     pub(super) fn options_scroll(&mut self, amount: f32) -> Result<()> {
+        let top = self.options_top();
+        let cursor = (self.cursor.0, self.cursor.1 - top);
         if self.pad_stick_scroll() {
             let size = self.gui_size();
             self.ui
                 .options
-                .scroll_at(&self.settings, size, self.cursor, amount);
+                .scroll_at(&self.settings, (size.0, size.1 - top), cursor, amount);
             return Ok(());
         }
         let framebuffer = self.renderer.as_ref().map_or([1280, 720], |r| {
@@ -365,10 +395,13 @@ impl Game<'_> {
             return self.handle_option_events(events);
         }
         let size = self.gui_size();
-        let events =
-            self.ui
-                .options
-                .wheel(&mut self.settings, size, self.cursor, framebuffer, amount);
+        let events = self.ui.options.wheel(
+            &mut self.settings,
+            (size.0, size.1 - top),
+            cursor,
+            framebuffer,
+            amount,
+        );
         self.handle_option_events(events)
     }
     /// Mouse buttons pressed while a key is being bound.

@@ -109,14 +109,19 @@ pub fn draw(
         let color = if tab == active { p.accent } else { p.button };
         crate::ui_zenith::rounded(batch, atlas, r[0], r[1], r[2], r[3], 6.0, color);
         let label = Text::literal(tab.label());
-        let tw = atlas.font.width_text(&label);
-        batch.text_styled(
+        // Clipped to its tab: a long translation slides instead of running into the next one.
+        crate::ui::scrolling_text_around_at(
+            batch,
             atlas,
             &label,
-            r[0] + (r[2] - tw) / 2.0,
-            r[1] + (r[3] - 9.0) / 2.0,
+            r[0] + (r[2] / 2.0),
+            r[0] + 2.0,
+            r[0] + r[2] - 2.0,
+            r[1],
+            r[1] + r[3],
+            r[1] + ((r[3] - 9.0) / 2.0).floor(),
+            crate::hud_overlays::now_ms(),
             if tab == active { p.text } else { p.text_dim },
-            true,
         );
     }
     if !account.is_empty() {

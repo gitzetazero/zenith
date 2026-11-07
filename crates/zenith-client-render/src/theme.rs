@@ -55,7 +55,7 @@ pub fn set(theme: UiTheme) {
     CURRENT.store(theme.code(), Ordering::Relaxed);
 }
 
-/// The Zenith palette in the HUD's `0xAARRGGBB` encoding. The values are the spec's:
+/// The Zenith palette in the HUD's `0xAABBGGRR` encoding. The values are the spec's:
 /// a blue accent on near-black plates, white text and a dim white for values.
 #[derive(Clone, Copy, Debug)]
 pub struct Palette {
@@ -70,16 +70,21 @@ pub struct Palette {
     pub outline: u32,
 }
 
+/// The HUD's colours are `0xAABBGGRR`: build one from the spec's `RRGGBB`.
+const fn rgb(r: u32, g: u32, b: u32) -> u32 {
+    0xFF00_0000 | (b << 16) | (g << 8) | r
+}
+
 const ZENITH: Palette = Palette {
-    background: 0xFF14_161D,
-    panel: 0xFF1B_1E26,
-    button: 0xFF23_252E,
-    button_hover: 0xFF2D_303B,
-    button_disabled: 0xFF1B_1D24,
-    accent: 0xFF4A_6CF7,
+    background: rgb(0x14, 0x16, 0x1D),
+    panel: rgb(0x1B, 0x1E, 0x26),
+    button: rgb(0x23, 0x25, 0x2E),
+    button_hover: rgb(0x2D, 0x30, 0x3B),
+    button_disabled: rgb(0x1B, 0x1D, 0x24),
+    accent: rgb(0x4A, 0x6C, 0xF7),
     text: 0xFFFF_FFFF,
-    text_dim: 0xFF9B_A1AE,
-    outline: 0xFF2A_2D38,
+    text_dim: rgb(0x9B, 0xA1, 0xAE),
+    outline: rgb(0x2A, 0x2D, 0x38),
 };
 
 /// Vanilla's old widgets keep their sprites; only the text colour is shared.
@@ -125,7 +130,8 @@ mod tests {
         assert_eq!(current(), UiTheme::Vanilla);
         set(UiTheme::Zenith);
         assert_eq!(current(), UiTheme::Zenith);
-        assert_eq!(palette().accent, 0xFF4A_6CF7);
+        // 0xAABBGGRR: the spec's #4A6CF7 is blue, so the red byte is last.
+        assert_eq!(palette().accent, 0xFFF7_6C4A);
         set(before);
     }
 }

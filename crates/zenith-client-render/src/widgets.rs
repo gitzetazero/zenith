@@ -325,6 +325,23 @@ pub fn generation() -> u64 {
     TARGETS.with_borrow(|(_, _, generation)| *generation)
 }
 
+/// Move this frame's recorded widgets and focus targets down/right, after a screen was
+/// drawn into a batched run that the caller then translated (the Options top bar).
+pub fn translate_current(dx: f32, dy: f32) {
+    WIDGETS.with_borrow_mut(|(current, _, _)| {
+        for w in current.iter_mut() {
+            w.x += dx;
+            w.y += dy;
+        }
+    });
+    TARGETS.with_borrow_mut(|(current, _, _)| {
+        for t in current.iter_mut() {
+            t.rect[0] += dx;
+            t.rect[1] += dy;
+        }
+    });
+}
+
 /// Called by the button drawers.
 pub fn record(label: &str, rect: [f32; 4], enabled: bool) {
     record_as(label, rect, enabled, Kind::Button);

@@ -192,20 +192,22 @@ pub fn draw(
         batch.text_styled(atlas, &name, row[0] + 8.0, row[1] + 4.0, p.text, true);
         let desc = Text::literal(tr(addon.desc_key, ""));
         batch.text_styled(atlas, &desc, row[0] + 8.0, row[1] + 14.0, p.text_dim, true);
-        let on = addons::enabled(dir, addon.id);
-        let s = switch_rect(row);
-        crate::ui_zenith::rounded(
-            batch,
-            atlas,
-            s[0],
-            s[1],
-            s[2],
-            s[3],
-            s[3] / 2.0,
-            if on { p.accent } else { p.outline },
-        );
-        let knob_x = if on { s[0] + s[2] - 12.0 } else { s[0] + 2.0 };
-        crate::ui_zenith::rounded(batch, atlas, knob_x, s[1] + 2.0, 8.0, 8.0, 4.0, p.text);
+        if addon.id != "appearance" {
+            let on = addons::enabled(dir, addon.id);
+            let s = switch_rect(row);
+            crate::ui_zenith::rounded(
+                batch,
+                atlas,
+                s[0],
+                s[1],
+                s[2],
+                s[3],
+                s[3] / 2.0,
+                if on { p.accent } else { p.outline },
+            );
+            let knob_x = if on { s[0] + s[2] - 12.0 } else { s[0] + 2.0 };
+            crate::ui_zenith::rounded(batch, atlas, knob_x, s[1] + 2.0, 8.0, 8.0, 4.0, p.text);
+        }
     }
 }
 
@@ -227,7 +229,8 @@ fn draw_settings(
         },
         id,
     ));
-    batch.text_styled(atlas, &title, 12.0, 12.0, p.text, true);
+    // Below the top bar, which is drawn over this screen.
+    batch.text_styled(atlas, &title, 12.0, 30.0, p.text, true);
     if id == "appearance" {
         let selected = theme::current();
         for (rect, option) in theme_cards(screen) {
@@ -328,8 +331,9 @@ fn draw_settings(
         .into_iter()
         .enumerate()
         {
-            let y = 34.0 + i as f32 * 22.0;
+            let y = 54.0 + i as f32 * 22.0;
             crate::ui_zenith::rounded(batch, atlas, 12.0, y, 200.0, 18.0, 5.0, p.button);
+
             batch.text_styled(atlas, &Text::literal(line), 18.0, y + 5.0, p.text, true);
         }
     }
@@ -354,7 +358,7 @@ pub fn click(
             }
         } else {
             for i in 0..2 {
-                let row = [12.0, 34.0 + i as f32 * 22.0, 200.0, 18.0];
+                let row = [12.0, 54.0 + i as f32 * 22.0, 200.0, 18.0];
                 if x >= row[0] && x < row[0] + row[2] && y >= row[1] && y < row[1] + row[3] {
                     let mut extras = crate::extras::Extras::load(dir);
                     if i == 0 {
@@ -383,11 +387,13 @@ pub fn click(
         if x < row[0] || x >= row[0] + row[2] || y < row[1] || y >= row[1] + row[3] {
             continue;
         }
-        let s = switch_rect(row);
-        if x >= s[0] {
-            let on = addons::enabled(dir, addon.id);
-            addons::set_enabled(dir, addon.id, !on);
-            return Outcome::Changed;
+        if addon.id != "appearance" {
+            let s = switch_rect(row);
+            if x >= s[0] {
+                let on = addons::enabled(dir, addon.id);
+                addons::set_enabled(dir, addon.id, !on);
+                return Outcome::Changed;
+            }
         }
         if addon.has_settings {
             state.open = Some(addon.id);

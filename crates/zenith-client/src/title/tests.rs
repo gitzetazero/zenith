@@ -2635,6 +2635,23 @@ fn the_main_menu_layout_holds_every_button_and_fits_small_windows() {
         let (vx, vy) = layout.version;
         assert!(vx >= 0.0 && vy >= 0.0 && vy + 10.0 <= h);
     }
+    for (w, h) in [(854.0, 480.0), (320.0, 240.0)] {
+        let zenith = zenith_main_menu_layout(w, h);
+        assert_eq!(zenith.rows.len(), 8);
+        for [x, y, bw, bh] in &zenith.rows {
+            assert!(*x >= 0.0 && *y >= 0.0 && x + bw <= w && y + bh <= h);
+        }
+        for (i, a) in zenith.rows.iter().enumerate() {
+            for b in &zenith.rows[i + 1..] {
+                assert!(
+                    !(a[0] < b[0] + b[2]
+                        && b[0] < a[0] + a[2]
+                        && a[1] < b[1] + b[3]
+                        && b[1] < a[1] + a[3])
+                );
+            }
+        }
+    }
     let f = Fixture::new();
     let buttons = f.title.buttons(854.0, 480.0);
     assert_eq!(buttons.len(), 8, "the menu keeps every button it has today");
