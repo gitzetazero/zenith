@@ -250,7 +250,7 @@ fn draw_settings(
             );
             // A little preview of each palette: a plate, a bar and a line.
             let preview = match option {
-                UiTheme::Zenith => p,
+                UiTheme::Zenith => theme::zenith_palette(),
                 UiTheme::Vanilla => theme::Palette {
                     background: 0xFF3B3B3B,
                     panel: 0xFF5A5A5A,

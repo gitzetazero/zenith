@@ -108,6 +108,11 @@ pub fn palette() -> Palette {
     }
 }
 
+/// The Zenith palette whatever the open theme is: the Appearance previews draw both.
+pub fn zenith_palette() -> Palette {
+    ZENITH
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
