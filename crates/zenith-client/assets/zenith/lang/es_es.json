@@ -4,5 +4,6 @@
   "zenith.multiplayer.version.experimental": "%s (experimental)",
   "zenith.multiplayer.joining_as": "Entrando como %s",
   "zenith.settings.brand": "Zenith",
-  "Vanilla Preset": "Preset de vanilla"
+  "Vanilla Preset": "Preset de vanilla",
+  "zenith.title.version": "Zenith · Minecraft %s"
 }

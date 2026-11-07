@@ -2605,3 +2605,45 @@ fn the_multiplayer_screens_have_their_own_ids() {
         "disconnected"
     );
 }
+
+#[test]
+fn the_main_menu_layout_holds_every_button_and_fits_small_windows() {
+    for (w, h, scale) in [(854.0, 480.0, 2.0), (320.0, 240.0, 4.0)] {
+        let layout = main_menu_layout(w, h, scale);
+        assert_eq!(layout.rows.len(), 8);
+        for [x, y, bw, bh] in &layout.rows {
+            assert!(
+                *x >= 0.0 && *y >= 0.0,
+                "{:?} starts off screen",
+                [x, y, bw, bh]
+            );
+            assert!(
+                x + bw <= w && y + bh <= h,
+                "{:?} leaves the window",
+                [x, y, bw, bh]
+            );
+        }
+        for (i, a) in layout.rows.iter().enumerate() {
+            for b in &layout.rows[i + 1..] {
+                let overlap = a[0] < b[0] + b[2]
+                    && b[0] < a[0] + a[2]
+                    && a[1] < b[1] + b[3]
+                    && b[1] < a[1] + a[3];
+                assert!(!overlap, "{a:?} overlaps {b:?}");
+            }
+        }
+        let (vx, vy) = layout.version;
+        assert!(vx >= 0.0 && vy >= 0.0 && vy + 10.0 <= h);
+    }
+    let f = Fixture::new();
+    let buttons = f.title.buttons(854.0, 480.0);
+    assert_eq!(buttons.len(), 8, "the menu keeps every button it has today");
+    let rows = main_menu_layout(854.0, 480.0, 2.0).rows;
+    for b in &buttons {
+        assert!(
+            rows.iter().any(|r| (r[0], r[1], r[2]) == (b.x, b.y, b.w)),
+            "{} is not on a layout row",
+            b.label
+        );
+    }
+}

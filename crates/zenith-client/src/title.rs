@@ -92,6 +92,59 @@ fn recover_issues(dir: &Path) -> [Option<crate::save::DatIssue>; 2] {
 /// The SafetyScreen's column (WarningScreen: title, 12 px around the message
 /// box of its lines and 4 px padding, the checkbox, then the buttons, 8 px
 /// apart): the title's top.
+/// The main menu's buttons in draw and hit-test order (Un jugador, Multijugador,
+/// Realms, the three icon buttons, Opciones, Cerrar), the Laby Client arrangement from
+/// the spec. Both themes share it: with `Vanilla` these are today's rectangles.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct MainMenuLayout {
+    pub rows: Vec<[f32; 4]>,
+    /// "Zenith · Minecraft 26.3" at the bottom left.
+    pub version: (f32, f32),
+}
+pub(crate) fn main_menu_layout(w: f32, h: f32, scale: f32) -> MainMenuLayout {
+    let _ = scale;
+    let (w, h) = (w.ceil(), h.ceil());
+    let cx = (w / 2.0).floor();
+    let y = (h / 4.0).floor() + 48.0;
+    let full = 200.0_f32.min(w - 16.0).floor();
+    let two = ((full - 4.0) / 2.0).floor();
+    let left = (cx - full / 2.0).floor();
+    MainMenuLayout {
+        rows: vec![
+            [left, y, full, 20.0],
+            [left, y + 24.0, full, 20.0],
+            [left, y + 48.0, full, 20.0],
+            [cx - 34.0, y + 72.0, 20.0, 20.0],
+            [cx - 10.0, y + 72.0, 20.0, 20.0],
+            [cx + 14.0, y + 72.0, 20.0, 20.0],
+            [left, y + 96.0, two, 20.0],
+            [left + two + 4.0, y + 96.0, two, 20.0],
+        ],
+        version: (2.0, h - 10.0),
+    }
+}
+
+/// The Zenith mark as text (the spec's placeholder until a logo image exists) over the
+/// darkened panorama.
+fn draw_zenith_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32) {
+    let word = Text::literal("ZENITH");
+    let scale = 4.5;
+    let width = atlas.font.width_text(&word) * scale;
+    let x = (w - width) / 2.0;
+    crate::ui::text_scaled(batch, atlas, &word, x, 24.0, scale, 0xFFFF_FFFF);
+    let p = crate::theme::palette();
+    crate::ui_zenith::rounded(
+        batch,
+        atlas,
+        (w / 2.0) - 20.0,
+        24.0 + 9.0 * scale + 4.0,
+        40.0,
+        3.0,
+        1.5,
+        p.accent,
+    );
+}
+
 /// `LogoRenderer.extractRenderState`: the logo's top 44 of 64 rows, then the
 /// edition banner's top 14 of 16 rows overlapping its bottom by 7.
 fn draw_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32) {
@@ -1771,29 +1824,29 @@ impl Title {
         };
         match &self.mode {
             Mode::Main => {
-                let cx = (w / 2.0).floor();
-                let y = (h / 4.0).floor() + 48.0;
+                let layout = main_menu_layout(w, h, 1.0);
+                let r = &layout.rows;
                 let mut buttons = vec![
                     b(
-                        cx - 100.0,
-                        y,
-                        200.0,
+                        r[0][0],
+                        r[0][1],
+                        r[0][2],
                         &lang::get_or("menu.singleplayer", "Singleplayer"),
                         true,
                         1,
                     ),
                     b(
-                        cx - 100.0,
-                        y + 24.0,
-                        200.0,
+                        r[1][0],
+                        r[1][1],
+                        r[1][2],
                         &lang::get_or("menu.multiplayer", "Multiplayer"),
                         self.allows_multiplayer,
                         4,
                     ),
                     b(
-                        cx - 100.0,
-                        y + 48.0,
-                        200.0,
+                        r[2][0],
+                        r[2][1],
+                        r[2][2],
                         &lang::get_or("menu.online", "Minecraft Realms"),
                         // TitleScreen.createNormalMenuOptions: Realms is off when
                         // multiplayer is.
@@ -1801,18 +1854,18 @@ impl Title {
                         8,
                     ),
                     b(
-                        cx - 100.0,
-                        y + 96.0,
-                        98.0,
+                        r[6][0],
+                        r[6][1],
+                        r[6][2],
                         &lang::get_or("menu.options", "Options..."),
                         true,
                         3,
                     )
                     .does(crate::widgets::Action::Options),
                     b(
-                        cx + 2.0,
-                        y + 96.0,
-                        98.0,
+                        r[7][0],
+                        r[7][1],
+                        r[7][2],
                         &lang::get_or("menu.quit", "Quit Game"),
                         true,
                         2,
@@ -1834,10 +1887,11 @@ impl Title {
                 .into_iter()
                 .enumerate()
                 {
+                    let rect = r[3 + i];
                     let mut button = b(
-                        cx - 34.0 + i as f32 * 24.0,
-                        y + 72.0,
-                        20.0,
+                        rect[0],
+                        rect[1],
+                        rect[2],
                         &lang::get_or(key, plain),
                         true,
                         id,
@@ -2547,35 +2601,46 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
         }
         match &self.mode {
             Mode::Main => {
-                draw_logo(atlas, batch, w);
-                if !hide_splash && let Some(splash) = self.splash.as_deref() {
-                    let tw = HudBatch::text_width(atlas, splash);
-                    let start = batch.vertices.len();
-                    batch.text(
-                        atlas,
-                        splash,
-                        -(tw / 2.0).floor(),
-                        -8.0,
-                        rgba(255, 255, 0, 255),
-                        true,
-                    );
-                    let scale = (1.8
-                        - (self.started.elapsed().as_secs_f32() * std::f32::consts::TAU)
-                            .sin()
-                            .abs()
-                            * 0.1)
-                        * 100.0
-                        / (tw + 32.0);
-                    let (sin, cos) = (-20.0f32).to_radians().sin_cos();
-                    for v in &mut batch.vertices[start..] {
-                        let [x, y] = v.pos;
-                        v.pos = [
-                            w / 2.0 + 123.0 + scale * (x * cos - y * sin),
-                            69.0 + scale * (x * sin + y * cos),
-                        ];
+                let zenith = crate::theme::current() == crate::theme::UiTheme::Zenith;
+                if zenith {
+                    crate::ui_zenith::background(batch, atlas, 0.0, 0.0, w, h);
+                    draw_zenith_logo(atlas, batch, w);
+                } else {
+                    draw_logo(atlas, batch, w);
+                    if !hide_splash && let Some(splash) = self.splash.as_deref() {
+                        let tw = HudBatch::text_width(atlas, splash);
+                        let start = batch.vertices.len();
+                        batch.text(
+                            atlas,
+                            splash,
+                            -(tw / 2.0).floor(),
+                            -8.0,
+                            rgba(255, 255, 0, 255),
+                            true,
+                        );
+                        let scale = (1.8
+                            - (self.started.elapsed().as_secs_f32() * std::f32::consts::TAU)
+                                .sin()
+                                .abs()
+                                * 0.1)
+                            * 100.0
+                            / (tw + 32.0);
+                        let (sin, cos) = (-20.0f32).to_radians().sin_cos();
+                        for v in &mut batch.vertices[start..] {
+                            let [x, y] = v.pos;
+                            v.pos = [
+                                w / 2.0 + 123.0 + scale * (x * cos - y * sin),
+                                69.0 + scale * (x * sin + y * cos),
+                            ];
+                        }
                     }
                 }
-                let version = format!("Zenith {} (Rust)", zenith_core::VANILLA_VERSION);
+                let version = if zenith {
+                    lang::get_or("zenith.title.version", "Zenith · Minecraft %s")
+                        .replace("%s", zenith_core::VANILLA_VERSION)
+                } else {
+                    format!("Zenith {} (Rust)", zenith_core::VANILLA_VERSION)
+                };
                 batch.text(atlas, &version, 2.0, h - 10.0, u32::MAX, true);
                 // A nightly names its build in the top-left corner, the one spot no button reaches at any GUI
                 // scale, so screenshots and reports say which build they come from.
@@ -3238,22 +3303,34 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
             crate::widgets::widget_cursor(inside, b.enabled);
             let is_focused = self.focused_button == Some(b.id);
             let hover = b.enabled && (inside || is_focused);
-            let sprite = if !b.enabled {
-                "gui/sprites/widget/button_disabled"
-            } else if hover {
-                "gui/sprites/widget/button_highlighted"
+            if crate::theme::current() == crate::theme::UiTheme::Zenith {
+                let p = crate::theme::palette();
+                let fill = if !b.enabled {
+                    p.button_disabled
+                } else if hover {
+                    p.button_hover
+                } else {
+                    p.button
+                };
+                crate::ui_zenith::rounded(batch, atlas, b.x, b.y, b.w, 20.0, 6.0, fill);
             } else {
-                "gui/sprites/widget/button"
-            };
-            // Nine-slice approximation: left and right halves of the 200-wide sprite.
-            if let Some(r) = atlas.sprites.get(sprite).copied() {
-                let half = b.w / 2.0;
-                let mut left = r;
-                left.u1 = r.u0 + (r.u1 - r.u0) * (half / r.w as f32);
-                batch.rect_uv(b.x, b.y, half, 20.0, left, u32::MAX);
-                let mut right = r;
-                right.u0 = r.u1 - (r.u1 - r.u0) * (half / r.w as f32);
-                batch.rect_uv(b.x + half, b.y, half, 20.0, right, u32::MAX);
+                let sprite = if !b.enabled {
+                    "gui/sprites/widget/button_disabled"
+                } else if hover {
+                    "gui/sprites/widget/button_highlighted"
+                } else {
+                    "gui/sprites/widget/button"
+                };
+                // Nine-slice approximation: left and right halves of the 200-wide sprite.
+                if let Some(r) = atlas.sprites.get(sprite).copied() {
+                    let half = b.w / 2.0;
+                    let mut left = r;
+                    left.u1 = r.u0 + (r.u1 - r.u0) * (half / r.w as f32);
+                    batch.rect_uv(b.x, b.y, half, 20.0, left, u32::MAX);
+                    let mut right = r;
+                    right.u0 = r.u1 - (r.u1 - r.u0) * (half / r.w as f32);
+                    batch.rect_uv(b.x + half, b.y, half, 20.0, right, u32::MAX);
+                }
             }
             let color = if b.enabled {
                 u32::MAX
