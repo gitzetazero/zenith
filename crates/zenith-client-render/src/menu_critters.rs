@@ -6,9 +6,9 @@
 
 use crate::hud::{HudAtlas, HudBatch};
 
-/// The ground the critters stand on: the window's bottom edge.
+/// The ground the critters stand on: above the version line at the foot.
 fn ground(h: f32) -> f32 {
-    h - 2.0
+    h - 32.0
 }
 
 /// Gravity and friends, in GUI pixels per second.
@@ -92,9 +92,9 @@ impl State {
         for i in 0..n {
             let spread = w / (n as f32 + 1.0);
             let size = match i % 3 {
-                0 => 10.0,
-                1 => 12.0,
-                _ => 11.0,
+                0 => 12.0,
+                1 => 14.0,
+                _ => 13.0,
             };
             let mut critter = Critter::spawn(spread * (i as f32 + 1.0), h, i == 1, size);
             critter.squash = 0.0;
@@ -356,7 +356,7 @@ impl Critter {
             };
             let sway = if on_ground { step * r * 0.25 } else { 0.0 };
             let lx = x + leg * r * 0.9 + sway;
-            let ly = y + r * v - r * 0.55;
+            let ly = y + r * v * 0.82;
             crate::ui_zenith::rounded(
                 batch,
                 atlas,
