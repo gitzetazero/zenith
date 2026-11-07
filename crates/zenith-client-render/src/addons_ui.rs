@@ -68,7 +68,7 @@ fn switch_rect(row: [f32; 4]) -> [f32; 4] {
 /// The two preview cards of the Appearance Addon.
 fn theme_cards(screen: (f32, f32)) -> [([f32; 4], UiTheme); 2] {
     let w = (screen.0 - 40.0).min(160.0);
-    let h = 70.0;
+    let h = 84.0;
     let y = screen.1 / 2.0 - h / 2.0;
     let left = screen.0 / 2.0 - w - 8.0;
     let right = screen.0 / 2.0 + 8.0;
@@ -263,26 +263,71 @@ fn draw_settings(
                     outline: 0xFF2A2A2A,
                 },
             };
+            // A miniature of the menu with this theme: the bar, the mark, its buttons and
+            // the version line. Drawn from the palette, no pictures to ship.
+            let (px, py) = (rect[0] + 8.0, rect[1] + 8.0);
+            let (pw, ph) = (rect[2] - 16.0, 50.0);
+            crate::ui_zenith::rounded(batch, atlas, px, py, pw, ph, 4.0, preview.background);
+            batch.fill(atlas, px, py, pw, 9.0, preview.panel);
             crate::ui_zenith::rounded(
                 batch,
                 atlas,
-                rect[0] + 8.0,
-                rect[1] + 8.0,
-                rect[2] - 16.0,
-                30.0,
+                px + 4.0,
+                py + 3.0,
+                20.0,
                 4.0,
-                preview.background,
-            );
-            crate::ui_zenith::rounded(
-                batch,
-                atlas,
-                rect[0] + 12.0,
-                rect[1] + 38.0,
-                rect[2] - 24.0,
-                8.0,
                 2.0,
                 preview.accent,
             );
+            let mark = Text::literal(match option {
+                UiTheme::Zenith => "ZENITH",
+                UiTheme::Vanilla => "MINECRAFT",
+            });
+            let mw = atlas.font.width_text(&mark);
+            batch.text_styled(
+                atlas,
+                &mark,
+                px + (pw - mw) / 2.0,
+                py + 13.0,
+                preview.text,
+                true,
+            );
+            for i in 0..3 {
+                let (bx, by) = (px + pw / 2.0 - 30.0, py + 26.0 + i as f32 * 7.0);
+                match option {
+                    UiTheme::Zenith => crate::ui_zenith::rounded(
+                        batch,
+                        atlas,
+                        bx,
+                        by,
+                        60.0,
+                        5.0,
+                        2.5,
+                        if i == 0 {
+                            preview.button_hover
+                        } else {
+                            preview.button
+                        },
+                    ),
+                    UiTheme::Vanilla => {
+                        batch.fill(atlas, bx, by, 60.0, 5.0, 0xFFA0_9A90);
+                        batch.fill(atlas, bx, by, 60.0, 1.0, 0xFF6A_5A50);
+                        batch.fill(atlas, bx, by + 4.0, 60.0, 1.0, 0xFF4A_3A30);
+                    }
+                }
+            }
+            batch.fill(atlas, px + 4.0, py + ph - 5.0, 40.0, 2.0, preview.text_dim);
+            if option == selected {
+                // The picked card gets an accent ring.
+                for (x, y, w, hgt) in [
+                    (rect[0], rect[1], rect[2], 2.0),
+                    (rect[0], rect[1] + rect[3] - 2.0, rect[2], 2.0),
+                    (rect[0], rect[1], 2.0, rect[3]),
+                    (rect[0] + rect[2] - 2.0, rect[1], 2.0, rect[3]),
+                ] {
+                    batch.fill(atlas, x, y, w, hgt, p.accent);
+                }
+            }
             let label = Text::literal(match option {
                 UiTheme::Zenith => tr("zenith.theme.zenith", "Zenith"),
                 UiTheme::Vanilla => tr("zenith.theme.vanilla", "Vanilla"),
@@ -292,7 +337,7 @@ fn draw_settings(
                 atlas,
                 &label,
                 rect[0] + (rect[2] - tw) / 2.0,
-                rect[1] + rect[3] - 18.0,
+                rect[1] + rect[3] - 20.0,
                 if option == selected { p.accent } else { p.text },
                 true,
             );
