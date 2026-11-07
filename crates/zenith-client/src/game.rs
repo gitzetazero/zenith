@@ -12728,6 +12728,14 @@ impl Game<'_> {
             Action::Sounds => self.open_options_at(true, zenith_client::options_ui::Page::Sound),
             Action::Credits => self.open_options_at(true, zenith_client::options_ui::Page::Credits),
             Action::OpenUri(uri) => packs::open_uri(&uri),
+            Action::Screenshots => {
+                let dir = Self::options_path()
+                    .parent()
+                    .unwrap_or(std::path::Path::new("."))
+                    .join("screenshots");
+                let _ = std::fs::create_dir_all(&dir);
+                packs::open_folder(&dir);
+            }
             Action::CopyText(text) => {
                 use zenith_client::clipboard::Clipboard;
                 self.clipboard.set(&text);
@@ -14995,6 +15003,7 @@ impl Game<'_> {
         self.map_patches.clear();
         self.kept_block_entities.get_mut().clear();
         zenith_client::ui_theme::reset_atlas();
+        zenith_client::ui_text::reset();
         self.clear_lod();
         self.pending_uploads.clear();
         let context = self.worker_context();
@@ -22249,6 +22258,7 @@ impl Loading {
         self.gui = Some(gui);
         self.title_drawn = false;
         zenith_client::ui_theme::reset_atlas();
+        zenith_client::ui_text::reset();
         self.apply_menu_settings();
         let Some(window) = self.window.clone() else {
             return;

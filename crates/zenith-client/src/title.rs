@@ -101,30 +101,9 @@ pub(crate) struct MainMenuLayout {
     /// "Zenith · Minecraft 26.3" at the bottom left.
     pub version: (f32, f32),
 }
-pub(crate) fn main_menu_layout(w: f32, h: f32, scale: f32) -> MainMenuLayout {
-    let _ = scale;
-    let (w, h) = (w.ceil(), h.ceil());
-    let cx = (w / 2.0).floor();
-    let y = (h / 4.0).floor() + 48.0;
-    let full = 200.0_f32.min(w - 16.0).floor();
-    let two = ((full - 4.0) / 2.0).floor();
-    let left = (cx - full / 2.0).floor();
-    MainMenuLayout {
-        rows: vec![
-            [left, y, full, 20.0],
-            [left, y + 24.0, full, 20.0],
-            [left, y + 48.0, full, 20.0],
-            [cx - 34.0, y + 72.0, 20.0, 20.0],
-            [cx - 10.0, y + 72.0, 20.0, 20.0],
-            [cx + 14.0, y + 72.0, 20.0, 20.0],
-            [left, y + 96.0, two, 20.0],
-            [left + two + 4.0, y + 96.0, two, 20.0],
-        ],
-        version: (2.0, h - 10.0),
-    }
-}
-
-/// The Zenith main menu: wider rows than vanilla's, so it reads as a client menu.
+/// The client main menu, as Laby lays it out: two full rows, Screenshots beside Realms,
+/// the three icon buttons, then Options and Close. Both themes share it; Vanilla draws
+/// the same rectangles with the game's sprites.
 pub(crate) fn zenith_main_menu_layout(w: f32, h: f32) -> MainMenuLayout {
     let (w, h) = (w.ceil(), h.ceil());
     let cx = (w / 2.0).floor();
@@ -136,7 +115,8 @@ pub(crate) fn zenith_main_menu_layout(w: f32, h: f32) -> MainMenuLayout {
         rows: vec![
             [left, y, full, 20.0],
             [left, y + 24.0, full, 20.0],
-            [left, y + 48.0, full, 20.0],
+            [left, y + 48.0, two, 20.0],
+            [left + two + 4.0, y + 48.0, two, 20.0],
             [cx - 34.0, y + 72.0, 20.0, 20.0],
             [cx - 10.0, y + 72.0, 20.0, 20.0],
             [cx + 14.0, y + 72.0, 20.0, 20.0],
@@ -147,25 +127,125 @@ pub(crate) fn zenith_main_menu_layout(w: f32, h: f32) -> MainMenuLayout {
     }
 }
 
-/// The Zenith mark as text (the spec's placeholder until a logo image exists) over the
-/// darkened panorama.
-fn draw_zenith_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32) {
-    let word = Text::literal("ZENITH");
-    let scale = 4.5;
-    let width = atlas.font.width_text(&word) * scale;
-    let x = (w - width) / 2.0;
-    crate::ui::text_scaled(batch, atlas, &word, x, 24.0, scale, 0xFFFF_FFFF);
+/// The client's mark under the Minecraft logo: Laby writes its name there, Zenith writes
+/// its own in the bundled geometric face.
+fn draw_zenith_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32, y: f32) {
     let p = crate::theme::palette();
-    crate::ui_zenith::rounded(
+    let size = 18.0;
+    let width = crate::ui_text::measure(atlas, crate::ui_text::Face::SemiBold, size, "ZENITH");
+    crate::ui_text::text(
         batch,
         atlas,
-        (w / 2.0) - 20.0,
-        24.0 + 9.0 * scale + 4.0,
-        40.0,
-        3.0,
-        1.5,
-        p.accent,
+        crate::ui_text::Face::SemiBold,
+        size,
+        (w - width) / 2.0,
+        y,
+        p.text,
+        "ZENITH",
     );
+}
+
+/// The screenshots gallery, as Laby's Photos page: its title, then either the captures'
+/// count or the empty state that says where they will appear.
+fn draw_screenshots(
+    atlas: &HudAtlas,
+    batch: &mut HudBatch,
+    dir: &Path,
+    w: f32,
+    h: f32,
+    _cursor: (f32, f32),
+) {
+    let p = crate::theme::palette();
+    let title = lang::get_or("zenith.screenshots.title", "Screenshots");
+    let size = 20.0;
+    let tw = crate::ui_text::measure(atlas, crate::ui_text::Face::SemiBold, size, &title);
+    crate::ui_text::text(
+        batch,
+        atlas,
+        crate::ui_text::Face::SemiBold,
+        size,
+        (w - tw) / 2.0,
+        crate::top_bar::HEIGHT + 10.0,
+        p.text,
+        &title,
+    );
+    let count = std::fs::read_dir(dir.join("screenshots"))
+        .map(|d| {
+            d.filter_map(Result::ok)
+                .filter(|e| {
+                    e.path()
+                        .extension()
+                        .is_some_and(|x| x.eq_ignore_ascii_case("png"))
+                })
+                .count()
+        })
+        .unwrap_or(0);
+    if count == 0 {
+        for (key, fallback, y) in [
+            (
+                "zenith.screenshots.empty",
+                "No screenshots yet",
+                h / 2.0 - 6.0,
+            ),
+            (
+                "zenith.screenshots.empty.hint",
+                "Screenshots you take in game show up here.",
+                h / 2.0 + 8.0,
+            ),
+        ] {
+            let line = lang::get_or(key, fallback);
+            let color = if y == h / 2.0 - 6.0 {
+                p.text
+            } else {
+                p.text_dim
+            };
+            if crate::theme::current() == crate::theme::UiTheme::Zenith {
+                crate::ui_text::text_fitted(
+                    batch,
+                    atlas,
+                    crate::ui_text::Face::Regular,
+                    12.0,
+                    20.0,
+                    w - 40.0,
+                    y,
+                    color,
+                    &line,
+                );
+            } else {
+                let tw = atlas.font.width_text(&Text::literal(line.clone()));
+                batch.text_styled(atlas, &Text::literal(line), (w - tw) / 2.0, y, color, true);
+            }
+        }
+    } else {
+        let line = format!(
+            "{} {}",
+            count,
+            lang::get_or("zenith.screenshots.count", "screenshots")
+        );
+        if crate::theme::current() == crate::theme::UiTheme::Zenith {
+            crate::ui_text::text_fitted(
+                batch,
+                atlas,
+                crate::ui_text::Face::Regular,
+                12.0,
+                20.0,
+                w - 40.0,
+                h / 2.0 - 6.0,
+                p.text,
+                &line,
+            );
+        } else {
+            let tw = atlas.font.width_text(&Text::literal(line.clone()));
+            batch.text_styled(
+                atlas,
+                &Text::literal(line),
+                (w - tw) / 2.0,
+                h / 2.0 - 6.0,
+                p.text,
+                true,
+            );
+        }
+    }
 }
 
 /// `LogoRenderer.extractRenderState`: the logo's top 44 of 64 rows, then the
@@ -343,6 +423,8 @@ pub enum Mode {
     Main,
     /// The Addons screen (`addons_ui`).
     Addons,
+    /// The screenshots gallery, opened from the main menu.
+    Screenshots,
     Select {
         worlds: Vec<WorldEntry>,
         selected: Option<usize>,
@@ -456,6 +538,8 @@ pub enum Action {
     OpenUri(String),
     /// `ConfirmLinkScreen.copyToClipboard`.
     CopyText(String),
+    /// Open the player's screenshots folder.
+    Screenshots,
     Play {
         folder: String,
     },
@@ -823,6 +907,7 @@ impl Mode {
             Self::Onboarding(_) => "onboarding",
             Self::BanNotice(_) => "ban_notice",
             Self::Addons => "addons",
+            Self::Screenshots => "screenshots",
         }
     }
 }
@@ -1195,9 +1280,7 @@ impl Title {
     /// The room the Zenith top bar takes above a screen's own content. `Vanilla` takes
     /// none, so the layout is exactly today's.
     fn top_bar_offset(&self) -> f32 {
-        if crate::theme::current() == crate::theme::UiTheme::Zenith
-            && matches!(self.mode, Mode::Select { .. })
-        {
+        if matches!(self.mode, Mode::Select { .. }) {
             crate::top_bar::HEIGHT
         } else {
             0.0
@@ -1205,18 +1288,12 @@ impl Title {
     }
     /// The tab the current title screen belongs to, when the Zenith bar is drawn.
     fn top_bar_active(&self) -> Option<crate::top_bar::Tab> {
-        if crate::theme::current() != crate::theme::UiTheme::Zenith {
-            return None;
-        }
         use crate::top_bar::Tab;
         match self.mode {
             Mode::Select { .. } => Some(Tab::Singleplayer),
-            Mode::Create { .. }
-            | Mode::CreateFlat { .. }
-            | Mode::CreateBuffet { .. }
-            | Mode::Edit { .. } => Some(Tab::Singleplayer),
             Mode::Multiplayer(_) | Mode::MultiplayerWarning { .. } => Some(Tab::Multiplayer),
             Mode::Addons => Some(Tab::Addons),
+            Mode::Screenshots => Some(Tab::Singleplayer),
             _ => None,
         }
     }
@@ -1896,11 +1973,7 @@ impl Title {
         };
         match &self.mode {
             Mode::Main => {
-                let layout = if crate::theme::current() == crate::theme::UiTheme::Zenith {
-                    zenith_main_menu_layout(w, h)
-                } else {
-                    main_menu_layout(w, h, 1.0)
-                };
+                let layout = zenith_main_menu_layout(w, h);
                 let r = &layout.rows;
                 let mut buttons = vec![
                     b(
@@ -1923,6 +1996,14 @@ impl Title {
                         r[2][0],
                         r[2][1],
                         r[2][2],
+                        &lang::get_or("zenith.menu.screenshots", "Screenshots"),
+                        true,
+                        9,
+                    ),
+                    b(
+                        r[3][0],
+                        r[3][1],
+                        r[3][2],
                         &lang::get_or("menu.online", "Minecraft Realms"),
                         // TitleScreen.createNormalMenuOptions: Realms is off when
                         // multiplayer is.
@@ -1930,18 +2011,18 @@ impl Title {
                         8,
                     ),
                     b(
-                        r[6][0],
-                        r[6][1],
-                        r[6][2],
+                        r[7][0],
+                        r[7][1],
+                        r[7][2],
                         &lang::get_or("menu.options", "Options..."),
                         true,
                         3,
                     )
                     .does(crate::widgets::Action::Options),
                     b(
-                        r[7][0],
-                        r[7][1],
-                        r[7][2],
+                        r[8][0],
+                        r[8][1],
+                        r[8][2],
                         &lang::get_or("menu.quit", "Quit Game"),
                         true,
                         2,
@@ -1963,7 +2044,7 @@ impl Title {
                 .into_iter()
                 .enumerate()
                 {
-                    let rect = r[3 + i];
+                    let rect = r[4 + i];
                     let mut button = b(
                         rect[0],
                         rect[1],
@@ -1985,6 +2066,24 @@ impl Title {
                 true,
                 90,
             )],
+            Mode::Screenshots => vec![
+                b(
+                    (w / 2.0).floor() - 100.0,
+                    h - 52.0,
+                    200.0,
+                    &lang::get_or("zenith.screenshots.open", "Open folder"),
+                    true,
+                    91,
+                ),
+                b(
+                    (w / 2.0).floor() - 75.0,
+                    h - 28.0,
+                    150.0,
+                    &lang::get_or("gui.back", "Back"),
+                    true,
+                    90,
+                ),
+            ],
             Mode::Select { worlds, selected } => {
                 let world = selected.and_then(|i| worlds.get(i));
                 // SelectWorldScreen.updateButtonStatus: primaryActionMessage, canEdit, canRecreate.
@@ -2410,6 +2509,10 @@ impl Title {
             Mode::Addons => {
                 ScreenInfo::new("addons", lang::get_or("zenith.addons.title", "Addons"))
             }
+            Mode::Screenshots => ScreenInfo::new(
+                "screenshots",
+                lang::get_or("zenith.screenshots.title", "Screenshots"),
+            ),
             Mode::Select { .. } => {
                 ScreenInfo::new("select_world", get("selectWorld.title", "Select World"))
             }
@@ -2691,35 +2794,38 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 let zenith = crate::theme::current() == crate::theme::UiTheme::Zenith;
                 if zenith {
                     crate::ui_zenith::background(batch, atlas, 0.0, 0.0, w, h);
-                    draw_zenith_logo(atlas, batch, w);
-                } else {
-                    draw_logo(atlas, batch, w);
-                    if !hide_splash && let Some(splash) = self.splash.as_deref() {
-                        let tw = HudBatch::text_width(atlas, splash);
-                        let start = batch.vertices.len();
-                        batch.text(
-                            atlas,
-                            splash,
-                            -(tw / 2.0).floor(),
-                            -8.0,
-                            rgba(255, 255, 0, 255),
-                            true,
-                        );
-                        let scale = (1.8
-                            - (self.started.elapsed().as_secs_f32() * std::f32::consts::TAU)
-                                .sin()
-                                .abs()
-                                * 0.1)
-                            * 100.0
-                            / (tw + 32.0);
-                        let (sin, cos) = (-20.0f32).to_radians().sin_cos();
-                        for v in &mut batch.vertices[start..] {
-                            let [x, y] = v.pos;
-                            v.pos = [
-                                w / 2.0 + 123.0 + scale * (x * cos - y * sin),
-                                69.0 + scale * (x * sin + y * cos),
-                            ];
-                        }
+                }
+                draw_logo(atlas, batch, w);
+                let menu_top = zenith_main_menu_layout(w, h).rows[0][1];
+                draw_zenith_logo(atlas, batch, w, menu_top - 24.0);
+                if !zenith
+                    && !hide_splash
+                    && let Some(splash) = self.splash.as_deref()
+                {
+                    let tw = HudBatch::text_width(atlas, splash);
+                    let start = batch.vertices.len();
+                    batch.text(
+                        atlas,
+                        splash,
+                        -(tw / 2.0).floor(),
+                        -8.0,
+                        rgba(255, 255, 0, 255),
+                        true,
+                    );
+                    let scale = (1.8
+                        - (self.started.elapsed().as_secs_f32() * std::f32::consts::TAU)
+                            .sin()
+                            .abs()
+                            * 0.1)
+                        * 100.0
+                        / (tw + 32.0);
+                    let (sin, cos) = (-20.0f32).to_radians().sin_cos();
+                    for v in &mut batch.vertices[start..] {
+                        let [x, y] = v.pos;
+                        v.pos = [
+                            w / 2.0 + 123.0 + scale * (x * cos - y * sin),
+                            69.0 + scale * (x * sin + y * cos),
+                        ];
                     }
                 }
                 let version = if zenith {
@@ -2760,6 +2866,11 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 crate::ui::menu_background(batch, atlas, 0.0, 0.0, w, h, false);
                 let dir = self.saves.parent().unwrap_or_else(|| Path::new("."));
                 crate::addons_ui::draw(batch, atlas, &self.addons, dir, cursor);
+            }
+            Mode::Screenshots => {
+                crate::ui::menu_background(batch, atlas, 0.0, 0.0, w, h, false);
+                let dir = self.saves.parent().unwrap_or_else(|| Path::new("."));
+                draw_screenshots(atlas, batch, dir, w, h, cursor);
             }
             Mode::Select { worlds, selected } => {
                 let dy = self.top_bar_offset();
@@ -3444,7 +3555,22 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 );
                 continue;
             }
-            b.draw_label(batch, atlas, color);
+            if crate::theme::current() == crate::theme::UiTheme::Zenith {
+                let size = 13.0;
+                crate::ui_text::text_fitted(
+                    batch,
+                    atlas,
+                    crate::ui_text::Face::Medium,
+                    size,
+                    b.x + 4.0,
+                    b.w - 8.0,
+                    b.y + ((20.0 - size * 1.45) / 2.0).floor(),
+                    color,
+                    &b.label,
+                );
+            } else {
+                b.draw_label(batch, atlas, color);
+            }
             if let Some((icon, size)) = b.trailing {
                 // TextAndIcon: `x + width - spriteWidth - 2`, centred in the height.
                 batch.sprite_scaled(
@@ -3785,6 +3911,15 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 self.mode = Mode::Main;
                 Action::None
             }
+            (Mode::Screenshots, Some(90)) => {
+                self.mode = Mode::Main;
+                Action::None
+            }
+            (Mode::Screenshots, Some(91)) => Action::Screenshots,
+            (Mode::Main, Some(9)) => {
+                self.mode = Mode::Screenshots;
+                Action::None
+            }
             (Mode::Realms(screen), hit) => match screen.click(hit, x, y, (w, h)) {
                 crate::realms::Outcome::Back => {
                     self.mode = Mode::Main;
@@ -3946,8 +4081,9 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 Action::None
             }
             (Mode::Select { .. }, None) => {
+                let dy = self.top_bar_offset();
                 self.search_focused =
-                    (21.0..41.0).contains(&y) && (x - (w / 2.0).floor()).abs() < 100.0;
+                    (21.0 + dy..41.0 + dy).contains(&y) && (x - (w / 2.0).floor()).abs() < 100.0;
                 let Mode::Select { worlds, .. } = &self.mode else {
                     unreachable!()
                 };
@@ -4218,7 +4354,9 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
     fn focused_rect(&self, (w, h): (f32, f32)) -> Option<[f32; 4]> {
         let x = (w / 2.0).floor() - 100.0;
         match &self.mode {
-            Mode::Select { .. } if self.search_focused => Some([x, 21.0, 200.0, 20.0]),
+            Mode::Select { .. } if self.search_focused => {
+                Some([x, 21.0 + self.top_bar_offset(), 200.0, 20.0])
+            }
             Mode::Edit { focused: true, .. } => Some([x, edit_top(h) + 39.0, 200.0, 20.0]),
             Mode::Create { focus, options, .. } => create_world::field_rect(w, h, options.tab)
                 .filter(|(id, _)| id == focus)
@@ -4932,6 +5070,7 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                     self.mode = Mode::Main;
                 }
             }
+            Mode::Screenshots => self.mode = Mode::Main,
             _ => self.mode = Mode::Main,
         }
     }

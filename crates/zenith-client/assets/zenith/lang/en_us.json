@@ -27,6 +27,12 @@
   "zenith.addons.corner": "Position",
   "zenith.fps.lows": "Minimum and 1% low",
   "zenith.keystrokes.cps": "Clicks per second",
+  "zenith.menu.screenshots": "Screenshots",
+  "zenith.screenshots.title": "Screenshots",
+  "zenith.screenshots.empty": "No screenshots yet",
+  "zenith.screenshots.empty.hint": "Screenshots you take in game show up here.",
+  "zenith.screenshots.count": "screenshots",
+  "zenith.screenshots.open": "Open folder",
   "zenith.theme.zenith": "Zenith",
   "zenith.theme.vanilla": "Vanilla"
 }

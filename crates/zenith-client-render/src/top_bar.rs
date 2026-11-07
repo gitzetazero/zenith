@@ -1,10 +1,10 @@
 //! The tabs above the inner menus (Singleplayer, Multiplayer, Addons, Options) and the
-//! account at their right, from the Zenith UI spec. Nothing is drawn while the theme is
-//! `Vanilla`; the title screen has no bar at all.
+//! account at their right, from the Zenith UI spec. Both themes keep Laby's layout: Zenith
+//! draws it with its own plates and bundled face, Vanilla with the game's button sprites and
+//! bitmap font. The title screen has no bar at all.
 use crate::{
     hud::{HudAtlas, HudBatch},
     lang,
-    text::Text,
     theme::{self, UiTheme},
 };
 
@@ -88,8 +88,8 @@ pub fn fit(account: &str, max_w: f32) -> String {
     out
 }
 
-/// Draw the bar: a panel across the top, the active tab on the accent, the account at the
-/// right. The icons the spec leaves empty are not drawn.
+/// Draw the bar: a panel across the top, the active tab lit, the account at the right.
+/// The icons the spec leaves empty are not drawn.
 pub fn draw(
     batch: &mut HudBatch,
     atlas: &HudAtlas,
@@ -97,45 +97,87 @@ pub fn draw(
     account: &str,
     _cursor: (f32, f32),
 ) {
-    if theme::current() == UiTheme::Vanilla {
-        return;
-    }
+    let zenith = theme::current() == UiTheme::Zenith;
     let p = theme::palette();
     let w = batch.width;
-    batch.fill(atlas, 0.0, 0.0, w, HEIGHT, p.panel);
+    batch.fill(
+        atlas,
+        0.0,
+        0.0,
+        w,
+        HEIGHT,
+        if zenith { p.panel } else { 0xC010_1010 },
+    );
     batch.fill(atlas, 0.0, HEIGHT - 1.0, w, 1.0, p.outline);
     for (i, r) in layout(w, Tab::ALL.len()).iter().enumerate() {
         let tab = Tab::ALL[i];
-        let color = if tab == active { p.accent } else { p.button };
-        crate::ui_zenith::rounded(batch, atlas, r[0], r[1], r[2], r[3], 6.0, color);
-        let label = Text::literal(tab.label());
-        // Clipped to its tab: a long translation slides instead of running into the next one.
-        crate::ui::scrolling_text_around_at(
-            batch,
-            atlas,
-            &label,
-            r[0] + (r[2] / 2.0),
-            r[0] + 2.0,
-            r[0] + r[2] - 2.0,
-            r[1],
-            r[1] + r[3],
-            r[1] + ((r[3] - 9.0) / 2.0).floor(),
-            crate::hud_overlays::now_ms(),
-            if tab == active { p.text } else { p.text_dim },
-        );
+        if zenith {
+            let color = if tab == active { p.accent } else { p.button };
+            crate::ui_zenith::rounded(batch, atlas, r[0], r[1], r[2], r[3], 6.0, color);
+        } else {
+            let sprite = if tab == active {
+                "gui/sprites/widget/button_highlighted"
+            } else {
+                "gui/sprites/widget/button"
+            };
+            crate::ui::nine_slice(batch, atlas, sprite, r[0], r[1], r[2], r[3], u32::MAX);
+        }
+        let label = tab.label();
+        if zenith {
+            crate::ui_text::text_fitted(
+                batch,
+                atlas,
+                crate::ui_text::Face::Medium,
+                12.0,
+                r[0] + 2.0,
+                r[2] - 4.0,
+                r[1] + ((r[3] - 12.0 * 1.45) / 2.0).floor(),
+                if tab == active { p.text } else { p.text_dim },
+                &label,
+            );
+        } else {
+            let text = crate::text::Text::literal(label);
+            crate::ui::scrolling_text_around_at(
+                batch,
+                atlas,
+                &text,
+                r[0] + r[2] / 2.0,
+                r[0] + 2.0,
+                r[0] + r[2] - 2.0,
+                r[1],
+                r[1] + r[3],
+                r[1] + ((r[3] - 9.0) / 2.0).floor(),
+                crate::hud_overlays::now_ms(),
+                if tab == active { u32::MAX } else { 0xFFA0A0A0 },
+            );
+        }
     }
     if !account.is_empty() {
         let name = fit(account, 120.0);
-        let text = Text::literal(name);
-        let tw = atlas.font.width_text(&text);
-        batch.text_styled(
-            atlas,
-            &text,
-            w - tw - 8.0,
-            (HEIGHT - 9.0) / 2.0,
-            p.text,
-            true,
-        );
+        if zenith {
+            let tw = crate::ui_text::measure(atlas, crate::ui_text::Face::Regular, 12.0, &name);
+            crate::ui_text::text(
+                batch,
+                atlas,
+                crate::ui_text::Face::Regular,
+                12.0,
+                w - tw - 8.0,
+                (HEIGHT - 12.0 * 1.45) / 2.0,
+                p.text,
+                &name,
+            );
+        } else {
+            let text = crate::text::Text::literal(name);
+            let tw = atlas.font.width_text(&text);
+            batch.text_styled(
+                atlas,
+                &text,
+                w - tw - 8.0,
+                (HEIGHT - 9.0) / 2.0,
+                p.text,
+                true,
+            );
+        }
     }
 }
 

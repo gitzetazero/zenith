@@ -65,7 +65,7 @@ impl Fixture {
     }
     fn select(&mut self) {
         self.title.enter_singleplayer();
-        self.title.click(240.0, 60.0, (480.0, 262.0));
+        self.title.click(240.0, 84.0, (480.0, 262.0));
     }
     /// Create New World, past the preparing read: the screen the pack
     /// screens hand their selection to.
@@ -304,10 +304,10 @@ fn selector_controls_require_selection_and_search_uses_filtered_indices() {
         assert_eq!(f.click(label), Action::None);
     }
     // Clicking the disabled footer controls leaves the search box unfocused.
-    f.title.click(240.0, 31.0, (480.0, 262.0));
+    f.title.click(240.0, 55.0, (480.0, 262.0));
     f.title.type_text("bEtA");
     assert_eq!(f.title.search, "bEtA");
-    f.title.click(240.0, 60.0, (480.0, 262.0));
+    f.title.click(240.0, 84.0, (480.0, 262.0));
     f.click("Edit");
     assert!(matches!(&f.title.mode, Mode::Edit { world, .. } if world.folder == "B"));
     f.title.escape();
@@ -909,11 +909,11 @@ fn classic_world_selection_is_silent_until_the_entry_launches() {
     f.world("World", "World");
     f.title.enter_singleplayer();
     assert_eq!(
-        f.title.click(240.0, 60.0, (480.0, 262.0)),
+        f.title.click(240.0, 84.0, (480.0, 262.0)),
         (Action::None, false)
     );
     assert_eq!(
-        f.title.click(240.0, 60.0, (480.0, 262.0)),
+        f.title.click(240.0, 84.0, (480.0, 262.0)),
         (
             Action::Play {
                 folder: "World".into()
@@ -938,7 +938,7 @@ fn middle_clicking_a_world_selects_it_without_joining() {
             .enabled
     };
     assert!(!enabled(&f, "Edit"), "nothing is selected yet");
-    assert!(f.title.select_world_at(240.0, 60.0, size));
+    assert!(f.title.select_world_at(240.0, 84.0, size));
     assert!(matches!(
         f.title.mode,
         Mode::Select {
@@ -951,7 +951,7 @@ fn middle_clicking_a_world_selects_it_without_joining() {
         "the selection callback reaches the footer"
     );
     // Again on the selected row: still only a selection, not a join.
-    assert!(f.title.select_world_at(240.0, 60.0, size));
+    assert!(f.title.select_world_at(240.0, 84.0, size));
     assert!(matches!(f.title.mode, Mode::Select { .. }));
     // Outside the rows (the footer) nothing is selected.
     assert!(!f.title.select_world_at(240.0, 250.0, size));
@@ -963,7 +963,10 @@ fn a_world_open_elsewhere_stays_closed_behind_a_toast() {
     f.world("World", "World");
     f.title.enter_singleplayer();
     let open = crate::save::SessionLock::acquire(&f.title.saves.join("World")).unwrap();
-    let (icon_x, icon_y) = (240.0 - 135.0 + 2.0, LIST_TOP + 4.0);
+    let (icon_x, icon_y) = (
+        240.0 - 135.0 + 2.0,
+        LIST_TOP + f.title.top_bar_offset() + 4.0,
+    );
     assert_eq!(
         f.title
             .click(icon_x + 16.0, icon_y + 16.0, (480.0, 262.0))
@@ -991,7 +994,10 @@ fn clicking_a_world_icon_joins_it_at_once() {
     f.world("World", "World");
     f.title.enter_singleplayer();
     // WorldListEntry.mouseOverIcon: the row's 32x32 icon, left of its text.
-    let (icon_x, icon_y) = (240.0 - 135.0 + 2.0, LIST_TOP + 4.0);
+    let (icon_x, icon_y) = (
+        240.0 - 135.0 + 2.0,
+        LIST_TOP + f.title.top_bar_offset() + 4.0,
+    );
     assert_eq!(
         f.title.click(icon_x + 31.0, icon_y + 16.0, (480.0, 262.0)),
         (
@@ -1137,15 +1143,15 @@ fn world_search_hint_is_gray_and_only_shown_empty_and_unfocused() {
         batch
             .vertices
             .iter()
-            .any(|v| v.color == rgba(170, 170, 170, 255) && (21.0..41.0).contains(&v.pos[1]))
+            .any(|v| v.color == rgba(170, 170, 170, 255) && (45.0..65.0).contains(&v.pos[1]))
     };
     assert!(has_hint(&draw(&f.title)));
 
-    f.title.click(240.0, 31.0, (480.0, 262.0));
+    f.title.click(240.0, 55.0, (480.0, 262.0));
     assert!(f.title.search_focused);
     assert!(!has_hint(&draw(&f.title)));
     f.title.type_text("World");
-    f.title.click(240.0, 60.0, (480.0, 262.0));
+    f.title.click(240.0, 84.0, (480.0, 262.0));
     assert!(!f.title.search_focused);
     assert!(!has_hint(&draw(&f.title)));
 }
@@ -1159,13 +1165,17 @@ fn scrolled_world_list_draws_inside_the_list_and_drags_its_scroller() {
     f.select();
     let size = (480.0, 262.0);
     // SelectWorldScreen's list: 49 to h - 60, scroller at the row's right + 8.
-    let bar = (480.0 / 2.0 - ROW_WIDTH / 2.0 + ROW_WIDTH + 8.0 + 3.0, 60.0);
+    let bar = (
+        480.0 / 2.0 - ROW_WIDTH / 2.0 + ROW_WIDTH + 8.0 + 3.0,
+        60.0 + f.title.top_bar_offset(),
+    );
     f.title.click(bar.0, bar.1, size);
-    f.title.drag((bar.0, 120.0), size);
+    f.title
+        .drag((bar.0, 120.0 + f.title.top_bar_offset()), size);
     let moved = f.title.scroll.get().amount;
     assert!(moved > 0.0);
     f.title.release();
-    f.title.drag((bar.0, 60.0), size);
+    f.title.drag((bar.0, 60.0 + f.title.top_bar_offset()), size);
     assert_eq!(f.title.scroll.get().amount, moved);
     let atlas = crate::hud::HudAtlas::build(Path::new("/nonexistent/horizon-test-assets")).unwrap();
     let mut batch = HudBatch::new([480, 262]);
@@ -1431,7 +1441,7 @@ fn world_fields_edit_at_their_cursor() {
     f.world("World", "World");
     f.title.enter_singleplayer();
     // The search box takes the focus.
-    f.title.click(240.0, 30.0, (480.0, 262.0));
+    f.title.click(240.0, 54.0, (480.0, 262.0));
     f.title.type_text("hello world");
     for _ in 0..5 {
         assert!(f.title.field_key(KeyCode::ArrowLeft, false, false));
@@ -1787,7 +1797,7 @@ fn mouse_opening_singleplayer_does_not_steal_select_world_enter() {
     assert_eq!(f.title.focused_button, None);
 
     // Select the row, then press Enter as a keyboard user would.
-    f.title.click(240.0, 60.0, (480.0, 262.0));
+    f.title.click(240.0, 84.0, (480.0, 262.0));
     let (action, sound) = f.title.confirm_key_size((480.0, 262.0));
     assert_eq!(
         action,
@@ -2608,36 +2618,9 @@ fn the_multiplayer_screens_have_their_own_ids() {
 
 #[test]
 fn the_main_menu_layout_holds_every_button_and_fits_small_windows() {
-    for (w, h, scale) in [(854.0, 480.0, 2.0), (320.0, 240.0, 4.0)] {
-        let layout = main_menu_layout(w, h, scale);
-        assert_eq!(layout.rows.len(), 8);
-        for [x, y, bw, bh] in &layout.rows {
-            assert!(
-                *x >= 0.0 && *y >= 0.0,
-                "{:?} starts off screen",
-                [x, y, bw, bh]
-            );
-            assert!(
-                x + bw <= w && y + bh <= h,
-                "{:?} leaves the window",
-                [x, y, bw, bh]
-            );
-        }
-        for (i, a) in layout.rows.iter().enumerate() {
-            for b in &layout.rows[i + 1..] {
-                let overlap = a[0] < b[0] + b[2]
-                    && b[0] < a[0] + a[2]
-                    && a[1] < b[1] + b[3]
-                    && b[1] < a[1] + a[3];
-                assert!(!overlap, "{a:?} overlaps {b:?}");
-            }
-        }
-        let (vx, vy) = layout.version;
-        assert!(vx >= 0.0 && vy >= 0.0 && vy + 10.0 <= h);
-    }
     for (w, h) in [(854.0, 480.0), (320.0, 240.0)] {
         let zenith = zenith_main_menu_layout(w, h);
-        assert_eq!(zenith.rows.len(), 8);
+        assert_eq!(zenith.rows.len(), 9);
         for [x, y, bw, bh] in &zenith.rows {
             assert!(*x >= 0.0 && *y >= 0.0 && x + bw <= w && y + bh <= h);
         }
@@ -2654,8 +2637,12 @@ fn the_main_menu_layout_holds_every_button_and_fits_small_windows() {
     }
     let f = Fixture::new();
     let buttons = f.title.buttons(854.0, 480.0);
-    assert_eq!(buttons.len(), 8, "the menu keeps every button it has today");
-    let rows = main_menu_layout(854.0, 480.0, 2.0).rows;
+    assert_eq!(
+        buttons.len(),
+        9,
+        "single, multi, screenshots, realms, three icons, options, quit"
+    );
+    let rows = zenith_main_menu_layout(854.0, 480.0).rows;
     for b in &buttons {
         assert!(
             rows.iter().any(|r| (r[0], r[1], r[2]) == (b.x, b.y, b.w)),

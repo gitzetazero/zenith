@@ -23,7 +23,7 @@ pub use zenith_client_render::{
     shader_options, shader_pack_list, signs, skins, sound_engine, sound_events, sound_preview,
     spans, split_layout, split_map, split_profiles, sprites, streaming, structure_block, tab_list,
     telemetry, test_block, test_instance_block, testgen, theme, title_edition, top_bar, trims, ui,
-    ui_zenith, vault, weather, widgets, world, worldborder, zip,
+    ui_text, ui_zenith, vault, weather, widgets, world, worldborder, zip,
 };
 pub mod attack_strength;
 pub mod attribute_updates;

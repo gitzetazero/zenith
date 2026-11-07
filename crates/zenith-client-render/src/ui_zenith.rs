@@ -79,18 +79,17 @@ pub fn button(
     rounded(batch, atlas, x, y, w, h, radius, fill);
     outline(batch, atlas, x, y, w, h, p.outline);
     let color = if active { p.text } else { p.text_dim };
-    crate::ui::scrolling_text_around_at(
+    let size = 12.0;
+    crate::ui_text::text_fitted(
         batch,
         atlas,
-        label,
-        x + (w / 2.0).floor(),
+        crate::ui_text::Face::Medium,
+        size,
         x + 2.0 + room,
-        x + w - 2.0,
-        y,
-        y + h,
-        y + ((h - 8.0) / 2.0).floor(),
-        crate::hud_overlays::now_ms(),
+        w - 4.0 - room,
+        y + ((h - size * 1.45) / 2.0).floor(),
         color,
+        &label.plain(),
     );
 }
 
@@ -123,16 +122,15 @@ pub fn slider(
     };
     let kx = x + 4.0 + (value.clamp(0.0, 1.0) * (w - 8.0)) - 4.0;
     rounded(batch, atlas, kx, y + 5.0, 8.0, 10.0, 5.0, knob);
-    crate::ui::scrolling_text(
+    crate::ui_text::text(
         batch,
         atlas,
-        label,
-        x + 2.0,
-        x + w - 2.0,
-        y,
-        y + 20.0,
-        y + 6.0,
+        crate::ui_text::Face::Medium,
+        11.0,
+        x + 3.0,
+        y + 5.0,
         if active { p.text } else { p.text_dim },
+        &label.plain(),
     );
 }
 

@@ -701,9 +701,7 @@ impl Loading {
 
     /// The Zenith bar's height above the startup menu's Options page.
     fn menu_options_top(&self) -> f32 {
-        if zenith_client::theme::current() == zenith_client::theme::UiTheme::Zenith
-            && self.menu.options.calibration_fullscreen.is_none()
-        {
+        if self.menu.options.calibration_fullscreen.is_none() {
             zenith_client::top_bar::HEIGHT
         } else {
             0.0
@@ -782,6 +780,14 @@ impl Loading {
             Action::Sounds => self.open_menu_options(Page::Sound),
             Action::Credits => self.open_menu_options(Page::Credits),
             Action::OpenUri(uri) => super::packs::open_uri(&uri),
+            Action::Screenshots => {
+                let dir = Game::options_path()
+                    .parent()
+                    .unwrap_or(std::path::Path::new("."))
+                    .join("screenshots");
+                let _ = std::fs::create_dir_all(&dir);
+                super::packs::open_folder(&dir);
+            }
             Action::CopyText(text) => {
                 use zenith_client::clipboard::Clipboard;
                 self.menu.clipboard.set(&text);

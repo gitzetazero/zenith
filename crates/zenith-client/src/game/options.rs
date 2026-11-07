@@ -181,9 +181,7 @@ impl Game<'_> {
         if ui.controller_open() {
             ui.controller.context = context;
         }
-        let top = if crate::theme::current() == crate::theme::UiTheme::Zenith
-            && ui.calibration_fullscreen.is_none()
-        {
+        let top = if ui.calibration_fullscreen.is_none() {
             crate::top_bar::HEIGHT
         } else {
             0.0
@@ -214,9 +212,7 @@ impl Game<'_> {
     /// The Zenith bar's height above the Options page, zero with `Vanilla` or while HDR
     /// calibration takes the whole screen.
     fn options_top(&self) -> f32 {
-        if crate::theme::current() == crate::theme::UiTheme::Zenith
-            && self.ui.options.calibration_fullscreen.is_none()
-        {
+        if self.ui.options.calibration_fullscreen.is_none() {
             crate::top_bar::HEIGHT
         } else {
             0.0

@@ -27,6 +27,12 @@
   "zenith.addons.corner": "Posición",
   "zenith.fps.lows": "Mínimo y 1% bajo",
   "zenith.keystrokes.cps": "Clics por segundo",
+  "zenith.menu.screenshots": "Capturas",
+  "zenith.screenshots.title": "Capturas",
+  "zenith.screenshots.empty": "Aún no hay capturas",
+  "zenith.screenshots.empty.hint": "Las capturas que hagas en el juego aparecerán aquí.",
+  "zenith.screenshots.count": "capturas",
+  "zenith.screenshots.open": "Abrir carpeta",
   "zenith.theme.zenith": "Zenith",
   "zenith.theme.vanilla": "Vanilla"
 }

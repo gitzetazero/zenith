@@ -126,6 +126,7 @@ pub mod title_edition;
 pub mod top_bar;
 pub mod trims;
 pub mod ui;
+pub mod ui_text;
 pub mod ui_zenith;
 pub mod vault;
 pub mod weather;
