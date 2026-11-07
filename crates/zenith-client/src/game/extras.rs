@@ -58,6 +58,11 @@ impl Game<'_> {
             self.extras.mouse = [false; 2];
         }
         self.update_minimap();
+        // The Addons screen owns these switches; keep the old extras flags in step.
+        let options = Self::options_path();
+        let dir = options.parent().unwrap_or(std::path::Path::new("."));
+        self.settings.extras.fps = zenith_client::addons::enabled(dir, "fps");
+        self.settings.extras.keystrokes = zenith_client::addons::enabled(dir, "keystrokes");
         // For mods (`render.frame-stats`, `native_frame_rate`).
         let now = self.extras_now();
         self.extras.fps.record(now, elapsed.as_secs_f32() * 1000.0);
@@ -238,8 +243,37 @@ impl Game<'_> {
     /// by the caller). The top left corner gives way to the debug screen.
     pub(super) fn draw_extras(&mut self, batch: &mut HudBatch) {
         let map = self.minimap_shown();
-        let visible = |corner| !(self.debug && corner == Corner::TopLeft);
+        let debug = self.debug;
+        let visible = move |corner| !(debug && corner == Corner::TopLeft);
         let mut corners = Corners::new(batch.width, batch.height, self.effect_rows_height());
+        let options = Self::options_path();
+        let dir = options.parent().unwrap_or(std::path::Path::new("."));
+        let addon_settings = zenith_client::extras::Extras::load(dir);
+        let (cps, mouse) = self.mouse_reading();
+        let keys = crate::addons_hud::KeyState {
+            forward: self.physical_keys.contains(&winit::keyboard::KeyCode::KeyW),
+            back: self.physical_keys.contains(&winit::keyboard::KeyCode::KeyS),
+            left: self.physical_keys.contains(&winit::keyboard::KeyCode::KeyA),
+            right: self.physical_keys.contains(&winit::keyboard::KeyCode::KeyD),
+            jump: self
+                .physical_keys
+                .contains(&winit::keyboard::KeyCode::Space),
+            sneak: self
+                .physical_keys
+                .contains(&winit::keyboard::KeyCode::ShiftLeft),
+            sprint: self
+                .physical_keys
+                .contains(&winit::keyboard::KeyCode::ControlLeft),
+            attack: mouse[0],
+            use_item: mouse[1],
+        };
+        let reading = self.extras.fps.reading();
+        let fps = crate::addons_hud::fps_lines(
+            reading.fps as f32,
+            addon_settings
+                .fps_lows
+                .then_some((reading.min as f32, reading.low as f32)),
+        );
         let atlas = &self.gui.atlas;
         if let Some((map_corner, map_size, view)) = map
             && visible(map_corner)
@@ -260,6 +294,16 @@ impl Game<'_> {
             };
             extras_hud::draw_minimap(batch, atlas, &mut corners, &look);
         }
+        crate::addons_hud::draw(
+            batch,
+            atlas,
+            &mut corners,
+            &addon_settings,
+            dir,
+            &fps,
+            (addon_settings.keystrokes_cps && (cps.0 > 0 || cps.1 > 0)).then_some(cps),
+            &keys,
+        );
         self.draw_pvp_hud(batch, &mut corners);
         self.native_hud(batch, &mut corners);
     }

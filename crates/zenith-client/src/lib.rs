@@ -4,6 +4,7 @@
 #![forbid(unsafe_code)]
 extern crate self as zenith_client;
 pub use zenith_client_lib::*;
+pub mod addons_hud;
 pub mod entry;
 pub mod game;
 pub mod mod_api;

@@ -52,6 +52,16 @@ fn rows(panel: [f32; 4], list: &[&AddonDef]) -> Vec<[f32; 4]> {
         .collect()
 }
 
+fn next_corner(corner: crate::extras::Corner) -> crate::extras::Corner {
+    use crate::extras::Corner;
+    match corner {
+        Corner::TopLeft => Corner::TopRight,
+        Corner::TopRight => Corner::BottomRight,
+        Corner::BottomRight => Corner::BottomLeft,
+        Corner::BottomLeft => Corner::TopLeft,
+    }
+}
+
 fn switch_rect(row: [f32; 4]) -> [f32; 4] {
     [row[0] + row[2] - 32.0, row[1] + 7.0, 28.0, 12.0]
 }
@@ -286,14 +296,43 @@ fn draw_settings(
             );
         }
     } else {
-        // Position and size live in the extras file, which this screen keeps as it is.
-        let on = addons::enabled(dir, id);
-        let line = if on {
-            tr("zenith.addons.on", "On")
+        // The corner, and the Addon's own extra, kept in `horizon-extras.txt`.
+        let extras = crate::extras::Extras::load(dir);
+        let (corner, toggle, toggle_label) = if id == "fps" {
+            (
+                extras.fps_corner,
+                extras.fps_lows,
+                tr("zenith.fps.lows", "Minimum and 1% low"),
+            )
         } else {
-            tr("zenith.addons.off", "Off")
+            (
+                extras.keystrokes_corner,
+                extras.keystrokes_cps,
+                tr("zenith.keystrokes.cps", "Clicks per second"),
+            )
         };
-        batch.text_styled(atlas, &Text::literal(line), 12.0, 34.0, p.text_dim, true);
+        for (i, line) in [
+            format!(
+                "{}: {}",
+                tr("zenith.addons.corner", "Position"),
+                corner.label()
+            ),
+            format!(
+                "{}: {}",
+                toggle_label,
+                tr(
+                    if toggle { "options.on" } else { "options.off" },
+                    if toggle { "On" } else { "Off" },
+                )
+            ),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            let y = 34.0 + i as f32 * 22.0;
+            crate::ui_zenith::rounded(batch, atlas, 12.0, y, 200.0, 18.0, 5.0, p.button);
+            batch.text_styled(atlas, &Text::literal(line), 18.0, y + 5.0, p.text, true);
+        }
     }
     let _ = state;
 }
@@ -310,6 +349,27 @@ pub fn click(
             for (rect, option) in theme_cards(screen) {
                 if x >= rect[0] && x < rect[0] + rect[2] && y >= rect[1] && y < rect[1] + rect[3] {
                     select_theme(dir, option);
+                    state.open = Some(id);
+                    return Outcome::Changed;
+                }
+            }
+        } else {
+            for i in 0..2 {
+                let row = [12.0, 34.0 + i as f32 * 22.0, 200.0, 18.0];
+                if x >= row[0] && x < row[0] + row[2] && y >= row[1] && y < row[1] + row[3] {
+                    let mut extras = crate::extras::Extras::load(dir);
+                    if i == 0 {
+                        if id == "fps" {
+                            extras.fps_corner = next_corner(extras.fps_corner);
+                        } else {
+                            extras.keystrokes_corner = next_corner(extras.keystrokes_corner);
+                        }
+                    } else if id == "fps" {
+                        extras.fps_lows = !extras.fps_lows;
+                    } else {
+                        extras.keystrokes_cps = !extras.keystrokes_cps;
+                    }
+                    extras.save(dir);
                     state.open = Some(id);
                     return Outcome::Changed;
                 }

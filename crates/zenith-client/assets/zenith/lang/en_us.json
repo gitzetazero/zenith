@@ -24,6 +24,9 @@
   "zenith.fps.desc": "Frames per second in a corner",
   "zenith.keystrokes.name": "Keystrokes",
   "zenith.keystrokes.desc": "Keys and clicks on screen",
+  "zenith.addons.corner": "Position",
+  "zenith.fps.lows": "Minimum and 1% low",
+  "zenith.keystrokes.cps": "Clicks per second",
   "zenith.theme.zenith": "Zenith",
   "zenith.theme.vanilla": "Vanilla"
 }
