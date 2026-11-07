@@ -3,7 +3,7 @@
 use crate::{
     dialog_screen::BOX,
     game_rules_screen::{Exit, RulesScreen},
-    hud::{HudAtlas, HudBatch, rgba},
+    hud::{HudAtlas, HudBatch, ZENITH_MARK_SPRITE, rgba},
     lang,
     save::Level,
     text::{Text, format_translation},
@@ -127,22 +127,15 @@ pub(crate) fn zenith_main_menu_layout(w: f32, h: f32) -> MainMenuLayout {
     }
 }
 
-/// The client's mark under the Minecraft logo: Laby writes its name there, Zenith writes
-/// its own in the bundled geometric face.
+/// The client's mark under the Minecraft logo: Laby writes its name there, Zenith
+/// draws its bundled mark (the theme crate's icon, cropped at atlas build).
 fn draw_zenith_logo(atlas: &HudAtlas, batch: &mut HudBatch, w: f32, y: f32) {
-    let p = crate::theme::palette();
-    let size = 18.0;
-    let width = crate::ui_text::measure(atlas, crate::ui_text::Face::SemiBold, size, "ZENITH");
-    crate::ui_text::text(
-        batch,
-        atlas,
-        crate::ui_text::Face::SemiBold,
-        size,
-        (w - width) / 2.0,
-        y,
-        p.text,
-        "ZENITH",
-    );
+    let Some(rect) = atlas.sprites.get(ZENITH_MARK_SPRITE) else {
+        return;
+    };
+    let height = 26.0;
+    let width = rect.w as f32 * (height / rect.h as f32);
+    batch.rect_uv((w - width) / 2.0, y, width, height, *rect, 0xFFFFFFFF);
 }
 
 /// The screenshots gallery, as Laby's Photos page: its title, then either the captures'

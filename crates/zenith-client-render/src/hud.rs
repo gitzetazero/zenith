@@ -146,6 +146,53 @@ pub const PACK_ICON_SIZE: u32 = 128;
 /// Atlas slots for armour trim textures made at run time (`trims`), each the
 /// size of the largest trim texture.
 pub const TRIM_SLOTS: usize = 32;
+/// The sprite the menus draw instead of writing the client's name in text.
+pub const ZENITH_MARK_SPRITE: &str = "horizon/zenith-mark";
+/// The client's mark (the theme crate's bundled app icon), as a logo sprite:
+/// only the mark itself (white glyph and amber spark) keeps its pixels, the
+/// icon's plate goes transparent, and the rest is cropped to its bounding box.
+pub(crate) fn mark_image() -> Option<PackedImage> {
+    let (w, h, mut pixels) = decode_bytes(zenith_theme::ICON_PNG).ok()?;
+    for px in pixels.chunks_exact_mut(4) {
+        // The plate colours below saturation; the mark's whites and ambers,
+        // and their edge blends, sit above.
+        if px[3] < 200 || (px[0] < 100 && px[1] < 100) {
+            px[3] = 0;
+        }
+    }
+    let (w, h, pixels) = trim_to_alpha(&pixels, w, h)?;
+    Some((ZENITH_MARK_SPRITE.into(), w, h, pixels))
+}
+/// Crop an RGBA image to its pixels' bounding box (`None` for an empty one).
+fn trim_to_alpha(pixels: &[u8], w: u32, h: u32) -> Option<(u32, u32, Vec<u8>)> {
+    let mut left = w;
+    let mut top = h;
+    let mut right = 0;
+    let mut bottom = 0;
+    for y in 0..h {
+        for x in 0..w {
+            let a = pixels
+                .get((y * w + x) as usize * 4 + 3)
+                .copied()
+                .unwrap_or(0);
+            if a > 0 {
+                left = left.min(x);
+                top = top.min(y);
+                right = right.max(x + 1);
+                bottom = bottom.max(y + 1);
+            }
+        }
+    }
+    (left < right && top < bottom).then(|| {
+        let (cw, ch) = (right - left, bottom - top);
+        let mut cropped = Vec::with_capacity((cw * ch) as usize * 4);
+        for y in top..bottom {
+            let row = ((y * w + left) as usize * 4)..((y * w + right) as usize * 4);
+            cropped.extend_from_slice(&pixels[row]);
+        }
+        (cw, ch, cropped)
+    })
+}
 pub fn decode(path: &Path) -> Result<(u32, u32, Vec<u8>)> {
     decode_bytes(&zenith_core::prepared_files::read(path)?)
 }
@@ -1325,6 +1372,10 @@ impl HudAtlas {
             edition.3 = pixels;
         }
         images.push(("horizon/white".into(), 4, 4, vec![255; 64]));
+        // The client's mark for the menus, from the theme crate's own icon.
+        if let Some(mark) = mark_image() {
+            images.push(mark);
+        }
         // The controller's art, unless a pack brought its own (walked above, as a mod's GUI
         // textures are).
         for image in crate::pad_glyph::images() {
@@ -2929,6 +2980,31 @@ mod tests {
         atlas.clear_object_skins();
         assert_ne!(atlas.object_skins_revision, revision);
         assert!(atlas.object_skins.is_empty());
+    }
+
+    /// The menus draw the client's mark from a sprite, cropped to its shape.
+    #[test]
+    fn the_zenith_mark_is_a_bundled_cropped_sprite() {
+        let (_, w, h, pixels) = mark_image().expect("the theme crate bundles the mark");
+        assert!(w > 0 && h > 0);
+        assert!(pixels.len() == (w * h * 4) as usize);
+        // Only the mark survives: no plate colour (deep violet, low red and
+        // green) keeps its pixels.
+        assert!(pixels
+            .chunks_exact(4)
+            .all(|c| c[3] == 0 || c[0] >= 100 || c[1] >= 100));
+        // Tight crop: every border row and column touches a drawn pixel.
+        let row_opaque = |y: u32| (0..w).any(|x| pixels[(y * w + x) as usize * 4 + 3] > 0);
+        let col_opaque = |x: u32| (0..h).any(|y| pixels[(y * w + x) as usize * 4 + 3] > 0);
+        assert!((0..h).all(|y| row_opaque(y)));
+        assert!((0..w).all(|x| col_opaque(x)));
+        let root = Path::new("/nonexistent/horizon-test-assets");
+        let atlas = HudAtlas::build(root).unwrap();
+        let rect = atlas
+            .sprites
+            .get(ZENITH_MARK_SPRITE)
+            .expect("the mark is packed");
+        assert_eq!((rect.w, rect.h), (w, h));
     }
 
     /// The mod image slot is paid only by a game with a native mod loaded.
