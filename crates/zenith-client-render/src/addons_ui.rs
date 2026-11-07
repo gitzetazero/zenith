@@ -32,16 +32,15 @@ fn tr(key: &str, fallback: &str) -> String {
     lang::get_or(key, fallback)
 }
 
-/// The panel in GUI pixels.
+/// The panel in GUI pixels, below the top bar so its title is never covered.
 pub fn panel(screen: (f32, f32)) -> [f32; 4] {
     let w = (screen.0 - 20.0).clamp(200.0, 360.0);
-    let h = (screen.1 - 20.0).clamp(140.0, 240.0);
-    [
-        ((screen.0 - w) / 2.0).floor(),
-        ((screen.1 - h) / 2.0).floor(),
-        w,
-        h,
-    ]
+    let h = (screen.1 - crate::top_bar::HEIGHT - 8.0).clamp(140.0, 240.0);
+    let y = ((screen.1 - h) / 2.0)
+        .floor()
+        .max(crate::top_bar::HEIGHT + 4.0)
+        .min((screen.1 - h - 4.0).max(crate::top_bar::HEIGHT + 4.0));
+    [((screen.0 - w) / 2.0).floor(), y, w, h]
 }
 
 fn rows(panel: [f32; 4], list: &[&AddonDef]) -> Vec<[f32; 4]> {
@@ -408,6 +407,15 @@ mod tests {
         let _ = std::fs::remove_dir_all(&d);
         std::fs::create_dir_all(&d).unwrap();
         d
+    }
+
+    #[test]
+    fn the_panel_stays_inside_small_screens_below_the_top_bar() {
+        for screen in [(320.0, 240.0), (854.0, 480.0), (240.0, 240.0)] {
+            let [x, y, w, h] = panel(screen);
+            assert!(x >= 0.0 && y >= crate::top_bar::HEIGHT);
+            assert!(x + w <= screen.0 && y + h <= screen.1);
+        }
     }
 
     #[test]
