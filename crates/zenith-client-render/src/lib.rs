@@ -1,6 +1,8 @@
 //! The client's world data, rendering and screens: chunks, meshing, light, streaming, the renderer,
 //! the HUD, menus and settings. Gameplay (zenith-client) builds on it; nothing here reaches gameplay.
 #![forbid(unsafe_code)]
+pub mod addons;
+pub mod addons_ui;
 pub mod assets;
 pub mod atlas_sources;
 pub mod audio;

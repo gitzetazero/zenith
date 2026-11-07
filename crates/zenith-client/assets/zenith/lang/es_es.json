@@ -9,5 +9,21 @@
   "zenith.tab.singleplayer": "Un jugador",
   "zenith.tab.multiplayer": "Multijugador",
   "zenith.tab.addons": "Addons",
-  "zenith.tab.options": "Opciones"
+  "zenith.tab.options": "Opciones",
+  "zenith.addons.title": "Addons",
+  "zenith.addons.search": "Buscar addons",
+  "zenith.addons.empty": "Ningún addon coincide",
+  "zenith.addons.on": "Activado",
+  "zenith.addons.off": "Desactivado",
+  "zenith.addons.category.hud": "HUD",
+  "zenith.addons.category.appearance": "Aspecto",
+  "zenith.appearance.name": "Aspecto",
+  "zenith.appearance.desc": "Elige el tema de los menús",
+  "zenith.appearance.theme": "Tema",
+  "zenith.fps.name": "FPS",
+  "zenith.fps.desc": "Fotogramas por segundo en una esquina",
+  "zenith.keystrokes.name": "Teclas",
+  "zenith.keystrokes.desc": "Teclas y clics en pantalla",
+  "zenith.theme.zenith": "Zenith",
+  "zenith.theme.vanilla": "Vanilla"
 }

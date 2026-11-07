@@ -318,6 +318,8 @@ pub enum Alert {
 #[derive(Clone, Debug)]
 pub enum Mode {
     Main,
+    /// The Addons screen (`addons_ui`).
+    Addons,
     Select {
         worlds: Vec<WorldEntry>,
         selected: Option<usize>,
@@ -520,6 +522,8 @@ pub struct Title {
     preparing: bool,
     /// The confirm screen's Back: the Data Packs screen reopens.
     reopen_data_packs: bool,
+    /// The Addons screen's search, filter and open settings page.
+    pub addons: crate::addons_ui::State,
 }
 pub(crate) struct Button {
     x: f32,
@@ -795,6 +799,7 @@ impl Mode {
             Self::MultiplayerWarning { .. } => "multiplayer_warning",
             Self::Onboarding(_) => "onboarding",
             Self::BanNotice(_) => "ban_notice",
+            Self::Addons => "addons",
         }
     }
 }
@@ -863,6 +868,7 @@ impl Title {
             confirm_experiments: RefCell::new(None),
             preparing: false,
             reopen_data_packs: false,
+            addons: crate::addons_ui::State::default(),
         }
     }
     /// Vanilla bypasses the selector when there are no saves.
@@ -1187,6 +1193,7 @@ impl Title {
             | Mode::CreateBuffet { .. }
             | Mode::Edit { .. } => Some(Tab::Singleplayer),
             Mode::Multiplayer(_) | Mode::MultiplayerWarning { .. } => Some(Tab::Multiplayer),
+            Mode::Addons => Some(Tab::Addons),
             _ => None,
         }
     }
@@ -1943,6 +1950,14 @@ impl Title {
                 }
                 buttons
             }
+            Mode::Addons => vec![b(
+                (w / 2.0).floor() - 75.0,
+                h - 28.0,
+                150.0,
+                &lang::get_or("gui.back", "Back"),
+                true,
+                90,
+            )],
             Mode::Select { worlds, selected } => {
                 let world = selected.and_then(|i| worlds.get(i));
                 // SelectWorldScreen.updateButtonStatus: primaryActionMessage, canEdit, canRecreate.
@@ -2365,6 +2380,9 @@ impl Title {
         let info = match &self.mode {
             // TitleScreen: `narrator.screen.title`, not its (empty) title.
             Mode::Main => ScreenInfo::new("title", get("narrator.screen.title", "Title Screen")),
+            Mode::Addons => {
+                ScreenInfo::new("addons", lang::get_or("zenith.addons.title", "Addons"))
+            }
             Mode::Select { .. } => {
                 ScreenInfo::new("select_world", get("selectWorld.title", "Select World"))
             }
@@ -2710,6 +2728,11 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                     text = text.underlined();
                 }
                 batch.text_styled(atlas, &text, rect[0], rect[1], u32::MAX, true);
+            }
+            Mode::Addons => {
+                crate::ui::menu_background(batch, atlas, 0.0, 0.0, w, h, false);
+                let dir = self.saves.parent().unwrap_or_else(|| Path::new("."));
+                crate::addons_ui::draw(batch, atlas, &self.addons, dir, cursor);
             }
             Mode::Select { worlds, selected } => {
                 let dy = self.top_bar_offset();
@@ -3583,6 +3606,15 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
         {
             return (self.tab_action(tab), true);
         }
+        if matches!(self.mode, Mode::Addons) {
+            let dir = self.saves.parent().unwrap_or_else(|| Path::new("."));
+            match crate::addons_ui::click(&mut self.addons, dir, (x, y), (w, h)) {
+                crate::addons_ui::Outcome::None => {}
+                crate::addons_ui::Outcome::Back | crate::addons_ui::Outcome::Changed => {
+                    return (Action::None, true);
+                }
+            }
+        }
         // MenuTabBar: a new tab clears the focus and clicks.
         if let Some(tab) = create_world::tab_at(w, (x, y))
             && matches!(self.mode, Mode::Create { .. })
@@ -3668,7 +3700,11 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
                 };
                 Action::None
             }
-            Tab::Addons => Action::None,
+            Tab::Addons => {
+                self.focused_button = None;
+                self.mode = Mode::Addons;
+                Action::None
+            }
             Tab::Options => Action::Options,
         }
     }
@@ -3712,6 +3748,10 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
             }
             (Mode::Main, Some(8)) => {
                 self.mode = Mode::Realms(crate::realms::Screen::new());
+                Action::None
+            }
+            (Mode::Addons, Some(90)) => {
+                self.mode = Mode::Main;
                 Action::None
             }
             (Mode::Realms(screen), hit) => match screen.click(hit, x, y, (w, h)) {
@@ -4856,6 +4896,11 @@ Would you like to enable the Narrator or visit the Accessibility Settings?",
             Mode::Onboarding(_) => self.onboarding_close(),
             // ConfirmScreen.keyPressed: Escape answers no, which runs `next`.
             Mode::BanNotice(_) => self.next_ban_notice(),
+            Mode::Addons => {
+                if self.addons.open.take().is_none() {
+                    self.mode = Mode::Main;
+                }
+            }
             _ => self.mode = Mode::Main,
         }
     }

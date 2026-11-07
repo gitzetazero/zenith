@@ -2647,3 +2647,20 @@ fn the_main_menu_layout_holds_every_button_and_fits_small_windows() {
         );
     }
 }
+
+#[test]
+fn the_addons_screens_back_button_returns_to_the_title() {
+    let mut f = Fixture::new();
+    f.title.mode = Mode::Addons;
+    let size = (427.0, 240.0);
+    let back = f
+        .title
+        .buttons(size.0, size.1)
+        .into_iter()
+        .find(|b| b.id == 90)
+        .expect("the Addons screen has a Back button");
+    let (action, sound) = f.title.click(back.x + 1.0, back.y + 1.0, size);
+    assert_eq!(action, Action::None);
+    assert!(sound);
+    assert!(matches!(f.title.mode, Mode::Main));
+}
