@@ -22696,7 +22696,13 @@ pub fn run_with() -> Result<()> {
     mods::register_components(&vanilla_root)?;
     mods::register_standalone_models();
     mods::register_layer_definitions();
-    let mut early_settings = Settings::load(&Game::options_path());
+    let options_path = Game::options_path();
+    zenith_client::theme::set(crate::ui_theme::load_theme(
+        options_path
+            .parent()
+            .unwrap_or_else(|| std::path::Path::new(".")),
+    ));
+    let mut early_settings = Settings::load(&options_path);
     // Minecraft.<init>: read the last start's flag, then mark this one as not
     // finished until onGameLoadFinished. A dedicated server has no options.txt.
     if options.execution_role.is_client() {

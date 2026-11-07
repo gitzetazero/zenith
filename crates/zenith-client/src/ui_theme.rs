@@ -39,6 +39,18 @@ pub(crate) fn set_preference(dir: &Path, key: &str, value: Option<&str>) {
     let _ = std::fs::write(dir.join("horizon.txt"), out);
 }
 
+/// The interface theme saved in `horizon.txt` (`uiTheme`); absent or unreadable means
+/// `Zenith`, the look the game ships with.
+pub fn load_theme(dir: &Path) -> crate::theme::UiTheme {
+    use crate::theme::UiTheme;
+    preference(dir, "uiTheme").map_or(UiTheme::Zenith, |v| UiTheme::parse(&v))
+}
+
+/// Keep the picked theme in `horizon.txt`.
+pub fn save_theme(dir: &Path, theme: crate::theme::UiTheme) {
+    set_preference(dir, "uiTheme", Some(theme.key()));
+}
+
 /// The dark palette (`zenith_theme::DARK`) in the HUD's colour encoding, plus the
 /// translucent plates the overlays draw over the game.
 pub(crate) mod color {
@@ -645,6 +657,27 @@ fn wrapping_lines(ui: &Ui, face: Face, size: f32, text: &str, max_w: f32) -> Vec
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_theme_preference_defaults_to_zenith_and_round_trips() {
+        use crate::theme::UiTheme;
+        let dir = std::env::temp_dir().join(format!(
+            "horizon-ui-theme-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        assert_eq!(load_theme(&dir), UiTheme::Zenith);
+        save_theme(&dir, UiTheme::Vanilla);
+        assert_eq!(preference(&dir, "uiTheme").as_deref(), Some("vanilla"));
+        assert_eq!(load_theme(&dir), UiTheme::Vanilla);
+        save_theme(&dir, UiTheme::Zenith);
+        assert_eq!(load_theme(&dir), UiTheme::Zenith);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 
     #[test]
     fn atlas_reload_regenerates_text_and_corners_at_the_same_address() {
