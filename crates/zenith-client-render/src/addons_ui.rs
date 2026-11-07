@@ -4,7 +4,7 @@
 //! events, shop and skin slots empty, so no such control exists here.
 use crate::{
     addons::{self, AddonDef, Category},
-    hud::{HudAtlas, HudBatch},
+    hud::{HudAtlas, HudBatch, ZENITH_MARK_SPRITE},
     lang,
     text::Text,
     theme::{self, UiTheme},
@@ -279,19 +279,35 @@ fn draw_settings(
                 2.0,
                 preview.accent,
             );
-            let mark = Text::literal(match option {
-                UiTheme::Zenith => "ZENITH",
-                UiTheme::Vanilla => "MINECRAFT",
+            let mark = atlas.sprites.get(ZENITH_MARK_SPRITE).map(|rect| {
+                let height = 9.0;
+                (rect, rect.w as f32 * (height / rect.h as f32), height)
             });
-            let mw = atlas.font.width_text(&mark);
-            batch.text_styled(
-                atlas,
-                &mark,
-                px + (pw - mw) / 2.0,
-                py + 13.0,
-                preview.text,
-                true,
-            );
+            match (option, mark) {
+                (UiTheme::Zenith, Some((rect, width, height))) => batch.rect_uv(
+                    px + (pw - width) / 2.0,
+                    py + 13.0,
+                    width,
+                    height,
+                    *rect,
+                    0xFFFF_FFFF,
+                ),
+                (option, _) => {
+                    let label = Text::literal(match option {
+                        UiTheme::Zenith => "ZENITH",
+                        UiTheme::Vanilla => "MINECRAFT",
+                    });
+                    let lw = atlas.font.width_text(&label);
+                    batch.text_styled(
+                        atlas,
+                        &label,
+                        px + (pw - lw) / 2.0,
+                        py + 13.0,
+                        preview.text,
+                        true,
+                    );
+                }
+            }
             for i in 0..3 {
                 let (bx, by) = (px + pw / 2.0 - 30.0, py + 26.0 + i as f32 * 7.0);
                 match option {

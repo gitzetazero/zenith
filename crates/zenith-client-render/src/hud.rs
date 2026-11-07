@@ -153,7 +153,7 @@ pub const ZENITH_MARK_SPRITE: &str = "horizon/zenith-mark";
 /// icon's plate goes transparent, and the rest is cropped to its bounding box.
 pub(crate) fn mark_image() -> Option<PackedImage> {
     let (w, h, mut pixels) = decode_bytes(zenith_theme::ICON_PNG).ok()?;
-    for px in pixels.chunks_exact_mut(4) {
+    for px in pixels.chunks_mut(4) {
         // The plate colours below saturation; the mark's whites and ambers,
         // and their edge blends, sit above.
         if px[3] < 200 || (px[0] < 100 && px[1] < 100) {
@@ -2990,9 +2990,11 @@ mod tests {
         assert!(pixels.len() == (w * h * 4) as usize);
         // Only the mark survives: no plate colour (deep violet, low red and
         // green) keeps its pixels.
-        assert!(pixels
-            .chunks_exact(4)
-            .all(|c| c[3] == 0 || c[0] >= 100 || c[1] >= 100));
+        assert!(
+            pixels
+                .chunks_exact(4)
+                .all(|c| c[3] == 0 || c[0] >= 100 || c[1] >= 100)
+        );
         // Tight crop: every border row and column touches a drawn pixel.
         let row_opaque = |y: u32| (0..w).any(|x| pixels[(y * w + x) as usize * 4 + 3] > 0);
         let col_opaque = |x: u32| (0..h).any(|y| pixels[(y * w + x) as usize * 4 + 3] > 0);
