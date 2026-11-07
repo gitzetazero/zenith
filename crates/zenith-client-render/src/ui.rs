@@ -622,6 +622,10 @@ fn button_with_room(
     }
     crate::widgets::narratable(|| narration([x, y, w, h]).hovered(hover));
     crate::widgets::widget_cursor(hover, active);
+    if crate::theme::current() == crate::theme::UiTheme::Zenith {
+        crate::ui_zenith::button(batch, atlas, [x, y, w, h], label, active, hover, room);
+        return;
+    }
     let sprite = if !active {
         "gui/sprites/widget/button_disabled"
     } else if hover {
@@ -697,6 +701,10 @@ pub fn slider_ext(
         // A controller's D-pad can focus it (Horizon's controller support).
         crate::widgets::target_as([x, y, w, 20.0], kind);
     }
+    if crate::theme::current() == crate::theme::UiTheme::Zenith {
+        crate::ui_zenith::slider(batch, atlas, x, y, w, label, value, hover, active, dragging);
+        return;
+    }
     let (track, handle) = slider_sprites_ext(hover, active, focused, can_change_value, dragging);
     nine_slice(batch, atlas, track, x, y, w, 20.0, u32::MAX);
     nine_slice(
@@ -767,6 +775,10 @@ pub fn menu_background(
     h: f32,
     in_world: bool,
 ) {
+    if crate::theme::current() == crate::theme::UiTheme::Zenith {
+        crate::ui_zenith::background(batch, atlas, x, y, w, h);
+        return;
+    }
     let sprite = if in_world {
         "gui/inworld_menu_background"
     } else {
@@ -786,6 +798,10 @@ pub fn separators(
     footer_top: f32,
     in_world: bool,
 ) {
+    if crate::theme::current() == crate::theme::UiTheme::Zenith {
+        crate::ui_zenith::separators(batch, atlas, header_bottom, footer_top);
+        return;
+    }
     let (header, footer) = if in_world {
         (
             "gui/inworld_header_separator",
@@ -826,6 +842,10 @@ pub fn list_background(
     bottom: f32,
     in_world: bool,
 ) {
+    if crate::theme::current() == crate::theme::UiTheme::Zenith {
+        crate::ui_zenith::list_background(batch, atlas, top, bottom);
+        return;
+    }
     let sprite = if in_world {
         "gui/inworld_menu_list_background"
     } else {
@@ -953,6 +973,10 @@ pub fn scrollbar_sprites(
     content: f32,
     scroll: f32,
 ) {
+    if crate::theme::current() == crate::theme::UiTheme::Zenith {
+        crate::ui_zenith::scrollbar(batch, atlas, x, top, bottom, content, scroll);
+        return;
+    }
     let Some((y, bar)) = scrollbar_thumb(top, bottom, content, scroll) else {
         return;
     };
@@ -1102,6 +1126,10 @@ fn tooltip_box(
     h: f32,
 ) {
     crate::widgets::frame_tooltip(lines);
+    if crate::theme::current() == crate::theme::UiTheme::Zenith {
+        crate::ui_zenith::tooltip_box(batch, atlas, lines, x, y, w, h);
+        return;
+    }
     nine_slice(
         batch,
         atlas,
