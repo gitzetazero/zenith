@@ -373,6 +373,7 @@ def make_keystore(work):
     subprocess.run([keytool, '-exportcert', '-rfc', '-alias', 'management', '-file', str(certificate), *common],
                    check=True, capture_output=True)
     context = ssl.create_default_context(cafile=str(certificate))
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
     # A refused request's connection may end without TLS's close_notify.
     context.options |= getattr(ssl, 'OP_IGNORE_UNEXPECTED_EOF', 0)
     return keystore, context
